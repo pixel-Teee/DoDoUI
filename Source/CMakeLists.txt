@@ -7,13 +7,21 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "SlateCore/Widgets/*.cpp"
 )
 
+file(GLOB_RECURSE Renderer_Source
+"Renderer/*.h"
+"Renderer/*.cpp"
+"Platform/VulkanRenderer/*.h"
+"Platform/VulkanRenderer/*.cpp")
+
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${Do_Do_UI_Source})
+source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${Renderer_Source})
 
 # add main.cpp to DoDoUI
 add_executable(DoDoUI
 "main.cpp"
 "PreCompileHeader.h"
-${DoDo_UI_Source})
+${Do_Do_UI_Source}
+${Renderer_Source})
 
 # ------find vulkan------
 find_package(Vulkan)

@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 //------vulkan for glfw------
 
+#include <Renderer/Renderer.h>
+
 int main()
 {
     std::cout << "Hello World" << std::endl;
@@ -17,6 +19,7 @@ int main()
         std::cout << "create glfw window error!" << std::endl;
         return -1;
     }
+    //------init glfw------
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);//don't create opengl context
 
@@ -29,6 +32,8 @@ int main()
         //draw frame
     }
 
-    //------init glfw------
+    std::unique_ptr<DoDo::UIRenderer> p_Renderer = DoDo::UIRenderer::Create();
+
+    
     return 0;
 }
