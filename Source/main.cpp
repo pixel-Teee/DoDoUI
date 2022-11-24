@@ -7,7 +7,7 @@
 
 int main()
 {
-    //std::cout << "Hello World" << std::endl;
+    std::cout << "Hello World" << std::endl;
 
     //------init glfw------
     GLFWwindow* window;
