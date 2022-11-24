@@ -1,19 +1,19 @@
 cmake_minimum_required(VERSION 3.20.0)
 
-file(GLOB_RECURSE DoDoUISource
+file(GLOB_RECURSE Do_Do_UI_Source
 "SlateCore/Layout/*.h"
 "SlateCore/Layout/*.cpp"
 "SlateCore/Widgets/*.h"
 "SlateCore/Widgets/*.cpp"
 )
 
-source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${DoDoUISource})
+source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${Do_Do_UI_Source})
 
 # add main.cpp to DoDoUI
-add_executable(DoDoUI 
+add_executable(DoDoUI
 "main.cpp"
 "PreCompileHeader.h"
-${DoDoUISource})
+${DoDo_UI_Source})
 
 # ------find vulkan------
 find_package(Vulkan)
