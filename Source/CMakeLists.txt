@@ -5,6 +5,8 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "SlateCore/Layout/*.cpp"
 "SlateCore/Widgets/*.h"
 "SlateCore/Widgets/*.cpp"
+"Application/*.h"
+"Application/*.cpp"
 )
 
 file(GLOB_RECURSE Renderer_Source
@@ -17,8 +19,7 @@ source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${Do_Do_UI_Source})
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${Renderer_Source})
 
 # add main.cpp to DoDoUI
-add_executable(DoDoUI
-"main.cpp"
+add_library(DoDoUI STATIC
 "PreCompileHeader.h"
 ${Do_Do_UI_Source}
 ${Renderer_Source})
