@@ -86,6 +86,11 @@ namespace DoDo {
 		vkDestroyDevice(m_logic_device, nullptr);
 	}
 
+	void* VulkanLogicDevice::get_native_handle()
+	{
+		return &m_logic_device;
+	}
+
 	//void VulkanLogicDevice::create_surface()
 	//{
 	//	VkWin32SurfaceCreateInfoKHR create_info{};

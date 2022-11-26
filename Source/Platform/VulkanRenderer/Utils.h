@@ -15,6 +15,14 @@ namespace DoDo {
         };
 
         QueueFamilyIndices find_queue_families(VkPhysicalDevice device, VkSurfaceKHR surface);
+
+        struct SwapChainSupportDetails {
+            VkSurfaceCapabilitiesKHR capabilities;
+            std::vector<VkSurfaceFormatKHR> formats;
+            std::vector<VkPresentModeKHR> present_modes;
+        };
+
+        SwapChainSupportDetails query_swap_chain_support(VkPhysicalDevice device, VkSurfaceKHR surface);
     }
     
 }

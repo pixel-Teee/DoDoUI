@@ -13,6 +13,7 @@
 #include "Core/Window.h"
 
 #include "Platform/VulkanRenderer/VulkanLogicDevice.h"
+#include "Platform/VulkanRenderer/VulkanSwapChain.h"
 #include "Utils.h"
 
 namespace DoDo {
@@ -183,6 +184,10 @@ namespace DoDo {
         //-----create logic device------
         m_p_logic_device = Device::CreateDevice(&m_physical_device, &m_surface);
         //-----create logic device------
+
+        //-----create swap chain------
+        m_p_swap_chain = SwapChain::Create(&m_physical_device, m_p_logic_device->get_native_handle(), &m_surface, window);
+        //-----create swap chain------
 	}
      
 	VulkanInstance::~VulkanInstance()
@@ -196,6 +201,8 @@ namespace DoDo {
         {
             destroy_debug_utils_messenger_ext(m_vulkan_instance, m_debug_messenger, nullptr);
         }
+
+        m_p_swap_chain->Destroy(m_p_logic_device->get_native_handle());
 
         //device need to destroy at there
         m_p_logic_device->destroy();
@@ -226,6 +233,7 @@ namespace DoDo {
     bool VulkanInstance::check_device_extension_support(VkPhysicalDevice device)
     {
         //check device support swap khr?
+        //check required khr is in the available khr?
         uint32_t extension_count;
 
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
@@ -260,18 +268,9 @@ namespace DoDo {
     {
         VulkanUtils::QueueFamilyIndices indices = VulkanUtils::find_queue_families(device, m_surface);
 
-       //bool extension_supported = check_device_extension_support(device);
-       //
-       //bool swap_chain_adequate = false;
-       //if (extension_supported)
-       //{
-       //   
-       //}
-       //
-       //VkPhysicalDeviceFeatures supportedFeatures;
-       //vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+        bool extension_supported = check_device_extension_support(device);
 
-        return true;
+        return indices.is_complete() && extension_supported;
     }
 
     void VulkanInstance::pick_physical_device()

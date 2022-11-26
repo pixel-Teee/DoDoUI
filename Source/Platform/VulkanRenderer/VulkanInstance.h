@@ -6,6 +6,7 @@
 
 namespace DoDo {
 	class Device;
+	class SwapChain;
 	class VulkanInstance : public RendererInstance
 	{
 	public:
@@ -37,5 +38,7 @@ namespace DoDo {
 		VkSurfaceKHR m_surface;
 
 		Scope<Device> m_p_logic_device;
+
+		Scope<SwapChain> m_p_swap_chain;
 	};
 }
