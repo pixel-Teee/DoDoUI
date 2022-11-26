@@ -13,6 +13,7 @@
 #include "Core/Window.h"
 
 #include "Platform/VulkanRenderer/VulkanLogicDevice.h"
+#include "Utils.h"
 
 namespace DoDo {
 #ifdef DEBUG
@@ -168,16 +169,16 @@ namespace DoDo {
 
         //-----after create instance to create debug messenger------
         setup_debug_message();
-        //-----after create instance to create debug messenger------
+        //-----after create instance to create debug messenger------      
+
+        //-----create surface------
+        create_surface(window);
+        //-----create surface------
 
         //-----pick a adapter------
         m_physical_device = VK_NULL_HANDLE;
         pick_physical_device();
         //-----pick a adapter------
-
-        //-----create surface------
-        create_surface(window);
-        //-----create surface------
 
         //-----create logic device------
         m_p_logic_device = Device::CreateDevice(&m_physical_device, &m_surface);
@@ -257,7 +258,19 @@ namespace DoDo {
 
     bool VulkanInstance::is_device_suitable(VkPhysicalDevice device)
     {
-        
+        VulkanUtils::QueueFamilyIndices indices = VulkanUtils::find_queue_families(device, m_surface);
+
+       //bool extension_supported = check_device_extension_support(device);
+       //
+       //bool swap_chain_adequate = false;
+       //if (extension_supported)
+       //{
+       //   
+       //}
+       //
+       //VkPhysicalDeviceFeatures supportedFeatures;
+       //vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
         return true;
     }
 
