@@ -9,6 +9,8 @@ namespace DoDo {
 
 		virtual ~Window() {}
 
+		virtual void* get_window_native_handle() = 0;
+
 		static Scope<Window> Create();
 	};
 }

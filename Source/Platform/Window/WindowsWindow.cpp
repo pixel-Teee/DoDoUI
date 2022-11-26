@@ -36,6 +36,11 @@ namespace DoDo {
         }
 	}
 
+    void* WindowsWindow::get_window_native_handle()
+    {
+        return m_p_window;
+    }
+
     void WindowsWindow::Update()
     {
         while (!glfwWindowShouldClose(m_p_window))

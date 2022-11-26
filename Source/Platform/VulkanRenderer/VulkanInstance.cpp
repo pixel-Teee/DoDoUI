@@ -1,9 +1,18 @@
+#include <PreCompileHeader.h>
 #include "VulkanInstance.h"
 
 //------vulkan for glfw------
+#define VK_USE_PLATFORM_WIN32_KHR
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#include <vulkan/vulkan_win32.h>
 //------vulkan for glfw------
+
+#include "Core/Window.h"
+
+#include "Platform/VulkanRenderer/VulkanLogicDevice.h"
 
 namespace DoDo {
 #ifdef DEBUG
@@ -14,7 +23,11 @@ namespace DoDo {
 
    static const std::vector<const char*> validation_layers = {
         "VK_LAYER_KHRONOS_validation"
-    };
+   };
+
+   static const std::vector<const char*> device_extensions = {
+       VK_KHR_SWAPCHAIN_EXTENSION_NAME
+   };
 
    static std::vector<const char*> get_required_extension()
     {
@@ -80,7 +93,7 @@ namespace DoDo {
        }
    }
 
-	VulkanInstance::VulkanInstance()
+	VulkanInstance::VulkanInstance(Window& window)
 	{
         //------get available extensions------
         uint32_t extensions_count = 0;
@@ -156,17 +169,40 @@ namespace DoDo {
         //-----after create instance to create debug messenger------
         setup_debug_message();
         //-----after create instance to create debug messenger------
+
+        //-----pick a adapter------
+        m_physical_device = VK_NULL_HANDLE;
+        pick_physical_device();
+        //-----pick a adapter------
+
+        //-----create surface------
+        create_surface(window);
+        //-----create surface------
+
+        //-----create logic device------
+        m_p_logic_device = Device::CreateDevice(&m_physical_device, &m_surface);
+        //-----create logic device------
 	}
      
 	VulkanInstance::~VulkanInstance()
 	{
+    
+	}
+
+    void VulkanInstance::Destroy()
+    {
         if (enable_validation_layers)
         {
             destroy_debug_utils_messenger_ext(m_vulkan_instance, m_debug_messenger, nullptr);
         }
 
-		vkDestroyInstance(m_vulkan_instance, nullptr);
-	}
+        //device need to destroy at there
+        m_p_logic_device->destroy();
+
+        vkDestroySurfaceKHR(m_vulkan_instance, m_surface, nullptr);
+
+        vkDestroyInstance(m_vulkan_instance, nullptr);
+    }
 
     void VulkanInstance::setup_debug_message()
     {
@@ -185,4 +221,75 @@ namespace DoDo {
         }
         //------create messenger call back------
     }
+
+    bool VulkanInstance::check_device_extension_support(VkPhysicalDevice device)
+    {
+        //check device support swap khr?
+        uint32_t extension_count;
+
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr);
+
+        std::vector<VkExtensionProperties> available_extensions(extension_count);
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, available_extensions.data());
+
+        std::set<std::string> required_extensions(device_extensions.begin(), device_extensions.end());
+
+        for (const auto& extension : available_extensions)
+        {
+            required_extensions.erase(extension.extensionName);
+        }
+
+        return required_extensions.empty();
+    }
+
+    void VulkanInstance::create_surface(Window& window)
+    {
+        VkWin32SurfaceCreateInfoKHR create_info{};
+        create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+        create_info.hwnd = glfwGetWin32Window((GLFWwindow*)window.get_window_native_handle());
+        create_info.hinstance = GetModuleHandle(nullptr);
+
+        if (vkCreateWin32SurfaceKHR(m_vulkan_instance, &create_info, nullptr, &m_surface) != VK_SUCCESS)
+        {
+            std::cout << "create surface error!" << std::endl;
+        }
+    }
+
+    bool VulkanInstance::is_device_suitable(VkPhysicalDevice device)
+    {
+        
+        return true;
+    }
+
+    void VulkanInstance::pick_physical_device()
+    {
+        //enumerate physical device
+        uint32_t device_count = 0;
+        vkEnumeratePhysicalDevices(m_vulkan_instance, &device_count, nullptr);
+
+        if (device_count == 0)
+        {
+            std::cout << "failed to find gpus with vulkan support!" << std::endl;
+        }
+
+        std::vector<VkPhysicalDevice> devices(device_count);
+        vkEnumeratePhysicalDevices(m_vulkan_instance, &device_count, devices.data());
+
+        std::multimap<int32_t, VkPhysicalDevice> candiates;
+
+        for (const auto& device : devices)
+        {
+            if (is_device_suitable(device))
+            {
+                m_physical_device = device;
+            }
+        }
+
+        if (m_physical_device == VK_NULL_HANDLE)
+        {
+            std::cout << "failed to find a suitable gpu!" << std::endl;
+        }
+    }
+
+    
 }

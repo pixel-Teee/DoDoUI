@@ -11,8 +11,8 @@ namespace DoDo {
 
     }
 
-    Scope<RendererInstance> RendererInstance::Create()
+    Scope<RendererInstance> RendererInstance::Create(Window& window)
     {
-        return CreateScope<VulkanInstance>();
+        return CreateScope<VulkanInstance>(window);
     }
 }

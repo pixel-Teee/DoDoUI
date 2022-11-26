@@ -18,6 +18,10 @@ namespace DoDo
 		void Init();
 
 		void Run();	
+
+		//Scope<Window> get_window();
+
+		const Window& get_window();
 	private:
 
 		//void CreateInstance();
