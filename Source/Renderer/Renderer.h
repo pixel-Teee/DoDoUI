@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Core.h"
+
 namespace DoDo
 {
 	//TODO:temporarily use this renderer
@@ -10,6 +12,6 @@ namespace DoDo
 
 		virtual ~UIRenderer();	
 
-		static std::unique_ptr<UIRenderer> Create();//transfer owner ship
+		static Scope<UIRenderer> Create();//transfer owner ship
 	};
 }

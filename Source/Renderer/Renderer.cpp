@@ -1,3 +1,5 @@
+#include <PreCompileHeader.h>
+
 #include "Renderer.h"
 
 #include "Platform/VulkanRenderer/VulkanRenderer.h"
@@ -7,8 +9,8 @@ namespace DoDo {
 	{
 	}
 
-	std::unique_ptr<UIRenderer> UIRenderer::Create()
+	Scope<UIRenderer> UIRenderer::Create()
 	{
-		return std::make_unique<VulkanRenderer>();//transfer owner ship
+		return CreateScope<VulkanRenderer>();
 	}
 }
