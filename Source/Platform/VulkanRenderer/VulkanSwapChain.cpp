@@ -46,7 +46,7 @@ namespace DoDo {
 	static VkSurfaceFormatKHR choose_swap_surface_format(std::vector<VkSurfaceFormatKHR> available_formats)
 	{
 		for (const auto& availableFormat : available_formats) {
-			if (availableFormat.format == VK_FORMAT_B8G8R8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+			if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 				return availableFormat;
 		}
 
@@ -81,13 +81,15 @@ namespace DoDo {
 		}
 	}
 
-	VulkanSwapChain::VulkanSwapChain(void* vulkan_physical_device, void* logic_device, void* surface, Window& window)
+	VulkanSwapChain::VulkanSwapChain(void* vulkan_physical_device, void* logic_device, void* surface, void* render_pass, Window& window)
 	{
 		VkPhysicalDevice physical_device = *(VkPhysicalDevice*)vulkan_physical_device;
 
 		VkDevice device = *(VkDevice*)logic_device;
 
 		VkSurfaceKHR surface_khr = *(VkSurfaceKHR*)surface;
+
+		VkRenderPass pass = *(VkRenderPass*)render_pass;
 
 		VulkanUtils::SwapChainSupportDetails swap_chain_support_details;
 
@@ -156,6 +158,8 @@ namespace DoDo {
 		//------create swap chain------
 
 		create_image_views(device);
+
+		create_frame_buffers(device, pass);
 	}
 	VulkanSwapChain::~VulkanSwapChain()
 	{
@@ -164,6 +168,11 @@ namespace DoDo {
 	void VulkanSwapChain::Destroy(void* logic_device)
 	{
 		VkDevice device = *(VkDevice*)logic_device;
+
+		for (size_t i = 0; i < m_swap_chain_frame_buffers.size(); ++i)
+		{
+			vkDestroyFramebuffer(device, m_swap_chain_frame_buffers[i], nullptr);
+		}
 		
 		for (size_t i = 0; i < m_swap_chain_image_views.size(); ++i)
 		{
@@ -173,6 +182,23 @@ namespace DoDo {
 		vkDestroySwapchainKHR(device, m_swap_chain, nullptr);
 	}
 
+	void* VulkanSwapChain::get_native_handle()
+	{
+		return &m_swap_chain;
+	}
+
+	void* VulkanSwapChain::get_framebuffer(uint32_t index)
+	{
+		VkFramebuffer frame_buffer = m_swap_chain_frame_buffers[index];
+		//frame_index = (frame_index + 1) % 2;
+		return &frame_buffer;
+	}
+
+	std::pair<uint32_t, uint32_t> VulkanSwapChain::get_swap_chain_extent()
+	{
+		return std::make_pair(m_extent_2d.width, m_extent_2d.height);
+	}
+
 	void VulkanSwapChain::create_image_views(VkDevice logic_device)
 	{
 		m_swap_chain_image_views.resize(m_swap_chain_images.size());
@@ -180,6 +206,31 @@ namespace DoDo {
 		for (size_t i = 0; i < m_swap_chain_images.size(); ++i)
 		{
 			m_swap_chain_image_views[i] = create_image_view(m_swap_chain_images[i], m_surface_format.format, VK_IMAGE_ASPECT_COLOR_BIT, logic_device);
+		}
+	}
+
+	void VulkanSwapChain::create_frame_buffers(VkDevice logic_device, VkRenderPass render_pass)
+	{
+		//render pass describes how to control image and how to clear image
+		m_swap_chain_frame_buffers.resize(m_swap_chain_image_views.size());
+
+		for (size_t i = 0; i < m_swap_chain_frame_buffers.size(); ++i)
+		{
+			VkImageView attachments[] = { m_swap_chain_image_views[i] };
+
+			VkFramebufferCreateInfo frame_buffer_info{};
+			frame_buffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			frame_buffer_info.renderPass = render_pass;//render pass;
+			frame_buffer_info.attachmentCount = 1;
+			frame_buffer_info.pAttachments = attachments;
+			frame_buffer_info.width = m_extent_2d.width;
+			frame_buffer_info.height = m_extent_2d.height;
+			frame_buffer_info.layers = 1;
+
+			if (vkCreateFramebuffer(logic_device, &frame_buffer_info, nullptr, &m_swap_chain_frame_buffers[i]) != VK_SUCCESS)
+			{
+				std::cout << "failed to create framebuffer" << std::endl;
+			}
 		}
 	}
 

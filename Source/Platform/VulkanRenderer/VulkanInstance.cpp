@@ -14,6 +14,8 @@
 
 #include "Platform/VulkanRenderer/VulkanLogicDevice.h"
 #include "Platform/VulkanRenderer/VulkanSwapChain.h"
+#include "Platform/VulkanRenderer/VulkanShader.h"
+#include "Platform/VulkanRenderer/VulkanPipelineStateObject.h"
 #include "Utils.h"
 
 namespace DoDo {
@@ -185,14 +187,33 @@ namespace DoDo {
         m_p_logic_device = Device::CreateDevice(&m_physical_device, &m_surface);
         //-----create logic device------
 
+        //------test------
+        m_vertex_shader_module = Shader::Create("BootStrap//Shader//vert.spv", m_p_logic_device->get_native_handle());
+        m_fragment_shader_module = Shader::Create("BootStrap//Shader//frag.spv", m_p_logic_device->get_native_handle());
+
+        m_pipeline_state_object = PipelineStateObject::Create(m_p_logic_device->get_native_handle());
+
+        std::string target_point = "main";
+
+        m_pipeline_state_object->set_vertex_shader(*m_vertex_shader_module, target_point);
+        m_pipeline_state_object->set_pixel_shader(*m_fragment_shader_module, target_point);
+        m_pipeline_state_object->finalize(m_p_logic_device->get_native_handle());
+        //------test------
+
         //-----create swap chain------
-        m_p_swap_chain = SwapChain::Create(&m_physical_device, m_p_logic_device->get_native_handle(), &m_surface, window);
+        m_p_swap_chain = SwapChain::Create(&m_physical_device, m_p_logic_device->get_native_handle(), &m_surface, m_pipeline_state_object->get_render_pass_native_handle(), window);
         //-----create swap chain------
+
+        //-----test------
+        create_command_pool();
+        create_command_buffer();
+        create_sync_objects();
+        //-----test------
 	}
      
 	VulkanInstance::~VulkanInstance()
 	{
-    
+        
 	}
 
     void VulkanInstance::Destroy()
@@ -202,7 +223,23 @@ namespace DoDo {
             destroy_debug_utils_messenger_ext(m_vulkan_instance, m_debug_messenger, nullptr);
         }
 
+        VkDevice device = *(VkDevice*)m_p_logic_device->get_native_handle();
+
+        vkDestroySemaphore(device, m_image_available_semaphore, nullptr);
+
+        vkDestroySemaphore(device, m_render_finished_semaphore, nullptr);
+
+        vkDestroyFence(device, m_flight_fence, nullptr);
+
+        vkDestroyCommandPool(device, m_command_pool, nullptr);
+
+        m_pipeline_state_object->Destroy(m_p_logic_device->get_native_handle());
+
         m_p_swap_chain->Destroy(m_p_logic_device->get_native_handle());
+
+        m_vertex_shader_module->Destroy(m_p_logic_device->get_native_handle());
+
+        m_fragment_shader_module->Destroy(m_p_logic_device->get_native_handle());
 
         //device need to destroy at there
         m_p_logic_device->destroy();
@@ -251,6 +288,183 @@ namespace DoDo {
         return required_extensions.empty();
     }
 
+    void VulkanInstance::create_command_pool()
+    {
+        VkDevice device = *(VkDevice*)m_p_logic_device->get_native_handle();
+        VulkanUtils::QueueFamilyIndices queue_family_indices = VulkanUtils::find_queue_families(m_physical_device, m_surface);
+
+        VkCommandPoolCreateInfo pool_info{};
+        pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+        pool_info.queueFamilyIndex = queue_family_indices.graphics_family.value();
+
+        if (vkCreateCommandPool(device, &pool_info, nullptr, &m_command_pool) != VK_SUCCESS)
+        {
+            std::cout << "create command pool error!" << std::endl;
+        }
+    }
+
+    void VulkanInstance::create_command_buffer()
+    {
+        VkDevice device = *(VkDevice*)m_p_logic_device->get_native_handle();
+        VkCommandBufferAllocateInfo alloc_info{};
+        alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        alloc_info.commandPool = m_command_pool;
+        alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        alloc_info.commandBufferCount = 1;
+
+        if (vkAllocateCommandBuffers(device, &alloc_info, &m_command_buffer) != VK_SUCCESS)
+        {
+            std::cout << "failed to allocate command buffers" << std::endl;
+        }
+    }
+
+    void VulkanInstance::record_command_buffer(uint32_t image_index)
+    {
+        VkCommandBufferBeginInfo begin_info{};
+        begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        begin_info.flags = 0;//optional
+        begin_info.pInheritanceInfo = nullptr;//optional
+
+        if (vkBeginCommandBuffer(m_command_buffer, &begin_info) != VK_SUCCESS)
+        {
+            std::cout << "failed to begin recording command buffer" << std::endl;
+        }
+
+        VkRenderPass render_pass = *(VkRenderPass*)m_pipeline_state_object->get_render_pass_native_handle();
+
+        VkFramebuffer frame_buffer = *(VkFramebuffer*)m_p_swap_chain->get_framebuffer(image_index);
+
+        VkRenderPassBeginInfo render_pass_info{};
+        render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        render_pass_info.renderPass = render_pass;
+        render_pass_info.framebuffer = frame_buffer;
+
+        render_pass_info.renderArea.offset = { 0, 0 };
+
+        VkExtent2D extent;
+        std::pair<uint32_t, uint32_t> width_and_height = m_p_swap_chain->get_swap_chain_extent();
+        extent.width = width_and_height.first;
+        extent.height = width_and_height.second;
+
+        render_pass_info.renderArea.extent = extent;
+
+        VkClearValue clear_color = { 0.0f, 0.0f, 0.0f, 1.0f };
+        render_pass_info.clearValueCount = 1;
+        render_pass_info.pClearValues = &clear_color;
+        
+        vkCmdBeginRenderPass(m_command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
+        //render_pass_info.renderArea.extent = m_p_swap_chain->
+
+        VkViewport view_port;
+        view_port.width = 1280;
+        view_port.height = 720;
+        view_port.x = 0;
+        view_port.y = 0;
+        view_port.minDepth = 0.0f;
+        view_port.maxDepth = 1.0f;
+
+        vkCmdSetViewport(m_command_buffer, 0, 1, &view_port);
+
+        VkRect2D scissor;
+        //VkExtent2D extent;
+        extent.width = 1280;
+        extent.height = 720;
+        scissor.extent = extent;
+        scissor.offset = { 0, 0 };
+
+        vkCmdSetScissor(m_command_buffer, 0, 1, &scissor);
+
+        VkPipeline pipeline = *(VkPipeline*)m_pipeline_state_object->get_native_handle();
+
+        vkCmdBindPipeline(m_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
+        vkCmdDraw(m_command_buffer, 3, 1, 0, 0);
+
+        vkCmdEndRenderPass(m_command_buffer);
+
+        if (vkEndCommandBuffer(m_command_buffer) != VK_SUCCESS)
+        {
+            std::cout << "failed to record command buffer!" << std::endl;
+        }
+    }
+    void VulkanInstance::create_sync_objects()
+    {
+        VkSemaphoreCreateInfo semaphore_create_info{};
+        semaphore_create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        VkFenceCreateInfo fence_create_info{};
+        fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        VkDevice device = *(VkDevice*)m_p_logic_device->get_native_handle();
+
+        if ((vkCreateSemaphore(device, &semaphore_create_info, nullptr, &m_image_available_semaphore) != VK_SUCCESS) ||
+            (vkCreateSemaphore(device, &semaphore_create_info, nullptr, &m_render_finished_semaphore) != VK_SUCCESS) ||
+            (vkCreateFence(device, &fence_create_info, nullptr, &m_flight_fence) != VK_SUCCESS))
+        {
+            std::cout << "failed to create semaphores" << std::endl;
+        }
+    }
+
+
+    void VulkanInstance::draw_frame()
+    {
+        VkDevice device = *(VkDevice*)m_p_logic_device->get_native_handle();
+
+        vkWaitForFences(device, 1, &m_flight_fence, VK_TRUE, UINT64_MAX);
+
+        vkResetFences(device, 1, &m_flight_fence);
+
+        uint32_t image_index;
+
+        VkSwapchainKHR swap_chain_khr = *(VkSwapchainKHR*)m_p_swap_chain->get_native_handle();
+
+        vkAcquireNextImageKHR(device, swap_chain_khr, UINT64_MAX, m_image_available_semaphore, VK_NULL_HANDLE, &image_index);
+
+        //make sure it to be recorded
+        vkResetCommandBuffer(m_command_buffer, 0);
+
+        record_command_buffer(image_index);
+
+        VkSubmitInfo submit_info{};
+        submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        
+        VkSemaphore wait_semaphores[] = { m_image_available_semaphore };
+        VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        submit_info.waitSemaphoreCount = 1;
+        submit_info.pWaitSemaphores = wait_semaphores;
+        submit_info.pWaitDstStageMask = wait_stages;
+        submit_info.commandBufferCount = 1;
+        submit_info.pCommandBuffers = &m_command_buffer;
+
+        VkSemaphore signal_semaphores[] = { m_render_finished_semaphore };
+        submit_info.signalSemaphoreCount = 1;
+        submit_info.pSignalSemaphores = signal_semaphores;
+
+        VkQueue graphics_queue = *(VkQueue*)m_p_logic_device->get_graphics_queue();
+
+        VkQueue present_queue = *(VkQueue*)m_p_logic_device->get_present_queue();
+
+        if (vkQueueSubmit(graphics_queue, 1, &submit_info, m_flight_fence) != VK_SUCCESS)
+        {
+            std::cout << "failed to submit draw command buffer!" << std::endl;
+        }
+
+        VkPresentInfoKHR present_info{};
+        present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        present_info.waitSemaphoreCount = 1;
+        present_info.pWaitSemaphores = signal_semaphores;
+
+        VkSwapchainKHR swap_chains[] = { swap_chain_khr };
+        present_info.swapchainCount = 1;
+        present_info.pSwapchains = swap_chains;
+        present_info.pImageIndices = &image_index;
+        present_info.pResults = nullptr;
+
+        vkQueuePresentKHR(present_queue, &present_info);
+    }
+
     void VulkanInstance::create_surface(Window& window)
     {
         VkWin32SurfaceCreateInfoKHR create_info{};
@@ -271,6 +485,12 @@ namespace DoDo {
         bool extension_supported = check_device_extension_support(device);
 
         return indices.is_complete() && extension_supported;
+    }
+
+    void VulkanInstance::wait_for_idle()
+    {
+        VkDevice device = *(VkDevice*)m_p_logic_device->get_native_handle();
+        vkDeviceWaitIdle(device);
     }
 
     void VulkanInstance::pick_physical_device()

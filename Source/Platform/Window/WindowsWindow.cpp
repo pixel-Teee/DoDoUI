@@ -7,6 +7,8 @@
 #include <GLFW/glfw3.h>
 //------vulkan for glfw------
 
+#include "Renderer/RendererInstance.h"
+
 namespace DoDo {
 	WindowsWindow::WindowsWindow()
 	{
@@ -41,13 +43,16 @@ namespace DoDo {
         return m_p_window;
     }
 
-    void WindowsWindow::Update()
+    void WindowsWindow::Update(RendererInstance& render_instance)
     {
         while (!glfwWindowShouldClose(m_p_window))
         {
             glfwPollEvents();
 
             //draw frame
+            render_instance.draw_frame();
         }
+
+        render_instance.wait_for_idle();
     }
 }

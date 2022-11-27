@@ -74,6 +74,9 @@ namespace DoDo {
 			//throw std::runtime_error("failed to create logical device!");
 			std::cout << "failed to create logical device!" << std::endl;
 		}
+
+		vkGetDeviceQueue(m_logic_device, indices.graphics_family.value(), 0, &m_graphics_queue);
+		vkGetDeviceQueue(m_logic_device, indices.present_family.value(), 0, &m_present_queue);
 	}
 	VulkanLogicDevice::~VulkanLogicDevice()
 	{
@@ -89,6 +92,16 @@ namespace DoDo {
 	void* VulkanLogicDevice::get_native_handle()
 	{
 		return &m_logic_device;
+	}
+
+	void* VulkanLogicDevice::get_graphics_queue()
+	{
+		return &m_graphics_queue;
+	}
+
+	void* VulkanLogicDevice::get_present_queue()
+	{
+		return &m_present_queue;
 	}
 
 	//void VulkanLogicDevice::create_surface()

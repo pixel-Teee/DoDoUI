@@ -13,7 +13,7 @@ namespace DoDo {
 
 		virtual void* get_window_native_handle() override;
 
-		virtual void Update() override;
+		virtual void Update(RendererInstance& render_instance) override;
 	private:
 		//windows window owner this lifetime
 		GLFWwindow* m_p_window;
