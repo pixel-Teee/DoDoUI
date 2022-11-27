@@ -24,7 +24,7 @@ namespace DoDo {
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);//don't create opengl context
 
-        m_p_window = glfwCreateWindow(800, 600, "window", nullptr, nullptr);
+        m_p_window = glfwCreateWindow(1280, 720, "window", nullptr, nullptr);
 	}
 	WindowsWindow::~WindowsWindow()
 	{
