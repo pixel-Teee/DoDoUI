@@ -189,9 +189,9 @@ namespace DoDo {
 
 	void* VulkanSwapChain::get_framebuffer(uint32_t index)
 	{
-		VkFramebuffer frame_buffer = m_swap_chain_frame_buffers[index];
+		//VkFramebuffer frame_buffer = m_swap_chain_frame_buffers[index];
 		//frame_index = (frame_index + 1) % 2;
-		return &frame_buffer;
+		return &m_swap_chain_frame_buffers[index];
 	}
 
 	std::pair<uint32_t, uint32_t> VulkanSwapChain::get_swap_chain_extent()
