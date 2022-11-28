@@ -52,3 +52,11 @@ target_include_directories(DoDoUI PRIVATE ".")
 
 # pch
 target_precompile_headers(DoDoUI PRIVATE "PreCompileHeader.h")
+
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+	message("set linux macro success!")
+    target_compile_definitions(DoDoUI PRIVATE -DLinux)
+elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
+	message("set windows macro success!")
+	target_compile_definitions(DoDoUI PRIVATE -DWIN32)
+endif()

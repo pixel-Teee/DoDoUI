@@ -1,14 +1,25 @@
 #include <PreCompileHeader.h>
 #include "VulkanInstance.h"
 
-//------vulkan for glfw------
-#define VK_USE_PLATFORM_WIN32_KHR
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
-#include <vulkan/vulkan_win32.h>
-//------vulkan for glfw------
+#ifdef WIN32
+    //------vulkan for glfw------
+    #define VK_USE_PLATFORM_WIN32_KHR
+    #define GLFW_INCLUDE_VULKAN
+    #include <GLFW/glfw3.h>
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #include <GLFW/glfw3native.h>
+    #include <vulkan/vulkan_win32.h>
+    //------vulkan for glfw------
+#elif defined Linux
+    //------vulkan for glfw------
+    #define VK_USE_PLATFORM_XLIB_KHR
+    #define GLFW_INCLUDE_VULKAN
+    #include <GLFW/glfw3.h>
+    #define GLFW_EXPOSE_NATIVE_X11
+    #include <GLFW/glfw3native.h>
+    #include <vulkan/vulkan_xlib.h>
+    //------vulkan for glfw------
+#endif
 
 #include "Core/Window.h"
 
@@ -188,8 +199,8 @@ namespace DoDo {
         //-----create logic device------
 
         //------test------
-        m_vertex_shader_module = Shader::Create("BootStrap//Shader//vert.spv", m_p_logic_device->get_native_handle());
-        m_fragment_shader_module = Shader::Create("BootStrap//Shader//frag.spv", m_p_logic_device->get_native_handle());
+        m_vertex_shader_module = Shader::Create("Shader//vert.spv", m_p_logic_device->get_native_handle());
+        m_fragment_shader_module = Shader::Create("Shader//frag.spv", m_p_logic_device->get_native_handle());
 
         m_pipeline_state_object = PipelineStateObject::Create(m_p_logic_device->get_native_handle());
 
@@ -467,12 +478,10 @@ namespace DoDo {
 
     void VulkanInstance::create_surface(Window& window)
     {
-        VkWin32SurfaceCreateInfoKHR create_info{};
-        create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-        create_info.hwnd = glfwGetWin32Window((GLFWwindow*)window.get_window_native_handle());
-        create_info.hinstance = GetModuleHandle(nullptr);
+        GLFWwindow* window_handle = (GLFWwindow*)(window.get_window_native_handle());
+        VkResult result = glfwCreateWindowSurface(m_vulkan_instance, window_handle, nullptr, &m_surface);
 
-        if (vkCreateWin32SurfaceKHR(m_vulkan_instance, &create_info, nullptr, &m_surface) != VK_SUCCESS)
+        if(result != VK_SUCCESS)
         {
             std::cout << "create surface error!" << std::endl;
         }

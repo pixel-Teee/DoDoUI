@@ -6,14 +6,25 @@
 
 #include "Core/Window.h"
 
-//------vulkan for glfw------
-#define VK_USE_PLATFORM_WIN32_KHR
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
-#include <vulkan/vulkan_win32.h>
-//------vulkan for glfw------
+#ifdef WIN32
+    //------vulkan for glfw------
+    #define VK_USE_PLATFORM_WIN32_KHR
+    #define GLFW_INCLUDE_VULKAN
+    #include <GLFW/glfw3.h>
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #include <GLFW/glfw3native.h>
+    #include <vulkan/vulkan_win32.h>
+    //------vulkan for glfw------
+#elif defined Linux
+    //------vulkan for glfw------
+    #define VK_USE_PLATFORM_XLIB_KHR
+    #define GLFW_INCLUDE_VULKAN
+    #include <GLFW/glfw3.h>
+    #define GLFW_EXPOSE_NATIVE_X11
+    #include <GLFW/glfw3native.h>
+    #include <vulkan/vulkan_xlib.h>
+    //------vulkan for glfw------
+#endif
 
 namespace DoDo {
 	static VulkanUtils::SwapChainSupportDetails query_swap_chain_support(VkPhysicalDevice vulkan_physical_device, VkSurfaceKHR surface)
