@@ -140,8 +140,8 @@ namespace DoDo {
         create_info.pApplicationInfo = &app_info;
 
         //from glfw to get extensions
-        uint32_t glfw_extension_count = 0;
-        const char** glfw_extensions;
+        //uint32_t glfw_extension_count = 0;
+        //const char** glfw_extensions;
 
         //glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 

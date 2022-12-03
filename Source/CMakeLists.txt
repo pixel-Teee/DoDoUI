@@ -5,8 +5,12 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "SlateCore/Layout/*.cpp"
 "SlateCore/Widgets/*.h"
 "SlateCore/Widgets/*.cpp"
+"SlateCore/Rendering/*.h"
+"SlateCore/Rendering/*.cpp"
 "Core/*.h"
 "Core/*.cpp"
+"Core/Math/*.h"
+"Core/Math/*.cpp"
 "Application/*.h"
 "Application/*.cpp"
 )
