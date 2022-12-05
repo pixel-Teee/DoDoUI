@@ -33,6 +33,10 @@ namespace DoDo {
                     {
                         indices.present_family = i;
                     }
+                    else//TODO:for android test
+                    {
+                        indices.present_family = 0;
+                    }
 
                     if (indices.is_complete())
                     {

@@ -24,6 +24,8 @@
     #include <GLFW/glfw3native.h>
     #include <vulkan/vulkan_xlib.h>
     //------vulkan for glfw------
+#elif defined Android
+	#include <android_native_app_glue.h>
 #endif
 
 namespace DoDo {
@@ -76,9 +78,14 @@ namespace DoDo {
 		}
 		else
 		{
+#ifndef Android
 			int width, height;
 			glfwGetFramebufferSize((GLFWwindow*)window.get_window_native_handle(), &width, &height);
-
+#else
+			int width, height;
+			width = ANativeWindow_getWidth((ANativeWindow*)window.get_window_native_handle());
+			height = ANativeWindow_getHeight((ANativeWindow*)window.get_window_native_handle());
+#endif
 			VkExtent2D actualExtent = {
 				static_cast<uint32_t>(width),
 				static_cast<uint32_t>(height)

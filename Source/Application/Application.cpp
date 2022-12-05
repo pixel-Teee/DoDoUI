@@ -14,6 +14,7 @@ namespace DoDo
     Application::Application()
     {
         //m_p_vk_instance = CreateScope<VkInstance>();
+        m_p_window = Window::Create();
     }
         
 
@@ -34,7 +35,7 @@ namespace DoDo
 
         std::cout << "Hello World" << std::endl;
 
-        m_p_window = Window::Create();
+
 
         m_renderer_instance = RendererInstance::Create(*m_p_window);
 
@@ -47,7 +48,7 @@ namespace DoDo
         m_p_window->Update(*m_renderer_instance);
     }
 
-    const Window& Application::get_window()
+    Window& Application::get_window()
     {
         return *m_p_window;
     }

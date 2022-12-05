@@ -1,12 +1,19 @@
 cmake_minimum_required(VERSION 3.20.0)
 
-add_executable(BootStrap
-"main.cpp")
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
+	add_executable(BootStrap "main.cpp")
+else()
+	add_library(BootStrap SHARED "main.cpp")
+endif()
 
 # link libraries
 target_link_libraries(BootStrap PRIVATE DoDoUI)
 
 target_include_directories(BootStrap PRIVATE "${CMAKE_SOURCE_DIR}/Source")
+
+if(CMAKE_SYSTEM_NAME MATCHES "Android")
+	target_include_directories(BootStrap PRIVATE "${ANDROID_NDK}/sources/android/native_app_glue")
+endif()
 
 if(MSVC)
 	message("set working directroy success!")

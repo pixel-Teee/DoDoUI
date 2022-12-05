@@ -19,6 +19,9 @@
     #include <GLFW/glfw3native.h>
     #include <vulkan/vulkan_xlib.h>
     //------vulkan for glfw------
+#elif defined Android
+    #include <android_native_app_glue.h>
+    #include <vulkan/vulkan_android.h>
 #endif
 
 #include "Core/Window.h"
@@ -31,7 +34,7 @@
 
 namespace DoDo {
 #ifdef DEBUG
-    static constexpr bool enable_validation_layers = true;
+    static constexpr bool enable_validation_layers = false;
 #else
     static constexpr bool enable_validation_layers = false;
 #endif
@@ -44,15 +47,20 @@ namespace DoDo {
        VK_KHR_SWAPCHAIN_EXTENSION_NAME
    };
 
+
    static std::vector<const char*> get_required_extension()
     {
+#ifndef Android
         uint32_t glfw_extension_count = 0;
         const char** glfw_extensions;
         glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
         //copy [begin, end] to extensions
         std::vector<const char*> extensions(glfw_extensions, glfw_extensions + glfw_extension_count);
-
+#else
+        std::vector<const char*> extensions;
+        extensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+#endif
         if (enable_validation_layers)
         {
             extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -60,6 +68,7 @@ namespace DoDo {
 
         return extensions;
     }
+
 
    static VKAPI_ATTR VkBool32 VKAPI_CALL debug_call_back(
         VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,
@@ -199,8 +208,14 @@ namespace DoDo {
         //-----create logic device------
 
         //------test------
-        m_vertex_shader_module = Shader::Create("Shader//vert.spv", m_p_logic_device->get_native_handle());
-        m_fragment_shader_module = Shader::Create("Shader//frag.spv", m_p_logic_device->get_native_handle());
+        //std::filesystem::path _path = std::filesystem::current_path();
+        //std::string _path2 = _path.string();
+        //std::string _path3 = "/storage/Shader/vert.spv";
+        //bool is_exist = std::filesystem::exists(_path3);
+        //m_vertex_shader_module = Shader::Create("/storage/Shader/vert.spv", m_p_logic_device->get_native_handle());
+        //m_fragment_shader_module = Shader::Create("/storage/Shader/frag.spv", m_p_logic_device->get_native_handle());
+        m_vertex_shader_module = Shader::Create("Shader/vert.spv", m_p_logic_device->get_native_handle());
+        m_fragment_shader_module = Shader::Create("Shader/frag.spv", m_p_logic_device->get_native_handle());
 
         m_pipeline_state_object = PipelineStateObject::Create(m_p_logic_device->get_native_handle());
 
@@ -478,6 +493,7 @@ namespace DoDo {
 
     void VulkanInstance::create_surface(Window& window)
     {
+#ifndef Android
         GLFWwindow* window_handle = (GLFWwindow*)(window.get_window_native_handle());
         VkResult result = glfwCreateWindowSurface(m_vulkan_instance, window_handle, nullptr, &m_surface);
 
@@ -485,6 +501,19 @@ namespace DoDo {
         {
             std::cout << "create surface error!" << std::endl;
         }
+#else
+        ANativeWindow* window_handle = (ANativeWindow*)(window.get_window_native_handle());
+        VkAndroidSurfaceCreateInfoKHR create_info{};
+        create_info.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+        create_info.window = window_handle;
+
+        VkResult result = vkCreateAndroidSurfaceKHR(m_vulkan_instance, &create_info, nullptr, &m_surface);
+
+        if(result != VK_SUCCESS)
+        {
+            std::cout << "create surface error!" << std::endl;
+        }
+#endif
     }
 
     bool VulkanInstance::is_device_suitable(VkPhysicalDevice device)

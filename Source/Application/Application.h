@@ -21,7 +21,7 @@ namespace DoDo
 
 		//Scope<Window> get_window();
 
-		const Window& get_window();
+		Window& get_window();
 	private:
 
 		//void CreateInstance();
