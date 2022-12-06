@@ -13,6 +13,8 @@ jobs:
         # uses: humbletim/setup-vulkan-sdk@72eed4b9dbeac5de168f83da8e30b1d0f8ac7f14
         uses: humbletim/setup-vulkan-sdk@v1.2.0
         with:
+          # Vulkan SDK release version (download configuration file from LunarG web services)
+          vulkan-query-version: 1.2.162.0
           # specify which Vulkan SDK components to install, e.g. Vulkan-Headers, Vulkan-Loader, Glslang
           vulkan-components: Vulkan-Headers, Vulkan-Loader
           # specify whether to cache VULKAN_SDK/ results between runs (using github actions/cache)
