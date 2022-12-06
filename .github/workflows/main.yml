@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is build the project 🚀
 on: workflow_dispatch
 jobs:
   Build-Action:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
@@ -16,14 +16,14 @@ jobs:
           # official Vulkan SDK release version to use
           version: 1.2.198.1
           # whether to cache the downloaded vulkan_sdk.* installer file (using github actions/cache)
-          cache: false
+          cache: true
           # silence GitHub Annotation notice displayed if resolving `latest` into Vulkan SDK release number
           quiet: false
       - name: Check out repository code
         uses: actions/checkout@v3
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
+      - name: build project
         run: |
           git submodule update --init --recursive
           cmake -B build -DCMAKE_BUILD_TYPE=Debug
