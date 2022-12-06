@@ -24,19 +24,20 @@ namespace DoDo {
                     if (queue_families.queueFlags & VK_QUEUE_GRAPHICS_BIT)
                     {
                         indices.graphics_family = i;
+                        indices.present_family = i;
                     }
 
                     VkBool32 present_support = false;
-                    vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &present_support);
+                    //VkResult result = vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &present_support);
 
-                    if (present_support)
-                    {
-                        indices.present_family = i;
-                    }
-                    //else
+                    //if (present_support)
                     //{
-                    //    indices.present_family = 0;
+                    //    indices.present_family = i;
                     //}
+                    //else
+                    {
+
+                    }
 
                     if (indices.is_complete())
                     {

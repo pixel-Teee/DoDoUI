@@ -156,6 +156,7 @@ namespace DoDo {
 
         //------extension------
         static std::vector<const char*> extensions = get_required_extension();
+        extensions.push_back("VK_KHR_surface");//surface extensions
         create_info.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
         create_info.ppEnabledExtensionNames = extensions.data();
         //------extension------
@@ -183,11 +184,13 @@ namespace DoDo {
 
         if (result != VK_SUCCESS)
         {
-            std::cout << "create vulkan instance error!" << std::endl;
+            //std::cout << "create vulkan instance error!" << std::endl;
+            LOGE("create vulkan instance error!");
         }
         else
         {
-            std::cout << "create vulkan instance success!" << std::endl;
+            //std::cout << "create vulkan instance success!" << std::endl;
+            LOGI("create vulkan instance success!");
         }
 
         //-----after create instance to create debug messenger------
@@ -212,8 +215,13 @@ namespace DoDo {
         //std::string _path2 = _path.string();
         //std::string _path3 = "/storage/Shader/vert.spv";
         //bool is_exist = std::filesystem::exists(_path3);
+#ifdef Android
+        m_vertex_shader_module = Shader::Create("vert.spv", m_p_logic_device->get_native_handle());
+        m_fragment_shader_module = Shader::Create("frag.spv", m_p_logic_device->get_native_handle());
+#else
         m_vertex_shader_module = Shader::Create("Shader//vert.spv", m_p_logic_device->get_native_handle());
         m_fragment_shader_module = Shader::Create("Shader//frag.spv", m_p_logic_device->get_native_handle());
+#endif
 
         m_pipeline_state_object = PipelineStateObject::Create(m_p_logic_device->get_native_handle());
 
@@ -509,7 +517,7 @@ namespace DoDo {
 
         if(result != VK_SUCCESS)
         {
-            std::cout << "create surface error!" << std::endl;
+            LOGE("create android surface error!");
         }
 #endif
     }
@@ -537,21 +545,33 @@ namespace DoDo {
 
         if (device_count == 0)
         {
-            std::cout << "failed to find gpus with vulkan support!" << std::endl;
+            LOGE("failed to find gpus with vulkan support!");
+            //std::cout << "failed to find gpus with vulkan support!" << std::endl;
         }
 
         std::vector<VkPhysicalDevice> devices(device_count);
         vkEnumeratePhysicalDevices(m_vulkan_instance, &device_count, devices.data());
 
-        std::multimap<int32_t, VkPhysicalDevice> candiates;
+        //pick up first device
+        m_physical_device = devices[0];
 
-        for (const auto& device : devices)
-        {
-            if (is_device_suitable(device))
-            {
-                m_physical_device = device;
-            }
-        }
+        //std::multimap<int32_t, VkPhysicalDevice> candiates;
+
+        //for (const auto& device : devices)
+        //{
+        //    if (is_device_suitable(device))
+        //    {
+        //        m_physical_device = device;
+        //    }
+        //}
+        VkPhysicalDeviceProperties gpu_properties;
+        vkGetPhysicalDeviceProperties(m_physical_device, &gpu_properties);
+        LOGI("Vulkan Physical Device Name: %s", gpu_properties.deviceName);
+        LOGI("Vulkan Physical Device Info: apiVersion: %x \n\t driverVersion: %x", gpu_properties.apiVersion, gpu_properties.driverVersion);
+        LOGI("API Version Supported: %d.%d.%d",
+             VK_VERSION_MAJOR(gpu_properties.apiVersion),
+             VK_VERSION_MINOR(gpu_properties.apiVersion),
+             VK_VERSION_PATCH(gpu_properties.apiVersion));
 
         if (m_physical_device == VK_NULL_HANDLE)
         {

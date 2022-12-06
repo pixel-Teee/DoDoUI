@@ -59,16 +59,8 @@ namespace DoDo {
 	static VkSurfaceFormatKHR choose_swap_surface_format(std::vector<VkSurfaceFormatKHR> available_formats)
 	{
 		for (const auto& availableFormat : available_formats) {
-			if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+			if (availableFormat.format == VK_FORMAT_R8G8B8A8_UNORM)
 				return availableFormat;
-		}
-
-		if(available_formats.size() == 0)
-		{
-			VkSurfaceFormatKHR format;
-			format.format = VK_FORMAT_B8G8R8A8_UNORM;
-			format.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-			return format;
 		}
 
 		return available_formats[0];
@@ -91,8 +83,8 @@ namespace DoDo {
 			glfwGetFramebufferSize((GLFWwindow*)window.get_window_native_handle(), &width, &height);
 #else
 			int width, height;
-			width = ANativeWindow_getWidth((ANativeWindow*)window.get_window_native_handle());
-			height = ANativeWindow_getHeight((ANativeWindow*)window.get_window_native_handle());
+			width = capabilities_khr.currentExtent.width;
+			height = capabilities_khr.currentExtent.height;
 #endif
 			VkExtent2D actualExtent = {
 				static_cast<uint32_t>(width),
@@ -126,9 +118,6 @@ namespace DoDo {
 		VkPresentModeKHR present_mode = choose_swap_present_mode(swap_chain_support_details.present_modes);
 
 		m_extent_2d = choose_swap_extent(swap_chain_support_details.capabilities, window);
-
-		//m_extent_2d.width = 300;
-		//m_extent_2d.height = 600;
 
 		//------get image count(image just buffer)------
 		uint32_t image_count = swap_chain_support_details.capabilities.minImageCount + 1;
