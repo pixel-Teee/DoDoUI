@@ -212,10 +212,8 @@ namespace DoDo {
         //std::string _path2 = _path.string();
         //std::string _path3 = "/storage/Shader/vert.spv";
         //bool is_exist = std::filesystem::exists(_path3);
-        //m_vertex_shader_module = Shader::Create("/storage/Shader/vert.spv", m_p_logic_device->get_native_handle());
-        //m_fragment_shader_module = Shader::Create("/storage/Shader/frag.spv", m_p_logic_device->get_native_handle());
-        m_vertex_shader_module = Shader::Create("Shader/vert.spv", m_p_logic_device->get_native_handle());
-        m_fragment_shader_module = Shader::Create("Shader/frag.spv", m_p_logic_device->get_native_handle());
+        m_vertex_shader_module = Shader::Create("Shader//vert.spv", m_p_logic_device->get_native_handle());
+        m_fragment_shader_module = Shader::Create("Shader//frag.spv", m_p_logic_device->get_native_handle());
 
         m_pipeline_state_object = PipelineStateObject::Create(m_p_logic_device->get_native_handle());
 

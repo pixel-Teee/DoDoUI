@@ -63,6 +63,14 @@ namespace DoDo {
 				return availableFormat;
 		}
 
+		if(available_formats.size() == 0)
+		{
+			VkSurfaceFormatKHR format;
+			format.format = VK_FORMAT_B8G8R8A8_UNORM;
+			format.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+			return format;
+		}
+
 		return available_formats[0];
 	}
 
@@ -118,6 +126,9 @@ namespace DoDo {
 		VkPresentModeKHR present_mode = choose_swap_present_mode(swap_chain_support_details.present_modes);
 
 		m_extent_2d = choose_swap_extent(swap_chain_support_details.capabilities, window);
+
+		//m_extent_2d.width = 300;
+		//m_extent_2d.height = 600;
 
 		//------get image count(image just buffer)------
 		uint32_t image_count = swap_chain_support_details.capabilities.minImageCount + 1;
