@@ -46,16 +46,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Android")
 	target_sources(DoDoUI PRIVATE ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
 endif()
 
-# ------find vulkan------
-find_package(Vulkan)
-
-if(${Vulkan_FOUND})
-	target_link_libraries(DoDoUI Vulkan::Vulkan)
-else()
-	message("not find vulkan!")
-endif()
-# ------find vulkan------
-
 # ------control debug and release------
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
 	message("set debug macro success!")
@@ -65,7 +55,7 @@ endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
 	# link libraries
-	target_link_libraries(DoDoUI glfw)
+	target_link_libraries(DoDoUI glfw ${vulkan_lib})
 else()
 	find_package(game-activity REQUIRED CONFIG)
 	find_library(log-lib log)
@@ -74,7 +64,7 @@ else()
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
-	target_include_directories(DoDoUI PRIVATE ".")
+	target_include_directories(DoDoUI PRIVATE "." ${vulkan_include})
 else()
 	# message(${ANDROID_NDK}/sources/android/native_app_glue/)
 	target_include_directories(DoDoUI PRIVATE "." ${ANDROID_NDK}/sources/android/native_app_glue)
