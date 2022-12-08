@@ -1,4 +1,4 @@
-name: Windows
+name: Windows_Debug
 run-name: ${{ github.actor }} is build the project 🚀
 on: workflow_dispatch
 jobs:
