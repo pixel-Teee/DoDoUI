@@ -10,7 +10,7 @@ set(vulkan_include ${CMAKE_SOURCE_DIR}/ThirdParty/vulkan/include)
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(vulkan_lib ${CMAKE_SOURCE_DIR}/ThirdParty/vulkan/lib/Win32/vulkan-1.lib)
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    set(vulkan_lib ${CMAKE_SOURCE_DIR}/ThirdParty/vulkan/lib/Linux/)
+    set(vulkan_lib ${CMAKE_SOURCE_DIR}/ThirdParty/vulkan/lib/Linux/libvulkan.so.1)
 endif()
 # ------set vulkan------
 
