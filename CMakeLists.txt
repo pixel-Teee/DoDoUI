@@ -5,6 +5,13 @@ set(CMAKE_CXX_STANDARD 17)
 
 project(DoDoUI VERSION 1.0.0 LANGUAGES CXX)
 
+# need to place to add_executable before
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    message("set msvc utf8 successful!")
+	add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+	add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+endif()
+
 # ------set vulkan------
 set(vulkan_include ${CMAKE_SOURCE_DIR}/ThirdParty/vulkan/include)
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")

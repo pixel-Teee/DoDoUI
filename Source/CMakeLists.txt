@@ -82,3 +82,4 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Android")
 	message("set android macro success!")
 	target_compile_definitions(DoDoUI PUBLIC -DAndroid)
 endif()
+

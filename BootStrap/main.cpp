@@ -1,5 +1,7 @@
 #include <Application/Application.h>
 
+#include "Core/String/DoDoString.h"
+
 #ifdef Android
 #include "Platform/Window/AndroidWindow.h"
 #include <game-activity/GameActivity.cpp>
@@ -64,12 +66,18 @@ void android_main(android_app* p_state)
 #else
 int main()
 {
+    DoDo::DoDoString str("xxx");
+
+
     DoDo::Application app;
 
     app.Init();
 
     app.Run();
+
     
+
+
     return 0;
 }
 #endif
