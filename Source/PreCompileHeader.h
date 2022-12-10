@@ -17,7 +17,7 @@
     #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, my_tag, __VA_ARGS__))
     #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, my_tag, __VA_ARGS__))
 #else
-    //Todo:in the future, to use spdlog
+    //todo:in the future, to use spdlog
     #define LOGI(...) printf(__VA_ARGS__)
     #define LOGW(...) printf(__VA_ARGS__)
     #define LOGE(...) printf(__VA_ARGS__)
