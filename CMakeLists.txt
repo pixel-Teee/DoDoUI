@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.20.0)
 
+if(${ENABLE_TEST})
+    enable_testing()
+endif()
 # set c++ standard
 set(CMAKE_CXX_STANDARD 17)
 
@@ -29,4 +32,8 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
     add_subdirectory(ThirdParty/glfw GLFW)
 endif()
 
-add_subdirectory(BootStrap Boot_Strap)
+if(${ENABLE_TEST})
+    add_subdirectory(Test unit_tests)
+else()
+    add_subdirectory(BootStrap Boot_Strap)
+endif()

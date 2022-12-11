@@ -66,17 +66,12 @@ void android_main(android_app* p_state)
 #else
 int main()
 {
-    DoDo::DoDoString str("xxx");
-
 
     DoDo::Application app;
 
     app.Init();
 
     app.Run();
-
-    
-
 
     return 0;
 }

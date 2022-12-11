@@ -12,3 +12,13 @@ cd build
 cmake .. -DCMAKE_BUILD_TYPE=Debug
 ```
 
+
+
+# Test
+
+```c++
+mkdir BuildTest
+cd BuildTest
+ctest --build-and-test .. . --build-generator "Visual Studio 17 2022" --build-options -DENABLE_TEST=1 --test-command ctest -C Debug
+```
+
