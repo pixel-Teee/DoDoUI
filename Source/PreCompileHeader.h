@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <fstream>
 #include <filesystem>
+#include <cstring>
 
 #ifdef Android
     #include <android/log.h>
