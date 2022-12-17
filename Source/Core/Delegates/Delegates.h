@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cassert>
 
 namespace DoDo {
 	template<typename TSignature> class Delegate;
@@ -9,10 +10,8 @@ namespace DoDo {
 	class Delegate<Return_Type(Delegate_Template_Type...)>
 	{
 	public:
-		~Delegate()
-		{
 
-		}
+		~Delegate() {}
 
 		Delegate(const Delegate& delegate)
 		{
@@ -59,7 +58,7 @@ namespace DoDo {
 		Static_Function_Type m_f;
 		std::vector<unsigned char> m_lambda_buffer;
 
-		template<class T, Return_Type(T::Fun_Name)(Delegate_Template_Type...)>
+		template<class T, Return_Type(T::*Fun_Name)(Delegate_Template_Type...)>
 		static Return_Type Method_Stub(void* p, Delegate_Template_Type... delegate_value)
 		{
 			T* ap = (T*)p;
@@ -91,7 +90,7 @@ namespace DoDo {
 		}
 
 		template<typename Lambda>
-		static Delegate Create(void* p, Static_Function_Type function)
+		static Delegate Create(Lambda& L, Static_Function_Type function)
 		{
 			return Delegate((void*)&L, function, sizeof(Lambda));
 		}
@@ -103,7 +102,7 @@ namespace DoDo {
 			return Create((void*)p, &Const_Method_Stub<T, Fun_Name>);
 		}
 
-		template<Return_Type(*Fun_Name)(Delegate_Template_Type...)>
+		template<class T, Return_Type(*Fun_Name)(Delegate_Template_Type...)>
 		static Delegate From_Method(T* p)
 		{
 			return Create((void*)p, &Method_Stub<T, Fun_Name>);
@@ -118,15 +117,15 @@ namespace DoDo {
 		template<typename Lambda>
 		static Delegate From_Lambda(Lambda&& l)
 		{
-			return Create<Lambda>(l, &Lambda_Stub<Lambda_Stub>);
+			return Create<Lambda>(l, &Lambda_Stub<Lambda>);
 		}
 
 		Return_Type Execute(Delegate_Template_Type... delegate_value)
 		{
 			return (*m_f)(m_p, delegate_value...);
 		}
-
-		Return_Type Execute(Delegate_Template_Type... delegate_value)
+		
+		Return_Type operator()(Delegate_Template_Type... delegate_value) const
 		{
 			return (*m_f)(m_p, delegate_value...);
 		}
@@ -148,7 +147,7 @@ namespace DoDo {
 
 		bool operator!=(const Delegate& rhs) const
 		{
-			return (m_p != rhgs.m_p || m_f != rhs.m_f);
+			return (m_p != rhs.m_p || m_f != rhs.m_f);
 		}
 	};
 
@@ -161,6 +160,8 @@ namespace DoDo {
 	public:
 		Delegate_Event() {}
 
+		~Delegate_Event() {}
+
 		void operator+=(const Handler& handler)
 		{
 			this->Add(handler);
@@ -168,7 +169,7 @@ namespace DoDo {
 
 		void Add(const Handler& handler)
 		{
-			static_assert(!this->Has(handler));
+			assert(!(this->Has(handler)));
 
 			m_handlers.push_back(handler);
 		}
@@ -186,7 +187,7 @@ namespace DoDo {
 			Add(Handler::From_Method<T, Fun_Name>(p));
 		}
 
-		template<class T, Return_Type(T::*Fun_Name>(Delegate_Template_Type...)>
+		template<class T, Return_Type(T::*Fun_Name)(Delegate_Template_Type...)>
 		void Add_Method(T* p)
 		{
 			Add(Handler::From_Method<T, Fun_Name>(p));
@@ -201,7 +202,10 @@ namespace DoDo {
 		{
 			auto iter = std::find(m_handlers.begin(), m_handlers.end(), handler);
 
-			std::erase(m_handlers.begin(), m_handlers.end(), iter);
+			if (iter != m_handlers.end())
+			{
+				m_handlers.erase(iter);
+			}
 		}
 		
 		template<Return_Type(*Fun_Name)(Delegate_Template_Type...)>
@@ -235,14 +239,14 @@ namespace DoDo {
 
 		bool Is_Valid() const
 		{
-			return m_Handlers.size() > 0;
+			return m_handlers.size() > 0;
 		}
-
+	
 		void Reset()
 		{
-			m_handler.clear();
+			m_handlers.clear();
 		}
-
+	
 		void operator()(Delegate_Template_Type... delegate_value) const
 		{
 			this->Invoke(delegate_value...);
