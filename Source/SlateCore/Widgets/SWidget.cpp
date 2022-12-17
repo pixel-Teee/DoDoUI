@@ -2,3 +2,12 @@
 
 #include "SWidget.h"
 
+namespace DoDo {
+	SWidget::SWidget()
+	{
+	}
+	SWidget::~SWidget()
+	{
+	}
+}
+

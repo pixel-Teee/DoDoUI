@@ -1,11 +1,15 @@
+#pragma once
+
+#include "SCompoundWidget.h"
+
 namespace DoDo
 {
-	class SWindow
+	class SWindow : public SCompoundWidget
 	{
 	public:
 
 		SWindow();
 
-		virtual ~SWindow();
+		virtual ~SWindow() {}
 	};
 }

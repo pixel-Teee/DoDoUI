@@ -6,7 +6,5 @@ namespace DoDo {
 	SWindow::SWindow()
 	{
 	}
-	SWindow::~SWindow()
-	{
-	}
+
 }
