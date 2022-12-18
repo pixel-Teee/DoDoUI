@@ -3,6 +3,7 @@
 #include "Core/String/DoDoString.h"
 
 namespace DoDo {
+	//class DoDoUtf8String;
 	/*
 		base class for all slate metadata
 	*/
@@ -41,23 +42,4 @@ namespace DoDo {
 #define SLATE_METADATA_TYPE(TYPE, BASE)\
 	static const DoDoUtf8String& Get_Type_Id() { static DoDoUtf8String Type(#TYPE); return Type; } \
 	virtual bool Is_Of_Type_Impl(const DoDoUtf8String& type) const override { return Get_Type_Id() == type || BASE::Is_Of_Type_Impl(type); }
-
-	/*
-		simple tagging meta data
-	*/
-
-	class FTagMetaData : public ISlateMetaData
-	{
-	public:
-		SLATE_METADATA_TYPE(FTagMetaData, ISlateMetaData)
-		
-		FTagMetaData(DoDoUtf8String In_Tag)
-			: m_tag(In_Tag)
-		{}
-
-		/*
-			tag name for a widget
-		*/
-		DoDoUtf8String m_tag;
-	};
 }

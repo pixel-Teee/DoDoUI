@@ -1,10 +1,13 @@
 #pragma once
 
-#include <Core/String/DoDoString.h>
-
 class SWidget;
 
 namespace SlateAttributePrivate {
+	//predicate used to identify if the invalidation widget reason is defined in the attribute descriptor
+	struct FSlateAttributeNoInvalidationReason
+	{
+		static constexpr EInvalidateWidgetReason Get_InvalidationReason(const SWidget&) { return EInvalidateWidgetReason::None; }
+	};
 
 	enum class ESlateAttributeType : uint8_t {
 		Member = 0,//member of a swidget(are not allowed to move)

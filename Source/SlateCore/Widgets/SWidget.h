@@ -2,6 +2,10 @@
 
 #include <Core/Core.h>
 
+#include <type_traits>
+
+#include "SlateCore/Types/SlateAttribute.h"
+
 namespace DoDo
 {
 	class ISlateMetaData;
@@ -12,6 +16,25 @@ namespace DoDo
 		SWidget();
 
 		virtual ~SWidget();
+
+		/*
+		a slate attribute that is member variable of a SWidget
+		*/
+		template<typename InObjectType, EInvalidateWidgetReason InInvalidationReasonValue = EInvalidateWidgetReason::None, typename InComparePredicate = TSlateAttributeComparePredicate<>>
+		struct TSlateAttribute : public SlateAttributePrivate::TSlateMemberAttribute<
+			InObjectType,
+			typename std::conditional<InInvalidationReasonValue == EInvalidateWidgetReason::None,
+			SlateAttributePrivate::FSlateAttributeNoInvalidationReason,
+			TSlateAttributeInvalidationReason<InInvalidationReasonValue>>::type,
+			InComparePredicate>
+		{
+			using SlateAttributePrivate::TSlateMemberAttribute<
+				InObjectType,
+				typename std::conditional<InInvalidationReasonValue == EInvalidateWidgetReason::None,
+				SlateAttributePrivate::FSlateAttributeNoInvalidationReason,
+				TSlateAttributeInvalidationReason<InInvalidationReasonValue>>::type,
+				InComparePredicate>::TSlateMemberAttribute;
+		};
 
 		//return true if the widgets has any bound slate attribute
 		bool Has_Registered_Slate_Attribute() const { return m_b_has_registered_slate_attribute; }

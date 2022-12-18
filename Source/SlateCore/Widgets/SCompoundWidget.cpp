@@ -1,3 +1,4 @@
+#include <PreCompileHeader.h>
 #include "SCompoundWidget.h"
 
 namespace DoDo {

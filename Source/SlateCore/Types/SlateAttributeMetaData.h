@@ -6,7 +6,7 @@
 
 namespace DoDo {
 	class SWidget;
-
+	//class DoDoUtf8String;
 	class FSlateAttributeMetaData : public ISlateMetaData
 	{
 		friend SlateAttributePrivate::FSlateAttributeImpl;
