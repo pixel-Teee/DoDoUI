@@ -2,6 +2,8 @@
 
 #include "SWidget.h"
 
+#include "SlateCore/Types/ISlateMetaData.h"
+
 namespace DoDo {
 	SWidget::SWidget()
 	{

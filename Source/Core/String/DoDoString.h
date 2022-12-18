@@ -23,6 +23,8 @@ namespace DoDo {
 
 		//return c style string
 		const char* c_str() const;
+
+		friend bool operator==(const DoDoUtf8String& lhs, const DoDoUtf8String& rhs);
 	private:
 		int32_t calculate_length(char* m_buffer);
 
