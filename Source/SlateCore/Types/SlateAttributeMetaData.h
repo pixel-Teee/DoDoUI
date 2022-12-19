@@ -52,6 +52,27 @@ namespace DoDo {
 		static void update_all_attributes(SWidget& Owning_Widget, EInvalidationPermission In_Validation_Style);
 
 	private:
+		static FDelegateHandle Get_Attribute_Getter_Handle(const SWidget& Owning_Widget, const FSlateAttributeBase& attribute);
+
+	private:
+		void update_attributes_impl(SWidget& Owning_Widget, EInvalidationPermission In_Validation_Style, int32_t start_index, int32_t index_num);
+
+	private:
+		int32_t Index_Of_Attribute(const FSlateAttributeBase& attribute) const
+		{
+			const FSlateAttributeBase* attribute_ptr = &attribute;
+			auto& iter = std::find_if(m_attributes.begin(), m_attributes.end(), [attribute_ptr](const FGetterItem& item)
+			{
+				return item.m_attribute == attribute_ptr;
+			});
+
+			//-1 indicates none
+			if (iter == m_attributes.end()) return -1;
+
+			//todo:may have some bug
+			return std::distance(m_attributes.begin(), iter);
+		}
+
 		struct FGetterItem
 		{
 			FGetterItem(const FGetterItem&) = delete;
@@ -72,6 +93,6 @@ namespace DoDo {
 			}
 		};
 
-		void update_attributes_impl(SWidget& Owning_Widget, EInvalidationPermission In_Validation_Style, int32_t start_index, int32_t index_num);
+		std::vector<FGetterItem> m_attributes;
 	};
 }

@@ -3,6 +3,7 @@
 #include <Core/String/DoDoString.h>//todo:put to there, SlateAttributeDefinition.inl depends on this header file
 #include "SlateCore/Widgets/InvalidateWidgetReason.h"
 #include "Core/Misc/Attribute.h"//SlateAttributeBase.inl depends on this header file
+#include "Core/Delegates/IDelegateInstance.h"//SlateAttributeDefinition.inl depends on this header file
 
 namespace DoDo {
 	class SWidget;

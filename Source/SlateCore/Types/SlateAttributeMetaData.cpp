@@ -28,6 +28,22 @@ namespace DoDo {
 			
 		}
 	}
+
+	FDelegateHandle FSlateAttributeMetaData::Get_Attribute_Getter_Handle(const SWidget& Owning_Widget,
+		const FSlateAttributeBase& attribute)
+	{
+		if(FSlateAttributeMetaData* attribute_meta_data = FSlateAttributeMetaData::find_meta_data(Owning_Widget))
+		{
+			const int32_t found_index = attribute_meta_data->Index_Of_Attribute(attribute);//found index
+			if(found_index != -1)
+			{
+				return attribute_meta_data->m_attributes[found_index].m_getter->Get_Delegate_Handle();
+			}
+		}
+
+		return FDelegateHandle();
+	}
+
 	void FSlateAttributeMetaData::update_attributes_impl(SWidget& Owning_Widget, EInvalidationPermission In_Validation_Style, int32_t start_index, int32_t index_num)
 	{
 		bool b_invalidate_if_needed = (In_Validation_Style == EInvalidationPermission::Allow_Invalidation) || (In_Validation_Style == EInvalidationPermission::Allow_Invalidation_If_Constructed);

@@ -59,6 +59,8 @@ namespace SlateAttributePrivate {
 
 		virtual void Set_Attribute(FSlateAttributeBase&) = 0;
 
+		virtual FDelegateHandle Get_Delegate_Handle() const = 0;
+
 		virtual ~ISlateAttributeGetter() = default;
 	};
 
@@ -74,6 +76,8 @@ namespace SlateAttributePrivate {
 		bool protected_is_bound(const SWidget& widget, ESlateAttributeType attribute_type) const;
 
 		ISlateAttributeGetter* protected_find_getter(const SWidget& widget, ESlateAttributeType attribute_type) const;
+
+		FDelegateHandle protected_find_getter_handle(const SWidget& widget, ESlateAttributeType attribute_type) const;
 
 		void protected_update_now(SWidget& widget, ESlateAttributeType attribute_type);
 	};

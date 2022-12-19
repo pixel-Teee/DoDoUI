@@ -120,7 +120,7 @@ namespace DoDo {
 			return Create<Lambda>(l, &Lambda_Stub<Lambda>);
 		}
 
-		Return_Type Execute(Delegate_Template_Type... delegate_value)
+		Return_Type Execute(Delegate_Template_Type... delegate_value) const
 		{
 			return (*m_f)(m_p, delegate_value...);
 		}
@@ -148,6 +148,11 @@ namespace DoDo {
 		bool operator!=(const Delegate& rhs) const
 		{
 			return (m_p != rhs.m_p || m_f != rhs.m_f);
+		}
+
+		bool Is_Bound() const
+		{
+			return m_f != nullptr;
 		}
 	};
 

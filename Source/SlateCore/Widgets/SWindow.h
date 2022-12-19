@@ -8,7 +8,7 @@ namespace DoDo
 	{
 	public:
 
-		SWindow();
+		//SWindow();
 
 		virtual ~SWindow() {}
 	};

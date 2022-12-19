@@ -48,6 +48,79 @@ namespace DoDo {
 
 		}
 
+		/*
+		 * set the attribute's value
+		 *
+		 * param InNewValue the value to set the attribute to
+		 */
+		template<typename OtherType>
+		void Set(const OtherType& InNewValue)
+		{
+			//unbind delegate
+			//todo:need to unbind the delegate
+			m_value = InNewValue;
+			m_b_is_set = true;
+		}
+
+		/*
+		 * set the attribute's value
+		 *
+		 * param InNewValue the value to set the attribute to
+		 */
+		void Set(ObjectType&& InNewValue)
+		{
+			//todo:need to unbind the delegate
+			m_value = std::move(InNewValue);
+			m_b_is_set = true;
+		}
+
+		//was this TAttribute ever assigned?
+		bool Is_Set() const
+		{
+			return m_b_is_set;
+		}
+
+		/*
+		 * gets the attribute's current value
+		 * assumes that the attribute is set
+		 *
+		 * return the attribute's value
+		 */
+		const ObjectType& Get() const
+		{
+			//if we have a getter delegate, then we'll call that to generate the value
+			if(m_getter.Is_Bound())
+			{
+				m_value = m_getter.Execute();
+			}
+
+			//return stored value
+			return m_value;
+		}
+
+		/*
+		 * gets the attribute's current value, the attribute may not be set, in which case use the default value provided
+		 * shorthand for the boilerplate code: MyAttribute.IsSet() ? MyAttribute.Get() : DefaultValue
+		 */
+		const ObjectType& Get(const ObjectType& default_value) const
+		{
+			return m_b_is_set ? Get() : default_value;
+		}
+
+		/*
+		 * checks to see if this attribute has a 'getter' function bound
+		 * return true if attribute is bound to a getter function
+		 */
+		bool Is_Bound() const
+		{
+			return m_getter.Is_Bound();
+		}
+
+		const FGetter& Get_Binding() const
+		{
+			return m_getter;
+		}
+
 	private:
 		//current value, mutable so that we can cache the value locally when using a bound getter(allows const ref return value)
 		mutable ObjectType m_value;

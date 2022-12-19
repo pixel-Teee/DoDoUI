@@ -15,7 +15,67 @@ namespace SlateAttributePrivate
 		using FGetter = typename TAttribute<ObjectType>::FGetter;//there is core, have a delegate
 		using FComparePredicate = InComparePredicateType;
 
+	public:
+		//return slate attribute cached value, if the slate attribute is bound, the value will be cached at the end of the every frame
+		const ObjectType& Get() const
+		{
+			return m_Value;
+		}
+
+		/*
+		 * unbind the slate attribute and set it's value, it may invalidate the widget if the value is different
+		 * return true if the value is considered different and an invalidation occurred
+		 */
+		bool Set(ContainerType& widget, const ObjectType& new_value)
+		{
+			
+		}
+
+		/*
+		 * unbind the slate attribute and set it's value, it may invalidate the widget if the value is different
+		 * return true if the value is considered differentand an invalidation occurred
+		 */
+		bool Set(ContainerType& widget, ObjectType&& new_value)
+		{
+			
+		}
+
+		bool Assign(ContainerType& widget, TAttribute<ObjectType>&& other_attribute)
+		{
+			//other_attribute bind a function
+			if (other_attribute.Is_Bound())
+			{
+				return Assign_Binding(widget, other_attribute.Get_Binding());
+			}//other_attribute does not bind a function, but assign a value
+			else if(other_attribute.Is_Set())
+			{
+				return Set(widget, other_attribute.Get());
+			}
+			else
+			{
+				return false;
+			}
+		}
+
 	private:
+		bool Assign_Binding(ContainerType& widget, const FGetter& getter)
+		{
+			const FDelegateHandle Previous_Getter_Handler = protected_find_getter_handle(widget, InAttributeType);
+
+			//if(Previous_Getter_Handler != getter.Get_Handle())
+			//{
+			//	//todo:write a construct wrapper
+			//	return true;
+			//}
+
+			return false;
+		}
+
+		bool Assign_Binding(ContainerType& widget, FGetter&& getter)
+		{
+			
+		}
+
 		//------this is a getter interface's implementation------
 		template<typename SlateAttributeType>
 		class FSlateAttributeGetterWrapper : public ISlateAttributeGetter

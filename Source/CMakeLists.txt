@@ -16,6 +16,9 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "Core/Math/*.cpp"
 "Application/*.h"
 "Application/*.cpp"
+"../ThirdParty/glm/glm/*.h"
+"../ThirdParty/glm/glm/*.hpp"
+"../ThirdParty/glm/glm/*.cpp"
 )
 
 file(GLOB_RECURSE Renderer_Source
@@ -72,6 +75,9 @@ else()
 	# message(${ANDROID_NDK}/sources/android/native_app_glue/)
 	target_include_directories(DoDoUI PRIVATE "." ${ANDROID_NDK}/sources/android/native_app_glue)
 endif()
+
+target_include_directories(DoDoUI PRIVATE "../ThirdParty/glm")
+
 # pch
 target_precompile_headers(DoDoUI PRIVATE "PreCompileHeader.h")
 
