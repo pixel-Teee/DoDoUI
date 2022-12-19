@@ -64,19 +64,18 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
 	target_link_libraries(DoDoUI glfw ${vulkan_lib})
 else()
 	find_package(game-activity REQUIRED CONFIG)
+	find_package(Vulkan)
 	find_library(log-lib log)
 	find_library(android-lib android)
-	target_link_libraries(DoDoUI ${android-lib} game-activity::game-activity ${log-lib})
+	target_link_libraries(DoDoUI ${android-lib} game-activity::game-activity ${log-lib} Vulkan::Vulkan)
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
-	target_include_directories(DoDoUI PRIVATE "." ${vulkan_include})
+	target_include_directories(DoDoUI PRIVATE "." ${vulkan_include} "../ThirdParty/glm")
 else()
 	# message(${ANDROID_NDK}/sources/android/native_app_glue/)
-	target_include_directories(DoDoUI PRIVATE "." ${ANDROID_NDK}/sources/android/native_app_glue)
+	target_include_directories(DoDoUI PRIVATE "." ${ANDROID_NDK}/sources/android/native_app_glue "../ThirdParty/glm")
 endif()
-
-target_include_directories(DoDoUI PRIVATE "../ThirdParty/glm")
 
 # pch
 target_precompile_headers(DoDoUI PRIVATE "PreCompileHeader.h")

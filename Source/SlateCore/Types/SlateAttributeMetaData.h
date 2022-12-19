@@ -2,7 +2,7 @@
 
 #include "ISlateMetaData.h"
 #include "SlateAttribute.h"
-#include "SlateCore/Widgets/InvalidateWidgetReason.h"
+#include <SlateCore/Widgets/InvalidateWidgetReason.h>
 
 namespace DoDo {
 	class SWidget;
@@ -61,7 +61,7 @@ namespace DoDo {
 		int32_t Index_Of_Attribute(const FSlateAttributeBase& attribute) const
 		{
 			const FSlateAttributeBase* attribute_ptr = &attribute;
-			auto& iter = std::find_if(m_attributes.begin(), m_attributes.end(), [attribute_ptr](const FGetterItem& item)
+			auto iter = std::find_if(m_attributes.begin(), m_attributes.end(), [attribute_ptr](const FGetterItem& item)
 			{
 				return item.m_attribute == attribute_ptr;
 			});

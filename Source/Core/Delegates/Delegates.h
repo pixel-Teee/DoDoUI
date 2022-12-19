@@ -183,19 +183,19 @@ namespace DoDo {
 		void Add_Fun()
 		{
 			//create a function, put it to the vector
-			Add(Handler::FromFun<Fun_Name>());
+			Add(Handler::template FromFun<Fun_Name>());
 		}
 
 		template<class T, Return_Type(T::*Fun_Name)(Delegate_Template_Type...)const>
 		void Add_Method(T* p)
 		{
-			Add(Handler::From_Method<T, Fun_Name>(p));
+			Add(Handler::template From_Method<T, Fun_Name>(p));
 		}
 
 		template<class T, Return_Type(T::*Fun_Name)(Delegate_Template_Type...)>
 		void Add_Method(T* p)
 		{
-			Add(Handler::From_Method<T, Fun_Name>(p));
+			Add(Handler::template From_Method<T, Fun_Name>(p));
 		}
 
 		void operator-=(const Handler& handler)
@@ -216,19 +216,19 @@ namespace DoDo {
 		template<Return_Type(*Fun_Name)(Delegate_Template_Type...)>
 		void Remove_Fun()
 		{
-			Remove(Handler::From_Fun<Fun_Name>());
+			Remove(Handler::template From_Fun<Fun_Name>());
 		}
 
 		template<class T, Return_Type(T::*Fun_Name)(Delegate_Template_Type...)const>
 		void Remove_Method(T* p)
 		{
-			Remove(Handler::From_Method<T, Fun_Name>(p));
+			Remove(Handler::template From_Method<T, Fun_Name>(p));
 		}
 
 		template<class T, Return_Type(T::* Fun_Name)(Delegate_Template_Type...)>
 		void Remove_Method(T* p)
 		{
-			Remove(Handler::From_Method<T, Fun_Name>(p));
+			Remove(Handler::template From_Method<T, Fun_Name>(p));
 		}
 
 		bool Has(const Handler& handler)

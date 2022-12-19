@@ -15,7 +15,7 @@ namespace SlateAttributePrivate {
 		template<typename WidgetType, typename U = typename std::enable_if<std::is_base_of<SWidget, WidgetType>::value>::type>
 		static void Verify_Attribute_Address(const WidgetType& widget, const TSlateMemberAttribute& self)
 		{
-			assert((uint64_t)&self >= (uint64_t)&widget && (uint64_t)&self < (uint64_t)&widget + sizeof(WigetType));
+			assert((uint64_t)&self >= (uint64_t)&widget && (uint64_t)&self < (uint64_t)&widget + sizeof(WidgetType));
 		}
 
 		TSlateMemberAttribute() = delete;
