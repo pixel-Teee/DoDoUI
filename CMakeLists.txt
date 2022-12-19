@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20.0)
 
-set(CMAKE_GENERATOR_TOOLSET "ClangCL")
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(CMAKE_GENERATOR_TOOLSET "ClangCL")
+endif()
 
 if(${ENABLE_TEST})
     enable_testing()
