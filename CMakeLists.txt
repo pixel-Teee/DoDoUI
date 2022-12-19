@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 
+set(CMAKE_GENERATOR_TOOLSET "ClangCL")
+
 if(${ENABLE_TEST})
     enable_testing()
 endif()
