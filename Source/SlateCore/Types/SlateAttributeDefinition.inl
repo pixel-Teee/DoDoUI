@@ -12,7 +12,7 @@ namespace SlateAttributePrivate {
 	enum class ESlateAttributeType : uint8_t {
 		Member = 0,//member of a swidget(are not allowed to move)
 		Managed = 1,//external to the swidget, global variable or member that can moved
-		Contained = 2//inside a FSloat or other container that use dynamic memory(always attached to one and only one swidget)
+		Contained = 2//inside a FSlot or other container that use dynamic memory(always attached to one and only one swidget)
 	};
 
 	//interface for structure that can be used to contain a slate attribute instead of a swidget

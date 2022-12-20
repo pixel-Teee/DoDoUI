@@ -2,6 +2,7 @@
 
 namespace SlateAttributePrivate
 {
+	//ContainerType is SWidget
 	template<typename ContainerType, typename InObjectType, typename InInvalidationReasonPredicate, typename InComparePredicateType,
 	ESlateAttributeType InAttributeType>
 	struct TSlateAttributeBase : public FSlateAttributeImpl
@@ -40,6 +41,7 @@ namespace SlateAttributePrivate
 			
 		}
 
+		//from TAttribute to construct TSlateAttributeBase
 		bool Assign(ContainerType& widget, TAttribute<ObjectType>&& other_attribute)
 		{
 			//other_attribute bind a function
@@ -60,6 +62,8 @@ namespace SlateAttributePrivate
 	private:
 		bool Assign_Binding(ContainerType& widget, const FGetter& getter)
 		{
+			//from widget meta data(FSlateAttributeMetaData) to query whether this slate attribute is registered?
+			//compare getter
 			const FDelegateHandle Previous_Getter_Handler = protected_find_getter_handle(widget, InAttributeType);
 
 			//if(Previous_Getter_Handler != getter.Get_Handle())
@@ -91,7 +95,7 @@ namespace SlateAttributePrivate
 
 			FSlateAttributeGetterWrapper& operator = (const FSlateAttributeGetterWrapper&) = delete;
 
-			virtual ~FSlateAttributeGetterWrapper() = default;
+			virtual ~FSlateAttributeGetterWrapper() override = default;
 
 		public:
 			FSlateAttributeGetterWrapper(SlateAttributeType& In_Owning_Attribute, const FGetter& In_Getter_Delegate)

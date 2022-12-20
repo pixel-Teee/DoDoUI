@@ -32,8 +32,10 @@ namespace DoDo {
 	FDelegateHandle FSlateAttributeMetaData::Get_Attribute_Getter_Handle(const SWidget& Owning_Widget,
 		const FSlateAttributeBase& attribute)
 	{
+		//just to get the first meta data
 		if(FSlateAttributeMetaData* attribute_meta_data = FSlateAttributeMetaData::find_meta_data(Owning_Widget))
 		{
+			//to find parameter attribute index
 			const int32_t found_index = attribute_meta_data->Index_Of_Attribute(attribute);//found index
 			if(found_index != -1)
 			{

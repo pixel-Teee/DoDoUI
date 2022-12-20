@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Core/String/DoDoString.h>//todo:put to there, SlateAttributeDefinition.inl depends on this header file
+#include "Core/Delegates/IDelegateInstance.h"//SlateAttributeDefinition.inl depends on this header file
 #include "SlateCore/Widgets/InvalidateWidgetReason.h"
 #include "Core/Misc/Attribute.h"//SlateAttributeBase.inl depends on this header file
-#include "Core/Delegates/IDelegateInstance.h"//SlateAttributeDefinition.inl depends on this header file
 
 namespace DoDo {
 	class SWidget;
@@ -14,8 +14,8 @@ namespace DoDo {
 	{
 		/*
 			not all invalidation is supported by slate attribute
-			child order : the update of slate attribute is done in the slate prepass, we can't add or remove children is slate prepass
-			attribute registration : in fase path, the slate attribute are updated in a loop, the iterator can't be modified while we are looping
+			child order : the update of slate attribute is done in the slate prepass, we can't add or remove children in slate prepass
+			attribute registration : in fast path, the slate attribute are updated in a loop, the iterator can't be modified while we are looping
 		*/
 		template<typename T>
 		constexpr static bool Is_Invalidate_Widget_Reason_Supported(T Reason)
@@ -36,6 +36,7 @@ namespace DoDo {
 		template<typename ObjectType>
 		static bool Identical_To(const SWidget&, ObjectType&& lhs, ObjectType&& rhs)
 		{
+			//construct a ComparePredicate object, and call it's operator, to compare two objects
 			return ComparePredicate{}(std::forward<ObjectType>(lhs), std::forward<ObjectType>(rhs));
 		}
 	};

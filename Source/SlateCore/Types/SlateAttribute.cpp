@@ -2,7 +2,7 @@
 
 #include "SlateAttribute.h"
 
-#include "SlateAttributeMetaData.h"
+#include "SlateAttributeMetaData.h"//note:include slate attribute meta data
 
 namespace DoDo {
 	namespace SlateAttributePrivate {
@@ -31,6 +31,8 @@ namespace DoDo {
 		FDelegateHandle FSlateAttributeImpl::protected_find_getter_handle(const SWidget& widget,
 			ESlateAttributeType attribute_type) const
 		{
+			//static function
+			//to find widget slate meta data is registered this slate attribute?
 			return FSlateAttributeMetaData::Get_Attribute_Getter_Handle(widget, *this);
 		}
 

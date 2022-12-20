@@ -19,6 +19,7 @@ namespace DoDo
 
 		/*
 		a slate attribute that is member variable of a SWidget
+		usage : TSlateAttribute<int32_t> MyAttribute1; TSlateAttribute<int32_t, EInvalidateWidgetReason::Paint> MyAttribute2; TSlateAttribute<int32_t, EInvalidateWidgetReason::Paint, TSlateAttributeComparePredicate<>> MyAttribute3;
 		*/
 		template<typename InObjectType, EInvalidateWidgetReason InInvalidationReasonValue = EInvalidateWidgetReason::None, typename InComparePredicate = TSlateAttributeComparePredicate<>>
 		struct TSlateAttribute : public SlateAttributePrivate::TSlateMemberAttribute<

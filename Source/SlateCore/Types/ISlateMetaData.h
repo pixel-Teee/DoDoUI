@@ -12,19 +12,19 @@ namespace DoDo {
 	public:
 		//check if this meta data operation can cast safely to the specified type
 		template<class TType>
-		bool Is_Of_Type() const
+		[[nodiscard]] bool Is_Of_Type() const
 		{
 			return Is_Of_Type_Impl(TType::Get_Type_Id());
 		}
 
 		//virtual destructor
-		virtual ~ISlateMetaData() {}
+		virtual ~ISlateMetaData() = default;
 
 	protected:
 		/*
 			checks whether this drag and drop operation can cast safely to the specified type
 		*/
-		virtual bool Is_Of_Type_Impl(const DoDoUtf8String& type) const
+		[[nodiscard]] virtual bool Is_Of_Type_Impl(const DoDoUtf8String& type) const
 		{
 			return false;
 		}
