@@ -3,6 +3,8 @@
 #include <vector>
 #include <cassert>
 
+#include "IDelegateInstance.h"
+
 namespace DoDo {
 	template<typename TSignature> class Delegate;
 	template<typename TSignature> class Delegate_Event;
@@ -37,6 +39,7 @@ namespace DoDo {
 		typedef Return_Type(*Static_Function_Type)(void* p, Delegate_Template_Type...);
 
 		Delegate(void* p, Static_Function_Type function, uint32_t buffer_size)
+		:m_delegate_handle(FDelegateHandle::EGenerateNewHandleType)
 		{
 			m_f = function;
 			//if provide buffer_size, then copy the object instance directly
@@ -57,6 +60,9 @@ namespace DoDo {
 		//function
 		Static_Function_Type m_f;
 		std::vector<unsigned char> m_lambda_buffer;
+
+		//delegate handle
+		FDelegateHandle m_delegate_handle;
 
 		template<class T, Return_Type(T::*Fun_Name)(Delegate_Template_Type...)>
 		static Return_Type Method_Stub(void* p, Delegate_Template_Type... delegate_value)
@@ -153,6 +159,11 @@ namespace DoDo {
 		bool Is_Bound() const
 		{
 			return m_f != nullptr;
+		}
+
+		FDelegateHandle Get_Handle() const
+		{
+			return m_delegate_handle;
 		}
 	};
 

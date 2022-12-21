@@ -72,6 +72,11 @@ namespace SlateAttributePrivate
 			//	return true;
 			//}
 
+			if (Previous_Getter_Handler != getter.Get_Handle())
+			{
+
+			}
+
 			return false;
 		}
 
@@ -110,6 +115,11 @@ namespace SlateAttributePrivate
 				, m_attribute(&In_Owning_Attribute)
 			{
 
+			}
+
+			virtual FDelegateHandle Get_Delegate_Handle() const override
+			{
+				return m_getter.Get_Handle();
 			}
 
 		private:
