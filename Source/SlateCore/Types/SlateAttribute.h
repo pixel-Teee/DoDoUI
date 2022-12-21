@@ -49,10 +49,12 @@ namespace DoDo {
 		static constexpr EInvalidateWidgetReason Get_Invalidation_Reason(const SWidget&) { return InvalidationReason; }
 	};
 
+	//------inline template header file------
 	#include "SlateAttributeDefinition.inl"
 	#include "SlateAttributeBase.inl"
 
 	#include "SlateAttributeContained.inl"
 	#include "SlateAttributeManaged.inl"
 	#include "SlateAttributeMember.inl"
+	//------inline template header file------
 }
