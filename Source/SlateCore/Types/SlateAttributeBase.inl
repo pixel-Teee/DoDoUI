@@ -74,7 +74,9 @@ namespace SlateAttributePrivate
 
 			if (Previous_Getter_Handler != getter.Get_Handle())
 			{
+				Construct_Wrapper(widget, std::move(getter));
 
+				return true;
 			}
 
 			return false;
@@ -85,12 +87,30 @@ namespace SlateAttributePrivate
 			
 		}
 
+		void Construct_Wrapper(ContainerType& widget, const FGetter& getter)
+		{
+			std::unique_ptr<ISlateAttributeGetter> wrapper = Make_Unique_Getter(*this, getter);
+			
+			protected_register_attribute(widget, InAttributeType, std::move(wrapper));
+
+			//update now on bind
+		}
+
+		void Construct_Wrapper(ContainerType& widget, FGetter&& getter)
+		{
+			std::unique_ptr<ISlateAttributeGetter> wrapper = Make_Unique_Getter(*this, std::move(getter));
+
+			protected_register_attribute(widget, InAttributeType, std::move(wrapper));
+
+			//update now on bind
+		}
+
 		//------this is a getter interface's implementation------
 		template<typename SlateAttributeType>
 		class FSlateAttributeGetterWrapper : public ISlateAttributeGetter
 		{
 		public:
-			using ObjectType = typename SlateAttributeType::Object_Type;
+			using ObjectType = typename SlateAttributeType::ObjectType;
 			using FGetter = typename TAttribute<ObjectType>::FGetter;
 			using FComparePredicate = typename SlateAttributeType::FComparePredicate;
 
@@ -122,7 +142,22 @@ namespace SlateAttributePrivate
 				return m_getter.Get_Handle();
 			}
 
-		private:
+			FUpdateAttributeResult Update_Attribute(const SWidget& widget) override
+			{
+				return FUpdateAttributeResult();
+			}
+
+			const FSlateAttributeBase& Get_Attribute() const override
+			{
+				return *m_attribute;
+			}
+
+			void Set_Attribute(FSlateAttributeBase&) override
+			{
+				//
+			}
+
+		private:		
 			//getter function to fetch the new value of the slate attribute
 			FGetter m_getter;
 			//the slate attribute of the swidget owning the value
@@ -130,6 +165,16 @@ namespace SlateAttributePrivate
 		};
 		//------this is a getter interface's implementation------
 	private:
+		static std::unique_ptr<ISlateAttributeGetter> Make_Unique_Getter(TSlateAttributeBase& attribute, const FGetter& getter)
+		{
+			return std::make_unique<FSlateAttributeGetterWrapper<TSlateAttributeBase>>(attribute, getter);
+		}
+
+		static std::unique_ptr<ISlateAttributeGetter> Make_Unique_Getter(TSlateAttributeBase& attribute, FGetter&& getter)
+		{
+			return std::make_unique<FSlateAttributeGetterWrapper<TSlateAttributeBase>>(attribute, std::move(getter));
+		}
+
 		ObjectType m_Value;
 	};
 }

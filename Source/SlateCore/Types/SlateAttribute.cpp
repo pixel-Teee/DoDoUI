@@ -15,6 +15,7 @@ namespace DoDo {
 		}
 		void FSlateAttributeImpl::protected_register_attribute(SWidget& widget, ESlateAttributeType attribute_type, Scope<ISlateAttributeGetter>&& wrapper)
 		{
+			FSlateAttributeMetaData::Register_Attribute(widget, *this, attribute_type, std::move(wrapper));
 		}
 		void FSlateAttributeImpl::protected_invalidate_widget(SWidget& widget, ESlateAttributeType attribute_type, EInvalidateWidgetReason invalidation_reason) const
 		{

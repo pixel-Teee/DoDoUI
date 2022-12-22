@@ -29,8 +29,44 @@ namespace DoDo {
 		}
 	}
 
+	void FSlateAttributeMetaData::Register_Attribute(SWidget& owning_widget, FSlateAttributeBase& attribute,
+		ESlateAttributeType attribute_type, std::unique_ptr<ISlateAttributeGetter>&& wrapper)
+	{
+		auto Execute_Register = [&](FSlateAttributeMetaData& attribute_meta_data)
+		{
+			if (attribute_type == ESlateAttributeType::Member)
+			{
+				attribute_meta_data.register_member_attribute_impl(owning_widget, attribute, std::move(wrapper));
+			}
+			//todo:solve other ESlateAttributeType::Manager
+		};
+
+		//if swidget already have this slate meta data, it will be execute another branch
+		if(FSlateAttributeMetaData* attribute_meta_data = FSlateAttributeMetaData::find_meta_data(owning_widget))
+		{
+			if(int32_t found_index = attribute_meta_data->Index_Of_Attribute(attribute); found_index != -1)
+			{
+				attribute_meta_data->m_attributes[found_index].m_getter = std::move(wrapper);
+			}
+			else
+			{
+				//execute register
+				Execute_Register(*attribute_meta_data);
+			}
+		}
+		else
+		{
+			//construct new element to slate meta data array
+			std::shared_ptr<FSlateAttributeMetaData> new_attribute_meta_data = std::make_shared<FSlateAttributeMetaData>();
+
+			Execute_Register(*new_attribute_meta_data);
+
+
+		}
+	}
+
 	FDelegateHandle FSlateAttributeMetaData::Get_Attribute_Getter_Handle(const SWidget& Owning_Widget,
-		const FSlateAttributeBase& attribute)
+	                                                                     const FSlateAttributeBase& attribute)
 	{
 		//just to get the first meta data
 		if(FSlateAttributeMetaData* attribute_meta_data = FSlateAttributeMetaData::find_meta_data(Owning_Widget))
@@ -57,5 +93,9 @@ namespace DoDo {
 		{
 			
 		}
+	}
+	void FSlateAttributeMetaData::register_member_attribute_impl(SWidget& Owning_Widget, FSlateAttributeBase& In_Validation_Style, std::unique_ptr<ISlateAttributeGetter>&& getter)
+	{
+		//todo:need to complete this function
 	}
 }

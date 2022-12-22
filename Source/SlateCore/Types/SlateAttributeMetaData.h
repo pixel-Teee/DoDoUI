@@ -52,10 +52,18 @@ namespace DoDo {
 		static void update_all_attributes(SWidget& Owning_Widget, EInvalidationPermission In_Validation_Style);
 
 	private:
+		using ESlateAttributeType = SlateAttributePrivate::ESlateAttributeType;
+		using ISlateAttributeGetter = SlateAttributePrivate::ISlateAttributeGetter;
+
+		//register a FSlateAttributeBase ISlateAttributeGetter to SWidget slate meta's array
+		static void Register_Attribute(SWidget& owning_widget, FSlateAttributeBase& attribute, ESlateAttributeType attribute_type, std::unique_ptr<ISlateAttributeGetter>&& wrapper);
+
 		static FDelegateHandle Get_Attribute_Getter_Handle(const SWidget& Owning_Widget, const FSlateAttributeBase& attribute);
 
 	private:
 		void update_attributes_impl(SWidget& Owning_Widget, EInvalidationPermission In_Validation_Style, int32_t start_index, int32_t index_num);
+
+		void register_member_attribute_impl(SWidget& Owning_Widget, FSlateAttributeBase& In_Validation_Style, std::unique_ptr<ISlateAttributeGetter>&& getter);
 
 	private:
 		int32_t Index_Of_Attribute(const FSlateAttributeBase& attribute) const
@@ -95,4 +103,5 @@ namespace DoDo {
 
 		std::vector<FGetterItem> m_attributes;
 	};
+
 }
