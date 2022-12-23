@@ -11,7 +11,7 @@ namespace DoDo {
 		//because TSlateAttribute's delete constructor, so SCompound Widget's default constructor could not use
 		//SCompoundWidget();
 
-		virtual ~SCompoundWidget();
+		//virtual ~SCompoundWidget();
 
 		/*
 			returns the size scaling factor for this widget

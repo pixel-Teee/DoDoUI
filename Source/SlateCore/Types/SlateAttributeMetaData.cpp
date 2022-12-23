@@ -4,7 +4,19 @@
 
 #include "SlateCore/Widgets/SWidget.h"
 
+#include "SlateAttributeDescriptor.h"
+
 namespace DoDo {
+	namespace Private
+	{
+		FSlateAttributeDescriptor::OffsetType find_member_offset(const SWidget& owning_widget, const FSlateAttributeBase& attribute)
+		{
+			uint64_t offset = (uint64_t)(&attribute) - (uint64_t)(&owning_widget);
+
+			//OffsetType is uint32_t
+			return (FSlateAttributeDescriptor::OffsetType)(offset);
+		}
+	}
 	FSlateAttributeMetaData* FSlateAttributeMetaData::find_meta_data(const SWidget& Owning_Widget)
 	{
 		if (Owning_Widget.Has_Registered_Slate_Attribute())
@@ -94,8 +106,13 @@ namespace DoDo {
 			
 		}
 	}
-	void FSlateAttributeMetaData::register_member_attribute_impl(SWidget& Owning_Widget, FSlateAttributeBase& In_Validation_Style, std::unique_ptr<ISlateAttributeGetter>&& getter)
+	void FSlateAttributeMetaData::register_member_attribute_impl(SWidget& Owning_Widget, FSlateAttributeBase& attribute, std::unique_ptr<ISlateAttributeGetter>&& getter)
 	{
 		//todo:need to complete this function
+		//member attribute are optional for now but will be needed in the future
+		const FSlateAttributeDescriptor::OffsetType attribute_offset = Private::find_member_offset(Owning_Widget, attribute);
+
+		//todo:implement FSlateWidgetClassData
+		const FSlateAttributeDescriptor::FAttribute* found_member_attribute;
 	}
 }

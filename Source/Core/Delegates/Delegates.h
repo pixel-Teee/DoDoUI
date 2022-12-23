@@ -12,6 +12,7 @@ namespace DoDo {
 	class Delegate<Return_Type(Delegate_Template_Type...)>
 	{
 	public:
+		typedef Return_Type(*Static_Function_Type)(void* p, Delegate_Template_Type...);
 
 		~Delegate() {}
 
@@ -36,10 +37,9 @@ namespace DoDo {
 			}
 		}
 	protected:
-		typedef Return_Type(*Static_Function_Type)(void* p, Delegate_Template_Type...);
 
 		Delegate(void* p, Static_Function_Type function, uint32_t buffer_size)
-		:m_delegate_handle(FDelegateHandle::EGenerateNewHandleType)
+		:m_delegate_handle(FDelegateHandle::EGenerateNewHandleType::GenerateNewHandle)
 		{
 			m_f = function;
 			//if provide buffer_size, then copy the object instance directly
@@ -90,6 +90,8 @@ namespace DoDo {
 			return (*((Lambda*)p))(delegate_value...);
 		}
 
+	public:
+
 		static Delegate Create(void* p, Static_Function_Type function)
 		{
 			return Delegate(p, function, 0);
@@ -101,7 +103,6 @@ namespace DoDo {
 			return Delegate((void*)&L, function, sizeof(Lambda));
 		}
 
-	public:
 		template<class T, Return_Type(T::*Fun_Name)(Delegate_Template_Type...)const>
 		static Delegate From_Method(T* p)
 		{
