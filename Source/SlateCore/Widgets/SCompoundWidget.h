@@ -7,6 +7,7 @@
 namespace DoDo {
 	class SCompoundWidget : public SWidget
 	{
+		SLATE_DECLARE_WIDGET(SCompoundWidget, SWidget)
 	public:
 		//because TSlateAttribute's delete constructor, so SCompound Widget's default constructor could not use
 		//SCompoundWidget();
@@ -30,6 +31,8 @@ namespace DoDo {
 		{
 			m_content_scale_attribute.Assign(*this, std::move(In_Content_Scale));
 		}
+
+		
 
 	private:
 

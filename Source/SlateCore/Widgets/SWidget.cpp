@@ -24,5 +24,36 @@ namespace DoDo {
 	SWidget::~SWidget()
 	{
 	}
+
+	//FSlateAttributeMetaData::remove_meta_data_if_needed will call this function
+	//interms of parameter to mark different flag
+	void SWidget::Invalidate(EInvalidateWidgetReason in_validate_reason)
+	{
+		//don't have constructed
+		if(in_validate_reason == EInvalidateWidgetReason::None || !Is_Constructed())
+		{
+			return;
+		}
+
+		if(Enum_Has_Any_Flags(in_validate_reason, EInvalidateWidgetReason::Prepass))
+		{
+			//todo:implement mark prepass as dirty function
+			in_validate_reason |= EInvalidateWidgetReason::Layout;
+		}
+
+		if(Enum_Has_Any_Flags(in_validate_reason, EInvalidateWidgetReason::Child_Order))
+		{
+			//todo:implement mark prepass as dirty function
+			in_validate_reason |= EInvalidateWidgetReason::Prepass;
+			in_validate_reason |= EInvalidateWidgetReason::Layout;
+		}
+
+		//todo:implement left part
+	}
+
+	SWidget::SWidget()
+		: m_Visibility_Attribute(*this, EVisibility::visible)
+	{
+	}
 }
 

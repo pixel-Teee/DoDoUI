@@ -3,6 +3,8 @@
 namespace SlateAttributePrivate
 {
 	//ContainerType is SWidget
+	//InObjectType is color or scale etc
+	//InComparePredicateType is TSlateAttributeComparePredicate
 	template<typename ContainerType, typename InObjectType, typename InInvalidationReasonPredicate, typename InComparePredicateType,
 	ESlateAttributeType InAttributeType>
 	struct TSlateAttributeBase : public FSlateAttributeImpl
@@ -15,6 +17,40 @@ namespace SlateAttributePrivate
 		using FInvalidationReasonPredicate = InInvalidationReasonPredicate;
 		using FGetter = typename TAttribute<ObjectType>::FGetter;//there is core, have a delegate
 		using FComparePredicate = InComparePredicateType;
+
+		static EInvalidateWidgetReason Get_Invalidation_Reason(const SWidget& widget) { return FInvalidationReasonPredicate::Get_InvalidationReason(widget); }
+		//use == to compare lhs and rhs
+		static bool Identical_To(const SWidget& widget, const ObjectType& lhs, const ObjectType& rhs) { return FComparePredicate::Identical_To(widget, lhs, rhs); }
+	public:
+		TSlateAttributeBase()
+			: m_Value()
+		{
+
+		}
+
+		TSlateAttributeBase(const ObjectType& In_Value)
+			: m_Value(In_Value)
+		{
+			
+		}
+
+		TSlateAttributeBase(ObjectType&& In_Value)
+			: m_Value(std::move(In_Value))
+		{
+			
+		}
+
+		TSlateAttributeBase(SWidget& widget, const ObjectType& In_Value)
+			: m_Value(In_Value)
+		{
+
+		}
+
+		TSlateAttributeBase(SWidget& widget, ObjectType&& In_Value)
+			: m_Value(std::move(In_Value))
+		{
+
+		}
 
 	public:
 		//return slate attribute cached value, if the slate attribute is bound, the value will be cached at the end of the every frame
@@ -29,16 +65,37 @@ namespace SlateAttributePrivate
 		 */
 		bool Set(ContainerType& widget, const ObjectType& new_value)
 		{
-			
+			const bool b_Is_Identical = Identical_To(widget, m_Value, new_value);
+
+			//unregister attribute and mark different flag on widget
+			protected_unregister_attribute(widget, InAttributeType);
+
+			if(!b_Is_Identical)
+			{
+				m_Value = new_value;
+				protected_invalidate_widget(widget, InAttributeType, Get_Invalidation_Reason(widget));
+			}
+
+			return !b_Is_Identical;
 		}
 
 		/*
 		 * unbind the slate attribute and set it's value, it may invalidate the widget if the value is different
-		 * return true if the value is considered differentand an invalidation occurred
+		 * return true if the value is considered different an invalidation occurred
 		 */
 		bool Set(ContainerType& widget, ObjectType&& new_value)
 		{
-			
+			const bool b_Is_Identical = Identical_To(widget, m_Value, new_value);//check equal
+			//todo:implement ProtectedUnregisterAttribute
+			//may be register some getter, need to unbind
+			protected_unregister_attribute(widget, InAttributeType);
+			if(!b_Is_Identical)
+			{
+				m_Value = std::move(m_Value);
+				//todo:implement Protected Invalidate Widget
+			}
+
+			return !b_Is_Identical;
 		}
 
 		//from TAttribute to construct TSlateAttributeBase

@@ -20,10 +20,25 @@ namespace DoDo
 		//todo:need to implement Private_Register Attributes static function
 		SLATE_DECLARE_WIDGET(SWidget, FSlateControlledConstruction)
 
+		friend class FSlateAttributeMetaData;
+
 		//SWidget();
 
 	public:
 		virtual ~SWidget();
+
+	public:
+		//layout
+
+		/* return true if the widgets will update its registered slate attributes automatically or they need to be updated manually */
+		bool Is_Attributes_Updates_Enabled() const { return m_b_enabled_attributes_update; }
+
+	public:
+		/*
+		 * invalidates the widget from the view of a layout caching widget that may own this widget
+		 * will force the owning widget to redraw and cache children on the next paint pass
+		 */
+		void Invalidate(EInvalidateWidgetReason in_validate_reason);
 
 	protected:
 		/*
@@ -45,6 +60,26 @@ namespace DoDo
 				TSlateAttributeInvalidationReason<InInvalidationReasonValue>>::type,
 				InComparePredicate>::TSlateMemberAttribute;
 		};
+
+	protected:
+		/*
+		 * hidden default constructor
+		 *
+		 * use SNew(WidgetClassName) to instantiate new widgets
+		 *
+		 * @see SNew
+		 */
+		SWidget();
+
+		/* is the widget construction completed(did we called and returned from the Construct() function) */
+		bool Is_Constructed() const { return m_b_Is_Declarative_Syntax_Construction_Completed; }
+
+	private:
+		/* are bound slate attributes will be updated once per frame */
+		uint8_t m_b_enabled_attributes_update : 1;
+
+		/* the SNew or SAssignedNew construction is completed */
+		uint8_t m_b_Is_Declarative_Syntax_Construction_Completed : 1;
 
 	public:
 		//return true if the widgets has any bound slate attribute
