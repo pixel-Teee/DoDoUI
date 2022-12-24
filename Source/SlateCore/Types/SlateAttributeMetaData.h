@@ -101,6 +101,8 @@ namespace DoDo {
 				m_cached_attribute_descriptor = rhs.m_cached_attribute_descriptor;
 				m_sort_order = rhs.m_sort_order;
 				attribute_container_offset = rhs.attribute_container_offset;
+
+				return *this;
 			}
 			FGetterItem(FSlateAttributeBase* In_Attribute, uint32_t in_sort_order, Scope<SlateAttributePrivate::ISlateAttributeGetter>&& In_Getter)
 				: m_attribute(In_Attribute)
