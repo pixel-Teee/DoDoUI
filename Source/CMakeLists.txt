@@ -7,12 +7,18 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "SlateCore/Widgets/*.cpp"
 "SlateCore/Rendering/*.h"
 "SlateCore/Rendering/*.cpp"
+"SlateCore/Types/*.h"
+"SlateCore/Types/*.inl"
+"SlateCore/Types/*.cpp"
 "Core/*.h"
 "Core/*.cpp"
 "Core/Math/*.h"
 "Core/Math/*.cpp"
 "Application/*.h"
 "Application/*.cpp"
+"../ThirdParty/glm/glm/*.h"
+"../ThirdParty/glm/glm/*.hpp"
+"../ThirdParty/glm/glm/*.cpp"
 )
 
 file(GLOB_RECURSE Renderer_Source
@@ -58,17 +64,19 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
 	target_link_libraries(DoDoUI glfw ${vulkan_lib})
 else()
 	find_package(game-activity REQUIRED CONFIG)
+	find_package(Vulkan)
 	find_library(log-lib log)
 	find_library(android-lib android)
-	target_link_libraries(DoDoUI ${android-lib} game-activity::game-activity ${log-lib})
+	target_link_libraries(DoDoUI ${android-lib} game-activity::game-activity ${log-lib} Vulkan::Vulkan)
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
-	target_include_directories(DoDoUI PRIVATE "." ${vulkan_include})
+	target_include_directories(DoDoUI PRIVATE "." ${vulkan_include} "../ThirdParty/glm")
 else()
 	# message(${ANDROID_NDK}/sources/android/native_app_glue/)
-	target_include_directories(DoDoUI PRIVATE "." ${ANDROID_NDK}/sources/android/native_app_glue)
+	target_include_directories(DoDoUI PRIVATE "." ${ANDROID_NDK}/sources/android/native_app_glue "../ThirdParty/glm")
 endif()
+
 # pch
 target_precompile_headers(DoDoUI PRIVATE "PreCompileHeader.h")
 

@@ -14,4 +14,5 @@ endif()
 
 add_test(NAME "1" COMMAND unit_tests 1)
 add_test(NAME "2" COMMAND unit_tests 2)
+add_test(NAME "3" COMMAND unit_tests 3)
 

@@ -164,4 +164,18 @@ namespace DoDo {
 		return total_length + 1;
 	}
 
+	bool operator==(const DoDoUtf8String& lhs, const DoDoUtf8String& rhs)
+	{
+		
+		if (lhs.m_count != rhs.m_count) return false;
+		else
+		{
+			for (size_t i = 0; i < lhs.m_count; ++i)
+			{
+				if (lhs.m_buffer[i] != rhs.m_buffer[i]) return false;
+			}
+			return true;
+		}
+	}
+
 }

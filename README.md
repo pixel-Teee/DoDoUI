@@ -9,7 +9,9 @@ DoDoUI
 git submodule update --init --recursive
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=Debug
+cmake .. -DCMAKE_BUILD_TYPE=Debug 
+    
+or cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_GENERATOR_TOOLSET=ClangCL
 ```
 
 

@@ -8,6 +8,7 @@
 
 #include "Renderer/RendererInstance.h"
 #include "Core/Window.h"
+#include "SlateCore/Widgets/SWindow.h"
 
 namespace DoDo
 {
