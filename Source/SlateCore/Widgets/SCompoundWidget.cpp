@@ -7,5 +7,8 @@ namespace DoDo {
 	{
 	}
 	*/
-	
+
+	SCompoundWidget::~SCompoundWidget()
+	{
+	}
 }

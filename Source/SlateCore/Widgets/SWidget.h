@@ -7,7 +7,7 @@
 #include "SlateCore/Types/SlateAttribute.h"
 #include "SlateCore/Widgets/SlateControlledConstruction.h"
 
-#include "SlateCore/Layout/Visibility.h"//EVisibility depends on it
+#include "SlateCore/Layout/Visibility.h"//m_Visibility_Attribute depends on it(EVisibility)
 
 namespace DoDo
 {
@@ -22,7 +22,8 @@ namespace DoDo
 
 		//SWidget();
 
-		//virtual ~SWidget();
+	public:
+		virtual ~SWidget();
 
 	protected:
 		/*

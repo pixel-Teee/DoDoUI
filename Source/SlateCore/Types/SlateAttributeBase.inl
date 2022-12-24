@@ -89,6 +89,7 @@ namespace SlateAttributePrivate
 
 		void Construct_Wrapper(ContainerType& widget, const FGetter& getter)
 		{
+			//make a FSlateAttributeGetterWrapper<TSlateAttributeBase>
 			std::unique_ptr<ISlateAttributeGetter> wrapper = Make_Unique_Getter(*this, getter);
 			
 			protected_register_attribute(widget, InAttributeType, std::move(wrapper));

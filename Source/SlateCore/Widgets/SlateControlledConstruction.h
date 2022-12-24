@@ -45,6 +45,7 @@ namespace DoDo
 			
 		}
 	public:
+		//this call back is Private_Register_Attributes, we need to implement this function in every widget, if we need to register some attribute
 		template<typename InWidgetParentType>
 		FSlateWidgetClassData(TIdentity<InWidgetParentType>, DoDoUtf8String InWidgetTypeName, void(*attribute_Initializer)(FSlateAttributeInitializer&))
 			: m_widget_type(InWidgetTypeName)
@@ -62,6 +63,8 @@ namespace DoDo
 
 		DoDoUtf8String Get_Widget_Type() const { return m_widget_type; }
 	public:
+		//describe the static information about slate widget class
+		//FSlateAttributeDescriptor is default construct
 		FSlateAttributeDescriptor m_descriptor;
 
 		DoDoUtf8String m_widget_type;

@@ -1,11 +1,18 @@
 #pragma once
 
 #include "Core/Delegates/Delegates.h"//FAttributeValueChangedDelegate depends on it
-#include "SlateCore/Widgets/SWidget.h"
+#include "SlateCore/Widgets/InvalidateWidgetReason.h"
+#include "Core/String/DoDoString.h"
 
 namespace DoDo
 {
 #define STRUCT_OFFSET(s, m) ((int32_t)(&((s*)0)->m))
+
+	//forward declare
+	namespace SlateAttributePrivate
+	{
+		enum class ESlateAttributeType : uint8_t;
+	}
 	/*
 	 * describes the static information about a widget's type slate attributes
 	 */
@@ -36,6 +43,12 @@ namespace DoDo
 			FInvalidateWidgetReasonAttribute(FInvalidateWidgetReasonAttribute&&) = default;
 			FInvalidateWidgetReasonAttribute& operator=(const FInvalidateWidgetReasonAttribute&) = default;
 			FInvalidateWidgetReasonAttribute& operator=(FInvalidateWidgetReasonAttribute&&) = default;
+
+			explicit FInvalidateWidgetReasonAttribute(EInvalidateWidgetReason In_Reason)
+				: m_reason(In_Reason)
+			{
+				
+			}
 
 			//todo:in the future, add pay load to delegate
 			explicit FInvalidateWidgetReasonAttribute(FGetter::Static_Function_Type in_func_ptr)
@@ -74,6 +87,9 @@ namespace DoDo
 
 		using OffsetType = uint32_t;
 
+		/* the default sort order that define in which order attributes will be updated */
+		static constexpr  OffsetType Default_Sort_Order(OffsetType offset) { return offset * 100; }
+
 		struct FContainer
 		{
 		public:
@@ -108,6 +124,7 @@ namespace DoDo
 		struct FAttribute
 		{
 		public:
+			friend FSlateAttributeDescriptor;
 			//OffsetType = uint32_t
 			FAttribute(DoDoUtf8String name, OffsetType offset, FInvalidateWidgetReasonAttribute reason);
 
@@ -118,7 +135,7 @@ namespace DoDo
 				return m_name;
 			}
 
-			uint32_t Get_Sort_Order()
+			uint32_t Get_Sort_Order() const
 			{
 				return m_Sort_Order;
 			}
@@ -287,6 +304,12 @@ namespace DoDo
 			FSlateAttributeDescriptor& m_descriptor;
 		};
 		//todo:implement function
+		/* returns the attribute of a slate attribute that have the corresponding memory offset */
+		const FAttribute* find_member_attribute(OffsetType attribute_offset) const;
+	private:
+		FAttribute* find_attribute(DoDoUtf8String attribute_name);
+
+		FInitializer::FAttributeEntry add_member_attribute(DoDoUtf8String attribute_name, OffsetType offset, FInvalidateWidgetReasonAttribute reason_getter);
 	private:
 
 		std::vector<FAttribute> m_attributes;
@@ -305,5 +328,5 @@ namespace DoDo
 	 * @param _Reason the EInvalidationWidgetReason or a static function/lambda that takes a const SWidget& and that returns the invalidation reason
 	 */
 #define SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(_Initializer, _Name, _Property, _Reason) \
-	_Initializer.AddMemberAttribute(_Name, STRUCT_OFFSET(PrivateThisType, _Property), FSlateAttributeDescriptor::FInvalidateWidgetReasonAttribute{_Reason})
+	_Initializer.add_member_attribute(_Name, STRUCT_OFFSET(PrivateThisType, _Property), FSlateAttributeDescriptor::FInvalidateWidgetReasonAttribute{_Reason})
 }

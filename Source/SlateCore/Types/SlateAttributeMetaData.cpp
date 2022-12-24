@@ -113,6 +113,53 @@ namespace DoDo {
 		const FSlateAttributeDescriptor::OffsetType attribute_offset = Private::find_member_offset(Owning_Widget, attribute);
 
 		//todo:implement FSlateWidgetClassData
-		const FSlateAttributeDescriptor::FAttribute* found_member_attribute;
+		const FSlateAttributeDescriptor::FAttribute* found_member_attribute = Owning_Widget.Get_Widget_Class().Get_Attribute_Descriptor().find_member_attribute(attribute_offset);
+
+		if(found_member_attribute)
+		{
+			//todo:need to fix this?
+			//ISlateMetaData have FGetterItem array(m_attributes)
+
+			//binary search
+			uint32_t l = 0, r = m_attributes.size() - 1;
+			while(l < r)
+			{
+				uint32_t mid = l + r >> 1;
+
+				uint32_t sort_order = m_attributes[mid].m_sort_order;//sort order
+
+				if (found_member_attribute->Get_Sort_Order() >= sort_order) r = mid;
+				else l = mid + 1;
+			}
+
+			//construct a temp rvalue to array
+			//this will add FAttribute to FGetterItem
+			m_attributes.insert(m_attributes.begin() + l, { &attribute, found_member_attribute->Get_Sort_Order(), std::move(getter), found_member_attribute });
+
+			//FGetterItem& getter_item = *iter;
+
+			if(found_member_attribute->Does_Affect_Visibility())
+			{
+				++m_affect_visibility_counter;
+			}
+		}
+		else
+		{
+			//attribute offset * 100
+			const uint32_t calculated_sort_order = FSlateAttributeDescriptor::Default_Sort_Order(attribute_offset);
+
+			uint32_t l = 0, r = m_attributes.size() - 1;
+			while(l < r)
+			{
+				uint32_t mid = l + r >> 1;
+
+				uint32_t sort_order = m_attributes[mid].m_sort_order;//sort order
+
+				if (calculated_sort_order >= sort_order) r = mid;
+				else l = mid + 1;
+			}
+
+			m_attributes.insert(m_attributes.begin() + l, { &attribute, calculated_sort_order, std::move(getter) });
+		}
 	}
 }

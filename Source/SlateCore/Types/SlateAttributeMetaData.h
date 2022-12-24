@@ -4,6 +4,8 @@
 #include "SlateAttribute.h"
 #include <SlateCore/Widgets/InvalidateWidgetReason.h>
 
+#include "SlateAttributeDescriptor.h"//FGetterItem depends on it
+
 namespace DoDo {
 	class SWidget;
 	//class DoDoUtf8String;
@@ -85,11 +87,44 @@ namespace DoDo {
 		{
 			FGetterItem(const FGetterItem&) = delete;
 			FGetterItem(FGetterItem&&) = default;
+			//todo:need to fix this?, vector use = to copy
 			FGetterItem& operator=(const FGetterItem&) = delete;
-			FGetterItem(FSlateAttributeBase* In_Attribute, uint32_t in_sort_order, Scope<SlateAttributePrivate::ISlateAttributeGetter>&& In_Getter);
+			//todo:implement this check
+			FGetterItem& operator=(FGetterItem&& rhs)
+			{
+				//if(this != &rhs)
+				//{
+				//	
+				//}
+				m_attribute = rhs.m_attribute;
+				m_getter = std::move(rhs.m_getter);
+				m_cached_attribute_descriptor = rhs.m_cached_attribute_descriptor;
+				m_sort_order = rhs.m_sort_order;
+				attribute_container_offset = rhs.attribute_container_offset;
+			}
+			FGetterItem(FSlateAttributeBase* In_Attribute, uint32_t in_sort_order, Scope<SlateAttributePrivate::ISlateAttributeGetter>&& In_Getter)
+				: m_attribute(In_Attribute)
+				, m_getter(std::move(In_Getter))
+				, m_cached_attribute_descriptor(nullptr)
+				, m_sort_order(in_sort_order)
+				, attribute_container_offset(0)
+			{
+				
+			}
+
+			FGetterItem(FSlateAttributeBase* In_Attribute, uint32_t in_sort_order, Scope<SlateAttributePrivate::ISlateAttributeGetter>&& In_Getter, const FSlateAttributeDescriptor::FAttribute* in_attribute_descriptor)
+			: m_attribute(In_Attribute)
+			, m_getter(std::move(In_Getter))
+			, m_cached_attribute_descriptor(in_attribute_descriptor)
+			, m_sort_order(in_sort_order)
+			, attribute_container_offset(0)
+			{
+				
+			}
 
 			FSlateAttributeBase* m_attribute;
 			std::unique_ptr<SlateAttributePrivate::ISlateAttributeGetter> m_getter;
+			const FSlateAttributeDescriptor::FAttribute* m_cached_attribute_descriptor;//describes FSlateAttributeBase class static information
 			uint32_t m_sort_order;
 			int32_t attribute_container_offset;//to fit inside a 32b structure, save the offset of the attribute container
 
@@ -102,6 +137,16 @@ namespace DoDo {
 		};
 
 		std::vector<FGetterItem> m_attributes;
+
+		/*
+		 * there is a possibility that the widget has a cached invalidation reason and a parent become collapsed
+		 * the invalidation will probably never get executed but
+		 * 1. the widget is collapsed indirectly, so we do not care if it's invalidated
+		 * 2. the parent widget will clear this widget persistent state
+		 */
+		EInvalidateWidgetReason m_cached_invalidation_reason = EInvalidateWidgetReason::None;
+
+		uint8_t m_affect_visibility_counter = 0;
 	};
 
 }

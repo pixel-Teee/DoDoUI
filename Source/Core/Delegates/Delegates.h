@@ -14,6 +14,12 @@ namespace DoDo {
 	public:
 		typedef Return_Type(*Static_Function_Type)(void* p, Delegate_Template_Type...);
 
+		Delegate()
+		{
+			m_p = m_f = nullptr;
+			//todo:not generate new handle?
+		}
+
 		~Delegate() {}
 
 		Delegate(const Delegate& delegate)
