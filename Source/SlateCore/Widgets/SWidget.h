@@ -33,6 +33,9 @@ namespace DoDo
 		/* return true if the widgets will update its registered slate attributes automatically or they need to be updated manually */
 		bool Is_Attributes_Updates_Enabled() const { return m_b_enabled_attributes_update; }
 
+		/* be used by FSlotBase to detach this widget from parent widget*/
+		bool conditionally_detach_parent_widget(SWidget* in_expected_parent);
+
 	public:
 		/*
 		 * invalidates the widget from the view of a layout caching widget that may own this widget
@@ -81,9 +84,22 @@ namespace DoDo
 		/* the SNew or SAssignedNew construction is completed */
 		uint8_t m_b_Is_Declarative_Syntax_Construction_Completed : 1;
 
+	protected:
+		/*
+		 * called when a child is removed from the tree parent's widget tree either by removing it from a slot
+		 * this can also be called manually if you've got some non-slot based what of no longer reporting children
+		 * an example of a widget that needs manual calling is SWidgetSwitcher
+		 * it keeps all its children but only arranges and paints a single "active" one
+		 * once a child becomes inactive, once a child becomes inactive, it's cached data should be removed
+		 */
+		void invalidate_child_remove_from_tree(SWidget& child);
+
 	public:
 		//return true if the widgets has any bound slate attribute
 		bool Has_Registered_Slate_Attribute() const { return m_b_has_registered_slate_attribute; }
+
+		/* pointer to this widgets parent widget. if it is null this is a root widget or it is not in the widget tree */
+		std::weak_ptr<SWidget> m_parent_widget_ptr;
 
 		//todo:move this member to private control
 		//meta data associated with this widget

@@ -25,6 +25,28 @@ namespace DoDo {
 	{
 	}
 
+	bool SWidget::conditionally_detach_parent_widget(SWidget* in_expected_parent)
+	{
+		std::shared_ptr<SWidget> parent = m_parent_widget_ptr.lock();
+
+		if(parent.get() == in_expected_parent)
+		{
+			m_parent_widget_ptr.reset();
+
+			//give a flag
+			if(parent != nullptr)
+			{
+				parent->Invalidate(EInvalidateWidgetReason::Child_Order);
+			}
+
+			invalidate_child_remove_from_tree(*this);
+
+			return true;
+		}
+
+		return false;
+	}
+
 	//FSlateAttributeMetaData::remove_meta_data_if_needed will call this function
 	//interms of parameter to mark different flag
 	void SWidget::Invalidate(EInvalidateWidgetReason in_validate_reason)
@@ -54,6 +76,11 @@ namespace DoDo {
 	SWidget::SWidget()
 		: m_Visibility_Attribute(*this, EVisibility::visible)
 	{
+	}
+
+	void SWidget::invalidate_child_remove_from_tree(SWidget& child)
+	{
+		//todo:implement this function
 	}
 }
 

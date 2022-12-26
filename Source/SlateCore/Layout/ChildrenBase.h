@@ -46,7 +46,7 @@ namespace DoDo
 		virtual std::shared_ptr<const SWidget> get_child_at(int32_t index) const = 0;
 
 		/* return the SWidget that own the FChildren */
-		SWidget& get_owner() { return *m_owner;  }
+		SWidget& get_owner() const { return *m_owner;  }
 
 		/* applies the predicate to all the widgets contained by the FChildren */
 		template<typename Predicate>
