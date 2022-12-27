@@ -10,7 +10,7 @@ namespace DoDo
 {
 	/* a FChildren that has only one child and can take a templated slot */
 	template<typename SlotType>
-	class TSingleWidgetChildrenWithSlot : public FChildren
+	class TSingleWidgetChildrenWithSlot : public FChildren, TSlotBase<SlotType>
 	{
 		
 	};

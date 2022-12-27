@@ -29,6 +29,16 @@ namespace DoDo
 		}
 	}
 
+	void FSlotBase::set_owner(const FChildren& children)
+	{
+		if(m_owner != &children)
+		{
+			m_owner = &children;
+
+			after_content_or_owner_assigned();
+		}
+	}
+
 	void FSlotBase::detach_parent_from_content()
 	{
 		//todo:implement SNullWidget::NullWidget
@@ -40,5 +50,12 @@ namespace DoDo
 
 	void FSlotBase::after_content_or_owner_assigned()
 	{
+		if(SWidget* owner_widget = get_owner_widget())
+		{
+			if(m_widget != nullptr)
+			{
+				//todo:implement assign parent widget
+			}
+		}
 	}
 }

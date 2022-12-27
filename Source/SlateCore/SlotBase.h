@@ -59,6 +59,7 @@ namespace DoDo
 		void attach_widget(const std::shared_ptr<SWidget>& in_widget)
 		{
 			//todo:implement detach parent from content
+			detach_parent_from_content();
 			m_widget = in_widget;
 			//todo:implement after content or owner assigned
 		}
@@ -103,5 +104,103 @@ namespace DoDo
 
 		/* the content widget of the slot */
 		std::shared_ptr<SWidget> m_widget;
+	};
+
+	/* a slot that can be used by the declarative syntax */
+	template<typename SlotType>
+	class TSlotBase : public FSlotBase
+	{
+	public:
+		//use constructor
+		using FSlotBase::FSlotBase;
+
+		SlotType& operator[](const std::shared_ptr<SWidget>& in_child_widget)
+		{
+			this->attach_widget(in_child_widget);
+			return static_cast<SlotType&>(*this);
+		}
+
+		//assign to parameter
+		SlotType& expose(SlotType*& out_var_to_init)
+		{
+			out_var_to_init = static_cast<SlotType*>(this);
+
+			return static_cast<SlotType&>(*this);
+		}
+
+		/* argument to indicate the slot is also it's owner */
+		enum EConstructSlotIsFChildren{ ConstructSlotIsFChildren };
+
+		/* struct to construct a slot */
+		struct FSlotArguments : public FSlotBase::FSlotArguments
+		{
+		public:
+			FSlotArguments(EConstructSlotIsFChildren){}
+			FSlotArguments(std::unique_ptr<SlotType> in_slot)
+			: m_slot(std::move(in_slot)){}
+
+			FSlotArguments(const FSlotArguments&) = delete;
+			FSlotArguments& operator=(const FSlotArguments&) = delete;
+			FSlotArguments(FSlotArguments&&) = default;
+			FSlotArguments& operator=(FSlotArguments&&) = default;
+
+		public:
+			/* attach the child widget the slot will own */
+			typename SlotType::FSlotArguments& operator[](const std::shared_ptr<SWidget>& in_child_widget)
+			{
+				m_child_widget = in_child_widget;
+				return Me();
+			}
+
+			/* initialize OutVarToInit with the slot that is being constructed */
+			typename SlotType::FSlotArguments& Expose(SlotType*& OutVarToInit)
+			{
+				OutVarToInit = m_slot.get();
+
+				return Me();
+			}
+
+			/* attach the child widget the slot will own */
+			void attach_widget(const std::shared_ptr<SWidget>& in_child_widget)
+			{
+				m_child_widget = in_child_widget;
+			}
+
+			/* return the child widget that will be owned by the slot */
+			const std::shared_ptr<SWidget>& get_attached_widget() const { return m_child_widget; }
+
+			/* return the slot that is being constructed */
+			SlotType* get_slot() const { return m_slot.get(); }
+
+			/* steal the slot that is being constructed from the FSlotArguments */
+			std::unique_ptr<SlotType> steal_slot()
+			{
+				return std::move(m_slot);
+			}
+
+			/* used by the named argument pattern as a safe way to 'return *this' for call-chaining purposes */
+			typename SlotType::FSlotArguments& Me()
+			{
+				return static_cast<typename SlotType::FSlotArguments&>(*this);
+			}
+
+		private:
+			//owner ship?
+			std::unique_ptr<SlotType> m_slot;
+
+			std::shared_ptr<SWidget> m_child_widget;
+		};
+
+		//note:called by the TSingleWidgetChildrenWithSlot's construct
+		//_RequiredArgs.CallConstruct
+		void Construct(const FChildren& slot_owner, FSlotArguments&& in_args)
+		{
+			if(in_args.get_attached_widget())
+			{
+				attach_widget(in_args.get_attached_widget());
+			}
+
+			set_owner(slot_owner);
+		}
 	};
 }

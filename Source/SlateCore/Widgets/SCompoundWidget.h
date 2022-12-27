@@ -32,8 +32,6 @@ namespace DoDo {
 			m_content_scale_attribute.Assign(*this, std::move(In_Content_Scale));
 		}
 
-		
-
 	private:
 
 		//the layout scale to apply to this widget's contents, useful for animation
