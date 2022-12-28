@@ -9,8 +9,13 @@
 
 #include "SlateCore/Layout/Visibility.h"//m_Visibility_Attribute depends on it(EVisibility)
 
+#include "glm/glm.hpp"
+
+#include "SlateCore/Rendering/SlateRenderTransform.h"//m_render_transform_attribute depends on it
+
 namespace DoDo
 {
+
 	class ISlateMetaData;
 
 	class SWidget : public FSlateControlledConstruction
@@ -33,6 +38,10 @@ namespace DoDo
 		/* return true if the widgets will update its registered slate attributes automatically or they need to be updated manually */
 		bool Is_Attributes_Updates_Enabled() const { return m_b_enabled_attributes_update; }
 
+		/* return the desired size that was computed the last time CachedDesiredSize() was called */
+		glm::vec2 get_desired_size() const;
+
+		void assign_parent_widget(std::shared_ptr<SWidget> in_parent);
 		/* be used by FSlotBase to detach this widget from parent widget*/
 		bool conditionally_detach_parent_widget(SWidget* in_expected_parent);
 
@@ -105,8 +114,22 @@ namespace DoDo
 		//meta data associated with this widget
 		std::vector<std::shared_ptr<ISlateMetaData>> m_Meta_Data;
 	private:
+		/* stores the ideal size this widget wants to be */
+		std::optional<glm::vec2> m_desired_size;
 
+		/* is this widget visible, hidden or collapsed */
 		TSlateAttribute<EVisibility> m_Visibility_Attribute;
+
+		/* whether or not this widget is enabled */
+		TSlateAttribute<bool> m_enabled_state_attribute;
+
+		/* render transform pivot of this widget(in normalized local space) */
+		TSlateAttribute<glm::vec2> m_render_transform_pivot_attribute;
+
+		/* render transform of this widget. TOptional<> to allow code to skip expensive overhead if there is no render transform applied */
+		//TSlateAttribute<std::optional<FSlateRenderTransform>>
+		//todo:add std::optional<>
+		TSlateAttribute<FSlateRenderTransform> m_render_transform_attribute;
 
 		//is there at least one slate attribute currently registered
 		uint8_t m_b_has_registered_slate_attribute : 1;

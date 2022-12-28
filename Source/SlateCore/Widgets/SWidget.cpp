@@ -18,11 +18,29 @@ namespace DoDo {
 		//FInvalidateWidgetReasonAttribute(may be with callback)
 		//attribute_initializer.add_member_attribute("Visibility", STRUCT_OFFSET(PrivateThisType, m_Visibility_Attribute), FSlateAttributeDescriptor::FInvalidateWidgetReasonAttribute{EInvalidateWidgetReason::Visibility}).affect_visibility();
 		SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "Visibility", m_Visibility_Attribute, EInvalidateWidgetReason::Visibility).affect_visibility();
+		SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "EnabledState", m_enabled_state_attribute, EInvalidateWidgetReason::Paint);
 
+		SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "RenderTransformPivot", m_render_transform_pivot_attribute, EInvalidateWidgetReason::Layout | EInvalidateWidgetReason::Render_Transform);
 	}
 
 	SWidget::~SWidget()
 	{
+		
+	}
+
+	glm::vec2 SWidget::get_desired_size() const
+	{
+		return glm::vec2(m_desired_size.value_or(glm::vec2(0.0f)));
+	}
+
+	void SWidget::assign_parent_widget(std::shared_ptr<SWidget> in_parent)
+	{
+		m_parent_widget_ptr = in_parent;
+
+		if(in_parent)
+		{
+			in_parent->Invalidate(EInvalidateWidgetReason::Child_Order);
+		}
 	}
 
 	bool SWidget::conditionally_detach_parent_widget(SWidget* in_expected_parent)
@@ -75,6 +93,9 @@ namespace DoDo {
 
 	SWidget::SWidget()
 		: m_Visibility_Attribute(*this, EVisibility::visible)
+		, m_enabled_state_attribute(*this, true)
+		, m_render_transform_pivot_attribute(*this, glm::vec2(0.0f))
+		, m_render_transform_attribute(*this, glm::vec2(0.0f, 0.0f))
 	{
 	}
 
