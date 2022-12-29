@@ -105,8 +105,12 @@ namespace DoDo
 
 	/* a FChildren that has only one child and support alignment and padding */
 	template<EInvalidateWidgetReason In_Padding_Invalidation_Reason = EInvalidateWidgetReason::Layout>
-	class TSingleWidgetChildrenWithBasicLayoutSlot
+	class TSingleWidgetChildrenWithBasicLayoutSlot : public TSingleWidgetChildrenWithSlot<TSingleWidgetChildrenWithBasicLayoutSlot<In_Padding_Invalidation_Reason>>
 	{
-		
+	public:
+		using ParentType = TSingleWidgetChildrenWithSlot<TSingleWidgetChildrenWithBasicLayoutSlot<In_Padding_Invalidation_Reason>>;//parent type
+
+	public:
+
 	};
 }
