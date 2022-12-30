@@ -6,6 +6,8 @@
 
 #include "SlateCore/Widgets/InvalidateWidgetReason.h"
 
+#include "BasicLayoutWidgetSlot.h"//TSingleWidgetChildrenWithBasicLayoutSlot depends on it
+
 namespace DoDo
 {
 	/* a FChildren that has only one child and can take a templated slot */
@@ -106,6 +108,8 @@ namespace DoDo
 	/* a FChildren that has only one child and support alignment and padding */
 	template<EInvalidateWidgetReason In_Padding_Invalidation_Reason = EInvalidateWidgetReason::Layout>
 	class TSingleWidgetChildrenWithBasicLayoutSlot : public TSingleWidgetChildrenWithSlot<TSingleWidgetChildrenWithBasicLayoutSlot<In_Padding_Invalidation_Reason>>
+		, public TPaddingSingleWidgetSlotMixin<TSingleWidgetChildrenWithBasicLayoutSlot<In_Padding_Invalidation_Reason>, In_Padding_Invalidation_Reason>
+		, public TAlignmentWidgetSlotMixin<TSingleWidgetChildrenWithBasicLayoutSlot<In_Padding_Invalidation_Reason>>
 	{
 	public:
 		using ParentType = TSingleWidgetChildrenWithSlot<TSingleWidgetChildrenWithBasicLayoutSlot<In_Padding_Invalidation_Reason>>;//parent type
