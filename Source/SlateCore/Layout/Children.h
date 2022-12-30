@@ -8,6 +8,8 @@
 
 #include "BasicLayoutWidgetSlot.h"//TSingleWidgetChildrenWithBasicLayoutSlot depends on it
 
+#include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"//TSingleWidgetChildrenWithBasicLayoutSlot depends on it
+
 namespace DoDo
 {
 	/* a FChildren that has only one child and can take a templated slot */
@@ -113,8 +115,41 @@ namespace DoDo
 	{
 	public:
 		using ParentType = TSingleWidgetChildrenWithSlot<TSingleWidgetChildrenWithBasicLayoutSlot<In_Padding_Invalidation_Reason>>;//parent type
+		using PaddingMixinType = TPaddingSingleWidgetSlotMixin<TSingleWidgetChildrenWithBasicLayoutSlot<In_Padding_Invalidation_Reason>, In_Padding_Invalidation_Reason>;
+		using AlignmentMixinType = TAlignmentWidgetSlotMixin<TSingleWidgetChildrenWithBasicLayoutSlot<In_Padding_Invalidation_Reason>>;
 
 	public:
+		template<typename WidgetType, typename V = typename std::enable_if<std::is_base_of<SWidget, WidgetType>::value>::type>
+		TSingleWidgetChildrenWithBasicLayoutSlot(WidgetType* in_owner)
+			: ParentType(in_owner)
+			, PaddingMixinType(in_owner)
+			, AlignmentMixinType(*in_owner, HAlign_Fill, VAlign_Fill)
+		{
+			
+		}
 
+		template<typename WidgetType, typename V = typename std::enable_if<std::is_base_of<SWidget, WidgetType>::value>::type>
+		TSingleWidgetChildrenWithBasicLayoutSlot(WidgetType* in_owner, const EHorizontalAlignment in_halign, const EVerticalAlignment in_valign)
+			: ParentType(in_owner)
+			, PaddingMixinType(*in_owner)
+			, AlignmentMixinType(*in_owner, in_halign, in_valign)
+		{
+			
+		}
+
+		TSingleWidgetChildrenWithBasicLayoutSlot(std::nullptr_t) = delete;
+		TSingleWidgetChildrenWithBasicLayoutSlot(std::nullptr_t, const EHorizontalAlignment in_halign, const EVerticalAlignment in_valign) = delete;
+
+		//todo:implement SLATE_SLOT_BEGIN_ARGS_TwonMixins macro
+		//this macro lets TSingleWidgetChildrenWithBasicLayoutSlot inherited from ParentType
+		SLATE_SLOT_BEGIN_ARGS_TwoMixins(TSingleWidgetChildrenWithBasicLayoutSlot, ParentType, PaddingMixinType, AlignmentMixinType)
+		SLATE_SLOT_END_ARGS()
+
+		void Construct(FSlotArguments&& in_args)
+		{
+			ParentType::Construct(std::move(in_args));
+			PaddingMixinType::Construct_Mixin(std::move(in_args));
+			AlignmentMixinType::Construct_Mixin(std::move(in_args));
+		}
 	};
 }

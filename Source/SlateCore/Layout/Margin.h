@@ -88,5 +88,15 @@ namespace DoDo
 		{
 			return FMargin(left * scale, top * scale, right * scale, bottom * scale);
 		}
+
+		/*
+		 * gets the margin's total size
+		 *
+		 * @return cumulative margin size
+		 */
+		glm::vec2 get_desired_size() const
+		{
+			return glm::vec2(left + right, top + bottom);
+		}
 	};
 }

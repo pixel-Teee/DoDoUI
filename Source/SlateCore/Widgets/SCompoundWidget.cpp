@@ -18,4 +18,18 @@ namespace DoDo {
 	SCompoundWidget::~SCompoundWidget()
 	{
 	}
+
+	glm::vec2 SCompoundWidget::Compute_Desired_Size(float) const
+	{
+		EVisibility child_visibility = m_child_slot.get_widget()->get_visibility();
+
+		if(child_visibility != EVisibility::Collapsed)
+		{
+			//widget's size + FMargin's size(padding)
+			//from slot's content to get the widget
+			return m_child_slot.get_widget()->get_desired_size() + m_child_slot.get_padding().get_desired_size();
+		}
+
+		return glm::vec2(0.0f);
+	}
 }

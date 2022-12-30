@@ -4,7 +4,13 @@
 
 #include "glm/glm.hpp"
 
+#include "SlateCore/Layout/Children.h"//SCompoundWidget depends on it
+
 namespace DoDo {
+	/*
+	 * a compound widget is the base from which most non-primitive widgets should be built
+	 * compound widgets have a protected member named child slot
+	 */
 	class SCompoundWidget : public SWidget
 	{
 		SLATE_DECLARE_WIDGET(SCompoundWidget, SWidget)
@@ -31,6 +37,21 @@ namespace DoDo {
 		{
 			m_content_scale_attribute.Assign(*this, std::move(In_Content_Scale));
 		}
+
+	protected:
+
+		/*------begin SWidget overrides------*/
+		virtual glm::vec2 Compute_Desired_Size(float) const override;
+		/*------end SWidget overrides------*/
+
+		struct FCompoundWidgetOneChildSlot : TSingleWidgetChildrenWithBasicLayoutSlot<EInvalidateWidgetReason::None>
+		{
+			friend SCompoundWidget;
+			using TSingleWidgetChildrenWithBasicLayoutSlot<EInvalidateWidgetReason::None>::TSingleWidgetChildrenWithBasicLayoutSlot;
+		};
+
+		/* the slot that contains this widget's descendants */
+		FCompoundWidgetOneChildSlot m_child_slot;
 
 	private:
 

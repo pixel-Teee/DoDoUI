@@ -45,7 +45,26 @@ namespace DoDo
 		/* be used by FSlotBase to detach this widget from parent widget*/
 		bool conditionally_detach_parent_widget(SWidget* in_expected_parent);
 
+	protected:
+		/*
+		 * compute the ideal size necessary to display this widget. for aggregate widgets (e.g. panels) this size should include the
+		 * size necessary to show all of it's children. CacheDesiredSize() guarantess that the size of descendatnts is computed and cached
+		 * before that of the parents, so it is safe to call GetDesiredSize() for any children while implementing this method
+		 *
+		 * note that ComputeDesiredSize() is meant as an aide to the developer. it is not meant to be very roubust in many case
+		 *
+		 * @param LayoutScaleMultiplier this parameter is safe to ignore for almost all widgets, only really affects text measuring
+		 *
+		 * @return the desired size
+		 */
+		virtual glm::vec2 Compute_Desired_Size(float Layout_Scale_Multiplier) const = 0;
+
 	public:
+		/*
+		 * @return is this widget visible, hidden or collapsed
+		 * @note this widget can be visible but if a parent is hidden or collapsed, it would not show on screen
+		 */
+		EVisibility get_visibility() const { return m_Visibility_Attribute.Get(); }
 		/*
 		 * invalidates the widget from the view of a layout caching widget that may own this widget
 		 * will force the owning widget to redraw and cache children on the next paint pass

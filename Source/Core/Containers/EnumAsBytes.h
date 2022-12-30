@@ -26,6 +26,23 @@ namespace DoDo
 			: m_value(static_cast<uint8_t>(In_Value))
 		{}
 
+		/*
+		 * compares two enumeration values for equality
+		 *
+		 * @param in_value the value to compare with
+		 * @return true if the two values are equal, false otherwise
+		 */
+		bool operator==(TEnumAsByte in_value) const
+		{
+			return m_value == in_value.m_value;
+		}
+
+		/* implicit conversion to TEnum */
+		operator TEnum() const
+		{
+			return (TEnum)m_value;
+		}
+
 	private:
 		//holds the value as a byte
 		uint8_t m_value;
