@@ -10,6 +10,9 @@ namespace DoDo
 
 		//SWindow();
 
+		//todo:implement FSlateWindowElementList FWidgetStyle 
+		//int32_t paint_window(double current_time, float delta_time);
+
 		virtual ~SWindow() {}
 	};
 }

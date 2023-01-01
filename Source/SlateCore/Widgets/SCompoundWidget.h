@@ -38,6 +38,9 @@ namespace DoDo {
 			m_content_scale_attribute.Assign(*this, std::move(In_Content_Scale));
 		}
 
+		//todo:implement FPaintArgs
+		virtual FChildren* Get_Children() override;
+
 	protected:
 
 		/*------begin SWidget overrides------*/

@@ -15,6 +15,7 @@
 
 namespace DoDo
 {
+	class FChildren;
 
 	class ISlateMetaData;
 
@@ -58,6 +59,13 @@ namespace DoDo
 		 * @return the desired size
 		 */
 		virtual glm::vec2 Compute_Desired_Size(float Layout_Scale_Multiplier) const = 0;
+
+		/*
+		 * returns the useful children(if any) of this widget. some widget type may hide widget if they are needed by the system.
+		 * allows for iteration over the widget's children regardless of how they are actually stored
+		 * @note should be renamed to GetVisibleChidlren(not all children will be returned in all cases)
+		 */
+		virtual FChildren* Get_Children() = 0;
 
 	public:
 		/*

@@ -19,6 +19,12 @@ namespace DoDo {
 	{
 	}
 
+	FChildren* SCompoundWidget::Get_Children()
+	{
+		//just to return FChildren(FChildren may own slot, slot owns SWidget)
+		return &m_child_slot;
+	}
+
 	glm::vec2 SCompoundWidget::Compute_Desired_Size(float) const
 	{
 		EVisibility child_visibility = m_child_slot.get_widget()->get_visibility();
