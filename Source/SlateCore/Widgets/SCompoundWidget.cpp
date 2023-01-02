@@ -19,6 +19,17 @@ namespace DoDo {
 	{
 	}
 
+	int32_t SCompoundWidget::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry,
+		const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
+		const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
+	{
+		//SButton's OnPaint will call this function
+
+		//todo:implement FArrangedChildren
+
+		return layer_id;
+	}
+
 	FChildren* SCompoundWidget::Get_Children()
 	{
 		//just to return FChildren(FChildren may own slot, slot owns SWidget)

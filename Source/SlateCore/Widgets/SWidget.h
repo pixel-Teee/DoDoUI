@@ -19,6 +19,12 @@ namespace DoDo
 
 	class ISlateMetaData;
 
+	class FPaintArgs;
+	class FGeometry;
+	class FSlateRect;
+	class FSlateWindowElementList;
+	class FWidgetStyle;
+
 	class SWidget : public FSlateControlledConstruction
 	{
 	public:
@@ -113,6 +119,23 @@ namespace DoDo
 		/* is the widget construction completed(did we called and returned from the Construct() function) */
 		bool Is_Constructed() const { return m_b_Is_Declarative_Syntax_Construction_Completed; }
 
+	private:
+		/*
+		 * the widget should respond by populating the OutDrawElements array with FDrawElements
+		 * that represent it and any of it's children, called by the non-virtual OnPaint to enforce pre/post conditions
+		 * during OnPaint
+		 *
+		 * @param Args all the arguments necessary to paint this widget(@todo umg:move all params into this struct)
+		 * @param AllottedGeometry the FGeometry that describes an area in which the widget should appear
+		 * @param MyCullingRect the rectangle representing the bounds currently being to completely cull widgets
+		 * @param OutDrawElements a list of FDrawElements to populate with the output
+		 * @param LayerId the layer onto which this widget should be rendered
+		 * @param InColorAndOpacity color and opacity to be applied to all the descendants of the widget begin painted
+		 * @param bParentEnabled true if the parent of this enabled
+		 * @return the maximum layer id attained by this widget or any of it's children
+		 */
+		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements,
+			int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const = 0;
 	private:
 		/* are bound slate attributes will be updated once per frame */
 		uint8_t m_b_enabled_attributes_update : 1;
