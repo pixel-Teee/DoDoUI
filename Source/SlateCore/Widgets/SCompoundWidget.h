@@ -4,9 +4,21 @@
 
 #include "glm/glm.hpp"
 
+#include "SlateCore/Layout/Children.h"//SCompoundWidget depends on it
+
 namespace DoDo {
+	class FPaintArgs;
+	class FGeometry;
+	class FSlateRect;
+	class FSlateWindowElementList;
+	class FWidgetStyle;
+	/*
+	 * a compound widget is the base from which most non-primitive widgets should be built
+	 * compound widgets have a protected member named child slot
+	 */
 	class SCompoundWidget : public SWidget
 	{
+		SLATE_DECLARE_WIDGET(SCompoundWidget, SWidget)
 	public:
 		//because TSlateAttribute's delete constructor, so SCompound Widget's default constructor could not use
 		//SCompoundWidget();
@@ -30,6 +42,29 @@ namespace DoDo {
 		{
 			m_content_scale_attribute.Assign(*this, std::move(In_Content_Scale));
 		}
+
+		//todo:implement FPaintArgs
+		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements,
+			int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
+
+		virtual FChildren* Get_Children() override;
+
+		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
+
+	protected:
+
+		/*------begin SWidget overrides------*/
+		virtual glm::vec2 Compute_Desired_Size(float) const override;
+		/*------end SWidget overrides------*/
+
+		struct FCompoundWidgetOneChildSlot : TSingleWidgetChildrenWithBasicLayoutSlot<EInvalidateWidgetReason::None>
+		{
+			friend SCompoundWidget;
+			using TSingleWidgetChildrenWithBasicLayoutSlot<EInvalidateWidgetReason::None>::TSingleWidgetChildrenWithBasicLayoutSlot;
+		};
+
+		/* the slot that contains this widget's descendants */
+		FCompoundWidgetOneChildSlot m_child_slot;
 
 	private:
 

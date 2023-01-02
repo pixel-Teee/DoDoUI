@@ -8,10 +8,7 @@ namespace DoDo {
 	namespace SlateAttributePrivate {
 		void FSlateAttributeImpl::protected_unregister_attribute(SWidget& widget, ESlateAttributeType attribute_type) const
 		{
-			//test attribute address
-			//...
-
-
+			FSlateAttributeMetaData::UnRegister_Attribute(widget, *this);
 		}
 		void FSlateAttributeImpl::protected_register_attribute(SWidget& widget, ESlateAttributeType attribute_type, Scope<ISlateAttributeGetter>&& wrapper)
 		{
@@ -19,6 +16,7 @@ namespace DoDo {
 		}
 		void FSlateAttributeImpl::protected_invalidate_widget(SWidget& widget, ESlateAttributeType attribute_type, EInvalidateWidgetReason invalidation_reason) const
 		{
+			FSlateAttributeMetaData::In_Validate_Widget(widget, *this, attribute_type, invalidation_reason);
 		}
 		bool FSlateAttributeImpl::protected_is_bound(const SWidget& widget, ESlateAttributeType attribute_type) const
 		{

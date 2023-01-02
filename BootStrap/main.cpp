@@ -57,7 +57,7 @@ void android_main(android_app* p_state)
 
         if(window.get_window_native_handle() != nullptr)
         {
-            app.Run();
+            app.Tick();
         }
     } while (!p_state->destroyRequested);
 
@@ -71,7 +71,7 @@ int main()
 
     app.Init();
 
-    app.Run();
+    app.Tick();
 
     return 0;
 }

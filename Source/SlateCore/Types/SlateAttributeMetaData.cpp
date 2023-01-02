@@ -16,6 +16,18 @@ namespace DoDo {
 			//OffsetType is uint32_t
 			return (FSlateAttributeDescriptor::OffsetType)(offset);
 		}
+
+		EInvalidateWidgetReason invalidate_for_member(SWidget& owning_widget, const FSlateAttributeBase& attribute, EInvalidateWidgetReason reason)
+		{
+			const FSlateAttributeDescriptor::OffsetType offset = find_member_offset(owning_widget, attribute);
+			if(const FSlateAttributeDescriptor::FAttribute* found_attribute = owning_widget.Get_Widget_Class().Get_Attribute_Descriptor().find_member_attribute(offset))
+			{
+				//call FSlateAttributeBase corresponding FAttribute in FSlateAttributeDescriptor's function
+				found_attribute->Execute_On_Value_Changed(owning_widget);
+				return found_attribute->Get_Invalidation_Reason(owning_widget);
+			}
+			return reason;
+		}
 	}
 	FSlateAttributeMetaData* FSlateAttributeMetaData::find_meta_data(const SWidget& Owning_Widget)
 	{
@@ -73,8 +85,71 @@ namespace DoDo {
 
 			Execute_Register(*new_attribute_meta_data);
 
-
 		}
+	}
+
+	bool FSlateAttributeMetaData::UnRegister_Attribute(SWidget& owning_widget, const FSlateAttributeBase& attribute)
+	{
+		if(FSlateAttributeMetaData* attribute_meta_data = FSlateAttributeMetaData::find_meta_data(owning_widget))
+		{
+			const bool b_Result = attribute_meta_data->unregister_attribute_impl(attribute);
+
+			attribute_meta_data->remove_meta_data_if_needed(owning_widget, b_Result);
+
+			return b_Result;
+		}
+
+		return false;
+	}
+
+	void FSlateAttributeMetaData::In_Validate_Widget(SWidget& owning_widget, const FSlateAttributeBase& attribute,
+		ESlateAttributeType attribute_type, EInvalidateWidgetReason reason)
+	{
+		/*
+		 * the widget is in the construction phase or is building in the widget list
+		 * it's already invalidated... no need to keep invalidating it
+		 * no needs to set the bUpdatedManually in this case because
+		 * 1.they are in construction, so they will all be called anyway
+		 * 2.they are in Widget List, so the SlateAttribute.Set will not be called
+		 */
+		if(!owning_widget.Is_Constructed())
+		{
+			return;
+		}
+
+		const FSlateAttributeDescriptor::FAttributeValueChangedDelegate* on_value_changed_call_back = nullptr;
+
+		//from attribute descriptor to collocate invalidation reason
+		if(FSlateAttributeMetaData* attribute_meta_data = FSlateAttributeMetaData::find_meta_data(owning_widget))
+		{
+			const int32_t found_index = attribute_meta_data->Index_Of_Attribute(attribute);
+
+			if(found_index != -1)
+			{
+				const FGetterItem& getter_item = attribute_meta_data->m_attributes[found_index];
+				if(getter_item.m_cached_attribute_descriptor)
+				{
+					getter_item.m_cached_attribute_descriptor->Execute_On_Value_Changed(owning_widget);
+					reason = getter_item.m_cached_attribute_descriptor->Get_Invalidation_Reason(owning_widget);
+				}
+			}
+			else if(attribute_type == ESlateAttributeType::Member)
+			{
+				//todo:implement invalidate for member
+				reason = Private::invalidate_for_member(owning_widget, attribute, reason);
+			}
+
+			reason |= attribute_meta_data->m_cached_invalidation_reason;
+			attribute_meta_data->m_cached_invalidation_reason = EInvalidateWidgetReason::None;
+		}
+		else if(attribute_type == ESlateAttributeType::Member)
+		{
+			//todo:implement invalidate for member
+			reason = Private::invalidate_for_member(owning_widget, attribute, reason);
+		}
+
+		//pass reason to widget invalidate function, interms of reason to mark different flag
+		owning_widget.Invalidate(reason);
 	}
 
 	FDelegateHandle FSlateAttributeMetaData::Get_Attribute_Getter_Handle(const SWidget& Owning_Widget,
@@ -160,6 +235,42 @@ namespace DoDo {
 			}
 
 			m_attributes.insert(m_attributes.begin() + l, { &attribute, calculated_sort_order, std::move(getter) });
+		}
+	}
+
+	bool FSlateAttributeMetaData::unregister_attribute_impl(const FSlateAttributeBase& attribute)
+	{
+		const int32_t found_index = Index_Of_Attribute(attribute);
+
+		if(found_index != -1)
+		{
+			//what cached attribute descriptor it is?
+			if(m_attributes[found_index].m_cached_attribute_descriptor && m_attributes[found_index].m_cached_attribute_descriptor->Does_Affect_Visibility())
+			{
+				if (m_affect_visibility_counter > 0)
+					--m_affect_visibility_counter;
+			}
+			//keep the order valid
+			//from FGetterItem to erase it
+			m_attributes.erase(m_attributes.begin() + found_index);
+			return true;
+		}
+
+		return false;
+	}
+
+	void FSlateAttributeMetaData::remove_meta_data_if_needed(SWidget& owning_widget, bool b_Removed) const
+	{
+		//when getter item is empty
+		if(m_attributes.size() == 0)
+		{
+			owning_widget.m_b_has_registered_slate_attribute = false;
+			owning_widget.m_Meta_Data.erase(owning_widget.m_Meta_Data.begin());//erase first element
+			if(owning_widget.Is_Constructed() && owning_widget.Is_Attributes_Updates_Enabled())
+			{
+				//call invalidate to mark different flag
+				owning_widget.Invalidate(EInvalidateWidgetReason::Attribute_Registration);
+			}
 		}
 	}
 }

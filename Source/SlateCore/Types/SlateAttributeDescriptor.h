@@ -143,7 +143,7 @@ namespace DoDo
 			EInvalidateWidgetReason Get_Invalidation_Reason(const SWidget& widget) const
 			{
 				//return m_invalidation_reason.
-				return  EInvalidateWidgetReason();//todo:need to complete this function
+				return m_invalidation_reason.Get(widget);//todo:need to complete this function
 			}
 
 			SlateAttributePrivate::ESlateAttributeType Get_Attribute_Type() const

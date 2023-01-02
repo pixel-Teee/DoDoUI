@@ -7,6 +7,9 @@ namespace DoDo
 	//is an entity visible?
 	struct EVisibility
 	{
+		/*not visible and takes up no space in the layout(obviously not hit-testable)*/
+		static const EVisibility Collapsed;
+
 		/*visible and hit-testable(can interact with cursor), default value*/
 		static const EVisibility visible;
 
@@ -18,6 +21,24 @@ namespace DoDo
 			: m_Value(VIS_Visible)
 		{
 			
+		}
+
+	public:
+		bool operator==(const EVisibility& other) const
+		{
+			return this->m_Value == other.m_Value;
+		}
+
+		bool operator!=(const EVisibility& other) const
+		{
+			//implicit conversion and compare
+			return this->m_Value != other.m_Value;
+		}
+
+		//query the filter have the in_visibility, if don't have, return false, else return true
+		static bool Does_Visibility_Pass_Filter(const EVisibility in_visibility, const EVisibility in_visibility_filter)
+		{
+			return 0 != (in_visibility.m_Value & in_visibility_filter.m_Value);
 		}
 
 	private:
@@ -51,6 +72,15 @@ namespace DoDo
 
 			VIS_All = VISPRIVATE_Visiable | VISPRIVATE_Hidden | VISPRIVATE_Collapsed | VISPRIVATE_SelfHitTestVisible | VISPRIVATE_ChildrenHitTestVisible
 		};
+
+		/*
+		 * private constructor
+		 */
+		EVisibility(Private in_value)
+			: m_Value(in_value)
+		{
+			
+		}
 	public:
 		TEnumAsByte<Private> m_Value;
 	};
