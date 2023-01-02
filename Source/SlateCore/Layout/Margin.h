@@ -2,6 +2,7 @@
 
 #include "glm/vec2.hpp"//FMargin depends on it
 #include "glm/vec4.hpp"//FMargin depends on it
+#include "SlateCore/Types/SlateEnums.h"//GetTotalSpaceAlong depens on it
 
 namespace DoDo
 {
@@ -98,5 +99,22 @@ namespace DoDo
 		{
 			return glm::vec2(left + right, top + bottom);
 		}
+
+		/*
+		 * gets the total horizontal or vertical margin
+		 *
+		 * @return cumulative horizontal margin
+		 */
+		template<EOrientation Orientation>
+		float Get_Total_Space_Along() const
+		{
+			return 0.0f;
+		}
 	};
+
+	template<>
+	inline float FMargin::Get_Total_Space_Along<Orient_Horizontal>() const { return left + right; }
+
+	template<>
+	inline float FMargin::Get_Total_Space_Along<Orient_Vertical>() const { return top + bottom; }
 }

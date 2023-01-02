@@ -65,6 +65,18 @@ namespace DoDo {
 		return false;
 	}
 
+	void SWidget::Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children,
+		bool b_update_attributes) const
+	{
+		if(b_update_attributes)
+		{
+			//todo:implement FSlateAttributeMetaData::UpdateChildrenOnlyVisibilityAttributes
+		}
+
+		//call virtual function OnArrangeChildren
+		On_Arrange_Children(allotted_geometry, arranged_children);
+	}
+
 	//FSlateAttributeMetaData::remove_meta_data_if_needed will call this function
 	//interms of parameter to mark different flag
 	void SWidget::Invalidate(EInvalidateWidgetReason in_validate_reason)

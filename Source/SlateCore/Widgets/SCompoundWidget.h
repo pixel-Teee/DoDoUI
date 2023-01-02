@@ -49,6 +49,8 @@ namespace DoDo {
 
 		virtual FChildren* Get_Children() override;
 
+		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
+
 	protected:
 
 		/*------begin SWidget overrides------*/

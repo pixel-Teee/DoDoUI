@@ -37,4 +37,16 @@ namespace DoDo
 		/*bottom-align*/
 		VAlign_Bottom
 	};
+
+	/*
+	 * enumerates widget orientations
+	 */
+	enum EOrientation
+	{
+		/*orient horizontally, left to right*/
+		Orient_Horizontal,
+
+		/*orient vertically, top to bottom*/
+		Orient_Vertical
+	};
 }

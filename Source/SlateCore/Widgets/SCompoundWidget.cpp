@@ -1,6 +1,9 @@
 #include <PreCompileHeader.h>
 #include "SCompoundWidget.h"
 
+#include "SlateCore/Layout/FlowDirection.h"//On_Arrange_Children depends on it
+#include "SlateCore/Layout/LayoutUtils.h"//On_Arrange_Children depends on it
+
 namespace DoDo {
 	/*
 	SCompoundWidget::SCompoundWidget()
@@ -26,6 +29,29 @@ namespace DoDo {
 		//SButton's OnPaint will call this function
 
 		//todo:implement FArrangedChildren
+		//parameter is filter, just visible widget can add to FArrangedChildren
+		FArrangedChildren arranged_children(EVisibility::visible);
+		{
+			this->Arrange_Children(allotted_geometry, arranged_children);
+		}
+
+		//there may be zero elements in this array if your child collapsed/hidden
+		if(arranged_children.num() > 0)
+		{
+			//todo:implement should be enabled function
+			const bool b_should_be_enabled = false;
+
+			FArrangedWidget& the_child = arranged_children[0];
+
+			//todo:implement FWidgetStyle
+
+			int32_t layer = 0;
+
+			//todo:implement SWidget's paint function
+			//layer = the_child.m_widget->Paint();
+
+			return layer;
+		}
 
 		return layer_id;
 	}
@@ -34,6 +60,13 @@ namespace DoDo {
 	{
 		//just to return FChildren(FChildren may own slot, slot owns SWidget)
 		return &m_child_slot;
+	}
+
+	void SCompoundWidget::On_Arrange_Children(const FGeometry& allotted_geometry,
+		FArrangedChildren& arranged_children) const
+	{
+		//call template function
+		Arrange_Single_Child(g_flow_direction, allotted_geometry, arranged_children, m_child_slot, Get_Content_Scale());
 	}
 
 	glm::vec2 SCompoundWidget::Compute_Desired_Size(float) const

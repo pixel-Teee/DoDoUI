@@ -24,6 +24,7 @@ namespace DoDo
 	class FSlateRect;
 	class FSlateWindowElementList;
 	class FWidgetStyle;
+	class FArrangedChildren;
 
 	class SWidget : public FSlateControlledConstruction
 	{
@@ -67,11 +68,36 @@ namespace DoDo
 		virtual glm::vec2 Compute_Desired_Size(float Layout_Scale_Multiplier) const = 0;
 
 		/*
+		 * non-virtual entry point for arrange children
+		 * arrange children function
+		 * compute the geometry of all the children and add populate the arranged children list with their values
+		 * each type of layout panel should arrange children based on desired behaviour
+		 *
+		 * optionally, update the collapsed attributes(attributes that affect the visibility) of the children before executing the virtual arrange children function
+		 * the visibility attribute is updated once per frame(see slate pre pass)
+		 * use the option when you are calling arrange children outside of the regular SWidget Paint/Tick
+		 *
+		 * @param AllottedGeometry the geometry allotted for this widget by it's parent
+		 * @param ArrangedChildren the array to which to add the widget geometries that represent the arranged children
+		 * @param bUpdateAttributes update the collapsed attributes
+		 */
+		void Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children, bool b_update_attributes = false) const;
+
+		/*
 		 * returns the useful children(if any) of this widget. some widget type may hide widget if they are needed by the system.
 		 * allows for iteration over the widget's children regardless of how they are actually stored
 		 * @note should be renamed to GetVisibleChidlren(not all children will be returned in all cases)
 		 */
 		virtual FChildren* Get_Children() = 0;
+
+		/*
+		 * compute the geometry of all the children and add populate the arranged children list with their values
+		 * each type of layout panel should arrange children based on desired behaviour
+		 *
+		 * @param AllottedGeometry the geometry allotted for this widget by it's parent
+		 * @param ArrangedChildren the array to which to add the widget geometries that represent the arranged children
+		 */
+		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const = 0;
 
 	public:
 		/*

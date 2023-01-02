@@ -35,6 +35,12 @@ namespace DoDo
 			return this->m_Value != other.m_Value;
 		}
 
+		//query the filter have the in_visibility, if don't have, return false, else return true
+		static bool Does_Visibility_Pass_Filter(const EVisibility in_visibility, const EVisibility in_visibility_filter)
+		{
+			return 0 != (in_visibility.m_Value & in_visibility_filter.m_Value);
+		}
+
 	private:
 		enum Private
 		{
