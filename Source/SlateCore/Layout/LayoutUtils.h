@@ -79,6 +79,8 @@ namespace DoDo
 			//swap padding values interm of flow direction
 			const FMargin slot_padding(Layout_Padding_With_Flow(in_flow_direction, child_slot.get_padding()));
 
+			//todo:implement FGeometry's get local size
+
 			//todo:implement AlignmentArrangeResult
 			//todo:implement FGeometry's get local size function
 			//todo:to call AllottedGeometry's MakeChild, add widget to ArrangedChildren
