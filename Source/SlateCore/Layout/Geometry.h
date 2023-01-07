@@ -12,9 +12,14 @@ namespace DoDo
 	struct FGeometry
 	{
 	public:
-
+		/*
+		 * default constructor
+		 * creates a geometry with identity transforms
+		 */
+		FGeometry();
 	private:
 
 
 	};
+
 }
