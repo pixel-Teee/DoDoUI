@@ -12,4 +12,14 @@ namespace DoDo
 		, m_b_has_render_transform(false)
 	{
 	}
+
+	FGeometry& FGeometry::operator=(const FGeometry& rhs)
+	{
+		//hack to allow use to make FGeometry public members immutable to catch misure
+		if(this != &rhs)
+		{
+			//todo:implement memcpy rhs to lhs
+		}
+		return *this;
+	}
 }

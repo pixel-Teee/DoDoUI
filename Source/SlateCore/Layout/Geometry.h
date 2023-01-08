@@ -34,7 +34,33 @@ namespace DoDo
 		 * @param InSize the size of this geometry
 		 * @param InScale the scale of this geometry with respect to Normal Slate Coordinates
 		 */
+	private:
 
+	public:
+		/*
+		 * test geometries for strict equality(i.e. extract float equality)
+		 *
+		 * @param Other A geometry to compare to
+		 * @return true if this is equal to other, false otherwise
+		 */
+		bool operator==(const FGeometry& other) const
+		{
+			return this->m_size == other.m_size &&
+				this->m_absolute_position == other.m_absolute_position &&
+				this->m_local_position == other.m_local_position &&
+				this->m_scale == other.m_scale;
+		}
+
+		/*
+		 * test geometries for strict equality(i.e. extract float equality)
+		 *
+		 * @param Other A geometry to compare to
+		 * @return false if this is equal to other, true otherwise
+		 */
+		bool operator!=(const FGeometry& other) const
+		{
+			return !(this->operator==(other));//check
+		}
 	private:
 
 		/* return the size of the geometry in local space*/
