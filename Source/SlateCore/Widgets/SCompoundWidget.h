@@ -2,7 +2,7 @@
 
 #include "SWidget.h"
 
-#include "glm/glm.hpp"
+//#include "glm/glm.hpp"
 
 #include "SlateCore/Layout/Children.h"//SCompoundWidget depends on it
 

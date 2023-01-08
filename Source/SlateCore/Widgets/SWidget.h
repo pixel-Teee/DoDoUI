@@ -13,6 +13,8 @@
 
 #include "SlateCore/Rendering/SlateRenderTransform.h"//m_render_transform_attribute depends on it
 
+#include <optional>//std::optional depends on it
+
 namespace DoDo
 {
 	class FChildren;

@@ -9,7 +9,8 @@ endif()
 # link libraries
 target_link_libraries(BootStrap PRIVATE DoDoUI)
 
-target_include_directories(BootStrap PRIVATE "${CMAKE_SOURCE_DIR}/Source")
+# include glm to test for SWidget create
+target_include_directories(BootStrap PRIVATE "${CMAKE_SOURCE_DIR}/Source" PRIVATE "${CMAKE_SOURCE_DIR}/ThirdParty/glm")
 
 if(CMAKE_SYSTEM_NAME MATCHES "Android")
 	target_include_directories(BootStrap PRIVATE "${ANDROID_NDK}/sources/android/native_app_glue")

@@ -66,6 +66,8 @@ void android_main(android_app* p_state)
 #else
 int main()
 {
+    //todo:test for create
+    //DoDo::SButton button();
 
     DoDo::Application app;
 
