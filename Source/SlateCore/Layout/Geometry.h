@@ -34,6 +34,16 @@ namespace DoDo
 		 * @param InSize the size of this geometry
 		 * @param InScale the scale of this geometry with respect to Normal Slate Coordinates
 		 */
+		FGeometry(const glm::vec2& offset_from_parent, const glm::vec2& parent_absolute_position, const glm::vec2& in_local_size, float in_scale)
+			: m_size(in_local_size)
+			, m_scale(1.0f)//this is just a normal value, is in [0.0f, 1.0f]
+			, m_absolute_position(0.0f, 0.0f)
+			, m_local_position(0.0f, 0.0f)//don't use this
+			, m_b_has_render_transform(false)
+		{
+			//since offset from parent is given as a local space offset, we must convert this offset into the space of the parent to construct a valid layout transform
+
+		}
 	private:
 
 	public:
@@ -48,7 +58,7 @@ namespace DoDo
 			return this->m_size == other.m_size &&
 				this->m_absolute_position == other.m_absolute_position &&
 				this->m_local_position == other.m_local_position &&
-				this->m_scale == other.m_scale;
+				this->m_scale == other.m_scale;//compare float is not safe
 		}
 
 		/*
