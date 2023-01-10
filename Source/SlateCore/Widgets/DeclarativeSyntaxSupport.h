@@ -47,6 +47,33 @@ namespace DoDo
 	 * use this macro between SLATE_BEGIN_ARGS and SLATE_END_ARGS
 	 * in order to add support for slots with construct pattern
 	 */
+#define SLATE_PRIVATE_ATTRIBUTE_VARIABLE(AttrType, AttrName) \
+		TAttribute<AttrType> _##AttrName;
+
+#define SLATE_PRIVATE_ATTRIBUTE_FUNCTION(AttrType, AttrName) \
+		WidgetArgsType& AttrName(TAttribute<AttrType> InAttribute) \
+		{ \
+			_##AttrName = std::move(InAttribute);\
+			return static_cast<WidgetArgsType*>(this)->Me();\
+		} \
+		\
+		/*
+		 * bind attribute with delegate to a global function
+		 * note : we use a template here to avoid 'typename' issues when hosting attributes inside templated classes
+		 */
+		//todo:implement bind function
+
+
+	/*
+	 * use this macro to add a attribute to the declaration of your widget
+	 * an attribute can be a value or a function
+	 */
+#define SLATE_ATTRIBUTE(AttrType, AttrName) \
+		SLATE_PRIVATE_ATTRIBUTE_VARIABLE(AttrType, AttrName) \
+		SLATE_PRIVATE_ATTRIBUTE_FUNCTION(AttrType, AttrName)
+
+
+//todo:implement SLATE_SLOT_ARGUMENT
 
 
 #define SLATE_PRIVATE_SLOT_BEGIN_ARGS(SlotType, SlotParentType) \
@@ -71,6 +98,30 @@ namespace DoDo
 
 #define SLATE_SLOT_END_ARGS() \
 	};
+
+	/*a widget reference that is always a valid pointer, defaults to SNullWidget*/
+	struct TAlwaysValidWidget
+	{
+		TAlwaysValidWidget()
+			: m_widget() //null widget
+		{
+			
+		}
+
+		std::shared_ptr<SWidget> m_widget;
+	};
+
+	/*
+	 * we want to be able to do:
+	 * SNew(ContainerWidget)
+	 * .SomeContentArea()
+	 * [
+	 *		//child widgets go here
+	 * ]
+	 *
+	 * NamedSlotProperty is a helper that will be returned by SomeContentArea()
+	 */
+
 
 	namespace RequiredArgs
 	{
