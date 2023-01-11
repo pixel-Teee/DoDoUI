@@ -16,5 +16,5 @@ namespace DoDo
 	};
 
 
-	extern EFlowDirection g_flow_direction;
+	extern EFlowDirection g_slate_flow_direction;
 }

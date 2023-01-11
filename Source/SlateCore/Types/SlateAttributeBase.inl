@@ -40,6 +40,12 @@ namespace SlateAttributePrivate
 			
 		}
 
+		TSlateAttributeBase(SWidget& widget)
+			: m_Value()
+		{
+			
+		}
+
 		TSlateAttributeBase(SWidget& widget, const ObjectType& In_Value)
 			: m_Value(In_Value)
 		{

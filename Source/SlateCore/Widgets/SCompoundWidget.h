@@ -8,7 +8,7 @@
 
 namespace DoDo {
 	class FPaintArgs;
-	class FGeometry;
+	struct FGeometry;
 	class FSlateRect;
 	class FSlateWindowElementList;
 	class FWidgetStyle;
@@ -52,6 +52,9 @@ namespace DoDo {
 		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
 
 	protected:
+
+		/*disallow public construction*/
+		SCompoundWidget();
 
 		/*------begin SWidget overrides------*/
 		virtual glm::vec2 Compute_Desired_Size(float) const override;

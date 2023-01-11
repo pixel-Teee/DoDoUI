@@ -33,6 +33,13 @@ namespace SlateAttributePrivate {
 		void* operator new[](size_t) = delete;
 
 		template<typename WidgetType, typename U = typename std::enable_if<std::is_base_of<SWidget, WidgetType>::value>::type>
+		explicit TSlateMemberAttribute(WidgetType& widget)
+			: Super(widget)
+		{
+			Verify_Attribute_Address(widget, *this);
+		}
+
+		template<typename WidgetType, typename U = typename std::enable_if<std::is_base_of<SWidget, WidgetType>::value>::type>
 		explicit TSlateMemberAttribute(WidgetType& widget, const ObjectType& in_value)
 			: Super(widget, in_value)
 		{

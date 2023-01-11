@@ -22,7 +22,7 @@ namespace DoDo
 	class ISlateMetaData;
 
 	class FPaintArgs;
-	class FGeometry;
+	struct FGeometry;
 	class FSlateRect;
 	class FSlateWindowElementList;
 	class FWidgetStyle;
@@ -36,6 +36,9 @@ namespace DoDo
 		SLATE_DECLARE_WIDGET(SWidget, FSlateControlledConstruction)
 
 		friend class FSlateAttributeMetaData;
+
+		template<class WidgetType, typename RequiredArgsPayloadType>
+		friend struct TSlateDecl;//for SWidget construct use
 
 		//SWidget();
 

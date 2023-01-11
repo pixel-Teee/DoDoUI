@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SlateCore/Layout/Visibility.h"//FSlateBaseNamedArgs depends on it
+
 namespace DoDo
 {
 	/*
@@ -17,7 +19,7 @@ namespace DoDo
 	//expose as is populated variable
 	//... is parameter
 #define SAssignNew(ExposeAs, WidgetType, ...)\
-	MakeTDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::MakeRequiredArgs(__VA_ARGS__)) . Expose(ExposeAs) <<= WidgetType::FArguments()
+	MakeTDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::Make_Required_Args(__VA_ARGS__)) . Expose(ExposeAs) <<= WidgetType::FArguments()
 
 	/*
 	 * widget authors can use SLATE_BEGIN_ARGS and SLATE_END_ARGS to add support
@@ -48,7 +50,7 @@ namespace DoDo
 	 * in order to add support for slots with construct pattern
 	 */
 #define SLATE_PRIVATE_ATTRIBUTE_VARIABLE(AttrType, AttrName) \
-		TAttribute<AttrType> _##AttrName;
+		TAttribute<AttrType> _##AttrName
 
 #define SLATE_PRIVATE_ATTRIBUTE_FUNCTION(AttrType, AttrName) \
 		WidgetArgsType& AttrName(TAttribute<AttrType> InAttribute) \
@@ -63,14 +65,31 @@ namespace DoDo
 		 */
 		//todo:implement bind function
 
+#define SLATE_PRIVATE_ARGUMENT_VARIABLE(ArgType, ArgName) \
+		ArgType _##ArgName
+
+#define SLATE_PRIVATE_ARGUMENT_FUNCTION(ArgType, ArgName) \
+		WidgetArgsType& ArgName(ArgType InArg) \
+		{ \
+			_##ArgName = InArg;\
+			return static_cast<WidgetArgsType*>(this)->Me();\
+		}
 
 	/*
 	 * use this macro to add a attribute to the declaration of your widget
 	 * an attribute can be a value or a function
 	 */
 #define SLATE_ATTRIBUTE(AttrType, AttrName) \
-		SLATE_PRIVATE_ATTRIBUTE_VARIABLE(AttrType, AttrName) \
+		SLATE_PRIVATE_ATTRIBUTE_VARIABLE(AttrType, AttrName); \
 		SLATE_PRIVATE_ATTRIBUTE_FUNCTION(AttrType, AttrName)
+
+	/*
+	 * use this macro to declare a slate argument
+	 * arguments differ from attributes in that they can only be values
+	 */
+#define SLATE_ARGUMENT(ArgType, ArgName) \
+		SLATE_PRIVATE_ARGUMENT_VARIABLE(ArgType, ArgName); \
+		SLATE_PRIVATE_ARGUMENT_FUNCTION(ArgType, ArgName)
 
 
 //todo:implement SLATE_SLOT_ARGUMENT
@@ -121,6 +140,87 @@ namespace DoDo
 	 *
 	 * NamedSlotProperty is a helper that will be returned by SomeContentArea()
 	 */
+	template<class DeclarationType>
+	struct NamedSlotProperty
+	{
+		NamedSlotProperty(DeclarationType& in_owner_declaration, TAlwaysValidWidget& content_slot)
+			: m_owner_declaration(in_owner_declaration)
+			, m_slot_content(content_slot)
+		{}
+
+		DeclarationType& operator[](const std::shared_ptr<SWidget>& in_child)
+		{
+			m_slot_content.m_widget = in_child;
+			return m_owner_declaration;//return m_owner_declaration
+		}
+
+		DeclarationType& m_owner_declaration;
+
+		TAlwaysValidWidget& m_slot_content;
+	};
+
+	/*
+	 * use this macro to add support named slot properties such as content and header
+	 * see NamedSlotProperty for more details
+	 */
+#define SLATE_NAMED_SLOT(DeclarationType, SlotName) \
+		NamedSlotProperty<DeclarationType> SlotName() \
+		{ \
+			return NamedSlotProperty<DeclarationType>(*this, _##SlotName);\
+		} \
+		TAlwaysValidWidget _##SlotName;
+
+#define SLATE_DEFAULT_SLOT(DeclarationType, SlotName) \
+		SLATE_NAMED_SLOT(DeclarationType, SlotName) ; \
+		DeclarationType& operator[](const std::shared_ptr<SWidget>& in_child)\
+		{ \
+			_##SlotName.m_widget = in_child;\
+			return static_cast<WidgetArgsType*>(this)->Me();\
+		}
+	//todo:implement SLATE_EVENT
+
+	/*
+	 * base class for named arguments, provides settings necessary for all widgets
+	 */
+	struct FSlateBaseNamedArgs
+	{
+		FSlateBaseNamedArgs() = default;
+
+		SLATE_PRIVATE_ATTRIBUTE_VARIABLE(EVisibility, Visibility) = EVisibility::visible;
+		SLATE_PRIVATE_ATTRIBUTE_VARIABLE(bool, IsEnabled) = true;
+
+		std::vector<std::shared_ptr<ISlateMetaData>> m_meta_data;
+	};
+
+	/*base class for named arguments, provides settings necessary for all widgets*/
+	template<typename WidgetType>
+	struct TSlateBaseNamedArgs : public FSlateBaseNamedArgs
+	{
+		typedef typename WidgetType::FArguments WidgetArgsType;
+
+		/*used by the named argument pattern as a safe way to 'return *this' for call-chaining purposes*/
+		WidgetArgsType& Me()
+		{
+			return *(static_cast<WidgetArgsType*>(this));//return to most derived FArguments
+		}
+
+		/*add meta data to this widget*/
+		WidgetArgsType& AddMetaData(std::shared_ptr<ISlateMetaData> in_meta_data)
+		{
+			m_meta_data.push_back(in_meta_data);
+			return Me();
+		}
+
+		/*add meta data to this widget - convenience method - 1 argument*/
+		template<typename MetaDataType, typename Arg0Type>
+		WidgetType& AddMetaData(Arg0Type in_arg0)
+		{
+			m_meta_data.push_back(std::make_shared<MetaDataType>(in_arg0));
+			return Me();
+		}
+
+		//todo:implement two arguments
+	};
 
 
 	namespace RequiredArgs
@@ -175,7 +275,7 @@ namespace DoDo
 			Arg1Type& m_arg1;
 		};
 
-		T0RequiredArgs Make_Required_Args()
+		inline T0RequiredArgs Make_Required_Args()
 		{
 			return T0RequiredArgs();
 		}
@@ -243,9 +343,9 @@ namespace DoDo
 		std::shared_ptr<WidgetType> operator<<=(const typename WidgetType::FArguments& in_args) const
 		{
 			//todo:implement SWidgetConstruct
-			m_widget->SWidgetConstruct(in_args);//call SWidget Constructor
+			//m_widget->SWidgetConstruct(in_args);//call SWidget Constructor
 			m_required_args.CallConstruct(m_widget, in_args);//todo:implement CallConstruct
-			m_widget->CacheVolatility();//cache volatility
+			//m_widget->CacheVolatility();//cache volatility
 			m_widget->m_b_Is_Declarative_Syntax_Construction_Completed = true;//constructed complete
 		}
 

@@ -10,6 +10,8 @@
 #include "Core/Window.h"
 #include "SlateCore/Widgets/SWindow.h"
 
+#include "Slate/Widgets/Layout/SBorder.h"//SBorder depends on it
+
 namespace DoDo
 {
     Application::Application()
@@ -18,6 +20,12 @@ namespace DoDo
     {
         //m_p_vk_instance = CreateScope<VkInstance>();
         m_p_window = Window::Create();
+
+        //std::shared_ptr<SBorder> border;
+        //SAssignNew(border, SBorder)
+		//	.ContentScale(1.0f)
+        //    .VAlign(VAlign_Fill)
+        //    .HAlign(HAlign_Fill);
     }
         
 

@@ -2,6 +2,8 @@
 
 #include "SlateCore/Widgets/SCompoundWidget.h"
 
+#include "SlateCore/Types/SlateEnums.h"//EHorizontalAlignment
+
 namespace DoDo
 {
 	/*
@@ -13,6 +15,35 @@ namespace DoDo
 	{
 		SLATE_DECLARE_WIDGET(SBorder, SCompoundWidget)
 	public:
+
+		//define a FArguments type, first to declare a constructor
+		SLATE_BEGIN_ARGS(SBorder)
+		: _Content()
+		, _HAlign(HAlign_Fill)
+		, _VAlign(VAlign_Fill)
+		, _ContentScale(glm::vec2(1.0f, 1.0f))
+		{}
+
+		SLATE_DEFAULT_SLOT(FArguments, Content)
+
+		SLATE_ARGUMENT(EHorizontalAlignment, HAlign)
+		SLATE_ARGUMENT(EVerticalAlignment, VAlign)
+
+		SLATE_ATTRIBUTE(glm::vec2, ContentScale)
+
+		SLATE_END_ARGS()
+
+		/*
+		 * default constructor
+		 */
+		SBorder();
+
+		/*
+		 * construct this widget
+		 *
+		 * @param InArgs The declaration data for this widget
+		 */
+		void Construct(const FArguments& in_args);
 
 	private:
 		//todo:implement FSlateBrush

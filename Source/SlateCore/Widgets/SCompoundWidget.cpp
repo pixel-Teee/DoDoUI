@@ -66,7 +66,15 @@ namespace DoDo {
 		FArrangedChildren& arranged_children) const
 	{
 		//call template function
-		Arrange_Single_Child(g_flow_direction, allotted_geometry, arranged_children, m_child_slot, Get_Content_Scale());
+		Arrange_Single_Child(g_slate_flow_direction, allotted_geometry, arranged_children, m_child_slot, Get_Content_Scale());
+	}
+
+	SCompoundWidget::SCompoundWidget()
+		: m_child_slot(this)
+		, m_content_scale_attribute(*this, glm::vec2(1.0f, 1.0f))
+		, m_color_and_opacity_attribute(*this, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//white
+		, m_foreground_color_attribute(*this, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//todo:use foreground
+	{
 	}
 
 	glm::vec2 SCompoundWidget::Compute_Desired_Size(float) const

@@ -64,6 +64,21 @@ namespace DoDo
 		}
 
 	public:
+		//HAlign will be deprecated soon, use set vertical alignment or construct a new slot with FSlotArguments
+		MixedIntoType& HAlign(EHorizontalAlignment in_halignment)
+		{
+			m_halignment = in_halignment;
+			return *(static_cast<MixedIntoType*>(this));
+		}
+
+		//VAlign will be deprecated soon, use set vertical alignment or construct a new slot with FSlotArguments
+		MixedIntoType& VAlign(EVerticalAlignment in_valignment)
+		{
+			m_valignment = in_valignment;
+			return *(static_cast<MixedIntoType*>(this));
+		}
+
+	public:
 		void set_horizontal_alignment(EHorizontalAlignment alignment)
 		{
 			if(m_halignment != alignment)
@@ -100,6 +115,101 @@ namespace DoDo
 		EVerticalAlignment m_valignment;
 	};
 
+	/* mixin to add the alignment functionality to a base slot that is also a single children*/
+	template<typename MixedIntoType>
+	class TAlignmentSingleWidgetSlotMixin
+	{
+	public:
+		template<typename WidgetType, typename V = typename std::enable_if<std::is_base_of<SWidget, WidgetType>::value>::type>
+		TAlignmentSingleWidgetSlotMixin(WidgetType& in_parent)
+			: m_halignment(HAlign_Fill)
+			, m_valignment(VAlign_Fill)
+		{}
+
+		template<typename WidgetType, typename V = typename std::enable_if<std::is_base_of<SWidget, WidgetType>::value>::type>
+		TAlignmentSingleWidgetSlotMixin(WidgetType& in_parent, const EHorizontalAlignment in_halign, const EVerticalAlignment in_valign)
+			: m_halignment(HAlign_Fill)
+			, m_valignment(VAlign_Fill)
+		{}
+	public:
+		struct FSlotArgumentsMixin
+		{
+		public:
+			friend TAlignmentSingleWidgetSlotMixin;
+
+		public:
+			typename MixedIntoType::FSlotArguments& HAlign(EHorizontalAlignment in_halignment)
+			{
+				m_halignment = in_halignment;
+				return static_cast<typename MixedIntoType::FSlotArguments&>(*this);
+			}
+
+			typename MixedIntoType::FSlotArguments& VAlign(EVerticalAlignment in_valignment)
+			{
+				m_valignment = in_valignment;
+				return static_cast<typename MixedIntoType::FSlotArguments&>(*this);
+			}
+
+		private:
+			std::optional<EHorizontalAlignment> m_halignment;
+			std::optional<EVerticalAlignment> m_valignment;
+		};
+	protected:
+		void Construct_Mixin(const FChildren& slot_owner, FSlotArgumentsMixin&& in_args)
+		{
+			m_halignment = in_args.m_halignment.value_or(m_halignment);
+			m_valignment = in_args.m_valignment.value_or(m_valignment);
+		}
+	public:
+		//HAlign will be deprecated soon, use set vertical alignment or construct a new slot with FSlotArguments
+		MixedIntoType& HAlign(EHorizontalAlignment in_halignment)
+		{
+			m_halignment = in_halignment;
+			return *(static_cast<MixedIntoType*>(this));
+		}
+
+		//VAlign will be deprecated soon, use set vertical alignment or construct a new slot with FSlotArguments
+		MixedIntoType& VAlign(EVerticalAlignment in_valignment)
+		{
+			m_valignment = in_valignment;
+			return *(static_cast<MixedIntoType*>(this));
+		}
+
+	public:
+		void set_horizontal_alignment(EHorizontalAlignment alignment)
+		{
+			if (m_halignment != alignment)
+			{
+				m_halignment = alignment;
+				//call widget's Invalidate function
+				static_cast<MixedIntoType*>(this)->Invalidate(EInvalidateWidgetReason::Layout);
+			}
+		}
+
+		EHorizontalAlignment get_horizontal_alignment() const
+		{
+			return m_halignment;
+		}
+
+		void set_vertical_alignment(EVerticalAlignment alignment)
+		{
+			if (m_valignment != alignment)
+			{
+				m_valignment = alignment;
+				static_cast<MixedIntoType*>(this)->Invalidate(EInvalidateWidgetReason::Layout);
+			}
+		}
+
+		EVerticalAlignment get_vertical_alignment() const
+		{
+			return m_valignment;
+		}
+	public:
+		EHorizontalAlignment m_halignment;
+
+		EVerticalAlignment m_valignment;
+	};
+
 	/* mixin to add the padding functionality to a base slot that is also a single children */
 	template<typename MixedIntoType, EInvalidateWidgetReason InPaddingInvalidationReason = EInvalidateWidgetReason::Layout>
 	class TPaddingSingleWidgetSlotMixin
@@ -114,7 +224,7 @@ namespace DoDo
 
 		template<typename WidgetType, typename V = typename std::enable_if<std::is_base_of<SWidget, WidgetType>::value>::type>
 		TPaddingSingleWidgetSlotMixin(WidgetType& in_parent, const FMargin& margin)
-			: m_slot_padding_attribute(in_parent)
+			: m_slot_padding_attribute(in_parent, margin)
 		{
 			
 		}

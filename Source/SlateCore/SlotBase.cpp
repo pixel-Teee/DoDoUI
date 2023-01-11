@@ -15,6 +15,10 @@ namespace DoDo
 	{
 	}
 
+	FSlotBase::~FSlotBase()
+	{
+	}
+
 	SWidget* FSlotBase::get_owner_widget() const
 	{
 		//first to call FSlotBase's function, get_owner, to get the FChildren that own the FSlotBase
