@@ -23,7 +23,7 @@ namespace DoDo
 
         std::shared_ptr<SBorder> border;
         SAssignNew(border, SBorder)
-			.ContentScale(1.0f)
+            .ContentScale(1.0f)
             .VAlign(VAlign_Fill)
             .HAlign(HAlign_Fill);
     }

@@ -16,7 +16,8 @@ namespace DoDo {
 
 		Delegate()
 		{
-			m_p = m_f = nullptr;
+			m_p = nullptr;
+			m_f = nullptr;
 			//todo:not generate new handle?
 		}
 
