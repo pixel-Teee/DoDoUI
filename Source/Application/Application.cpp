@@ -21,11 +21,11 @@ namespace DoDo
         //m_p_vk_instance = CreateScope<VkInstance>();
         m_p_window = Window::Create();
 
-        //std::shared_ptr<SBorder> border;
-        //SAssignNew(border, SBorder)
-		//	.ContentScale(1.0f)
-        //    .VAlign(VAlign_Fill)
-        //    .HAlign(HAlign_Fill);
+        std::shared_ptr<SBorder> border;
+        SAssignNew(border, SBorder)
+			.ContentScale(1.0f)
+            .VAlign(VAlign_Fill)
+            .HAlign(HAlign_Fill);
     }
         
 

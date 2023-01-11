@@ -2,6 +2,7 @@
 
 #include "SWidget.h"
 
+#include "DeclarativeSyntaxSupport.h"
 #include "SlateCore/Types/ISlateMetaData.h"
 
 #include "SlateCore/Types/SlateAttributeDescriptor.h"
@@ -25,7 +26,7 @@ namespace DoDo {
 
 	SWidget::~SWidget()
 	{
-		
+		m_b_has_registered_slate_attribute = false;//set this bool variable
 	}
 
 	glm::vec2 SWidget::get_desired_size() const
@@ -104,11 +105,25 @@ namespace DoDo {
 	}
 
 	SWidget::SWidget()
-		: m_Visibility_Attribute(*this, EVisibility::visible)
+		: m_b_has_registered_slate_attribute(false)
+		, m_Visibility_Attribute(*this, EVisibility::visible)
 		, m_enabled_state_attribute(*this, true)
 		, m_render_transform_pivot_attribute(*this, glm::vec2(0.0f))
 		, m_render_transform_attribute(*this, glm::vec2(0.0f, 0.0f))
 	{
+	}
+
+	void SWidget::SWidgetConstruct(const FSlateBaseNamedArgs& args)
+	{
+		//todo:to fix this
+		//m_Visibility_Attribute.Assign(*this, args._Visibility);
+
+		//------append a array to this array------
+		for(size_t i = 0; i < args.m_meta_data.size(); ++i)
+		{
+			m_Meta_Data.push_back(args.m_meta_data[i]);
+		}
+		//------append a array to this array------
 	}
 
 	void SWidget::invalidate_child_remove_from_tree(SWidget& child)

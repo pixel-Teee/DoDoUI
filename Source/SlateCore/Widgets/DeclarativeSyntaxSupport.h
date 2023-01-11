@@ -275,6 +275,8 @@ namespace DoDo
 			Arg1Type& m_arg1;
 		};
 
+		//todo:fix this
+		//todo:if we discard inline declaration, we will get error
 		inline T0RequiredArgs Make_Required_Args()
 		{
 			return T0RequiredArgs();
@@ -343,10 +345,11 @@ namespace DoDo
 		std::shared_ptr<WidgetType> operator<<=(const typename WidgetType::FArguments& in_args) const
 		{
 			//todo:implement SWidgetConstruct
-			//m_widget->SWidgetConstruct(in_args);//call SWidget Constructor
+			m_widget->SWidgetConstruct(in_args);//call SWidget Constructor
 			m_required_args.CallConstruct(m_widget, in_args);//todo:implement CallConstruct
 			//m_widget->CacheVolatility();//cache volatility
 			m_widget->m_b_Is_Declarative_Syntax_Construction_Completed = true;//constructed complete
+			return m_widget;
 		}
 
 		const std::shared_ptr<WidgetType> m_widget;//owner ship?

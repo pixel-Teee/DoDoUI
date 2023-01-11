@@ -17,6 +17,7 @@
 
 namespace DoDo
 {
+	struct FSlateBaseNamedArgs;
 	class FChildren;
 
 	class ISlateMetaData;
@@ -146,6 +147,9 @@ namespace DoDo
 		 * @see SNew
 		 */
 		SWidget();
+
+		/*construct a SWidget based on initial parameters*/
+		void SWidgetConstruct(const FSlateBaseNamedArgs& args);
 
 		/* is the widget construction completed(did we called and returned from the Construct() function) */
 		bool Is_Constructed() const { return m_b_Is_Declarative_Syntax_Construction_Completed; }
