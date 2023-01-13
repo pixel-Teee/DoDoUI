@@ -138,6 +138,13 @@ namespace DoDo
 				InComparePredicate>::TSlateMemberAttribute;
 		};
 
+	public:
+		/* @return whether or not this widget is enabled */
+		inline bool Is_Enabled() const
+		{
+			return m_enabled_state_attribute.Get();
+		}
+
 	protected:
 		/*
 		 * hidden default constructor
@@ -153,6 +160,18 @@ namespace DoDo
 
 		/* is the widget construction completed(did we called and returned from the Construct() function) */
 		bool Is_Constructed() const { return m_b_Is_Declarative_Syntax_Construction_Completed; }
+
+		/*
+		 * determines if this widget should be enabled
+		 *
+		 * @param InParentEnabled true if the parent of this widget is enabled
+		 * @return true if the widget is enabled
+		 */
+		bool should_be_enabled(bool in_parent_enabled) const
+		{
+			//this widget should enabled if it's parent is enabled and it is enabled
+			return in_parent_enabled && Is_Enabled();
+		}
 
 	private:
 		/*

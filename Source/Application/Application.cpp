@@ -22,10 +22,17 @@ namespace DoDo
         m_p_window = Window::Create();
 
         std::shared_ptr<SBorder> border;
+        std::shared_ptr<SBorder> border2;
         SAssignNew(border, SBorder)
             .ContentScale(1.0f)
             .VAlign(VAlign_Fill)
-            .HAlign(HAlign_Fill);
+            .HAlign(HAlign_Fill)
+            [
+                SAssignNew(border2, SBorder)
+                .ContentScale(1.0f)
+				.VAlign(VAlign_Fill)
+				.HAlign(HAlign_Fill)
+            ];
     }
         
 

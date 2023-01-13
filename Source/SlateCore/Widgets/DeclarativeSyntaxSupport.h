@@ -154,7 +154,7 @@ namespace DoDo
 			return m_owner_declaration;//return m_owner_declaration
 		}
 
-		DeclarationType& m_owner_declaration;
+		DeclarationType& m_owner_declaration;//this is FArguments
 
 		TAlwaysValidWidget& m_slot_content;
 	};

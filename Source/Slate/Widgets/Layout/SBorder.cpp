@@ -2,6 +2,8 @@
 
 #include "SBorder.h"
 
+#include "SlateCore/Layout/FlowDirection.h"//use g_slate_flow_direction
+
 namespace DoDo
 {
 	void SBorder::Private_Register_Attributes(FSlateAttributeInitializer&)
@@ -10,7 +12,9 @@ namespace DoDo
 	}
 
 	SBorder::SBorder()
-		: m_b_flip_for_right_to_left_flow_direction(false)
+		: m_desired_size_scale_attribute(*this, glm::vec2(1.0f, 1.0f))
+		, m_show_disabled_effect_attribute(*this, true)
+		, m_b_flip_for_right_to_left_flow_direction(false)
 	{
 	}
 
@@ -25,5 +29,33 @@ namespace DoDo
 		[
 			in_args._Content.m_widget
 		];
+	}
+
+	int32_t SBorder::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry,
+		const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
+		const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
+	{
+		//todo:get the FSlateBrush
+
+		const bool b_enabled = should_be_enabled(b_parent_enabled);//put function parameter to this function
+
+		//todo:implement ESlateDrawEffect
+		//todo:implement FSlateBrush
+
+		if(m_b_flip_for_right_to_left_flow_direction && g_slate_flow_direction == EFlowDirection::RightToLeft)
+		{
+			//todo:implement make child
+			//const FGeometry flipped_geometry = allotted_geometry.make_child()
+
+			//todo:implement FSlateDrawElement MakeBox
+		}
+		else
+		{
+			
+		}
+
+		return SCompoundWidget::On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id,
+		                                 in_widget_style,
+		                                 b_parent_enabled);
 	}
 }
