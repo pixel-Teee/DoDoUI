@@ -4,6 +4,7 @@
 
 namespace DoDo
 {
+	class FSlateDrawElement;//forward declare
 	/*
 	 * effects that can be applied to elements when rendered
 	 * note : new effects added should be in mask form
@@ -24,4 +25,6 @@ namespace DoDo
 	};
 
 	ENUM_CLASS_FLAGS(ESlateDrawEffect)
+
+	typedef std::vector<FSlateDrawElement> FSlateDrawElementArray;
 }

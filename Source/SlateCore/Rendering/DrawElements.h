@@ -42,6 +42,17 @@ namespace DoDo
 		 * allows for this element to be resized while maintain the border of the image
 		 * if there no margins the resulting box is simply a quad
 		 *
+		 *		__LeftMargin		__RightMargin
+		 *	   /				   /
+		 *	+--+------------------+--+
+		 *	|  |c1				  |c2|__TopMargin
+		 *	+--o------------------o--+
+		 *	|  |				  |  |
+		 *	|  |c3                |c4|
+		 *	+--o------------------o--+
+		 *	|  |                  |  |__BottomMargin
+		 *	+--+------------------+--+
+		 *
 		 * @param ElementList The list in which to add elements
 		 * @param InLayer The layer to draw the element on
 		 * @param PaintGeometry DrawSpace position and dimensions, see FPaintGeometry
@@ -67,8 +78,15 @@ namespace DoDo
 	class FSlateWindowElementList
 	{
 	public:
-		
+		/*
+		 * creates an uninitialized draw element
+		 */
+		FSlateDrawElement& add_uninitialized();
 
 	private:
+		/*the uncached draw elements to be processed*/
+		FSlateDrawElementArray m_uncached_draw_elements;
+
+
 	};
 }
