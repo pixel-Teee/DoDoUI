@@ -188,6 +188,7 @@ namespace DoDo
 
 		SLATE_PRIVATE_ATTRIBUTE_VARIABLE(EVisibility, Visibility) = EVisibility::visible;
 		SLATE_PRIVATE_ATTRIBUTE_VARIABLE(bool, IsEnabled) = true;
+		SLATE_PRIVATE_ATTRIBUTE_VARIABLE(glm::vec2, RenderTransformPivot) = glm::vec2(0.0f, 0.0f);
 
 		std::vector<std::shared_ptr<ISlateMetaData>> m_meta_data;
 	};

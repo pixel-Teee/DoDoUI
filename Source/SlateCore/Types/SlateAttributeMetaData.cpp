@@ -119,7 +119,7 @@ namespace DoDo {
 
 		const FSlateAttributeDescriptor::FAttributeValueChangedDelegate* on_value_changed_call_back = nullptr;
 
-		//from attribute descriptor to allocate invalidation reason
+		//from attribute descriptor to collocate invalidation reason
 		if(FSlateAttributeMetaData* attribute_meta_data = FSlateAttributeMetaData::find_meta_data(owning_widget))
 		{
 			const int32_t found_index = attribute_meta_data->Index_Of_Attribute(attribute);

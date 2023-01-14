@@ -2,6 +2,7 @@
 
 #include "DrawElements.h"
 
+#include "DrawElementPayloads.h"//FSlateBoxPayload
 #include "SlateCore/Layout/PaintGeometry.h"//paint geometry
 #include "SlateCore/Styling/SlateBrush.h"
 
@@ -37,8 +38,24 @@ namespace DoDo
 		//new payload type - inherit from box pay load
 		FSlateDrawElement& element = element_list.add_uninitialized();
 
+		FSlateBoxPayload* box_payload;
 
+		if(element_type == EElementType::ET_RoundedBox)
+		{
+			//crate rounded box pay load
+		}
+		else
+		{
+			//todo:implement element list's create pay load
+		}
 
+		box_payload->set_tint(in_tint);//set tint
+
+		//box_payload->set_brush(in_brush, paint_geometry.get_local_size(), paint_geometry.m_draw_scale);
+
+		//todo:implement FSlateDrawElement's Init function
+
+		return element;
 	}
 
 	FSlateDrawElement& FSlateWindowElementList::add_uninitialized()

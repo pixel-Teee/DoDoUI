@@ -20,10 +20,10 @@ namespace DoDo
 		using FReal = T;//template parameter
 
 		/*holds the box's minimum point*/
-		glm::vec2<T> m_min;
+		glm::vec<2, T> m_min;
 
 		/*holds the box's maximum point*/
-		glm::vec2<T> m_max;
+		glm::vec<2, T> m_max;
 
 		/*holds a flag indicating whether this box is valid*/
 		bool m_b_is_valid;
