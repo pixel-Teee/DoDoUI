@@ -3,6 +3,7 @@
 #include "SBorder.h"
 
 #include "SlateCore/Layout/FlowDirection.h"//use g_slate_flow_direction
+#include "SlateCore/Rendering/DrawElements.h"//on paint depends on it
 
 namespace DoDo
 {
@@ -36,6 +37,7 @@ namespace DoDo
 		const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
 		//todo:get the FSlateBrush
+		const FSlateBrush* brush_resource;//todo:to implement BorderImageAttribute
 
 		const bool b_enabled = should_be_enabled(b_parent_enabled);//put function parameter to this function
 
@@ -48,10 +50,20 @@ namespace DoDo
 			//const FGeometry flipped_geometry = allotted_geometry.make_child()
 
 			//todo:implement FSlateDrawElement MakeBox
-		}
-		else
-		{
-			
+
+			const ESlateDrawEffect draw_effects = ESlateDrawEffect::None;
+
+			//todo:implement this function
+			/*
+			FSlateDrawElement::MakeBox(
+				out_draw_elements,
+				layer_id,
+				allotted_geometry.to_paint_geometry(),
+				brush_resource,
+				draw_effects,
+				brush_resource->get_tint()
+			);
+			*/
 		}
 
 		return SCompoundWidget::On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id,
