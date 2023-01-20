@@ -88,6 +88,9 @@ namespace DoDo
 
 	FSlateAttributeDescriptor::FInitializer::FAttributeEntry& FSlateAttributeDescriptor::FInitializer::FAttributeEntry::affect_visibility()
 	{
+		//todo:check descriptor's attributes is valid index
+		//call descriptor's set affect visibility
+		return *this;
 	}
 
 	FSlateAttributeDescriptor::FInitializer::FAttributeEntry FSlateAttributeDescriptor::FInitializer::add_member_attribute(DoDoUtf8String attribute_name, OffsetType offset, FInvalidateWidgetReasonAttribute&& reason_getter)
