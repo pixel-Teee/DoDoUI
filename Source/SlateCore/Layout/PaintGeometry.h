@@ -2,6 +2,7 @@
 
 #include <glm/vec2.hpp>
 #include "SlateCore/Rendering/SlateRenderTransform.h"//accumulated render transform depends on it
+#include "SlateCore/Rendering/SlateLayoutTransform.h"
 
 /*
 * a paint geometry contains the window-space (draw-space) info to draw an element on the screen
@@ -17,7 +18,7 @@
 
 namespace DoDo
 {
-	class FSlateLayoutTransform;//forward declare
+	//class FSlateLayoutTransform;//forward declare
 
 	struct FPaintGeometry
 	{
@@ -41,6 +42,29 @@ namespace DoDo
 
 		/* get the size of the geometry in local space, must call commit transforms if using legacy constructor() first if legacy ctor is used */
 		const glm::vec2& get_local_Size() const { return m_local_size; }
+
+		/*access the final render transform, must call commit transforms if using legacy constructor() first if legacy ctor is used*/
+		const FSlateRenderTransform& get_accumulated_render_transform() const { return m_accumulated_render_transform; }
+
+		/*
+		* support mutable geometries constructed in window space, and possibly mutated later, as all legacy members are public
+		* in these cases we defer creating of the render transform and local size until rendering time to ensure that all member changes have
+		* finished
+		* waning : legacy usage does not support render transforms
+		*/
+		void commit_transforms_if_using_legacy_constructor() const
+		{
+			if (!m_b_using_legacy_constructor) return;
+
+			m_accumulated_render_transform = FSlateRenderTransform(m_draw_scale, glm::vec2(m_draw_position));
+
+			//todo:implement FSlateLayoutTransform's other function
+			//FSlateLayoutTransform accumulated_layout_transform = FSlateLayoutTransform(m_draw_scale, glm::vec2(m_draw_position));
+			//m_local_size =
+			//todo:implement TransformVector function
+		}
+
+		bool has_render_transform() const { return m_b_has_render_transform; }
 
 	private:
 		/*mutable to support legacy constructors, doesn't account for render transforms*/

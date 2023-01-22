@@ -2,7 +2,7 @@
 
 #include "SlateLayoutTransform.h"
 
-namespace Pixel {
+namespace DoDo {
 	FSlateLayoutTransform::FSlateLayoutTransform(float in_scale)
 	{
 	}
