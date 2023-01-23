@@ -14,6 +14,12 @@
 
 namespace DoDo
 {
+    struct FDrawWindowArgs
+    {
+        //todo:implement FSlateDrawBuffer
+        //todo:implement FWidgetPath
+    };
+
     Application::Application()
 	    : m_last_tick_time(0.0f)
 		, m_average_delta_time(1.0f / 30.0f)
@@ -81,7 +87,9 @@ namespace DoDo
     void Application::Tick_And_Draw_Widgets(float delta_time)
     {
         //todo:implement pre tick event delegate
-
+        {
+            m_pre_tick_event.Invoke(delta_time);//broad cast
+        }
         /*
          * update average time between ticks
          * this is used to monitor how responsive the application "feels"
@@ -99,7 +107,11 @@ namespace DoDo
         }
 
         //draw all windows
+        Draw_Windows();
 
+        {
+            m_post_tick_event.Invoke(delta_time);//broad cast
+        }
     }
 
     void Application::Draw_Windows()
@@ -115,6 +127,7 @@ namespace DoDo
         Draw_Pre_Pass(draw_only_this_window);
 
         //todo:implement FDrawWindowArgs
+        FDrawWindowArgs draw_window_args;
 
         //todo:implement SWindow
         //get the active modal window
@@ -124,7 +137,22 @@ namespace DoDo
 
         //todo:draw notification windows
 
+        //draw all windows
+        //use of an old-style iterator is intentional here, as slate windows
+        //array may be mutated by user logic in draw calls, the iterator
+        //prevents us from reading off the end and only keeps an index
+        //internally
+        for (std::vector<std::shared_ptr<SWindow>>::const_iterator itr = m_windows.begin(); itr != m_windows.end(); ++itr)
+        {
+            std::shared_ptr<SWindow> current_window = *itr;
+
+            //only draw visible windows or in off-screen rendering mode
+            //todo:need pass FDrawWindowArgs
+            Draw_Window_And_Children(current_window, draw_window_args);
+        }
+
         //todo:implement renderer's draw windows
+        //m_renderer_instance
     }
 
     void Application::Draw_Pre_Pass(std::shared_ptr<SWindow> draw_only_this_window)
@@ -132,7 +160,7 @@ namespace DoDo
         
     }
 
-    void Application::Draw_Window_And_Children(const std::shared_ptr<SWindow>& window_to_draw)
+    void Application::Draw_Window_And_Children(const std::shared_ptr<SWindow>& window_to_draw, struct FDrawWindowArgs& draw_window_args)
     {
         //todo:lack the FDrawWindowArgs parameter
 

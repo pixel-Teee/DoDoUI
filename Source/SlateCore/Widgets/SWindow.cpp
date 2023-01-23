@@ -7,4 +7,9 @@ namespace DoDo {
 	//{
 	//}
 
+	bool SWindow::is_visible() const
+	{
+		return true;
+	}
+
 }

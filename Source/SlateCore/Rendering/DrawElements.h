@@ -1,6 +1,7 @@
 #pragma once
 
 #include "glm/vec4.hpp"
+#include "glm/vec2.hpp"
 
 #include "SlateCore/Rendering/RenderingCommon.h"//ESlateDrawEffect depend on it
 
@@ -72,21 +73,41 @@ namespace DoDo
 			const glm::vec4& in_tint);
 	};
 
+	class SWindow;
 	/*
 	 * represents a top level window and it's draw elements
 	 */
 	class FSlateWindowElementList
 	{
+		friend class FSlateElementBatcher;
 	public:
+		/*
+		* construct a new list of elements with which to paint a window
+		* 
+		* @param InPaintWindow the window that owns the widgets being painted, this is almost most always the same window that is beging rendered to
+		* @param InRenderWindow the window that we will be rendering to
+		*/
+		explicit FSlateWindowElementList(const std::shared_ptr<SWindow>& in_paint_window);
+
+		~FSlateWindowElementList();
 		/*
 		 * creates an uninitialized draw element
 		 */
 		FSlateDrawElement& add_uninitialized();
 
 	private:
+		/*
+		* window which owns the widgets that are being painted but not necessarily rendered to
+		* widgets are always rendered to the RenderTargetWindow
+		*/
+		std::weak_ptr<SWindow> m_weak_paint_window;
+		SWindow* m_raw_paint_window;
+
 		/*the uncached draw elements to be processed*/
+		//store the FSlateDrawElement
 		FSlateDrawElementArray m_uncached_draw_elements;
 
-
+		/*store the size of the window beging used to paint*/
+		glm::vec2 m_window_size;
 	};
 }

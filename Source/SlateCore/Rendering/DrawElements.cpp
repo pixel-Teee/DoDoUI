@@ -58,6 +58,18 @@ namespace DoDo
 		return element;
 	}
 
+	FSlateWindowElementList::FSlateWindowElementList(const std::shared_ptr<SWindow>& in_paint_window)
+		: m_weak_paint_window(in_paint_window)
+		, m_raw_paint_window(in_paint_window.get())
+		, m_window_size(glm::vec2(0.0f, 0.0f))
+	{
+		//todo:check in_paint_window is valid
+	}
+
+	FSlateWindowElementList::~FSlateWindowElementList()
+	{
+	}
+
 	FSlateDrawElement& FSlateWindowElementList::add_uninitialized()
 	{
 		const bool b_allow_cache = false;//todo:fix this

@@ -2,6 +2,8 @@
 
 #include "Core/Core.h"
 
+#include "Core/Delegates/Delegates.h"
+
 #include <vector>
 //#include "SlateCore/Widgets/SWindow.h"
 
@@ -27,6 +29,13 @@ namespace DoDo
 		//Scope<Window> get_window();
 
 		Window& get_window();
+
+		/*event before slate application ticks*/
+		using FSlateTickEvent = Delegate_Event<void(float)>;
+		FSlateTickEvent& on_pre_tick() { return m_pre_tick_event; }
+
+		/*event after slate application ticks*/
+		FSlateTickEvent& on_post_tick() { return m_post_tick_event; }
 
 		/*
 		 * ticks and paints the actual slate portion of the application
@@ -56,8 +65,14 @@ namespace DoDo
 		 * draws a window and it's children
 		 */
 		//todo:implement FDrawWindowAndArgs
-		void Draw_Window_And_Children(const std::shared_ptr<SWindow>& window_to_draw);
+		void Draw_Window_And_Children(const std::shared_ptr<SWindow>& window_to_draw, struct FDrawWindowArgs& draw_window_args);
 	private:
+
+		/*delegate for pre slate tick*/
+		FSlateTickEvent m_pre_tick_event;
+
+		/*delegate for post slate tick*/
+		FSlateTickEvent m_post_tick_event;
 
 		/* the current cached absolute real time, right before we tick widgets */
 		double m_current_time;//todo:use platform current time to initialize
@@ -75,6 +90,6 @@ namespace DoDo
 		Scope<Window> m_p_window;
 
 		//all top-level windows owned by this application, there are tracked here in a platform-agnostic way
-		std::vector<Scope<SWindow>> m_windows;
+		std::vector<std::shared_ptr<SWindow>> m_windows;
 	};
 }
