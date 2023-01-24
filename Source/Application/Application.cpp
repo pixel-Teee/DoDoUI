@@ -12,12 +12,19 @@
 
 #include "Slate/Widgets/Layout/SBorder.h"//SBorder depends on it
 
+#include "SlateCore/Rendering/SlateDrawBuffer.h"//FDrawWindowArgs depends on it
+
 namespace DoDo
 {
     struct FDrawWindowArgs
     {
         //todo:implement FSlateDrawBuffer
         //todo:implement FWidgetPath
+        FDrawWindowArgs(FSlateDrawBuffer& in_draw_buffer)
+            : m_out_draw_buffer(in_draw_buffer)
+        {}
+
+        FSlateDrawBuffer& m_out_draw_buffer;
     };
 
     Application::Application()
