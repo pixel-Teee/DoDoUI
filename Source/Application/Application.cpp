@@ -14,8 +14,14 @@
 
 #include "SlateCore/Rendering/SlateDrawBuffer.h"//FDrawWindowArgs depends on it
 
+#include "Platform/Application/GLFWApplication.h"//GenericApplication depends on it
+
 namespace DoDo
 {
+    static std::shared_ptr<GenericApplication> s_platform_application = nullptr;//global platform application
+
+    static std::shared_ptr<Application> s_current_application = nullptr;//global slate application
+
     struct FDrawWindowArgs
     {
         //todo:implement FSlateDrawBuffer
@@ -34,18 +40,18 @@ namespace DoDo
         //m_p_vk_instance = CreateScope<VkInstance>();
         m_p_window = Window::Create();
 
-        std::shared_ptr<SBorder> border;
-        std::shared_ptr<SBorder> border2;
-        SAssignNew(border, SBorder)
-            .ContentScale(1.0f)
-            .VAlign(VAlign_Fill)
-            .HAlign(HAlign_Fill)
-            [
-                SAssignNew(border2, SBorder)
-                .ContentScale(1.0f)
-				.VAlign(VAlign_Fill)
-				.HAlign(HAlign_Fill)
-            ];
+        //std::shared_ptr<SBorder> border;
+        //std::shared_ptr<SBorder> border2;
+        //SAssignNew(border, SBorder)
+        //    .ContentScale(1.0f)
+        //    .VAlign(VAlign_Fill)
+        //    .HAlign(HAlign_Fill)
+        //    [
+        //        SAssignNew(border2, SBorder)
+        //        .ContentScale(1.0f)
+		//		.VAlign(VAlign_Fill)
+		//		.HAlign(HAlign_Fill)
+        //    ];
     }
         
 
@@ -56,7 +62,22 @@ namespace DoDo
         m_renderer_instance->Destroy();
     }
 
-	void Application::Init()
+    void Application::Create()
+    {
+        Create(GenericApplication::Create());
+    }
+
+    std::shared_ptr<Application> Application::Create(const std::shared_ptr<GenericApplication>& in_platform_application)
+    {
+        //return std::shared_ptr<Application>();
+        s_platform_application = in_platform_application;//platform application
+
+        s_current_application = std::make_shared<Application>();//slate application
+
+        return s_current_application;
+    }
+
+	void Application::Initialize_Renderer(std::shared_ptr<Renderer> in_renderer)
 	{
         //reset work directroy
         //std::filesystem::path work_path("../");
@@ -64,9 +85,12 @@ namespace DoDo
         
         //std::cout << std::filesystem::current_path() << std::endl;
 
-        std::cout << "Hello World" << std::endl;
+        //std::cout << "Hello World" << std::endl;
 
+        m_renderer = in_renderer;
 
+        //m_renderer->
+        //todo:call renderer initialize
 
         m_renderer_instance = RendererInstance::Create(*m_p_window);
 

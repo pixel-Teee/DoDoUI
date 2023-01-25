@@ -20,6 +20,8 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "Core/Math/*.cpp"
 "Application/*.h"
 "Application/*.cpp"
+"ApplicationCore/GenericPlatform/*.h"
+"ApplicationCore/GenericPlatform/*.cpp"
 "../ThirdParty/glm/glm/*.h"
 "../ThirdParty/glm/glm/*.hpp"
 "../ThirdParty/glm/glm/*.cpp"
@@ -34,8 +36,9 @@ file(GLOB_RECURSE Renderer_Source
 
 if(NOT CMAKE_SYSTEN_NAME MATCHES "Android")
 	file(GLOB Glfw_Window "Platform/Window/WindowsWindow.h" "Platform/Window/WindowsWindow.cpp")
+	file(GLOB Glfw_Application "Platform/Application/GLFWApplication.h" "Platform/Application/GLFWApplication.cpp")
 	# message(${Glfw_Window})
-	list(APPEND Renderer_Source ${Glfw_Window})
+	list(APPEND Renderer_Source ${Glfw_Window} ${Glfw_Application})
 else()
 	file(GLOB Android_Window "Platform/Window/AndroidWindow.h" "Platform/Window/AndroidWindow.cpp")
 	# list(APPEND Renderer_Source ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
@@ -80,6 +83,8 @@ else()
 	# message(${ANDROID_NDK}/sources/android/native_app_glue/)
 	target_include_directories(DoDoUI PRIVATE "." ${ANDROID_NDK}/sources/android/native_app_glue "../ThirdParty/glm")
 endif()
+
+target_include_directories(DoDoUI PRIVATE ../ThirdParty/vma)
 
 # pch
 target_precompile_headers(DoDoUI PRIVATE "PreCompileHeader.h")

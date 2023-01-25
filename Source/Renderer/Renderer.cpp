@@ -5,12 +5,12 @@
 #include "Platform/VulkanRenderer/VulkanRenderer.h"
 
 namespace DoDo {
-	UIRenderer::~UIRenderer()
+	Renderer::~Renderer()
 	{
 	}
 
-	Scope<UIRenderer> UIRenderer::Create()
+	std::shared_ptr<Renderer> Renderer::Create()
 	{
-		return CreateScope<VulkanRenderer>();
+		return std::make_shared<VulkanRenderer>();
 	}
 }

@@ -5,13 +5,13 @@
 namespace DoDo
 {
 	//TODO:temporarily use this renderer
-	class UIRenderer
+	class Renderer
 	{
 	public:
 		//UIRenderer();
 
-		virtual ~UIRenderer();	
+		virtual ~Renderer();
 
-		static Scope<UIRenderer> Create();//transfer owner ship
+		static std::shared_ptr<Renderer> Create();//transfer owner ship
 	};
 }

@@ -1,5 +1,7 @@
 #include <Application/Application.h>
 
+#include <Renderer/Renderer.h>//renderer
+
 #include "Core/String/DoDoString.h"
 
 #ifdef Android
@@ -67,12 +69,28 @@ void android_main(android_app* p_state)
 
 int main()
 {
+#if 0
     DoDo::Application app;
 
     app.Init();
 
     app.Tick();
+#else
+    DoDo::Application::Create();//initialize platform application
 
+    std::shared_ptr<DoDo::Renderer> pRenderer = DoDo::Renderer::Create();
+
+    DoDo::Application::get().Initialize_Renderer(pRenderer);//initialize renderer
+
+    //tick
+    //todo:add exit global variable
+    //while (true)
+    //{
+    //    DoDo::Application::get().Tick();
+    //}
+
+    DoDo::Application::get().Tick();
+#endif
     return 0;
 }
 #endif

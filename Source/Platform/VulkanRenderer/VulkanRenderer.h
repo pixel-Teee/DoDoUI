@@ -3,7 +3,7 @@
 #include <Renderer/Renderer.h>
 
 namespace DoDo {
-	class VulkanRenderer : public UIRenderer
+	class VulkanRenderer : public Renderer
 	{
 	public:
 		VulkanRenderer();

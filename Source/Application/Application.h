@@ -14,14 +14,23 @@ namespace DoDo
 	class Window;
 
 	class SWindow;
-	class Application
+
+	class GenericApplication;//platform application
+
+	class Renderer;
+
+	class Application//slate application
 	{
 	public:
 		Application();
 
 		~Application();
 
-		void Init();
+		static void Create();
+
+		static std::shared_ptr<Application> Create(const std::shared_ptr<GenericApplication>& in_platform_application);
+
+		void Initialize_Renderer(std::shared_ptr<Renderer> in_renderer);
 
 		//void Run();
 		void Tick();
@@ -66,6 +75,26 @@ namespace DoDo
 		 */
 		//todo:implement FDrawWindowAndArgs
 		void Draw_Window_And_Children(const std::shared_ptr<SWindow>& window_to_draw, struct FDrawWindowArgs& draw_window_args);
+
+		/*
+		* returns the current instance of the application, the application should have been initialized before
+		* this method is called
+		* 
+		* @return reference to the application
+		*/
+		static Application& get()
+		{
+			return *s_current_application;//slate application
+		}
+	protected:
+		//holds the slate renderer used to render this application
+		std::shared_ptr<Renderer> m_renderer;
+
+		//holds a pointer to the current slate application
+		static std::shared_ptr<Application> s_current_application;
+
+		//holds a pointer to the platform application
+		static std::shared_ptr<GenericApplication> s_platform_application;
 	private:
 
 		/*delegate for pre slate tick*/
