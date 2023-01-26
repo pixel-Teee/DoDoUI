@@ -1,5 +1,7 @@
 #include <PreCompileHeader.h>
 
+#include <chrono>
+
 #include "Application.h"
 
 #include <Renderer/Renderer.h>
@@ -35,6 +37,7 @@ namespace DoDo
 
     Application::Application()
 	    : m_last_tick_time(0.0f)
+        , m_current_time(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
 		, m_average_delta_time(1.0f / 30.0f)
     {
         //m_p_vk_instance = CreateScope<VkInstance>();
@@ -99,12 +102,16 @@ namespace DoDo
 
     void Application::Tick()
     {
+        const float delta_time = get_delta_time();
         //todo:implement TickPlatform
         //TickPlatform is just something to handle message
+        tick_platform(delta_time);
 
         //todo:implement TickTime
+        tick_time();
 
         //todo:implement TickAndDrawWidgets
+        Tick_And_Draw_Widgets(delta_time);
 
         //TODO:in the future, move this window to SWindow
         m_p_window->Update(*m_renderer_instance);
@@ -113,6 +120,20 @@ namespace DoDo
     Window& Application::get_window()
     {
         return *m_p_window;
+    }
+
+    void Application::tick_time()
+    {
+        m_last_tick_time = m_current_time;
+        //m_current_time =
+        //todo:implement FPlatformTime
+        m_current_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    }
+
+    void Application::tick_platform(float delta_time)
+    {
+        //todo:handle messenger
+        s_platform_application->Tick(delta_time);
     }
 
     void Application::Tick_And_Draw_Widgets(float delta_time)
@@ -217,5 +238,49 @@ namespace DoDo
         //todo:set bDrawChildWindows to true
 
         //todo:draw the child windows
+    }
+    std::shared_ptr<SWindow> Application::add_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately)
+    {
+        /*
+        * add the slate window to the slate application's top-level window array, note that neither the slate window
+        * or the active window are ready to br used yet, however we need to make sure they're in the slate window
+        * array so that we can properly respond to OS window messages as soon as they're sent, for example, a window
+        * activation message may be sent by the OS as soon as the window is shown(in the init function), and if we
+        * don't add the slate window to our window list, we wouldn't be able to route that message to the window
+        */
+
+        
+    }
+    std::shared_ptr<Window> Application::make_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately)
+    {
+        std::shared_ptr<Window> native_parent = nullptr;
+        std::shared_ptr<SWindow> parent_window = in_slate_window->get_parent_window();
+
+        if (parent_window) //check valid
+        {
+            native_parent = parent_window->get_native_window();//get parent SWindow's native window
+        }
+
+        //get the SWindow's attribute to initialize native window's initialize information
+        std::shared_ptr<FGenericWindowDefinition> definition = std::make_shared<FGenericWindowDefinition>();
+
+        definition->m_type = in_slate_window->get_type();
+
+        const glm::vec2 size = in_slate_window->get_initial_desired_size_in_screen();
+        definition->m_width_desired_on_screen = size.x;
+        definition->m_height_desired_on_screen = size.y;
+
+        const glm::vec2 position = in_slate_window->get_initial_desired_position_in_screen();
+        definition->x_desired_position_on_screen = position.x;
+        definition->y_desired_position_on_screen = position.y;
+
+        //todo:implement platform application's make window
+        std::shared_ptr<Window> new_window = s_platform_application->make_window();
+
+        in_slate_window->set_native_window(new_window);
+
+        s_platform_application->initialize_window(new_window)
+
+        return new_window;
     }
 }

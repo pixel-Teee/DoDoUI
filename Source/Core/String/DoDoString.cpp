@@ -86,6 +86,21 @@ namespace DoDo {
 	{
 		return m_count;
 	}
+	DoDoUtf8String& DoDoUtf8String::operator=(const DoDoUtf8String& rhs)
+	{
+		if (m_buffer != nullptr)
+		{
+			delete m_buffer;
+			m_len = 0;
+			m_count = 0;
+		}
+
+		//copy rhs
+		m_buffer = new char[rhs.m_count];
+		memcpy(m_buffer, rhs.m_buffer, rhs.m_count);
+		m_len = rhs.m_len;
+		m_count = rhs.m_count;
+	}
 	int32_t DoDoUtf8String::calculate_length(char* m_buffer)
 	{
 		size_t temp_count = 0;

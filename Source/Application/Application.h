@@ -46,6 +46,14 @@ namespace DoDo
 		/*event after slate application ticks*/
 		FSlateTickEvent& on_post_tick() { return m_post_tick_event; }
 
+		/*advances time for the application*/
+		void tick_time();
+
+		/*
+		* pmups and ticks the platform
+		*/
+		void tick_platform(float delta_time);
+
 		/*
 		 * ticks and paints the actual slate portion of the application
 		 */
@@ -86,6 +94,10 @@ namespace DoDo
 		{
 			return *s_current_application;//slate application
 		}
+	public:
+		std::shared_ptr<SWindow> add_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately = true);
+
+		std::shared_ptr<Window> make_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately);
 	protected:
 		//holds the slate renderer used to render this application
 		std::shared_ptr<Renderer> m_renderer;

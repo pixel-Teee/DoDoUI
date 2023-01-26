@@ -7,7 +7,13 @@
 #endif
 
 namespace DoDo {
-
+	void Window::Update(RendererInstance& render_instance)
+	{
+	}
+	void* Window::get_window_native_handle()
+	{
+		return nullptr;
+	}
 	Scope<Window> Window::Create()
 	{
 #ifndef Android
