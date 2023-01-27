@@ -100,6 +100,8 @@ namespace DoDo {
 		memcpy(m_buffer, rhs.m_buffer, rhs.m_count);
 		m_len = rhs.m_len;
 		m_count = rhs.m_count;
+
+		return *this;
 	}
 	int32_t DoDoUtf8String::calculate_length(char* m_buffer)
 	{

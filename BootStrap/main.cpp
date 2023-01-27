@@ -84,12 +84,12 @@ int main()
 
     //tick
     //todo:add exit global variable
-    //while (true)
-    //{
-    //    DoDo::Application::get().Tick();
-    //}
+    while (true)
+    {
+        DoDo::Application::get().Tick();
+    }
 
-    DoDo::Application::get().Tick();
+    //DoDo::Application::get().Tick();
 #endif
     return 0;
 }

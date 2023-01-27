@@ -24,7 +24,7 @@ namespace DoDo {
 		m_windows.push_back(window);
 
 		//create real os window handle
-		window->initialize(this, parent_window, b_show_immediately);
+		window->initialize(this, in_definition, parent_window, b_show_immediately);
 	}
 	
 }

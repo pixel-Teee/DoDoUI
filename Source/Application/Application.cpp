@@ -20,12 +20,13 @@
 
 namespace DoDo
 {
-    static std::shared_ptr<GenericApplication> s_platform_application = nullptr;//global platform application
+	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
 
-    static std::shared_ptr<Application> s_current_application = nullptr;//global slate application
+	std::shared_ptr<Application> Application::s_current_application = nullptr;//global slate application
 
     struct FDrawWindowArgs
     {
+        //FDrawWindowArgs() {}
         //todo:implement FSlateDrawBuffer
         //todo:implement FWidgetPath
         FDrawWindowArgs(FSlateDrawBuffer& in_draw_buffer)
@@ -41,7 +42,7 @@ namespace DoDo
 		, m_average_delta_time(1.0f / 30.0f)
     {
         //m_p_vk_instance = CreateScope<VkInstance>();
-        m_p_window = Window::Create();
+        //m_p_window = Window::Create();
 
         //std::shared_ptr<SBorder> border;
         //std::shared_ptr<SBorder> border2;
@@ -55,6 +56,19 @@ namespace DoDo
 		//		.VAlign(VAlign_Fill)
 		//		.HAlign(HAlign_Fill)
         //    ];
+        //std::shared_ptr<SWindow> root_window;
+        //
+        //SAssignNew(root_window, SWindow)
+        //    .Title("hello");
+        //
+        //add_window(root_window);
+        //
+        //std::shared_ptr<SWindow> root_window2;
+        //
+        //SAssignNew(root_window2, SWindow)
+        //    .Title("hello2");
+        //
+        //add_window(root_window2);
     }
         
 
@@ -62,7 +76,7 @@ namespace DoDo
     {
         //m_renderer_instance = nullptr;
        // std::cout << "error" << std::endl;
-        m_renderer_instance->Destroy();
+        //m_renderer_instance->Destroy();
     }
 
     void Application::Create()
@@ -95,7 +109,7 @@ namespace DoDo
         //m_renderer->
         //todo:call renderer initialize
 
-        m_renderer_instance = RendererInstance::Create(*m_p_window);
+        //m_renderer_instance = RendererInstance::Create(*m_p_window);
 
         //std::unique_ptr<DoDo::UIRenderer> p_Renderer = DoDo::UIRenderer::Create();    
 	}
@@ -114,7 +128,7 @@ namespace DoDo
         Tick_And_Draw_Widgets(delta_time);
 
         //TODO:in the future, move this window to SWindow
-        m_p_window->Update(*m_renderer_instance);
+        //m_p_window->Update(*m_renderer_instance);
     }
 
     Window& Application::get_window()
@@ -179,7 +193,7 @@ namespace DoDo
         Draw_Pre_Pass(draw_only_this_window);
 
         //todo:implement FDrawWindowArgs
-        FDrawWindowArgs draw_window_args;
+        //FDrawWindowArgs draw_window_args;
 
         //todo:implement SWindow
         //get the active modal window
@@ -200,7 +214,7 @@ namespace DoDo
 
             //only draw visible windows or in off-screen rendering mode
             //todo:need pass FDrawWindowArgs
-            Draw_Window_And_Children(current_window, draw_window_args);
+            //Draw_Window_And_Children(current_window, draw_window_args);
         }
 
         //todo:implement renderer's draw windows
@@ -248,8 +262,14 @@ namespace DoDo
         * activation message may be sent by the OS as soon as the window is shown(in the init function), and if we
         * don't add the slate window to our window list, we wouldn't be able to route that message to the window
         */
+        std::shared_ptr<Window> new_window = make_window(in_slate_window, b_show_immediately);
 
-        
+        if (b_show_immediately)
+        {
+            //todo:implement show window
+        }
+
+        return in_slate_window;
     }
     std::shared_ptr<Window> Application::make_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately)
     {
@@ -279,7 +299,7 @@ namespace DoDo
 
         in_slate_window->set_native_window(new_window);
 
-        s_platform_application->initialize_window(new_window)
+        s_platform_application->initialize_window(new_window, definition, native_parent, b_show_immediately);
 
         return new_window;
     }
