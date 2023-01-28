@@ -56,12 +56,14 @@ namespace DoDo
 		//		.VAlign(VAlign_Fill)
 		//		.HAlign(HAlign_Fill)
         //    ];
-        //std::shared_ptr<SWindow> root_window;
+		//std::shared_ptr<SWindow> root_window;
         //
         //SAssignNew(root_window, SWindow)
-        //    .Title("hello");
+        //    .Title("hello")
+        //    .ClientSize(glm::vec2(1280.0f, 720.0f))
+        //    .ScreenPosition(glm::vec2(200.0f, 200.0f));
         //
-        //add_window(root_window);
+		//add_window(root_window);
         //
         //std::shared_ptr<SWindow> root_window2;
         //
@@ -69,6 +71,8 @@ namespace DoDo
         //    .Title("hello2");
         //
         //add_window(root_window2);
+
+
     }
         
 

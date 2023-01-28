@@ -88,7 +88,7 @@ namespace DoDo {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);//don't create opengl context
 
         //todo:implement SWindow construct
-        m_p_window = glfwCreateWindow(1280, 720, m_definition->m_title.c_str(), nullptr, nullptr);
+        m_p_window = glfwCreateWindow(window_width, window_height, m_definition->m_title.c_str(), nullptr, nullptr);
 
         glfwSetWindowPos(m_p_window, window_x, window_y);
         /*

@@ -11,12 +11,19 @@ namespace DoDo
 	{
 	public:
 		SLATE_BEGIN_ARGS(SWindow)
-		: _Type(EWindowType::Normal)
+			: _Type(EWindowType::Normal)
+			, _Title()
+			, _ScreenPosition(glm::vec2(0.0f, 0.0f))
+			, _ClientSize(glm::vec2(0.0f, 0.0f))
 		{}
 		/*type of this window*/
 		SLATE_ARGUMENT(EWindowType, Type)
 		/*title of the window*/
 		SLATE_ATTRIBUTE(DoDoUtf8String, Title)
+		/*screen-space position where the window should be initially located*/
+		SLATE_ARGUMENT(glm::vec2, ScreenPosition)
+		/*what the initial size of the window should be*/
+		SLATE_ARGUMENT(glm::vec2, ClientSize)
 		SLATE_END_ARGS()
 
 		//SWindow();
@@ -73,6 +80,9 @@ namespace DoDo
 		* @param InNativeWindow the native window
 		*/
 		void set_native_window(std::shared_ptr<Window> in_native_window);
+
+		/*resize using already dpi scaled window size including borders/title bar*/
+		void resize_window_size(glm::vec2 new_window_size);
 	private:
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements,
 			int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
@@ -89,6 +99,14 @@ namespace DoDo
 		/*initial desired position of the window's content in screen space*/
 		glm::vec2 m_initial_desired_size;
 
+		/*position of the window's content in screen position*/
+		glm::vec2 m_screen_position;
+
+		/*size of the window's content area in screen space*/
+		glm::vec2 m_size;
+
+		/*size of the viewport, if (0, 0) then it is equal to size*/
+		glm::vec2 m_view_port_size;
 
 	protected:
 		/*the native window that is backing this slate window*/
