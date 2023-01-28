@@ -12,7 +12,7 @@
 #include "ApplicationCore/GenericPlatform/GenericWindowDefinition.h"//generic window definition
 
 namespace DoDo {
-    bool WindowsWindow::m_is_initialized_glfw = false;
+    //bool WindowsWindow::m_is_initialized_glfw = false;
 
 	WindowsWindow::WindowsWindow()
 	{
@@ -29,18 +29,6 @@ namespace DoDo {
         //glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);//don't create opengl context
         //
         //m_p_window = glfwCreateWindow(1280, 720, "window", nullptr, nullptr);
-        if (!m_is_initialized_glfw)
-        {
-            if (!glfwInit())
-            {
-                std::cout << "create glfw window error!" << std::endl;
-                return;
-            }
-            else
-            {
-                m_is_initialized_glfw = true;
-            }
-        }
 	}
 	WindowsWindow::~WindowsWindow()
 	{

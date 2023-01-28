@@ -4,6 +4,10 @@
 
 #include "Core/String/DoDoString.h"
 
+#ifdef WIN32
+#include "Platform/Application/WindowsPlatformApplicationMisc.h"
+#endif
+
 #ifdef Android
 #include "Platform/Window/AndroidWindow.h"
 #include <game-activity/GameActivity.cpp>
@@ -76,6 +80,8 @@ int main()
 
     app.Tick();
 #else
+    DoDo::FPlatformApplicationMisc::platform_pre_init();//todo:need to put at the app init function
+
     DoDo::Application::Create();//initialize platform application
 
     std::shared_ptr<DoDo::Renderer> pRenderer = DoDo::Renderer::Create();

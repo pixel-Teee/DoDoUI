@@ -5,6 +5,15 @@
 #include "glfw/glfw3.h"
 
 namespace DoDo {
+	void FWindowsPlatformApplicationMisc::platform_pre_init()
+	{
+		//init glfw
+		if (!glfwInit())
+		{
+			std::cout << "create glfw window error!" << std::endl;
+			return;
+		}
+	}
 	float FWindowsPlatformApplicationMisc::get_dpi_scale_factor_at_point(float x, float y)
 	{
 		float scale_x = 1.0f;
@@ -37,7 +46,7 @@ namespace DoDo {
 			int32_t right_down_corner_pos_x = left_top_corner_pos_x + mode->width;
 			int32_t right_down_corner_pos_y = left_top_corner_pos_y + mode->height;
 
-			if (pos_x >= left_top_corner_pos_x && pos_x <= right_down_corner_pos_x && pos_y >= right_down_corner_pos_x && pos_y <= right_down_corner_pos_y)
+			if (pos_x >= left_top_corner_pos_x && pos_x <= right_down_corner_pos_x && pos_y >= left_top_corner_pos_y && pos_y <= right_down_corner_pos_y)
 			{
 				find_monitor = current_monitor;
 				break;

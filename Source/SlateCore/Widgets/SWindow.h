@@ -15,6 +15,7 @@ namespace DoDo
 			, _Title()
 			, _ScreenPosition(glm::vec2(0.0f, 0.0f))
 			, _ClientSize(glm::vec2(0.0f, 0.0f))
+			, _AdjustInitialSizeAndPositionForDPIScale(true)
 		{}
 		/*type of this window*/
 		SLATE_ARGUMENT(EWindowType, Type)
@@ -24,6 +25,8 @@ namespace DoDo
 		SLATE_ARGUMENT(glm::vec2, ScreenPosition)
 		/*what the initial size of the window should be*/
 		SLATE_ARGUMENT(glm::vec2, ClientSize)
+		/*if the initial ClientSize and ScreenPosition arguments should be automatically adjusted to account for DPI scale*/
+		SLATE_ARGUMENT(bool, AdjustInitialSizeAndPositionForDPIScale)
 		SLATE_END_ARGS()
 
 		//SWindow();

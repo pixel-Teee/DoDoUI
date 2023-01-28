@@ -25,7 +25,7 @@ namespace DoDo {
 		/*the application that owns this window*/
 		GLFWApplication* owning_application;
 
-		static bool m_is_initialized_glfw;
+		//static bool m_is_initialized_glfw;
 	};
 }
 

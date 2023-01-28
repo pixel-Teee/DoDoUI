@@ -3,6 +3,7 @@
 namespace DoDo {
 	struct FGenericPlatformApplicationMisc
 	{
+		static void platform_pre_init(){}
 		/*
 		* returns monitor's DPI scale factor at given screen coordinates(expressed in pixels)
 		* @return monitor's DPI scale factor at given point

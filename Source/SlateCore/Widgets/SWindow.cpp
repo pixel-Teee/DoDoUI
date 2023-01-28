@@ -2,6 +2,10 @@
 
 #include "SWindow.h"
 
+#ifdef WIN32
+#include "Platform/Application/WindowsPlatformApplicationMisc.h"
+#endif
+
 namespace DoDo {
 	//SWindow::SWindow()
 	//{
@@ -13,10 +17,22 @@ namespace DoDo {
 		this->m_title = in_args._Title;
 
 		//calculate initial window position
-		glm::vec2 m_window_position = in_args._ScreenPosition;
+		glm::vec2 window_position = in_args._ScreenPosition;
 
-		this->m_initial_desired_screen_position = m_window_position;
-		this->m_initial_desired_size = in_args._ClientSize;//todo:need to interms of the dpi to scale
+		if (in_args._AdjustInitialSizeAndPositionForDPIScale && window_position != glm::vec2(0.0f, 0.0f))
+		{
+			//will need to add additional logic to walk over multiple montiors at various DPIs to determine correct window position
+			const float initial_dpi_scale = FPlatformApplicationMisc::get_dpi_scale_factor_at_point(window_position.x, window_position.y);
+			window_position *= initial_dpi_scale;
+		}
+
+		float dpi_scale = 1.0f;
+		dpi_scale = FPlatformApplicationMisc::get_dpi_scale_factor_at_point(window_position.x, window_position.y);
+
+		const glm::vec2 dpi_scaled_client_size = in_args._AdjustInitialSizeAndPositionForDPIScale ? in_args._ClientSize * dpi_scale : in_args._ClientSize;
+
+		this->m_initial_desired_screen_position = window_position;
+		this->m_initial_desired_size = dpi_scaled_client_size;//todo:need to interms of the dpi to scale
 
 		resize_window_size(m_initial_desired_size);
 	}
