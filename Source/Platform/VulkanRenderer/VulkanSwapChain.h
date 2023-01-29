@@ -10,6 +10,8 @@ namespace DoDo {
 	public:
 		VulkanSwapChain(void* vulkan_physical_device, void* logic_device, void* surface, void* render_pass, Window& window);
 
+		VulkanSwapChain(void* vulkan_physical_device, void* logic_device, void* surface, Window& window, DeletionQueue& deletion_queue);
+
 		virtual ~VulkanSwapChain();
 
 		virtual void Destroy(void* logic_device) override;

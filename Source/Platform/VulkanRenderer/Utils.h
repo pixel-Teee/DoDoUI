@@ -14,6 +14,8 @@ namespace DoDo {
             }
         };
 
+        std::optional<uint32_t> find_queue_families(VkPhysicalDevice device);
+
         QueueFamilyIndices find_queue_families(VkPhysicalDevice device, VkSurfaceKHR surface);
 
         struct SwapChainSupportDetails {

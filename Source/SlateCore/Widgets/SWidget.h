@@ -29,7 +29,7 @@ namespace DoDo
 	class FWidgetStyle;
 	class FArrangedChildren;
 
-	class SWidget : public FSlateControlledConstruction
+	class SWidget : public FSlateControlledConstruction, public std::enable_shared_from_this<SWidget>
 	{
 	public:
 		//widgets should only ever be constructed via SNew or SAssignNew

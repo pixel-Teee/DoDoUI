@@ -56,14 +56,14 @@ namespace DoDo
 		//		.VAlign(VAlign_Fill)
 		//		.HAlign(HAlign_Fill)
         //    ];
-		std::shared_ptr<SWindow> root_window;
-
-		SAssignNew(root_window, SWindow)
-			.Title("hello")
-			.ClientSize(glm::vec2(1280.0f, 720.0f))
-			.ScreenPosition(glm::vec2(200.0f, 200.0f));
-
-		add_window(root_window);
+		//std::shared_ptr<SWindow> root_window;
+        //
+		//SAssignNew(root_window, SWindow)
+		//	.Title("hello")
+		//	.ClientSize(glm::vec2(1280.0f, 720.0f))
+		//	.ScreenPosition(glm::vec2(200.0f, 200.0f));
+        //
+		//add_window(root_window);
         //
         //std::shared_ptr<SWindow> root_window2;
         //
@@ -83,9 +83,26 @@ namespace DoDo
         //m_renderer_instance->Destroy();
     }
 
+    void Application::test_create_widget()
+    {
+        std::shared_ptr<SWindow> root_window;
+
+        SAssignNew(root_window, SWindow)
+            .Title("hello")
+            .ClientSize(glm::vec2(1280.0f, 720.0f))
+            .ScreenPosition(glm::vec2(200.0f, 200.0f));
+
+        get().add_window(root_window);
+    }
+
     void Application::Create()
     {
         Create(GenericApplication::Create());
+    }
+
+    void Application::shut_down()
+    {
+        s_current_application->destroy_renderer();
     }
 
     std::shared_ptr<Application> Application::Create(const std::shared_ptr<GenericApplication>& in_platform_application)
@@ -112,7 +129,12 @@ namespace DoDo
 
         //m_renderer->
         //todo:call renderer initialize
+        bool b_result = m_renderer->initialize();
 
+        if(!b_result)
+        {
+            std::cout << "create vulkan context error!" << std::endl;
+        }
         //m_renderer_instance = RendererInstance::Create(*m_p_window);
 
         //std::unique_ptr<DoDo::UIRenderer> p_Renderer = DoDo::UIRenderer::Create();    
@@ -138,6 +160,14 @@ namespace DoDo
     Window& Application::get_window()
     {
         return *m_p_window;
+    }
+
+    void Application::destroy_renderer()
+    {
+        if(m_renderer)
+        {
+            m_renderer->destroy();
+        }
     }
 
     void Application::tick_time()
@@ -271,6 +301,7 @@ namespace DoDo
         if (b_show_immediately)
         {
             //todo:implement show window
+            in_slate_window->show_window();//create swap chain and show window
         }
 
         return in_slate_window;

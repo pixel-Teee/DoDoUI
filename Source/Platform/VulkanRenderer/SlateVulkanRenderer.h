@@ -8,7 +8,30 @@
 
 #include "SlateCore/Rendering/SlateDrawBuffer.h"
 
+#include "Renderer/Renderer.h"//slate renderer
+
+#include <queue>
+#include <functional>
+
 namespace DoDo {
+	struct DeletionQueue
+	{
+		std::deque<std::function<void()>> deletors;
+
+		void push_function(std::function<void()>&& function) {
+			deletors.push_back(function);
+		}
+
+		void flush() {
+			// reverse iterate the deletion queue to execute all the functions
+			for (auto it = deletors.rbegin(); it != deletors.rend(); it++) {
+				(*it)(); //call the function
+			}
+
+			deletors.clear();
+		}
+	};
+
 	class VulkanSwapChain;
 
 	struct FSlateVulkanViewport
@@ -18,6 +41,8 @@ namespace DoDo {
 		VkViewport m_view_port_info;
 
 		std::shared_ptr<VulkanSwapChain> m_vulkan_swap_chain;
+
+		VkSurfaceKHR m_vulkan_surface;//every window have this
 
 		//todo:implement render target and render target view
 
@@ -36,15 +61,32 @@ namespace DoDo {
 	};
 
 	class SWindow;//forward declare
-
-	class FSlateVulkanRenderer//todo:need to inherited from FSlateRenderer
+	class Device;
+	class Window;//platform window
+	class FSlateVulkanRenderer : public Renderer//todo:need to inherited from FSlateRenderer
 	{
 	public:
-		~FSlateVulkanRenderer();
+		virtual ~FSlateVulkanRenderer();
 
 		/*FSlateRenderer Interface*/
-		virtual bool Initialize();
+		//virtual bool Initialize();
+
+		void create_view_port(const std::shared_ptr<SWindow> in_window) override;
+
+		bool initialize() override;
+
+		virtual void destroy() override;
 		/*FSlateRenderer Interface*/
+
+		bool create_device();
+	private:
+		void private_create_view_port(std::shared_ptr<SWindow> in_window, glm::vec2& window_size);
+
+		void pick_physical_device();
+
+		void setup_debug_message();
+
+		void create_surface(Window& window, VkSurfaceKHR& surface);
 	private:
 		bool m_b_has_attempted_initialization;
 
@@ -57,5 +99,17 @@ namespace DoDo {
 		//todo:implement FSlateElementBatcher
 		//todo:implement FSlateD3DTextureManager
 		//todo:implement FSlateD3D11RenderingPolicy
+
+		//debug messenger object, need to destory before instance
+		VkDebugUtilsMessengerEXT m_debug_messenger;
+
+		//vulkan context
+		VkInstance m_vulkan_instance;//todo:in the future, move this to other place
+
+		VkPhysicalDevice m_physical_device;//gpu
+
+		DeletionQueue m_deletion_queue;//deletion queue
+
+		std::shared_ptr<Device> m_logic_device;//logic device
 	};
 }

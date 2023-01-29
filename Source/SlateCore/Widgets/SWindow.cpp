@@ -2,6 +2,9 @@
 
 #include "SWindow.h"
 
+#include "Application/Application.h"//slate application
+#include "Renderer/Renderer.h"
+
 #ifdef WIN32
 #include "Platform/Application/WindowsPlatformApplicationMisc.h"
 #endif
@@ -60,6 +63,20 @@ namespace DoDo {
 	glm::vec2 SWindow::get_initial_desired_position_in_screen() const
 	{
 		return m_initial_desired_screen_position;
+	}
+
+	glm::vec2 SWindow::get_size_in_screen() const
+	{
+		return m_size;//window size
+	}
+
+	void SWindow::show_window()
+	{
+		if(m_native_window)
+		{
+			//we can only create a viewport after the window has been shown(otherwise the swap chain creation may fail)
+			Application::get().get_renderer()->create_view_port(std::static_pointer_cast<SWindow>(shared_from_this()));
+		}
 	}
 
 	void SWindow::set_native_window(std::shared_ptr<Window> in_native_window)

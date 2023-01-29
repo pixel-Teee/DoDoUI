@@ -2,6 +2,7 @@
 
 #include "VulkanSwapChain.h"
 
+#include "SlateVulkanRenderer.h"
 #include "Utils.h"
 
 #include "Core/Window.h"
@@ -179,6 +180,97 @@ namespace DoDo {
 
 		create_frame_buffers(device, pass);
 	}
+
+	VulkanSwapChain::VulkanSwapChain(void* vulkan_physical_device, void* logic_device, void* surface, Window& window, DeletionQueue& deletion_queue)
+	{
+		VkPhysicalDevice physical_device = *(VkPhysicalDevice*)vulkan_physical_device;
+
+		VkDevice device = *(VkDevice*)logic_device;
+
+		VkSurfaceKHR surface_khr = *(VkSurfaceKHR*)surface;
+
+		//VkRenderPass pass = *(VkRenderPass*)render_pass;
+
+		VulkanUtils::SwapChainSupportDetails swap_chain_support_details;
+
+		swap_chain_support_details = query_swap_chain_support(physical_device, surface_khr);
+
+		m_surface_format = choose_swap_surface_format(swap_chain_support_details.formats);
+
+		VkPresentModeKHR present_mode = choose_swap_present_mode(swap_chain_support_details.present_modes);
+
+		m_extent_2d = choose_swap_extent(swap_chain_support_details.capabilities, window);
+
+		//------get image count(image just buffer)------
+		uint32_t image_count = swap_chain_support_details.capabilities.minImageCount + 1;
+
+		if (swap_chain_support_details.capabilities.maxImageCount > 0 && image_count > swap_chain_support_details.capabilities.maxImageCount)
+		{
+			image_count = swap_chain_support_details.capabilities.maxImageCount;
+		}
+		//------get image count(image just buffer)------
+
+		VkSwapchainCreateInfoKHR create_info{};
+		create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		create_info.surface = surface_khr;
+
+		create_info.minImageCount = image_count;
+		create_info.imageFormat = m_surface_format.format;
+		create_info.imageColorSpace = m_surface_format.colorSpace;
+		create_info.imageExtent = m_extent_2d;
+		create_info.imageArrayLayers = 1;//describe every image consist of array layer numbers
+		create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;//as attachment 
+
+		VulkanUtils::QueueFamilyIndices indices = VulkanUtils::find_queue_families(physical_device, surface_khr);
+
+		uint32_t queue_family_indices[] = { indices.graphics_family.value(), indices.present_family.value() };
+
+		if (indices.graphics_family != indices.present_family)
+		{
+			create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+			create_info.queueFamilyIndexCount = 2;
+			create_info.pQueueFamilyIndices = queue_family_indices;
+		}
+		else
+		{
+			create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			create_info.queueFamilyIndexCount = 0;//optional
+			create_info.pQueueFamilyIndices = nullptr;//optional
+		}
+
+		create_info.preTransform = swap_chain_support_details.capabilities.currentTransform;
+
+		create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+		create_info.clipped = VK_TRUE;
+
+		create_info.oldSwapchain = VK_NULL_HANDLE;
+
+		if (vkCreateSwapchainKHR(device, &create_info, nullptr, &m_swap_chain) != VK_SUCCESS)
+		{
+			std::cout << "failed to create device" << std::endl;
+		}
+
+		//------create swap chain------
+		vkGetSwapchainImagesKHR(device, m_swap_chain, &image_count, nullptr);
+		m_swap_chain_images.resize(image_count);
+		vkGetSwapchainImagesKHR(device, m_swap_chain, &image_count, m_swap_chain_images.data());
+		//------create swap chain------
+
+		deletion_queue.push_function([=]()
+		{
+			vkDestroySwapchainKHR(device, m_swap_chain, nullptr);
+		});
+
+		//todo:implement create_image_views
+		//create_image_views(device);
+
+		//create_frame_buffers(device, pass);
+
+
+		//todo:add render pass for create framebuffer
+	}
+
 	VulkanSwapChain::~VulkanSwapChain()
 	{
 		//vkDestroySwapchainKHR(device, swapChain, nullptr);

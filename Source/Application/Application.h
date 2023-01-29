@@ -26,9 +26,22 @@ namespace DoDo
 
 		~Application();
 
+		static void test_create_widget();
+
 		static void Create();
 
+		static void shut_down();
+
 		static std::shared_ptr<Application> Create(const std::shared_ptr<GenericApplication>& in_platform_application);
+
+		/*
+		 * gets the renderer being used to draw this application
+		 * @return the slate renderer
+		 */
+		Renderer* get_renderer() const
+		{
+			return m_renderer.get();
+		}
 
 		void Initialize_Renderer(std::shared_ptr<Renderer> in_renderer);
 
@@ -45,6 +58,8 @@ namespace DoDo
 
 		/*event after slate application ticks*/
 		FSlateTickEvent& on_post_tick() { return m_post_tick_event; }
+
+		void destroy_renderer();
 
 		/*advances time for the application*/
 		void tick_time();

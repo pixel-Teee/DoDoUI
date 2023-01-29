@@ -5,11 +5,13 @@
 #include <vulkan/vulkan.h>
 
 namespace DoDo {
-
+	//struct DeletionQueue;
 	class VulkanLogicDevice : public Device
 	{
 	public:
 		VulkanLogicDevice(void* adapter, void* surface);
+
+		VulkanLogicDevice(void* adapter, DeletionQueue& deletion_queue);
 
 		virtual ~VulkanLogicDevice();
 

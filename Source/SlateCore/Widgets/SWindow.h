@@ -78,6 +78,14 @@ namespace DoDo
 		glm::vec2 get_initial_desired_position_in_screen() const;
 
 		/*
+		 * @return the size of the window in screen space
+		 */
+		glm::vec2 get_size_in_screen() const;
+
+		/*make the window visible*/
+		void show_window();
+
+		/*
 		* sets the native os window associated with this SWindow
 		* 
 		* @param InNativeWindow the native window

@@ -10,4 +10,9 @@ namespace DoDo {
 	{
 		return CreateScope<VulkanLogicDevice>(adapter, surface);
 	}
+
+	std::shared_ptr<Device> Device::create(void* adapter, DeletionQueue& deletion_queue)
+	{
+		return std::make_shared<VulkanLogicDevice>(adapter, deletion_queue);
+	}
 }
