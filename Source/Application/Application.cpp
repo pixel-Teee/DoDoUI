@@ -17,6 +17,7 @@
 #include "SlateCore/Rendering/SlateDrawBuffer.h"//FDrawWindowArgs depends on it
 
 #include "Platform/Application/GLFWApplication.h"//GenericApplication depends on it
+#include "SlateCore/Rendering/DrawElements.h"
 
 namespace DoDo
 {
@@ -93,6 +94,27 @@ namespace DoDo
             .ScreenPosition(glm::vec2(200.0f, 200.0f));
 
         get().add_window(root_window);
+
+        std::shared_ptr<SWindow> root_window2;
+
+        SAssignNew(root_window2, SWindow)
+            .Title("hello")
+            .ClientSize(glm::vec2(1280.0f, 720.0f))
+            .ScreenPosition(glm::vec2(400.0f, 400.0f));
+
+        get().add_window(root_window2);
+
+        //for(size_t i = 0; i < 10; ++i)
+        //{
+        //    std::shared_ptr<SWindow> window;
+        //
+        //    SAssignNew(window, SWindow)
+        //        .Title("hello")
+        //        .ClientSize(glm::vec2(1280.0f, 720.0f))
+        //        .ScreenPosition(glm::vec2(400.0f + i * 100, 400.0f + i * 100));
+        //
+        //    get().add_window(window);
+        //}
     }
 
     void Application::Create()
@@ -227,7 +249,7 @@ namespace DoDo
         Draw_Pre_Pass(draw_only_this_window);
 
         //todo:implement FDrawWindowArgs
-        //FDrawWindowArgs draw_window_args;
+        FDrawWindowArgs draw_window_args(m_renderer->get_draw_buffer());
 
         //todo:implement SWindow
         //get the active modal window
@@ -248,11 +270,12 @@ namespace DoDo
 
             //only draw visible windows or in off-screen rendering mode
             //todo:need pass FDrawWindowArgs
-            //Draw_Window_And_Children(current_window, draw_window_args);
+            Draw_Window_And_Children(current_window, draw_window_args);//generate draw elements
         }
 
         //todo:implement renderer's draw windows
         //m_renderer_instance
+        m_renderer->draw_windows(draw_window_args.m_out_draw_buffer);
     }
 
     void Application::Draw_Pre_Pass(std::shared_ptr<SWindow> draw_only_this_window)
@@ -276,6 +299,7 @@ namespace DoDo
 
 
         //get the draw window args's out draw buffer to add window element list
+        FSlateWindowElementList& window_element_list = draw_window_args.m_out_draw_buffer.add_window_element_list(window_to_draw);
 
         //todo:call SWindow's paint window function
 
@@ -296,6 +320,9 @@ namespace DoDo
         * activation message may be sent by the OS as soon as the window is shown(in the init function), and if we
         * don't add the slate window to our window list, we wouldn't be able to route that message to the window
         */
+        //todo:implement arrange window to front
+        m_windows.push_back(in_slate_window);
+
         std::shared_ptr<Window> new_window = make_window(in_slate_window, b_show_immediately);
 
         if (b_show_immediately)

@@ -1,10 +1,102 @@
 #pragma once
 
+#include "Core/Math/TransformCalculus2D.h"//slate vertex depends on it
 #include "Core/Misc/EnumClassFlags.h"//ENUM_CLASS_FLAGS
+#include "SlateRenderTransform.h"
 
 namespace DoDo
 {
 	class FSlateDrawElement;//forward declare
+	/*
+	 * draw primitive types
+	 */
+	enum class ESlateDrawPrimitive : uint8_t
+	{
+		None,
+		LineList,
+		TriangleList
+	};
+
+	enum class ESlateVertexRounding : uint8_t
+	{
+		Disabled,
+		Enabled
+	};
+	/*a struct which defines a basic vertex seen by the slate vertex buffers and shaders*/
+	struct FSlateVertex
+	{
+		/*texture coordinates, the first 2 are in xy, and the 2nd are in zw*/
+		float tex_coords[4];
+
+		/*texture coordinates used as pass through to materials for custom texturing*/
+		//todo:implement this
+
+		/*position of the vertex in window space*/
+		glm::vec2 m_position;
+
+		/*vertex color*/
+		glm::vec4 m_color;
+
+		/*secondary vertex color, generally used for outlines*/
+		glm::vec4 m_secondary_color;
+
+		/*local size of the element*/
+		uint16_t m_pixel_size[2];
+
+		FSlateVertex(){}
+
+	public:
+
+		template<ESlateVertexRounding Rounding>
+		static FSlateVertex Make(const FSlateRenderTransform& render_transform, const glm::vec2 in_local_position, const glm::vec2 in_tex_coord, const glm::vec2 in_tex_coord2, const glm::vec4 in_color, const glm::vec4 secondary_color = glm::vec4())
+		{
+			FSlateVertex vertex;
+			vertex.tex_coords[0] = in_tex_coord.x;
+			vertex.tex_coords[1] = in_tex_coord.y;
+			vertex.tex_coords[2] = in_tex_coord2.x;
+			vertex.tex_coords[3] = in_tex_coord2.y;
+			vertex.init_common<Rounding>(render_transform, in_local_position, in_color, secondary_color);
+
+			return vertex;
+		}
+
+		template<ESlateVertexRounding Rounding>
+		static FSlateVertex Make(const FSlateRenderTransform& render_transform, const glm::vec2 in_local_position, const glm::vec2 in_local_size, float scale, const glm::vec4 in_tex_coords, const glm::vec4 in_color, const glm::vec4 in_secondary_color)
+		{
+			FSlateVertex vertex;
+			vertex.tex_coords[0] = in_tex_coords.x;
+			vertex.tex_coords[1] = in_tex_coords.y;
+			vertex.tex_coords[2] = in_tex_coords.z;
+			vertex.tex_coords[3] = in_tex_coords.w;
+			//todo:populate material tex coordinates
+			vertex.init_common<Rounding>(render_transform, in_local_position, in_color, in_secondary_color);
+
+			const int32_t pixel_size_x = in_local_size.x * scale;
+			const int32_t pixel_size_y = in_local_size.y * scale;
+			vertex.m_pixel_size[0] = (uint16_t)pixel_size_x;
+			vertex.m_pixel_size[1] = (uint16_t)pixel_size_y;
+
+			return vertex;
+		}
+
+	private:
+		template<ESlateVertexRounding Rounding>
+		void init_common(const FSlateRenderTransform& render_transform, const glm::vec2 in_local_position, const glm::vec4 in_color, const glm::vec4 in_secondary_color)
+		{
+			//todo:implement transform point
+			m_position = transform_point(render_transform, in_local_position);
+
+			if(Rounding == ESlateVertexRounding::Enabled)
+			{
+				//todo:implement round
+			}
+
+			m_color = in_color;
+			m_secondary_color = in_secondary_color;
+		}
+
+		
+	};
 	/*
 	 * effects that can be applied to elements when rendered
 	 * note : new effects added should be in mask form
@@ -24,7 +116,10 @@ namespace DoDo
 		InvertAlpha = 1 << 3
 	};
 
+
+
 	ENUM_CLASS_FLAGS(ESlateDrawEffect)
 
 	typedef std::vector<FSlateDrawElement> FSlateDrawElementArray;
+	typedef std::vector<FSlateVertex> FSlateVertexArray;
 }

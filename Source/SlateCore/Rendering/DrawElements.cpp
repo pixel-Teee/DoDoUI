@@ -8,6 +8,19 @@
 
 namespace DoDo
 {
+	FSlateDrawElement::FSlateDrawElement()
+		: m_data_payload(nullptr)
+	{
+	}
+
+	FSlateDrawElement::~FSlateDrawElement()
+	{
+		if(m_data_payload)
+		{
+			m_data_payload->~FSlateDataPayload();
+		}
+	}
+
 	void FSlateDrawElement::MakeBox(
 		FSlateWindowElementList& element_list,
 		uint32_t in_layer,
@@ -19,15 +32,32 @@ namespace DoDo
 		//todo:implement this function
 
 		//call PaintGeometry's commit transforms if using legacy constructor
-
+		paint_geometry.commit_transforms_if_using_legacy_constructor();
 		//todo:implement should cull
 
 		//todo:implement make box internal
+		MakeBoxInternal(element_list, in_layer, paint_geometry, in_brush, in_draw_effects, in_tint);
+	}
+
+	void FSlateDrawElement::init(FSlateWindowElementList& element_list, EElementType in_element_type, uint32_t in_layer,
+		const FPaintGeometry& paint_geometry, ESlateDrawEffect in_draw_effects)
+	{
+		m_render_transform = paint_geometry.get_accumulated_render_transform();
+		m_position = paint_geometry.m_draw_position;
+		m_scale = paint_geometry.m_draw_scale;
+		m_local_size = paint_geometry.get_local_Size();
+
+		m_layer_id = in_layer;//layer id
+
+		m_element_type = in_element_type;
+		m_draw_effect = in_draw_effects;
+
+		//todo:implement batch flags
 	}
 
 	FSlateDrawElement& FSlateDrawElement::MakeBoxInternal(FSlateWindowElementList& element_list, uint32_t in_layer,
-		const FPaintGeometry& paint_geometry, const FSlateBrush* in_brush, ESlateDrawEffect in_draw_effect,
-		const glm::vec4& in_tint)
+	                                                      const FPaintGeometry& paint_geometry, const FSlateBrush* in_brush, ESlateDrawEffect in_draw_effect,
+	                                                      const glm::vec4& in_tint)
 	{
 		//todo:implement EElementType
 		EElementType element_type = (in_brush->m_draw_as == ESlateBrushDrawType::Border) ? EElementType::ET_Border : (in_brush->m_draw_as == ESlateBrushDrawType::RoundedBox) ? EElementType::ET_RoundedBox : EElementType::ET_Box;
@@ -47,6 +77,8 @@ namespace DoDo
 		else
 		{
 			//todo:implement element list's create pay load
+			//allocate memory
+			box_payload = &element_list.create_pay_load<FSlateBoxPayload>(element);
 		}
 
 		box_payload->set_tint(in_tint);//set tint
@@ -54,6 +86,7 @@ namespace DoDo
 		//box_payload->set_brush(in_brush, paint_geometry.get_local_size(), paint_geometry.m_draw_scale);
 
 		//todo:implement FSlateDrawElement's Init function
+		//element.Init()
 
 		return element;
 	}
@@ -62,12 +95,14 @@ namespace DoDo
 		: m_weak_paint_window(in_paint_window)
 		, m_raw_paint_window(in_paint_window.get())
 		, m_window_size(glm::vec2(0.0f, 0.0f))
+		, m_render_target_window(nullptr)
 	{
 		//todo:check in_paint_window is valid
 	}
 
 	FSlateWindowElementList::~FSlateWindowElementList()
 	{
+		
 	}
 
 	FSlateDrawElement& FSlateWindowElementList::add_uninitialized()

@@ -98,6 +98,23 @@ namespace DoDo
 
 		}
 
+		/*
+		 * creates and initializes a new instance
+		 *
+		 * @param InLocalSize the size in local space
+		 * @param InAccumulatedLayoutTransform the accumulated layout transform(from an FGeometry)
+		 * @param InAccumulatedRenderTransform the accumulated render transform(from an FGeometry)
+		 */
+		FPaintGeometry(const FSlateLayoutTransform& in_accumulated_layout_transform, const FSlateRenderTransform& in_accumulated_render_transform, const glm::vec2& in_local_size, bool b_in_has_render_transform)
+			: m_draw_position(in_accumulated_layout_transform.get_translation())//todo:implement get_translation
+			, m_draw_scale(in_accumulated_layout_transform.get_scale())//todo:implement get_scale
+			, m_draw_size(0.0f, 0.0f)
+			, m_local_size(in_local_size)
+			, m_accumulated_render_transform(in_accumulated_render_transform)
+			, m_b_using_legacy_constructor(false)
+			, m_b_has_render_transform(b_in_has_render_transform)
+		{}
+
 		/*deprecated, this is legacy and should be removed*/
 		FPaintGeometry(glm::vec2 in_draw_position, glm::vec2 in_draw_size, float in_draw_scale)
 			: m_draw_position(in_draw_position)

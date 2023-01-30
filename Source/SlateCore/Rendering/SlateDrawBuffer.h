@@ -18,6 +18,8 @@ namespace DoDo {
 		/*default constructor*/
 		FSlateDrawBuffer();
 
+		~FSlateDrawBuffer();
+
 		/*removes all data from the buffer*/
 		void clear_buffer();
 
@@ -41,6 +43,10 @@ namespace DoDo {
 	private:
 		//list of window element lists
 		std::vector<std::shared_ptr<FSlateWindowElementList>> m_window_element_lists;
+
+		//list of window element lists that we store from the previous frame
+		//that we restore if they're requested again
+		std::vector<std::shared_ptr<FSlateWindowElementList>> m_window_element_lists_pool;
 
 		glm::vec2 m_view_offset;
 	};

@@ -3,12 +3,15 @@
 #include "glm/vec4.hpp"
 #include "glm/vec2.hpp"
 
+#include "SlateRenderTransform.h"//FSlateDrawElement depends on it
+
 #include "SlateCore/Rendering/RenderingCommon.h"//ESlateDrawEffect depend on it
 
 namespace DoDo
 {
-	class FPaintGeometry;
-	class FSlateBrush;
+	struct FPaintGeometry;
+	struct FSlateBrush;
+	struct FSlateDataPayload;
 
 	//todo:add bit field
 	enum class EElementType
@@ -36,7 +39,27 @@ namespace DoDo
 	 */
 	class FSlateDrawElement
 	{
+	public:
 		friend class FSlateWindowElementList;
+
+		FSlateDrawElement();
+
+		~FSlateDrawElement();
+
+		int32_t get_layer() const { return m_layer_id; }
+
+		EElementType get_element_type() const { return m_element_type; }
+
+		template<typename PayloadType>
+		const PayloadType& get_data_pay_load() const { return *(PayloadType*)m_data_payload; }//cast to concrete type
+
+		const FSlateRenderTransform& get_render_transform() const { return m_render_transform; }
+
+		glm::vec2 get_local_size() const { return m_local_size; }
+
+		float get_scale() const { return m_scale; }
+
+		ESlateDrawEffect get_draw_effects() const { return m_draw_effect; }
 
 		/*
 		 * creates a box element based on the following diagram
@@ -69,8 +92,27 @@ namespace DoDo
 			const glm::vec4& in_tint);
 
 	private:
+		void init(FSlateWindowElementList& element_list, EElementType in_element_type, uint32_t in_layer, const FPaintGeometry& paint_geometry, ESlateDrawEffect in_draw_effects);
+
 		static FSlateDrawElement& MakeBoxInternal(FSlateWindowElementList& element_list, uint32_t in_layer, const FPaintGeometry& paint_geometry, const FSlateBrush* in_brush, ESlateDrawEffect in_draw_effect,
 			const glm::vec4& in_tint);
+
+	private:
+		FSlateDataPayload* m_data_payload;
+
+		FSlateRenderTransform m_render_transform;//FTransform 2D
+
+		glm::vec2 m_position;
+
+		glm::vec2 m_local_size;
+
+		int32_t m_layer_id;
+
+		float m_scale;
+
+		ESlateDrawEffect m_draw_effect;
+
+		EElementType m_element_type;
 	};
 
 	class SWindow;
@@ -90,6 +132,39 @@ namespace DoDo
 		explicit FSlateWindowElementList(const std::shared_ptr<SWindow>& in_paint_window);
 
 		~FSlateWindowElementList();
+		/*@return get the window that we will be painting*/
+		/*FSlateWindowElementList don't hold the life time of window*/
+		SWindow* get_paint_window() const
+		{
+			return !m_weak_paint_window.expired() ? m_raw_paint_window : nullptr;
+		}
+
+		/*@return get the window that we will be rendering to, unless you are a slate renderer you probably want to use get_paint_window()*/
+		SWindow* get_render_window() const
+		{
+			//note: this assumes that the paint window is safe to paint and is not accessed by another thread
+			return m_render_target_window != nullptr ? m_render_target_window : get_paint_window();
+		}
+
+		/*@return get the draw elements that we want to render into this window*/
+		const FSlateDrawElementArray& get_uncached_draw_elements() const
+		{
+			return m_uncached_draw_elements;
+		}
+
+		template<typename PayloadType>
+		PayloadType& create_pay_load(FSlateDrawElement& draw_element)
+		{
+			//elements are responsible for deleting their own payloads
+			PayloadType* pay_load;
+
+			pay_load = new PayloadType();
+
+			draw_element.m_data_payload = pay_load;//owns the life time
+
+			return *pay_load;
+		}
+
 		/*
 		 * creates an uninitialized draw element
 		 */
@@ -102,6 +177,12 @@ namespace DoDo
 		*/
 		std::weak_ptr<SWindow> m_weak_paint_window;
 		SWindow* m_raw_paint_window;
+
+		/*
+		 * the window to render to. this may be different from the paint window if we are displaying the contents of a window (or virtual window) onto another window
+		 * if this is null, the paint window is used
+		 */
+		SWindow* m_render_target_window;
 
 		/*the uncached draw elements to be processed*/
 		//store the FSlateDrawElement

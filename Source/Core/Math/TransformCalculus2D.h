@@ -4,6 +4,21 @@
 
 namespace DoDo
 {
+	/*
+	 * generic implementation of transform point for 2d vectors with double precision, attempts to use a member function of the transform type
+	 */
+	template<typename TransformType>
+	inline glm::vec2 transform_point(const TransformType& transform, const glm::vec2& point)
+	{
+		return transform.transform_point(point);//note: call TransformType's member function, to transform point
+	}
+
+	/*specialization for FVector2D translation*/
+	//note:this is for glm::vec2
+	inline glm::vec2 transform_point(const glm::vec2& transform, const glm::vec2& point)
+	{
+		return transform + point;
+	}
 	/*represents a 2d non-uniform scale(to disambiguate from an FVector2D, which is used for translation)*/
 	class FScale2D
 	{
@@ -47,6 +62,17 @@ namespace DoDo
 			m_m[1][0] = 0; m_m[1][1] = scale_y;
 		}
 
+		/*
+		 * transform a 2d point
+		 * [X Y] * [m00 m01]
+		 *		   [m10 m11]
+		 */
+		glm::vec2 transform_point(const glm::vec2& point) const
+		{
+			return glm::vec2(point.x * m_m[0][0] + point.y * m_m[1][0],
+				point.y * m_m[0][1] + point.y * m_m[1][1]);
+		}
+
 	private:
 		float m_m[2][2];
 	};
@@ -77,6 +103,16 @@ namespace DoDo
 			
 		}
 
+		/*access to the translation*/
+		const glm::vec2 get_translation() const { return m_trans; }
+
+		/*
+		 * 2d transformation of a point, transforms position, rotation, and scale
+		 */
+		glm::vec2 transform_point(const glm::vec2& point) const
+		{
+			return DoDo::transform_point(get_translation(), DoDo::transform_point(m_m, point));
+		}
 
 	private:
 		FMatrix2x2 m_m;//matrix

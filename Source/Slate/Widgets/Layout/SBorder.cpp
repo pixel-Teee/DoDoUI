@@ -3,7 +3,9 @@
 #include "SBorder.h"
 
 #include "SlateCore/Layout/FlowDirection.h"//use g_slate_flow_direction
+#include "SlateCore/Layout/Geometry.h"//MakeBox's FGeometry depends on it
 #include "SlateCore/Rendering/DrawElements.h"//on paint depends on it
+#include "SlateCore/Styling/SlateBrush.h"//FSlateBrush depends on it
 
 namespace DoDo
 {
@@ -54,16 +56,20 @@ namespace DoDo
 			const ESlateDrawEffect draw_effects = ESlateDrawEffect::None;
 
 			//todo:implement this function
-			/*
+			
 			FSlateDrawElement::MakeBox(
 				out_draw_elements,
 				layer_id,
 				allotted_geometry.to_paint_geometry(),
 				brush_resource,
 				draw_effects,
-				brush_resource->get_tint()
+				glm::vec4(0.5f, 0.2f, 0.6f, 1.0f)//todo:to implement FSlateBrush's function get tint function
 			);
-			*/
+			
+		}
+		else
+		{
+			
 		}
 
 		return SCompoundWidget::On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id,

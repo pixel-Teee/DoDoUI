@@ -1,10 +1,11 @@
 #pragma once
+#include "PaintGeometry.h"//FPaintGeometry depends on it
 #include "SlateCore/Rendering/SlateRenderTransform.h"//FSlateRenderTransform depends on it
 
 namespace DoDo
 {
 	/*
-	 * represents the position, size, and absolute of a widget in slate
+	 * represents the position, size, and absolute position of a widget in slate
 	 * the absolute location of a geometry is usually screen space or window space depending on where the geometry originated
 	 * 
 	 * geometries are usually paired with a SWidget pointer in order to provide information about a specific widget(see FArrangedWidget)
@@ -71,10 +72,31 @@ namespace DoDo
 		{
 			return !(this->operator==(other));//check
 		}
+
+		/*
+		 * create a paint geometry that represents this geometry
+		 *
+		 * @return the new paint geometry
+		 */
+		FPaintGeometry to_paint_geometry() const
+		{
+			return FPaintGeometry(get_accumulated_layout_transform(), get_accumulated_render_transform(), m_size, m_b_has_render_transform);
+		}
+
+		/*
+		 * @return the accumulated layout transform, shouldn't be needed in general
+		 */
+		FSlateLayoutTransform get_accumulated_layout_transform() const
+		{
+			return FSlateLayoutTransform(m_scale, m_absolute_position);
+		}
 	private:
 
 		/* return the size of the geometry in local space*/
 		const glm::vec2& get_local_size() const { return m_size; }
+
+		/*@return the accumulated render transform, shouldn't be needed general*/
+		const FSlateRenderTransform& get_accumulated_render_transform() const { return m_accumulated_render_transform; }
 
 		/*
 		 * get the local position on the surface of the geometry using normalized coordinates

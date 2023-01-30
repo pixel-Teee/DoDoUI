@@ -176,9 +176,9 @@ namespace DoDo {
 		vkGetSwapchainImagesKHR(device, m_swap_chain, &image_count, m_swap_chain_images.data());
 		//------create swap chain------
 
-		create_image_views(device);
-
-		create_frame_buffers(device, pass);
+		//create_image_views(device);
+		//
+		//create_frame_buffers(device, pass);
 	}
 
 	VulkanSwapChain::VulkanSwapChain(void* vulkan_physical_device, void* logic_device, void* surface, Window& window, DeletionQueue& deletion_queue)
@@ -263,10 +263,9 @@ namespace DoDo {
 		});
 
 		//todo:implement create_image_views
-		//create_image_views(device);
+		create_image_views(device, deletion_queue);
 
 		//create_frame_buffers(device, pass);
-
 
 		//todo:add render pass for create framebuffer
 	}
@@ -309,6 +308,43 @@ namespace DoDo {
 		return std::make_pair(m_extent_2d.width, m_extent_2d.height);
 	}
 
+	std::vector<VkFramebuffer> VulkanSwapChain::create_frame_buffer(VkDevice logic_device, VkRenderPass render_pass, DeletionQueue& deletion_queue)
+	{
+		std::vector<VkFramebuffer> framebuffers;
+		//render pass describes how to control image and how to clear image
+		framebuffers.resize(m_swap_chain_image_views.size());
+
+		for (size_t i = 0; i < framebuffers.size(); ++i)
+		{
+			VkImageView attachments[] = { m_swap_chain_image_views[i] };
+
+			VkFramebufferCreateInfo frame_buffer_info{};
+			frame_buffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			frame_buffer_info.renderPass = render_pass;//render pass;
+			frame_buffer_info.attachmentCount = 1;
+			frame_buffer_info.pAttachments = attachments;
+			frame_buffer_info.width = m_extent_2d.width;
+			frame_buffer_info.height = m_extent_2d.height;
+			frame_buffer_info.layers = 1;
+
+			if (vkCreateFramebuffer(logic_device, &frame_buffer_info, nullptr, &framebuffers[i]) != VK_SUCCESS)
+			{
+				std::cout << "failed to create framebuffer" << std::endl;
+			}
+		}
+
+		for (size_t i = 0; i < framebuffers.size(); ++i)
+		{
+			deletion_queue.push_function([=]()
+			{
+				vkDestroyFramebuffer(logic_device, framebuffers[i], nullptr);
+			});
+		}
+
+		//copy return
+		return framebuffers;
+	}
+
 	void VulkanSwapChain::create_image_views(VkDevice logic_device)
 	{
 		m_swap_chain_image_views.resize(m_swap_chain_images.size());
@@ -316,6 +352,16 @@ namespace DoDo {
 		for (size_t i = 0; i < m_swap_chain_images.size(); ++i)
 		{
 			m_swap_chain_image_views[i] = create_image_view(m_swap_chain_images[i], m_surface_format.format, VK_IMAGE_ASPECT_COLOR_BIT, logic_device);
+		}
+	}
+
+	void VulkanSwapChain::create_image_views(VkDevice logic_device, DeletionQueue& deletion_queue)
+	{
+		m_swap_chain_image_views.resize(m_swap_chain_images.size());
+
+		for (size_t i = 0; i < m_swap_chain_images.size(); ++i)
+		{
+			m_swap_chain_image_views[i] = create_image_view(m_swap_chain_images[i], m_surface_format.format, VK_IMAGE_ASPECT_COLOR_BIT, logic_device, deletion_queue);
 		}
 	}
 
@@ -361,6 +407,33 @@ namespace DoDo {
 		if (vkCreateImageView(logic_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create texture image view!");
 		}
+
+		return imageView;
+	}
+
+	VkImageView VulkanSwapChain::create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect_flags,
+		VkDevice logic_device, DeletionQueue& deletion_queue)
+	{
+		VkImageViewCreateInfo viewInfo{};
+		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.image = image;
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format = format;
+		viewInfo.subresourceRange.aspectMask = aspect_flags;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+
+		VkImageView imageView;
+		if (vkCreateImageView(logic_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create texture image view!");
+		}
+
+		deletion_queue.push_function([=]()
+		{
+			vkDestroyImageView(logic_device, imageView, nullptr);
+		});
 
 		return imageView;
 	}
