@@ -1,11 +1,14 @@
 #pragma once
 
+
 #include "glm/vec4.hpp"
 #include "glm/vec2.hpp"
 
 #include "SlateRenderTransform.h"//FSlateDrawElement depends on it
 
 #include "SlateCore/Rendering/RenderingCommon.h"//ESlateDrawEffect depend on it
+
+#include "ElementBatcher.h"//FSlateWindowElementList depend on it
 
 namespace DoDo
 {
@@ -116,6 +119,7 @@ namespace DoDo
 	};
 
 	class SWindow;
+	//class FSlateBatchData;
 	/*
 	 * represents a top level window and it's draw elements
 	 */
@@ -170,6 +174,13 @@ namespace DoDo
 		 */
 		FSlateDrawElement& add_uninitialized();
 
+		/*
+		 * remove all the elements from this draw list
+		 */
+		void reset_element_list();
+
+		FSlateBatchData& get_batch_data();
+
 	private:
 		/*
 		* window which owns the widgets that are being painted but not necessarily rendered to
@@ -183,6 +194,9 @@ namespace DoDo
 		 * if this is null, the paint window is used
 		 */
 		SWindow* m_render_target_window;
+
+		/*batched data used for rendering*/
+		FSlateBatchData m_batch_data;
 
 		/*the uncached draw elements to be processed*/
 		//store the FSlateDrawElement

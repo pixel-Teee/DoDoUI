@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DrawElements.h"//FSlateBoxPayload depends on it
+//#include "DrawElements.h"//FSlateBoxPayload depends on it
 #include "Core/Math/Box2D.h"//FSlateBoxPayload depends on it
 
 #include "glm/vec4.hpp"

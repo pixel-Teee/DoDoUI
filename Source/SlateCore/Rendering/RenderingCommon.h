@@ -4,8 +4,18 @@
 #include "Core/Misc/EnumClassFlags.h"//ENUM_CLASS_FLAGS
 #include "SlateRenderTransform.h"
 
+//#include <vulkan/vulkan.h>
+
 namespace DoDo
 {
+	//struct VertexInputDesription
+	//{
+	//	std::vector<VkVertexInputBindingDescription> m_bindings;
+	//	std::vector<VkVertexInputAttributeDescription> m_attributes;//every element
+	//
+	//	VkPipelineVertexInputStateCreateFlags flags = 0;
+	//};
+
 	class FSlateDrawElement;//forward declare
 	/*
 	 * draw primitive types
@@ -44,6 +54,8 @@ namespace DoDo
 		uint16_t m_pixel_size[2];
 
 		FSlateVertex(){}
+
+		//static VertexInputDesription get_vertex_description();
 
 	public:
 
@@ -97,6 +109,55 @@ namespace DoDo
 
 		
 	};
+
+	/*
+	VertexInputDesription FSlateVertex::get_vertex_description()
+	{
+		VertexInputDesription description;
+
+		//we will have just 1 vertex buffer binding, with a pre-vertex rate
+		VkVertexInputBindingDescription main_binding = {};
+		main_binding.binding = 0;
+		main_binding.stride = sizeof(FSlateVertex);
+		main_binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+		description.m_bindings.push_back(main_binding);
+
+		//texcoord will be stored at location 0
+		VkVertexInputAttributeDescription texcoord_attribute = {};
+		texcoord_attribute.binding = 0;
+		texcoord_attribute.location = 0;
+		texcoord_attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;//texcoord
+		texcoord_attribute.offset = offsetof(FSlateVertex, tex_coords);
+
+		VkVertexInputAttributeDescription position_attribute = {};
+		position_attribute.binding = 0;
+		position_attribute.location = 1;
+		position_attribute.format = VK_FORMAT_R32G32_SFLOAT;//position
+		position_attribute.offset = offsetof(FSlateVertex, m_position);
+
+		VkVertexInputAttributeDescription color_attribute = {};
+		color_attribute.binding = 0;
+		color_attribute.location = 2;
+		color_attribute.format = VK_FORMAT_B8G8R8A8_UNORM;
+		color_attribute.offset = offsetof(FSlateVertex, m_color);
+
+		VkVertexInputAttributeDescription color2_attribute = {};
+		color2_attribute.binding = 0;
+		color2_attribute.location = 3;
+		color2_attribute.format = VK_FORMAT_B8G8R8A8_UNORM;
+		color2_attribute.offset = offsetof(FSlateVertex, m_secondary_color);
+
+		//every element
+		description.m_attributes.push_back(texcoord_attribute);
+		description.m_attributes.push_back(position_attribute);
+		description.m_attributes.push_back(color_attribute);
+		description.m_attributes.push_back(color2_attribute);
+
+		return description;
+	}
+	*/
+
 	/*
 	 * effects that can be applied to elements when rendered
 	 * note : new effects added should be in mask form
@@ -122,4 +183,5 @@ namespace DoDo
 
 	typedef std::vector<FSlateDrawElement> FSlateDrawElementArray;
 	typedef std::vector<FSlateVertex> FSlateVertexArray;
+	typedef std::vector<uint16_t> FSlateIndexArray;
 }

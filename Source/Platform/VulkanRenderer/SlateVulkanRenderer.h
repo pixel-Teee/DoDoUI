@@ -8,12 +8,21 @@
 
 #include "SlateCore/Rendering/SlateDrawBuffer.h"
 
+#include "SlateCore/Rendering/ElementBatcher.h"//FSlateElementBatcher and unique_ptr need this
+
+#include "Renderer/PipelineStateObject.h"//pso
+
+#include "Renderer/Shader.h"//shader
+
 #include "Renderer/Renderer.h"//slate renderer
 
 #include <queue>
 #include <functional>
 
+#include <include/vk_mem_alloc.h>
+
 namespace DoDo {
+
 	struct DeletionQueue
 	{
 		std::deque<std::function<void()>> deletors;
@@ -30,6 +39,14 @@ namespace DoDo {
 
 			deletors.clear();
 		}
+	};
+
+	struct VertexInputDescription {
+
+		std::vector<VkVertexInputBindingDescription> bindings;
+		std::vector<VkVertexInputAttributeDescription> attributes;
+
+		VkPipelineVertexInputStateCreateFlags flags = 0;
 	};
 
 	class VulkanSwapChain;
@@ -70,9 +87,13 @@ namespace DoDo {
 		}
 	};
 
+	class PipelineStateObject;
+	class FSlateElementBatcher;
 	class SWindow;//forward declare
 	class Device;
 	class Window;//platform window
+	class FSlateVulkanRenderingPolicy;//forward declare
+	class Shader;
 	class FSlateVulkanRenderer : public Renderer//todo:need to inherited from FSlateRenderer
 	{
 	public:
@@ -110,6 +131,8 @@ namespace DoDo {
 		void init_frame_buffers();
 
 		void init_default_render_pass();
+
+		VertexInputDescription get_vertex_description(); //todo:move this function to other place
 	private:
 		bool m_b_has_attempted_initialization;
 
@@ -118,6 +141,9 @@ namespace DoDo {
 		std::map<const SWindow*, FSlateVulkanViewport> m_window_to_viewport_map;
 
 		FSlateDrawBuffer m_draw_buffer;
+
+		std::unique_ptr<FSlateElementBatcher> m_element_batcher;
+		std::shared_ptr<FSlateVulkanRenderingPolicy> m_rendering_policy;
 
 		//todo:implement FSlateElementBatcher
 		//todo:implement FSlateD3DTextureManager
@@ -146,7 +172,14 @@ namespace DoDo {
 
 		uint64_t m_frame_number;
 
+		VmaAllocator m_allocator;
+
+		std::unique_ptr<PipelineStateObject> m_pipeline_state_object;
 		//std::vector<VkFramebuffer> m_frame_buffer;//frame buffer connect the render pass and vk image
+
+		Scope<Shader> m_vertex_shader_module;
+
+		Scope<Shader> m_fragment_shader_module;
 	};
 
 }

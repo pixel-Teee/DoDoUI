@@ -299,6 +299,7 @@ namespace DoDo
 
 
         //get the draw window args's out draw buffer to add window element list
+        //this function will clear last frame element data
         FSlateWindowElementList& window_element_list = draw_window_args.m_out_draw_buffer.add_window_element_list(window_to_draw);
 
         //todo:call SWindow's paint window function

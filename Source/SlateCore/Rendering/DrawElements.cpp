@@ -86,7 +86,7 @@ namespace DoDo
 		//box_payload->set_brush(in_brush, paint_geometry.get_local_size(), paint_geometry.m_draw_scale);
 
 		//todo:implement FSlateDrawElement's Init function
-		//element.Init()
+		element.init(element_list, element_type, in_layer, paint_geometry, in_draw_effect);
 
 		return element;
 	}
@@ -121,5 +121,15 @@ namespace DoDo
 		//get the last element
 		FSlateDrawElement& new_element = elements[insert_index];
 		return elements[insert_index];
+	}
+
+	void FSlateWindowElementList::reset_element_list()
+	{
+		m_batch_data.reset_data();
+	}
+
+	FSlateBatchData& FSlateWindowElementList::get_batch_data()
+	{
+		return m_batch_data;
 	}
 }

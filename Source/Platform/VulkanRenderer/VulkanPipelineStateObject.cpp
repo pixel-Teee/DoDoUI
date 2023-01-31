@@ -2,6 +2,8 @@
 
 #include "VulkanPipelineStateObject.h"
 
+#include "SlateVulkanRenderer.h"//vertex input layout
+
 #include "Platform/VulkanRenderer/VulkanShader.h"
 
 namespace DoDo {
@@ -18,7 +20,7 @@ namespace DoDo {
 		m_shader_stage_create_info[0] = m_shader_stage_create_info[1] = {};
 		m_pipeline_layout = VK_NULL_HANDLE;
 		m_pipeline = VK_NULL_HANDLE;
-		m_render_pass = VK_NULL_HANDLE;
+		m_render_pass = VK_NULL_HANDLE;//todo:remove this
 		
 	}
 	GraphicsPipelineStateObject::~GraphicsPipelineStateObject()
@@ -29,7 +31,7 @@ namespace DoDo {
 	{
 		VkDevice device = *(VkDevice*)logic_device;
 
-		vkDestroyRenderPass(device, m_render_pass, nullptr);
+		//vkDestroyRenderPass(device, m_render_pass, nullptr);
 
 		vkDestroyPipelineLayout(device, m_pipeline_layout, nullptr);
 
@@ -67,17 +69,26 @@ namespace DoDo {
 	{
 		return &m_pipeline;
 	}
+
+	void GraphicsPipelineStateObject::set_render_pass(void* in_render_pass)
+	{
+		//render pass cat
+		VkRenderPass render_pass = *(VkRenderPass*)in_render_pass;
+
+		m_pipeline_info.renderPass = render_pass;//set render pass
+	}
+
 	void GraphicsPipelineStateObject::finalize(void* logic_device)
 	{
 		VkDevice device = *(VkDevice*)logic_device;
 
 		//------vertex layout------
-		VkPipelineVertexInputStateCreateInfo vertex_input_info{};
-		vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		vertex_input_info.vertexBindingDescriptionCount = 0;
-		vertex_input_info.pVertexBindingDescriptions = nullptr;//optional
-		vertex_input_info.vertexAttributeDescriptionCount = 0;
-		vertex_input_info.pVertexAttributeDescriptions = nullptr;//optional
+		//VkPipelineVertexInputStateCreateInfo vertex_input_info{};
+		//vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		//vertex_input_info.vertexBindingDescriptionCount = 0;
+		//vertex_input_info.pVertexBindingDescriptions = nullptr;//optional
+		//vertex_input_info.vertexAttributeDescriptionCount = 0;
+		//vertex_input_info.pVertexAttributeDescriptions = nullptr;//optional
 		//------vertex layout------
 
 		//------input assembly------
@@ -187,54 +198,54 @@ namespace DoDo {
 		//------root signature------
 
 		//------render pass(describe render target format and depth stencil target format)------
-		VkAttachmentDescription color_attachment{};
-		//VkSurfaceFormatKHR format;
-		//format.format = VK_FORMAT_B8G8R8_SRGB;
-		//format.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-		color_attachment.format = VK_FORMAT_B8G8R8A8_UNORM;
-		color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-
-		//load op and store op determine what to do with the data in the attachment before rendering and after rendering
-		color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-
-		color_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-
-		color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		color_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-		VkAttachmentReference color_attachment_ref{};
-		color_attachment_ref.attachment = 0;
-		color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-		VkSubpassDescription subpass{};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &color_attachment_ref;
-		subpass.pDepthStencilAttachment = nullptr;
-
-		VkSubpassDependency dependency{};
-		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;//build in subpass
-		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		
-		VkRenderPassCreateInfo render_pass_info{};
-		render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		render_pass_info.attachmentCount = 1;
-		render_pass_info.pAttachments = &color_attachment;
-		render_pass_info.subpassCount = 1;
-		render_pass_info.pSubpasses = &subpass;
-		render_pass_info.dependencyCount = 1;
-		render_pass_info.pDependencies = &dependency;
-
-		if (vkCreateRenderPass(device, &render_pass_info, nullptr, &m_render_pass) != VK_SUCCESS)
-		{
-			std::cout << "create render pass error!" << std::endl;
-		}
+		//VkAttachmentDescription color_attachment{};
+		////VkSurfaceFormatKHR format;
+		////format.format = VK_FORMAT_B8G8R8_SRGB;
+		////format.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+		//color_attachment.format = VK_FORMAT_B8G8R8A8_UNORM;
+		//color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+		//
+		////load op and store op determine what to do with the data in the attachment before rendering and after rendering
+		//color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+		//color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		//
+		//color_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		//color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		//
+		//color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		//color_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		//
+		//VkAttachmentReference color_attachment_ref{};
+		//color_attachment_ref.attachment = 0;
+		//color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		//
+		//VkSubpassDescription subpass{};
+		//subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+		//subpass.colorAttachmentCount = 1;
+		//subpass.pColorAttachments = &color_attachment_ref;
+		//subpass.pDepthStencilAttachment = nullptr;
+		//
+		//VkSubpassDependency dependency{};
+		//dependency.srcSubpass = VK_SUBPASS_EXTERNAL;//build in subpass
+		//dependency.dstSubpass = 0;
+		//dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		//dependency.srcAccessMask = 0;
+		//dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		//dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		//
+		//VkRenderPassCreateInfo render_pass_info{};
+		//render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		//render_pass_info.attachmentCount = 1;
+		//render_pass_info.pAttachments = &color_attachment;
+		//render_pass_info.subpassCount = 1;
+		//render_pass_info.pSubpasses = &subpass;
+		//render_pass_info.dependencyCount = 1;
+		//render_pass_info.pDependencies = &dependency;
+		//
+		//if (vkCreateRenderPass(device, &render_pass_info, nullptr, &m_render_pass) != VK_SUCCESS)
+		//{
+		//	std::cout << "create render pass error!" << std::endl;
+		//}
 		//------render pass(describe render target format and depth stencil target format)------
 
 		//------dynamic state------
@@ -244,11 +255,11 @@ namespace DoDo {
 		pipeline_dynamic_state_create_info.dynamicStateCount = static_cast<uint32_t>(dynamic_state_enables.size());
 		//------dynamic state------
 
-		//------shader------
+		//------pso------
 		m_pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		m_pipeline_info.stageCount = 2;
 		m_pipeline_info.pStages = m_shader_stage_create_info;
-		m_pipeline_info.pVertexInputState = &vertex_input_info;
+		//m_pipeline_info.pVertexInputState = &vertex_input_info;
 		m_pipeline_info.pInputAssemblyState = &input_assembly;
 		m_pipeline_info.pViewportState = &viewport_state;
 		m_pipeline_info.pRasterizationState = &rasterizer;
@@ -260,16 +271,33 @@ namespace DoDo {
 		m_pipeline_info.layout = m_pipeline_layout;
 
 		//reference to render pass and the index of the subpass
-		m_pipeline_info.renderPass = m_render_pass;
+		//m_pipeline_info.renderPass = m_render_pass;
 		m_pipeline_info.subpass = 0;
 		
 		m_pipeline_info.basePipelineHandle = VK_NULL_HANDLE; //optional
 		m_pipeline_info.basePipelineIndex = -1;
-		//------shader------
+		//------pso------
 		
 		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &m_pipeline_info, nullptr, &m_pipeline) != VK_SUCCESS)
 		{
 			std::cout << "failed to create graphics pipeline!" << std::endl;
 		}
+	}
+
+	void GraphicsPipelineStateObject::set_input_vertex_layout(void* input_layout)
+	{
+		VertexInputDescription vertex_layout = *(VertexInputDescription*)input_layout;
+
+		m_vertex_layout = vertex_layout;
+
+		m_vertex_input_state_create_info = {};
+
+		m_vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+		m_vertex_input_state_create_info.vertexBindingDescriptionCount = m_vertex_layout.bindings.size();
+		m_vertex_input_state_create_info.pVertexBindingDescriptions = m_vertex_layout.bindings.data();
+		m_vertex_input_state_create_info.vertexAttributeDescriptionCount = m_vertex_layout.attributes.size();
+		m_vertex_input_state_create_info.pVertexAttributeDescriptions = m_vertex_layout.attributes.data();
+
+		m_pipeline_info.pVertexInputState = &m_vertex_input_state_create_info;
 	}
 }

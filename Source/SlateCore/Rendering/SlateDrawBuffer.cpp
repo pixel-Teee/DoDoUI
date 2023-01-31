@@ -45,8 +45,30 @@ namespace DoDo {
 
 	FSlateWindowElementList& FSlateDrawBuffer::add_window_element_list(std::shared_ptr<SWindow> for_window)
 	{
+		for(int32_t window_index = 0; window_index < m_window_element_lists_pool.size(); ++window_index)
+		{
+			std::shared_ptr<FSlateWindowElementList> existing_element_list = m_window_element_lists_pool[window_index];
+
+			if(existing_element_list->get_paint_window() == for_window.get())
+			{
+				m_window_element_lists.push_back(existing_element_list);
+
+				auto first = m_window_element_lists_pool.begin() + window_index;
+				auto second = m_window_element_lists_pool.end() - 1;
+
+				std::swap(first, second);//swap two iterators
+
+				m_window_element_lists_pool.pop_back();
+
+				//clear data
+
+				return *existing_element_list;
+			}
+		}
+
 		std::shared_ptr<FSlateWindowElementList> window_elements = std::make_shared<FSlateWindowElementList>(for_window);
 		//todo:implement FSlateWindowElementList's ResetElementList
+		window_elements->reset_element_list();
 		m_window_element_lists.push_back(window_elements);
 
 		return *window_elements;
