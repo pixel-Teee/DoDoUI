@@ -20,13 +20,15 @@ namespace DoDo
 	class FSlateVulkanRenderingPolicy : public FSlateRenderingPolicy
 	{
 	public:
-		FSlateVulkanRenderingPolicy();
+		FSlateVulkanRenderingPolicy(VmaAllocator& allocator);
 
 		~FSlateVulkanRenderingPolicy();
 
+		void clear_vulkan_buffer();
+
 		void build_rendering_buffers(VmaAllocator& allocator, FSlateBatchData& in_batch_data);
 
-		void upload_mesh(VmaAllocator& allocator, const FSlateVertexArray& vertex_array, const FSlateIndexArray& index_array);
+		//void upload_mesh(VmaAllocator& allocator, const FSlateVertexArray& vertex_array, const FSlateIndexArray& index_array);
 
 		void draw_elements(VkCommandBuffer cmd_buffer, VkPipelineLayout pipeline_layout,const glm::mat4x4& view_projection_matrix, int32_t first_batch_index, const std::vector<FSlateRenderBatch>& render_batches);
 	private:

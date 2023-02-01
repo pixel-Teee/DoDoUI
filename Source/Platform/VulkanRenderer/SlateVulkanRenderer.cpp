@@ -196,6 +196,8 @@ namespace DoDo {
 		//iterate through each element list and set up an rhi window for it if needed
 		const std::vector<std::shared_ptr<FSlateWindowElementList>>& window_element_lists = in_window_draw_buffer.get_window_element_lists();
 
+		//m_rendering_policy->clear_vulkan_buffer();
+
 		for(size_t list_index = 0; list_index < window_element_lists.size(); ++list_index)
 		{
 			FSlateWindowElementList& element_list = *window_element_lists[list_index];
@@ -343,14 +345,6 @@ namespace DoDo {
 
 			if(b_result)
 			{
-				//todo:implement create texture manager
-
-				//todo:implement rendering policy
-				m_rendering_policy = std::make_shared<FSlateVulkanRenderingPolicy>();
-
-				//todo:implement element batcher
-				m_element_batcher = std::make_unique<FSlateElementBatcher>();
-
 				VkDevice device = *(VkDevice*)m_logic_device->get_native_handle();
 				//create vma
 				VmaAllocatorCreateInfo allocator_info = {};
@@ -358,6 +352,14 @@ namespace DoDo {
 				allocator_info.device = device;
 				allocator_info.instance = m_vulkan_instance;
 				vmaCreateAllocator(&allocator_info, &m_allocator);
+
+				//todo:implement create texture manager
+
+				//todo:implement rendering policy
+				m_rendering_policy = std::make_shared<FSlateVulkanRenderingPolicy>(m_allocator);//note:vma need first initialize
+
+				//todo:implement element batcher
+				m_element_batcher = std::make_unique<FSlateElementBatcher>();
 
 				m_vertex_shader_module = Shader::Create("Shader//SlateDefaultVertexShader.spv", &device);
 				m_fragment_shader_module = Shader::Create("Shader//SlateElementPixelShader.spv", &device);

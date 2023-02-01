@@ -7,12 +7,24 @@
 
 namespace DoDo
 {
-	FSlateVulkanRenderingPolicy::FSlateVulkanRenderingPolicy()
+	FSlateVulkanRenderingPolicy::FSlateVulkanRenderingPolicy(VmaAllocator& allocator)
 	{
 		m_deletion_queue = std::make_shared<DeletionQueue>();
+
+		m_vertex_buffer.create_buffer(allocator, sizeof(FSlateVertex));
+		m_index_buffer.create_buffer(allocator);
 	}
 
 	FSlateVulkanRenderingPolicy::~FSlateVulkanRenderingPolicy()
+	{
+		m_deletion_queue->flush();//flush 
+
+		//m_vertex_buffer.destroy_buffer(allocator);
+		//m_index_buffer.destroy_buffer();
+		//todo:delete buffer
+	}
+
+	void FSlateVulkanRenderingPolicy::clear_vulkan_buffer()
 	{
 		m_deletion_queue->flush();//flush 
 	}
@@ -61,20 +73,58 @@ namespace DoDo
 		//todo:implement merge rendering batches for FSlateBatchData, this function will sort render batch and get the next batch index
 		in_batch_data.merge_render_batches();
 		//todo:implement interms of current size to resize
-		m_deletion_queue->flush();//todo:remove this
+		//m_deletion_queue->flush();//todo:remove this
 
 		if(!in_batch_data.get_render_batches().empty())
 		{
 			//todo:get the batch data bached data to generate buffer
 
-			const FSlateVertexArray& vertex_array = in_batch_data.get_final_vertex_data();
-			const FSlateIndexArray& index_array = in_batch_data.get_final_index_data();
+			const FSlateVertexArray& final_vertex_data = in_batch_data.get_final_vertex_data();
+			const FSlateIndexArray& final_index_data = in_batch_data.get_final_index_data();
+
+			if (final_vertex_data.size() > 0)
+			{
+				const uint32_t num_vertices = final_vertex_data.size();
+
+				//resize if needed
+				if (num_vertices * sizeof(FSlateVertex) > m_vertex_buffer.get_buffer_size())
+				{
+					uint32_t num_bytes_needed = num_vertices * sizeof(FSlateVertex);
+					m_vertex_buffer.resize_buffer(allocator, num_bytes_needed + (num_vertices / 4) * sizeof(FSlateVertex));// extra 1/4 space
+				}
+
+				if (final_index_data.size() > 0)
+				{
+					const uint32_t num_indices = final_index_data.size();
+
+					if (num_indices > m_index_buffer.get_max_num_indices())
+					{
+						m_index_buffer.resize_buffer(allocator, num_indices + (num_indices / 4));
+					}
+				}
+
+				//map and copy
+				uint8_t* vertices_ptr = nullptr;
+				uint8_t* indices_ptr = nullptr;
+				{
+					vertices_ptr = (uint8_t*)m_vertex_buffer.lock(allocator, 0);
+					indices_ptr = (uint8_t*)m_index_buffer.lock(allocator, 0);
+				}
+
+				std::memcpy(vertices_ptr, final_vertex_data.data(), final_vertex_data.size() * sizeof(FSlateVertex));
+				std::memcpy(indices_ptr, final_index_data.data(), final_index_data.size() * sizeof(uint16_t));
+
+				m_vertex_buffer.unlock(allocator);
+				m_index_buffer.unlock(allocator);
+			}
+
 
 			//upload buffer to vulkan memory
-			upload_mesh(allocator, vertex_array, index_array);
+			//upload_mesh(allocator, vertex_array, index_array);
 		}
 	}
 
+	/*
 	void FSlateVulkanRenderingPolicy::upload_mesh(VmaAllocator& allocator, const FSlateVertexArray& vertex_array,
 		const FSlateIndexArray& index_array)
 	{
@@ -143,4 +193,5 @@ namespace DoDo
 
 		//---------------------------Index Buffer Create---------------------------
 	}
+	*/
 }
