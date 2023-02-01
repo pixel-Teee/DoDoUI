@@ -3,6 +3,7 @@
 
 #include "SlateCore/Layout/FlowDirection.h"//On_Arrange_Children depends on it
 #include "SlateCore/Layout/LayoutUtils.h"//On_Arrange_Children depends on it
+#include "SlateCore/Styling/WidgetStyle.h"
 
 namespace DoDo {
 	/*
@@ -45,11 +46,12 @@ namespace DoDo {
 			FArrangedWidget& the_child = arranged_children[0];
 
 			//todo:implement FWidgetStyle
+			FWidgetStyle compounded_widget_style;
 
 			int32_t layer = 0;
 
 			//todo:implement SWidget's paint function
-			//layer = the_child.m_widget->Paint();
+			layer = the_child.m_widget->paint(args, the_child.m_geometry, my_culling_rect, out_draw_elements, layer_id + 1, compounded_widget_style, b_should_be_enabled);
 
 			return layer;
 		}
@@ -66,8 +68,11 @@ namespace DoDo {
 	void SCompoundWidget::On_Arrange_Children(const FGeometry& allotted_geometry,
 		FArrangedChildren& arranged_children) const
 	{
-		//call template function
-		Arrange_Single_Child(g_slate_flow_direction, allotted_geometry, arranged_children, m_child_slot, Get_Content_Scale());
+		if(m_child_slot.get_widget() != nullptr)//todo:remove this
+		{
+			//call template function
+			Arrange_Single_Child(g_slate_flow_direction, allotted_geometry, arranged_children, m_child_slot, Get_Content_Scale());
+		}
 	}
 
 	SCompoundWidget::SCompoundWidget()

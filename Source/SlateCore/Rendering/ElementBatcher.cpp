@@ -5,6 +5,7 @@
 #include "DrawElements.h"
 #include "SlateRenderBatch.h"
 #include "glm/vec2.hpp"
+#include "SlateCore/Widgets/SWindow.h"
 
 namespace DoDo
 {
@@ -17,6 +18,84 @@ namespace DoDo
 	void FSlateBatchData::reset_data()
 	{
 		m_render_batches.clear();
+		m_uncached_source_batch_vertices.clear();
+		m_uncached_source_batch_indices.clear();
+		m_final_vertex_data.clear();
+		m_final_index_data.clear();
+
+		m_first_render_batch_index = -1;
+
+		m_num_layers = 0;
+		m_num_batches = 0;
+	}
+
+	void FSlateBatchData::merge_render_batches()
+	{
+		if(m_render_batches.size())
+		{
+			std::vector<std::pair<int32_t, int32_t>> batch_indices;
+
+			{
+				//sort an index array instead of the render batches since they are large and not trivially relocatable
+				batch_indices.resize(m_render_batches.size());
+
+				for(int32_t index = 0; index < m_render_batches.size(); ++index)
+				{
+					batch_indices[index].first = index;
+					batch_indices[index].second = m_render_batches[index].get_layer();
+				}
+
+				//stable sort because order in the same layer should be preserved
+				std::stable_sort(batch_indices.begin(), batch_indices.end(),
+					[](const std::pair<int32_t, int32_t>& a, const std::pair<int32_t, int32_t>& b)
+				{
+					return a.second < b.second;
+				});
+			}
+
+			m_num_batches = 0;
+			m_num_layers = 0;
+
+			m_first_render_batch_index = batch_indices[0].first;
+
+			FSlateRenderBatch* prev_batch = nullptr;
+			for(int32_t batch_index = 0; batch_index < batch_indices.size(); ++batch_index)
+			{
+				const std::pair<int32_t, int32_t>& batch_index_pair = batch_indices[batch_index];
+
+				FSlateRenderBatch& current_batch = m_render_batches[batch_index_pair.first];
+
+				if(prev_batch != nullptr)
+				{
+					prev_batch->m_next_batch_index = batch_index_pair.first;
+				}
+
+				++m_num_batches;
+
+				//todo:implement fill buffers from new batch
+				fill_buffers_from_new_batch(current_batch, m_final_vertex_data, m_final_index_data);
+
+				//todo:temporarily do nothing
+
+				prev_batch = &current_batch;
+			}
+		}
+	}
+
+	void FSlateBatchData::fill_buffers_from_new_batch(FSlateRenderBatch& batch, FSlateVertexArray& final_vertices,
+		FSlateIndexArray& final_indices)
+	{
+		if(batch.has_vertex_data())
+		{
+			const int32_t source_vertex_offset = batch.m_vertex_offset;
+			const int32_t source_index_offset = batch.m_index_offset;//from another array to copy to this array
+
+			batch.m_vertex_offset = final_vertices.size();
+			batch.m_index_offset = final_indices.size();
+
+			m_final_vertex_data.insert(m_final_vertex_data.end(), (*batch.m_source_vertices).begin() + source_vertex_offset, (*batch.m_source_vertices).begin() + source_vertex_offset + batch.m_num_vertices);
+			m_final_index_data.insert(m_final_index_data.end(), (*batch.m_source_indices).begin() + source_index_offset, (*batch.m_source_indices).begin() + source_index_offset + batch.m_num_indices);
+		}
 	}
 
 	void FSlateElementBatcher::add_elements(FSlateWindowElementList& element_list)
@@ -25,7 +104,9 @@ namespace DoDo
 		//glm::vec2 view_port_size = element_list.get_paint_window();
 		m_batch_data = &element_list.get_batch_data();//get the batch data from element list, don't owner the life time of batch data
 
-		add_elements_internal(element_list.get_uncached_draw_elements(), glm::vec2(1920.0f, 780.0f));
+		glm::vec2 view_port_size = element_list.get_paint_window()->get_view_port_size();//if this is 0, will get the client size
+
+		add_elements_internal(element_list.get_uncached_draw_elements(), view_port_size);
 	}
 
 	void FSlateElementBatcher::add_elements_internal(const FSlateDrawElementArray& draw_elements,
@@ -59,6 +140,7 @@ namespace DoDo
 	void FSlateElementBatcher::add_box_element(const FSlateDrawElement& draw_element)
 	{
 		//cast to specific type
+		//note:box pay load is just some draw related information(don't contain the information about the geometry)
 		const FSlateBoxPayload& draw_element_pay_load = draw_element.get_data_pay_load<FSlateBoxPayload>();
 
 		//todo:implement from linear color to srgb color
@@ -240,6 +322,28 @@ namespace DoDo
 		else
 		{
 			//todo:implement this for image
+			//todo:implement horizontal and vertical
+
+			const glm::vec2 uv_min = start_uv;
+			const glm::vec2 uv_max = end_uv;
+
+			//horizontal
+			start_uv.x = uv_max.x - (start_uv.x - uv_min.x);
+			end_uv.x = uv_max.x - (end_uv.x - uv_min.x);
+
+			//add four vertices to the list of verts to be added to the vertex buffer
+			render_batch.add_vertex(FSlateVertex::Make<rounding>(render_transform, top_left, local_size, draw_scale, glm::vec4(start_uv.x, start_uv.y, tiling.x, tiling.y), tint, secondary_color));
+			render_batch.add_vertex(FSlateVertex::Make<rounding>(render_transform, top_right, local_size, draw_scale, glm::vec4(end_uv.x, start_uv.y, tiling.x, tiling.y), tint, secondary_color));
+			render_batch.add_vertex(FSlateVertex::Make<rounding>(render_transform, bottom_left, local_size, draw_scale, glm::vec4(start_uv.x, end_uv.y, tiling.x, tiling.y), tint, secondary_color));
+			render_batch.add_vertex(FSlateVertex::Make<rounding>(render_transform, bottom_right, local_size, draw_scale, glm::vec4(end_uv.x, end_uv.y, tiling.x, tiling.y), tint, secondary_color));
+
+			render_batch.add_index(index_start + 0);
+			render_batch.add_index(index_start + 1);
+			render_batch.add_index(index_start + 2);
+
+			render_batch.add_index(index_start + 2);
+			render_batch.add_index(index_start + 1);
+			render_batch.add_index(index_start + 3);
 		}
 	}
 }

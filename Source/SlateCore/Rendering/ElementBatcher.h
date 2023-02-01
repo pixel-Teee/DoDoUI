@@ -15,7 +15,9 @@ namespace DoDo
 	{
 	public:
 		FSlateBatchData()
-			: m_first_render_batch_index(1)//todo:modify this to -1
+			: m_first_render_batch_index(-1)//todo:modify this to -1
+			, m_num_layers(0)
+			, m_num_batches(0)
 		{}
 
 		FSlateRenderBatch& add_render_batch(
@@ -27,6 +29,11 @@ namespace DoDo
 		void reset_data();
 
 		/*
+		 * creates rendering data from batched elements
+		 */
+		void merge_render_batches();
+
+		/*
 		 * returns a list of element batches for this window
 		 */
 		const std::vector<FSlateRenderBatch>& get_render_batches() const { return m_render_batches; }
@@ -36,7 +43,12 @@ namespace DoDo
 		const FSlateVertexArray& get_vertex_data() const { return m_uncached_source_batch_vertices; }
 		const FSlateIndexArray& get_index_data() const { return m_uncached_source_batch_indices; }
 
+		const FSlateVertexArray& get_final_vertex_data() const { return m_final_vertex_data; }
+		const FSlateIndexArray& get_final_index_data() const { return m_final_index_data; }
+
 		//todo:to implement merge render batches
+	protected:
+		void fill_buffers_from_new_batch(FSlateRenderBatch& batch, FSlateVertexArray& final_vertices, FSlateIndexArray& final_indices);
 
 	private:
 		//todo:implement FSlateVertexArray and other information
@@ -48,6 +60,15 @@ namespace DoDo
 		FSlateVertexArray m_uncached_source_batch_vertices;
 
 		FSlateIndexArray m_uncached_source_batch_indices;
+
+		FSlateVertexArray m_final_vertex_data;
+
+		FSlateIndexArray m_final_index_data;
+
+		int32_t m_num_layers;
+
+		/*number of final render batches, it is not the same as RenderBatches.Num()*/
+		int32_t m_num_batches;
 	};
 
 	/*

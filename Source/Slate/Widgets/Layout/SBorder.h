@@ -72,6 +72,13 @@ namespace DoDo
 		 */
 		void Construct(const FArguments& in_args);
 
+		/*sets the color and opacity of the background image for this border*/
+		void set_border_back_ground_color(TAttribute<glm::vec4> in_color_and_opacity);
+
+		glm::vec4 get_border_back_ground_color() const { return m_border_back_ground_color_attribute.Get(); }
+
+		void set_padding(TAttribute<FMargin> in_padding);
+
 		/*
 		 * sets the content for border
 		 *
@@ -84,6 +91,7 @@ namespace DoDo
 		//todo:implement FSlateBrush
 
 		//todo:implement FSlateColor
+		TSlateAttribute<glm::vec4> m_border_back_ground_color_attribute;
 
 		TSlateAttribute<glm::vec2> m_desired_size_scale_attribute;
 

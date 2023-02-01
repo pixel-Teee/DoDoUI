@@ -11,7 +11,7 @@ namespace DoDo
 			, m_draw_primitive_type(in_primitive_type)
 			, m_draw_effects(in_draw_effects)
 			, m_source_vertices(in_source_vertex_array)
-			, m_souce_indices(in_source_index_array)
+			, m_source_indices(in_source_index_array)
 			, m_vertex_offset(in_vertex_offset)
 			, m_index_offset(in_index_offset)
 			, m_num_vertices(0)

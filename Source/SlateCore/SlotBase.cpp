@@ -8,10 +8,14 @@
 namespace DoDo
 {
 	FSlotBase::FSlotBase()
+		: m_owner(nullptr)
+		, m_widget()
 	{
 	}
 
 	FSlotBase::FSlotBase(const FChildren& in_parent)
+		: m_owner(&in_parent)//note:important
+		, m_widget()
 	{
 	}
 
@@ -59,6 +63,7 @@ namespace DoDo
 			if(m_widget != nullptr)
 			{
 				//todo:implement assign parent widget
+				m_widget->assign_parent_widget(owner_widget->shared_from_this());
 			}
 		}
 	}

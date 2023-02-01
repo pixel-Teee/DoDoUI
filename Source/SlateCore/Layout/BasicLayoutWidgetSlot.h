@@ -228,6 +228,13 @@ namespace DoDo
 		{
 			
 		}
+
+		MixedIntoType& Padding(TAttribute<FMargin> in_padding)
+		{
+			set_padding(std::move(in_padding));
+			return *(static_cast<MixedIntoType*>(this));
+		}
+
 	public:
 		struct FSlotArgumentsMixin
 		{

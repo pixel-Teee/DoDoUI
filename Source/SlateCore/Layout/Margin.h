@@ -91,6 +91,17 @@ namespace DoDo
 		}
 
 		/*
+		 * compares this margin with another for eqaulity
+		 *
+		 * @param other the other margin
+		 * @return true if the two margins are equal, false otherwise
+		 */
+		bool operator==(const FMargin& other) const
+		{
+			return (left == other.left) && (right == other.right) && (top == other.top) && (bottom == other.bottom);
+		}
+
+		/*
 		 * gets the margin's total size
 		 *
 		 * @return cumulative margin size

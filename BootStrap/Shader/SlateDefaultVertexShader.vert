@@ -12,6 +12,12 @@ layout(location = 3) out vec4 secondary_color;
 
 //todo:add uniform or view projection matrix
 
+//push constants block
+layout( push_constant ) uniform constants
+{
+	mat4 view_projection_matrix;
+} PushConstants;
+
 void main()
 {
 	texcoords = in_texcoords;
@@ -22,5 +28,5 @@ void main()
 
 	position = in_position;
 
-	gl_Position = vec4(in_position, 0.0f, 1.0f);
+	gl_Position = PushConstants.view_projection_matrix * vec4(in_position, 0.0f, 1.0f);
 }

@@ -61,6 +61,7 @@ namespace DoDo {
 				m_window_element_lists_pool.pop_back();
 
 				//clear data
+				existing_element_list->reset_element_list();
 
 				return *existing_element_list;
 			}

@@ -30,7 +30,7 @@ namespace DoDo {
 	};
 
 	//default predicate to compare of object for slate attribute
-	template<typename ComparePredicate = std::equal_to<>>
+	template<typename ComparePredicate = std::equal_to<void>>
 	struct TSlateAttributeComparePredicate
 	{
 		template<typename ObjectType>

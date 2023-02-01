@@ -27,7 +27,7 @@ namespace DoDo
 
 		void add_index(uint16_t index)
 		{
-			m_souce_indices->push_back(index);
+			m_source_indices->push_back(index);
 			++m_num_indices;
 		}
 
@@ -41,10 +41,17 @@ namespace DoDo
 			return m_index_offset;
 		}
 
+		bool has_vertex_data()
+		{
+			return m_num_vertices > 0 && m_num_indices > 0;
+		}
+
+		int32_t get_layer() const { return m_layer_id; }
+
 		//source data
 		FSlateVertexArray* m_source_vertices;//don't owner the life time of FSlateVertexArray, this is owned by the element batcher
 
-		FSlateIndexArray* m_souce_indices;
+		FSlateIndexArray* m_source_indices;
 		/*the layer we need to sort by*/
 		int32_t m_layer_id;
 

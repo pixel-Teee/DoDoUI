@@ -17,7 +17,7 @@ namespace DoDo
 		m_deletion_queue->flush();//flush 
 	}
 
-	void FSlateVulkanRenderingPolicy::draw_elements(VkCommandBuffer cmd_buffer, const glm::mat4x4& view_projection_matrix, int32_t first_batch_index,
+	void FSlateVulkanRenderingPolicy::draw_elements(VkCommandBuffer cmd_buffer, VkPipelineLayout pipeline_layout, const glm::mat4x4& view_projection_matrix, int32_t first_batch_index,
 		const std::vector<FSlateRenderBatch>& render_batches)
 	{
 		//todo:check vertex buffer and index buffer valid
@@ -46,6 +46,9 @@ namespace DoDo
 
 			VkDeviceSize vertex_buffer_offset = offset;
 
+			//push constants
+			vkCmdPushConstants(cmd_buffer, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &view_projection_matrix);
+
 			//bind vertex buffer from offset
 			vkCmdBindVertexBuffers(cmd_buffer, 0, 1, &m_vertex_buffer.m_buffer.m_buffer, &vertex_buffer_offset);
 
@@ -56,15 +59,16 @@ namespace DoDo
 	void FSlateVulkanRenderingPolicy::build_rendering_buffers(VmaAllocator& allocator, FSlateBatchData& in_batch_data)
 	{
 		//todo:implement merge rendering batches for FSlateBatchData, this function will sort render batch and get the next batch index
-
+		in_batch_data.merge_render_batches();
 		//todo:implement interms of current size to resize
+		m_deletion_queue->flush();//todo:remove this
 
 		if(!in_batch_data.get_render_batches().empty())
 		{
 			//todo:get the batch data bached data to generate buffer
 
-			const FSlateVertexArray& vertex_array = in_batch_data.get_vertex_data();
-			const FSlateIndexArray& index_array = in_batch_data.get_index_data();
+			const FSlateVertexArray& vertex_array = in_batch_data.get_final_vertex_data();
+			const FSlateIndexArray& index_array = in_batch_data.get_final_index_data();
 
 			//upload buffer to vulkan memory
 			upload_mesh(allocator, vertex_array, index_array);
@@ -115,7 +119,7 @@ namespace DoDo
 		//this is the total size, in bytes, of the buffer we are allocating
 		buffer_info.size = index_array.size() * sizeof(uint16_t);
 		//this buffer is going to be used as a vertex buffer
-		buffer_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+		buffer_info.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 
 		//let the vma library know that this data should be writeable by cpu, but also readable by gpu
 		vma_allocation_info = {};

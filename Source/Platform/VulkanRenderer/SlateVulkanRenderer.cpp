@@ -135,6 +135,35 @@ namespace DoDo {
 		}
 	}
 
+	static glm::mat4x4 create_projection_matrix_vulkan(uint32_t width, uint32_t height)
+	{
+		//create ortho projection matrix
+		const float left = 0.0f;
+		const float right = left + width;
+		const float top = 0.0f;
+		const float bottom = top + height;
+		const float zNear = 0;
+		const float zFar = 1;
+
+		//create ortho projection matrix
+		//return glm::mat4x4(2.0f / (right - left), 0.0f, 0.0f, -(right + left) / (right - left),
+		//	0, 2.0f / (bottom - top), 0.0f, -(bottom + top) / (bottom - top),
+		//	0.0f, 0.0f, zFar / (-zNear + zFar), -zNear / (-zNear + zFar),
+		//	0.0f, 0.0f, 0.0f, 1.0f
+		//);
+
+		return glm::mat4x4(2.0f / (right - left), 0.0f, 0.0f, 0.0f,
+			0.0f, 2.0f / (bottom - top), 0.0f, 0.0f,
+			0.0f, 0.0f, zFar / (-zNear + zFar), 0.0f,
+			-(right + left) / (right - left), -(bottom + top) / (bottom - top), -zNear / (-zNear + zFar), 1.0f);
+	}
+
+	FSlateVulkanRenderer::FSlateVulkanRenderer()
+	{
+		m_b_has_attempted_initialization = false;
+		m_view_matrix = glm::mat4x4(1.0f);//identity view matrix
+	}
+
 	FSlateVulkanRenderer::~FSlateVulkanRenderer()
 	{
 	}
@@ -157,7 +186,7 @@ namespace DoDo {
 
 	void FSlateVulkanRenderer::create_view_port(const std::shared_ptr<SWindow> in_window)
 	{
-		glm::vec2 window_size = in_window->get_desired_size();
+		glm::vec2 window_size = in_window->get_size_in_screen();
 
 		private_create_view_port(in_window, window_size);
 	}
@@ -243,10 +272,21 @@ namespace DoDo {
 				vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, *static_cast<VkPipeline*>(m_pipeline_state_object->get_native_handle()));
 
 				//todo:bind vertex buffer
-				
+
+				//todo:bind view port
+				vkCmdSetViewport(cmd, 0, 1, &view_port.m_view_port_info);
+
+				VkRect2D scissor{};
+				scissor.offset = { 0, 0 };
+				scissor.extent.width = view_port.m_view_port_info.width;
+				scissor.extent.height = view_port.m_view_port_info.height;
+
+				vkCmdSetScissor(cmd, 0, 1, &scissor);
 
 				//todo:draw
-				m_rendering_policy->draw_elements(cmd, view_port.m_projection_matrix, batch_data.get_first_render_batch_index(), batch_data.get_render_batches());
+				m_rendering_policy->draw_elements(cmd, *(VkPipelineLayout*)(m_pipeline_state_object->get_pipeline_layout()),m_view_matrix * view_port.m_projection_matrix, batch_data.get_first_render_batch_index(), batch_data.get_render_batches());
+
+				vkCmdEndRenderPass(cmd);
 
 				VK_CHECK(vkEndCommandBuffer(cmd));
 
@@ -468,6 +508,16 @@ namespace DoDo {
 		create_sync_objects(viewport);
 
 		create_command_buffer(viewport);
+
+		viewport.m_view_port_info.maxDepth = 1.0f;
+		viewport.m_view_port_info.minDepth = 0.0f;
+		viewport.m_view_port_info.width = window_size.x;
+		viewport.m_view_port_info.height = window_size.y;
+		viewport.m_view_port_info.x = 0.0f;
+		viewport.m_view_port_info.y = 0.0f;
+
+		//todo:create projection matrix
+		viewport.m_projection_matrix = create_projection_matrix_vulkan(window_size.x, window_size.y);
 
 		m_window_to_viewport_map.insert({in_window.get(), viewport});
 	}

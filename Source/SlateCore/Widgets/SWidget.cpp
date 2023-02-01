@@ -126,6 +126,16 @@ namespace DoDo {
 		//------append a array to this array------
 	}
 
+	int32_t SWidget::paint(const FPaintArgs& args, const FGeometry& allotted_geometry,
+		const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
+		const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
+	{
+		//paint the geometry of this widget
+		int32_t new_layer_id = On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, b_parent_enabled);
+
+		return new_layer_id;
+	}
+
 	void SWidget::invalidate_child_remove_from_tree(SWidget& child)
 	{
 		//todo:implement this function

@@ -21,6 +21,8 @@ namespace DoDo {
 		
 		virtual void* get_render_pass_native_handle() override;
 
+		virtual void* get_pipeline_layout() override;
+
 		virtual void* get_native_handle() override;
 
 		virtual void set_render_pass(void* render_pass) override;

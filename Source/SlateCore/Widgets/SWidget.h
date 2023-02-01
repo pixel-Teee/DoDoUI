@@ -15,6 +15,8 @@
 
 #include <optional>//std::optional depends on it
 
+#include "SlateCore/Layout/FlowDirection.h"
+
 namespace DoDo
 {
 	struct FSlateBaseNamedArgs;
@@ -145,7 +147,42 @@ namespace DoDo
 			return m_enabled_state_attribute.Get();
 		}
 
-	protected:
+		std::optional<FSlateRenderTransform> get_render_transform_with_respect_to_flow_direction() const
+		{
+			if(g_slate_flow_direction == EFlowDirection::LeftToRight)
+			{
+				return m_render_transform_attribute.Get();
+			}
+			else
+			{
+				//if we are going right to left, flip the x translation on render transforms
+				std::optional<FSlateRenderTransform> transform = m_render_transform_attribute.Get();
+
+				if(transform.has_value())
+				{
+					glm::vec2 translation = transform.value().get_translation();
+					transform.value().set_translation(glm::vec2(-translation.x, translation.y));
+				}
+				return transform;
+			}
+		}
+
+		glm::vec2 get_render_transform_pivot_with_respect_to_flow_direction() const
+		{
+			if(g_slate_flow_direction == EFlowDirection::LeftToRight)
+			{
+				return m_render_transform_pivot_attribute.Get();
+			}
+			else
+			{
+				//if we're going right to left, filp the x's pivot mirrored about 0.5
+				glm::vec2 transform_pivot = m_render_transform_pivot_attribute.Get();
+				transform_pivot.x = 0.5f + (0.5f - transform_pivot.x);
+				return transform_pivot;
+			}
+		}
+
+	public:
 		/*
 		 * hidden default constructor
 		 *
@@ -157,6 +194,23 @@ namespace DoDo
 
 		/*construct a SWidget based on initial parameters*/
 		void SWidgetConstruct(const FSlateBaseNamedArgs& args);
+
+		/*
+		 * called to tell a widget to paint itself (and it's children)
+		 *
+		 * the widget should respond by populating the out draw elements array with FDrawElements
+		 * that represent it and any of it's children
+		 *
+		 * @param Args all the arguments necessary to paint this widget(@todo ump: move all params into this struct)
+		 * @param AllottedGeometry the FGeometry that describes an area in which the widget should appear
+		 * @param MyCullingRect the clipping rectangle allocated for this widget and it's children
+		 * @param OutDrawElements a list of FDrawElements to populate with the output
+		 * @param LayerId the layer onto which this widget should be rendered
+		 * @param InColorAndOpacity color and opacity to be applied to all the descendants of the widget being paintes
+		 * @param bParentEnabled true if the parent of this widget is enabled
+		 * @return the maximum layer id attained by this widget or any of it's children
+		 */
+		int32_t paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const;
 
 		/* is the widget construction completed(did we called and returned from the Construct() function) */
 		bool Is_Constructed() const { return m_b_Is_Declarative_Syntax_Construction_Completed; }

@@ -20,7 +20,7 @@ namespace DoDo
 			: m_owner(in_owner)
 			, m_name("Children")
 		{
-			
+			//m_owner = in_owner;
 		}
 
 		FChildren(SWidget* in_owner, DoDoUtf8String in_name)

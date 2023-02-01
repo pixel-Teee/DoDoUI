@@ -45,7 +45,7 @@ namespace DoDo
 		m_render_transform = paint_geometry.get_accumulated_render_transform();
 		m_position = paint_geometry.m_draw_position;
 		m_scale = paint_geometry.m_draw_scale;
-		m_local_size = paint_geometry.get_local_Size();
+		m_local_size = paint_geometry.get_local_Size();//todo:why SWindow's local size is 0.0?
 
 		m_layer_id = in_layer;//layer id
 

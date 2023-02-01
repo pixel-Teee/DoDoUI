@@ -65,6 +65,12 @@ namespace DoDo {
 	{
 		return &m_render_pass;
 	}
+
+	void* GraphicsPipelineStateObject::get_pipeline_layout()
+	{
+		return &m_pipeline_layout;
+	}
+
 	void* GraphicsPipelineStateObject::get_native_handle()
 	{
 		return &m_pipeline;
@@ -190,6 +196,16 @@ namespace DoDo {
 		m_pipeline_layout_create_info.pSetLayouts = nullptr;//optional
 		m_pipeline_layout_create_info.pushConstantRangeCount = 0;//optional
 		m_pipeline_layout_create_info.pPushConstantRanges = nullptr;//optional
+
+		//------push constant------
+		VkPushConstantRange push_constant;
+		push_constant.offset = 0;
+		push_constant.size = sizeof(glm::mat4);
+		push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+		m_pipeline_layout_create_info.pPushConstantRanges = &push_constant;
+		m_pipeline_layout_create_info.pushConstantRangeCount = 1;
+		//------push constant------
 
 		if (vkCreatePipelineLayout(device, &m_pipeline_layout_create_info, nullptr, &m_pipeline_layout) != VK_SUCCESS)
 		{

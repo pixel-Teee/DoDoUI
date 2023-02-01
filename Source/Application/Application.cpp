@@ -18,6 +18,7 @@
 
 #include "Platform/Application/GLFWApplication.h"//GenericApplication depends on it
 #include "SlateCore/Rendering/DrawElements.h"
+#include "SlateCore/Styling/WidgetStyle.h"
 
 namespace DoDo
 {
@@ -88,20 +89,47 @@ namespace DoDo
     {
         std::shared_ptr<SWindow> root_window;
 
+        std::shared_ptr<SBorder> border;
+
+        std::shared_ptr<SBorder> border2;
+
         SAssignNew(root_window, SWindow)
             .Title("hello")
             .ClientSize(glm::vec2(1280.0f, 720.0f))
-            .ScreenPosition(glm::vec2(200.0f, 200.0f));
+            .ScreenPosition(glm::vec2(200.0f, 200.0f))
+            [
+                SAssignNew(border, SBorder)
+				.BorderBackgroundColor(glm::vec4(1.0f, 0.8f, 0.4f, 1.0f))
+				.Padding(100.0f)
+				[
+                    SAssignNew(border2, SBorder)
+                    .BorderBackgroundColor(glm::vec4(0.8f, 0.4f, 0.2f, 1.0f))
+                ]
+            ];
 
         get().add_window(root_window);
 
         std::shared_ptr<SWindow> root_window2;
 
+        std::shared_ptr<SBorder> border3;
+
+        std::shared_ptr<SBorder> border4;
+        
         SAssignNew(root_window2, SWindow)
             .Title("hello")
             .ClientSize(glm::vec2(1280.0f, 720.0f))
-            .ScreenPosition(glm::vec2(400.0f, 400.0f));
+            .ScreenPosition(glm::vec2(800.0f, 200.0f))
+            [
+                SAssignNew(border3, SBorder)
+                .BorderBackgroundColor(glm::vec4(0.2f, 0.8f,0.4f, 1.0f))
+                .Padding(150.0f)
+                [
+                    SAssignNew(border4, SBorder)
+                    .BorderBackgroundColor(glm::vec4(0.1f, 0.6f, 0.7f, 1.0f))
+                ]
+            ] ;
 
+        
         get().add_window(root_window2);
 
         //for(size_t i = 0; i < 10; ++i)
@@ -303,6 +331,15 @@ namespace DoDo
         FSlateWindowElementList& window_element_list = draw_window_args.m_out_draw_buffer.add_window_element_list(window_to_draw);
 
         //todo:call SWindow's paint window function
+        //drawing is done in window space, so null out the positions and keep the size
+        int32_t max_layer_id = 0;
+        max_layer_id = window_to_draw->paint_window(
+            m_current_time,
+            (m_current_time - m_last_tick_time),
+            window_element_list,
+            FWidgetStyle(),
+            window_to_draw->Is_Enabled()
+        );
 
         //draw windowless drag drop operations
 

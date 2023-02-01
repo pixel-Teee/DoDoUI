@@ -23,6 +23,8 @@ namespace DoDo {
 
 		virtual void* get_render_pass_native_handle() = 0;
 
+		virtual void* get_pipeline_layout() = 0;//root signature
+
 		virtual void set_render_pass(void* render_pass) = 0;
 
 		virtual void finalize(void* logic_device) = 0;

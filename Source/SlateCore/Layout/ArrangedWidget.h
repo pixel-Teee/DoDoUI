@@ -14,6 +14,7 @@ namespace DoDo
 	class FArrangedWidget
 	{
 	public:
+
 		FArrangedWidget(std::shared_ptr<SWidget> in_widget, const FGeometry& in_geometry)
 			: m_geometry(in_geometry)
 			, m_widget(in_widget)

@@ -4,6 +4,7 @@
 
 #include "Application/Application.h"//slate application
 #include "Renderer/Renderer.h"
+#include "SlateCore/Layout/Geometry.h"
 
 #ifdef WIN32
 #include "Platform/Application/WindowsPlatformApplicationMisc.h"
@@ -13,6 +14,13 @@ namespace DoDo {
 	//SWindow::SWindow()
 	//{
 	//}
+
+	void DoDo::SWindow::set_content(std::shared_ptr<SWidget> in_content)
+	{
+		m_child_slot.operator[](in_content);
+
+		//todo:call Invalidate, child order
+	}
 
 	void SWindow::Construct(const FArguments& in_args)
 	{
@@ -38,11 +46,38 @@ namespace DoDo {
 		this->m_initial_desired_size = dpi_scaled_client_size;//todo:need to interms of the dpi to scale
 
 		resize_window_size(m_initial_desired_size);
+
+		this->set_content(in_args._Content.m_widget);//set content, move FArgument's widget to this function
 	}
 
 	bool SWindow::is_visible() const
 	{
 		return true;
+	}
+
+	FGeometry SWindow::get_window_geometry_in_window() const
+	{
+		//note:this is root of the window hierarchy
+
+		//we are scaling children for layout, but our pixel bounds are not changing
+		//FGeometry expects size in local space, but our size is stored in screen space(same as window space + screen offset)
+		//so we need to transform size into the window's local space for FGeometry
+		FSlateLayoutTransform local_to_window(1.0f);//todo:implement GetLocalToWindowTransform
+
+		glm::vec2 view_size = get_view_port_size();//note:if viewport size is 0, then return size
+
+		//note:if we want amplify viewport, we need to get a inverse scale layout transform, transform vector will do noting for translation, will skip this translation
+		return FGeometry::make_root(transform_vector(inverse(local_to_window), view_size), local_to_window);
+	}
+
+	int32_t SWindow::paint_window(double current_time, float delta_time, FSlateWindowElementList& out_draw_elements, const FWidgetStyle& in_widget_style,
+	                              bool b_parent_enabled)
+	{
+		FSlateInvalidationContext context(out_draw_elements, in_widget_style);
+
+		FSlateInvalidationResult result = paint_invalidation_root(context);//call FSlateInvalidationRoot's function
+
+		return result.m_max_layer_id_painted;
 	}
 
 	std::shared_ptr<Window> SWindow::get_native_window()
@@ -84,11 +119,46 @@ namespace DoDo {
 		m_native_window = in_native_window;//os related window
 	}
 
+	void SWindow::set_cached_size(glm::vec2 new_size)
+	{
+		if(m_native_window)
+		{
+			//todo:implement adjust cached size
+		}
+
+		if(m_size != new_size)
+		{
+			m_size = new_size;
+
+			//todo:implement invalidate root child order
+		}
+	}
+
 	int32_t SWindow::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
 		int32_t max_layer = SCompoundWidget::On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, b_parent_enabled);
 
 		return max_layer;
+	}
+
+	int32_t SWindow::paint_slow_path(const FSlateInvalidationContext& invalidation_context)
+	{
+		//todo:clear hittest grid
+
+		const FSlateRect window_culling_bounds;
+		const int32_t layer_id = 0;
+
+		//todo:get geometry
+		FGeometry window_geometry = get_window_geometry_in_window();
+
+		int32_t max_layer_id = 0;
+
+		max_layer_id = paint(*invalidation_context.m_paint_args, window_geometry, window_culling_bounds, *invalidation_context.m_window_element_list, layer_id, invalidation_context.m_widget_style,
+			invalidation_context.m_b_parent_enabled);
+
+		//max_layer_id = Pain
+		
+		return max_layer_id;
 	}
 
 	void SWindow::resize_window_size(glm::vec2 new_window_size)
@@ -109,6 +179,7 @@ namespace DoDo {
 		}
 
 		//todo:implement set cached size
+		set_cached_size(new_window_size);
 	}
 
 }

@@ -97,6 +97,8 @@ namespace DoDo {
 	class FSlateVulkanRenderer : public Renderer//todo:need to inherited from FSlateRenderer
 	{
 	public:
+		FSlateVulkanRenderer();
+
 		virtual ~FSlateVulkanRenderer();
 
 		/*FSlateRenderer Interface*/

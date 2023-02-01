@@ -18,6 +18,7 @@ namespace DoDo
 		: m_desired_size_scale_attribute(*this, glm::vec2(1.0f, 1.0f))
 		, m_show_disabled_effect_attribute(*this, true)
 		, m_b_flip_for_right_to_left_flow_direction(false)
+		, m_border_back_ground_color_attribute(*this)
 	{
 	}
 
@@ -26,22 +27,37 @@ namespace DoDo
 		//set content scale
 		Set_Content_Scale(in_args._ContentScale);
 
+		set_border_back_ground_color(in_args._BorderBackgroundColor);
+
 		m_child_slot
 		.HAlign(in_args._HAlign)
 		.VAlign(in_args._VAlign)
+		.Padding(in_args._Padding)
 		[
 			in_args._Content.m_widget
 		];
 	}
 
+	void SBorder::set_border_back_ground_color(TAttribute<glm::vec4> in_color_and_opacity)
+	{
+		m_border_back_ground_color_attribute.Assign(*this, std::move(in_color_and_opacity));
+	}
+
+	void SBorder::set_padding(TAttribute<FMargin> in_padding)
+	{
+		m_child_slot.set_padding(in_padding);
+	}
+
 	int32_t SBorder::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry,
-		const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
-		const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
+	                          const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
+	                          const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
 		//todo:get the FSlateBrush
 		const FSlateBrush* brush_resource;//todo:to implement BorderImageAttribute
 
 		const bool b_enabled = should_be_enabled(b_parent_enabled);//put function parameter to this function
+
+		const ESlateDrawEffect draw_effects = ESlateDrawEffect::None;
 
 		//todo:implement ESlateDrawEffect
 		//todo:implement FSlateBrush
@@ -53,8 +69,6 @@ namespace DoDo
 
 			//todo:implement FSlateDrawElement MakeBox
 
-			const ESlateDrawEffect draw_effects = ESlateDrawEffect::None;
-
 			//todo:implement this function
 			
 			FSlateDrawElement::MakeBox(
@@ -63,13 +77,20 @@ namespace DoDo
 				allotted_geometry.to_paint_geometry(),
 				brush_resource,
 				draw_effects,
-				glm::vec4(0.5f, 0.2f, 0.6f, 1.0f)//todo:to implement FSlateBrush's function get tint function
+				get_border_back_ground_color()//todo:to implement FSlateBrush's function get tint function
 			);
 			
 		}
 		else
 		{
-			
+			FSlateDrawElement::MakeBox(
+				out_draw_elements,
+				layer_id,
+				allotted_geometry.to_paint_geometry(),
+				brush_resource,
+				draw_effects,
+				get_border_back_ground_color()//todo:to implement FSlateBrush's function get tint function
+			);
 		}
 
 		return SCompoundWidget::On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id,

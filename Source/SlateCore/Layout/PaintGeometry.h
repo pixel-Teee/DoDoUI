@@ -106,9 +106,9 @@ namespace DoDo
 		 * @param InAccumulatedRenderTransform the accumulated render transform(from an FGeometry)
 		 */
 		FPaintGeometry(const FSlateLayoutTransform& in_accumulated_layout_transform, const FSlateRenderTransform& in_accumulated_render_transform, const glm::vec2& in_local_size, bool b_in_has_render_transform)
-			: m_draw_position(in_accumulated_layout_transform.get_translation())//todo:implement get_translation
-			, m_draw_scale(in_accumulated_layout_transform.get_scale())//todo:implement get_scale
-			, m_draw_size(0.0f, 0.0f)
+			: m_draw_position(in_accumulated_layout_transform.get_translation())//absoulte position
+			, m_draw_scale(in_accumulated_layout_transform.get_scale())//scale
+			, m_draw_size(0.0f, 0.0f)//todo:??, why this is 0.0
 			, m_local_size(in_local_size)
 			, m_accumulated_render_transform(in_accumulated_render_transform)
 			, m_b_using_legacy_constructor(false)
