@@ -18,6 +18,8 @@ namespace DoDo
 			: m_first_render_batch_index(-1)//todo:modify this to -1
 			, m_num_layers(0)
 			, m_num_batches(0)
+			, m_total_vertex_offset(0)
+			, m_total_index_offset(0)
 		{}
 
 		FSlateRenderBatch& add_render_batch(
@@ -46,6 +48,12 @@ namespace DoDo
 		const FSlateVertexArray& get_final_vertex_data() const { return m_final_vertex_data; }
 		const FSlateIndexArray& get_final_index_data() const { return m_final_index_data; }
 
+		void set_total_vertex_offset(uint32_t offset) { m_total_vertex_offset = offset; }
+		void set_total_index_offset(uint32_t offset) { m_total_index_offset = offset; }
+
+		uint32_t get_total_vertex_offset() const { return m_total_vertex_offset; }
+		uint32_t get_total_index_offset() const { return m_total_index_offset; }
+
 		//todo:to implement merge render batches
 	protected:
 		void fill_buffers_from_new_batch(FSlateRenderBatch& batch, FSlateVertexArray& final_vertices, FSlateIndexArray& final_indices);
@@ -69,6 +77,10 @@ namespace DoDo
 
 		/*number of final render batches, it is not the same as RenderBatches.Num()*/
 		int32_t m_num_batches;
+
+		uint32_t m_total_vertex_offset;//todo:this record video memory buffer offset since last window element list
+
+		uint32_t m_total_index_offset;
 	};
 
 	/*

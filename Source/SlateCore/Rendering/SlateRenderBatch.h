@@ -61,9 +61,9 @@ namespace DoDo
 		/*number of indices in the batch*/
 		int32_t m_num_indices;
 
-		int32_t m_vertex_offset;
+		int32_t m_vertex_offset;//this is number
 
-		int32_t m_index_offset;
+		int32_t m_index_offset;//this is number
 
 		int32_t m_next_batch_index;//next batch
 

@@ -24,7 +24,7 @@ namespace DoDo {
 			{
 				auto first = m_window_element_lists_pool.begin() + window_index;
 				auto second = m_window_element_lists_pool.end() - 1;
-				std::swap(first, second);//swap and remove
+				std::iter_swap(first, second);//swap and remove
 				m_window_element_lists_pool.pop_back();//pop last element
 				--window_index;
 			}
@@ -56,7 +56,7 @@ namespace DoDo {
 				auto first = m_window_element_lists_pool.begin() + window_index;
 				auto second = m_window_element_lists_pool.end() - 1;
 
-				std::swap(first, second);//swap two iterators
+				std::iter_swap(first, second);//swap two iterators
 
 				m_window_element_lists_pool.pop_back();
 

@@ -14,6 +14,8 @@
 
 #include "Slate/Widgets/Layout/SBorder.h"//SBorder depends on it
 
+#include "Slate/Widgets/Layout/SConstraintCanvas.h"
+
 #include "SlateCore/Rendering/SlateDrawBuffer.h"//FDrawWindowArgs depends on it
 
 #include "Platform/Application/GLFWApplication.h"//GenericApplication depends on it
@@ -88,11 +90,11 @@ namespace DoDo
     void Application::test_create_widget()
     {
         std::shared_ptr<SWindow> root_window;
-
+        
         std::shared_ptr<SBorder> border;
-
+        
         std::shared_ptr<SBorder> border2;
-
+        
         SAssignNew(root_window, SWindow)
             .Title("hello")
             .ClientSize(glm::vec2(1280.0f, 720.0f))
@@ -106,7 +108,7 @@ namespace DoDo
                     .BorderBackgroundColor(glm::vec4(0.8f, 0.4f, 0.2f, 1.0f))
                 ]
             ];
-
+        
         get().add_window(root_window);
 
         std::shared_ptr<SWindow> root_window2;
@@ -114,23 +116,63 @@ namespace DoDo
         std::shared_ptr<SBorder> border3;
 
         std::shared_ptr<SBorder> border4;
-        
+
+        std::shared_ptr<SBorder> border5;
+
+        std::shared_ptr<SConstraintCanvas> canvas;
+
         SAssignNew(root_window2, SWindow)
-            .Title("hello")
+            .Title("hello2")
             .ClientSize(glm::vec2(1280.0f, 720.0f))
             .ScreenPosition(glm::vec2(800.0f, 200.0f))
             [
                 SAssignNew(border3, SBorder)
-                .BorderBackgroundColor(glm::vec4(0.2f, 0.8f,0.4f, 1.0f))
+                .BorderBackgroundColor(glm::vec4(0.9f, 0.2f,0.4f, 1.0f))
                 .Padding(150.0f)
                 [
-                    SAssignNew(border4, SBorder)
-                    .BorderBackgroundColor(glm::vec4(0.1f, 0.6f, 0.7f, 1.0f))
+                    SAssignNew(canvas, SConstraintCanvas)
+                    + SConstraintCanvas::Slot()
+					.Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))
+					.Offset(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
+					.AutoSize(false)
+				    [
+                        SAssignNew(border5, SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.6f, 0.3f, 0.4f, 1.0f))
+                    ]
+                    + SConstraintCanvas::Slot()
+                    .Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))
+                    .Offset(FMargin(0.0f, 0.0f, 400.0f, 400.0f))
+                    .AutoSize(false)
+                    [
+                        SAssignNew(border5, SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.9f, 0.7f, 0.2f, 1.0f))
+                    ]
                 ]
             ] ;
 
         
         get().add_window(root_window2);
+
+        //std::shared_ptr<SWindow> root_window3;
+        //
+        //std::shared_ptr<SBorder> border6;
+        //std::shared_ptr<SBorder> border7;
+        //
+        //SAssignNew(root_window3, SWindow)
+        //    .Title("hello3")
+        //    .ClientSize(glm::vec2(1280.0f, 720.0f))
+        //    .ScreenPosition(glm::vec2(200.0f, 600.0f))
+        //    [
+        //        SAssignNew(border6, SBorder)
+        //        .BorderBackgroundColor(glm::vec4(0.2f, 0.8f, 0.4f, 1.0f))
+        //    .Padding(100.0f)
+        //    [
+        //        SAssignNew(border7, SBorder)
+        //        .BorderBackgroundColor(glm::vec4(0.8f, 0.6f, 0.2f, 1.0f))
+        //    ]
+        //    ];
+        //
+        //get().add_window(root_window3);
 
         //for(size_t i = 0; i < 10; ++i)
         //{
@@ -277,6 +319,7 @@ namespace DoDo
         Draw_Pre_Pass(draw_only_this_window);
 
         //todo:implement FDrawWindowArgs
+        //todo:every frame to get draw buffer, will clear last frame data
         FDrawWindowArgs draw_window_args(m_renderer->get_draw_buffer());
 
         //todo:implement SWindow

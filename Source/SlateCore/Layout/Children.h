@@ -152,4 +152,82 @@ namespace DoDo
 			AlignmentMixinType::Construct_Mixin(std::move(in_args));
 		}
 	};
+
+	/*
+	 * a generic FChildren that stores children along with layout-related information
+	 * the type containing widget* and layout info is specified by child type
+	 * child type must have a public member SWidget* widget
+	 */
+	template<typename SlotType>
+	class TPanelChildren : public FChildren//todo:implement some FChildren virtual function, to traverse slots
+	{
+	private:
+		std::vector<std::unique_ptr<SlotType>> m_children;
+		//todo:implement type check
+		//static constexpr  bool b_support_slot_with_slate_attribute = std::is_base_of<>
+	public:
+		using FChildren::FChildren;//FChildren constructor
+
+		int32_t num() const override
+		{
+			return m_children.size();
+		}
+
+		std::shared_ptr<SWidget> get_child_at(int32_t index) override
+		{
+			return m_children[index]->get_widget();//from slot to get widget
+		}
+
+		std::shared_ptr<const SWidget> get_child_at(int32_t index) const override
+		{
+			return m_children[index]->get_widget();
+		}
+
+		//int32_t num_slot() const override;
+
+		const FSlotBase& get_slot_at(int32_t child_index) const override//note:get slot
+		{
+			return *m_children[child_index];
+		}
+
+		bool Support_Slot_With_Slate_Attribute() const override
+		{
+			return true;//todo:implement TWidgetSlotWithAttributeSupport
+		}
+
+		int32_t add_slot(typename SlotType::FSlotArguments&& slot_argument)
+		{
+			//interms slot argument to construct a slot
+			std::unique_ptr<SlotType> new_slot = slot_argument.steal_slot();//steal slot's widget
+			//todo:check new_slot is nullptr?
+			m_children.push_back(std::move(new_slot));//add a new_slot
+
+			int32_t result = m_children.size() - 1;
+
+			//call FSlot's construct function
+			m_children[result]->Construct(*this, std::move(slot_argument));
+
+			return result;
+		}
+
+		void add_slots(std::vector<typename SlotType::FSlotArguments> slot_arguments)
+		{
+			m_children.reserve(m_children.size() + slot_arguments.size());
+
+			for(typename SlotType::FSlotArguments& arg : slot_arguments)
+			{
+				add_slot(std::move(arg));
+			}
+		}
+
+		const SlotType& operator[](int32_t index) const
+		{
+			return *m_children[index];
+		}
+
+		SlotType& operator[](int32_t index)
+		{
+			return *m_children[index];
+		}
+	};
 }

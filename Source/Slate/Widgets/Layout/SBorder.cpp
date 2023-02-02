@@ -53,7 +53,8 @@ namespace DoDo
 	                          const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
 		//todo:get the FSlateBrush
-		const FSlateBrush* brush_resource;//todo:to implement BorderImageAttribute
+		//todo:fix me, this is nullptr
+		const FSlateBrush* brush_resource = nullptr;//todo:to implement BorderImageAttribute
 
 		const bool b_enabled = should_be_enabled(b_parent_enabled);//put function parameter to this function
 

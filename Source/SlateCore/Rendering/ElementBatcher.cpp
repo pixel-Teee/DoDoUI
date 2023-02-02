@@ -23,6 +23,8 @@ namespace DoDo
 		m_final_vertex_data.clear();
 		m_final_index_data.clear();
 
+		m_total_vertex_offset = m_total_index_offset = 0;
+
 		m_first_render_batch_index = -1;
 
 		m_num_layers = 0;

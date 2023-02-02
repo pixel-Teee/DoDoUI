@@ -198,6 +198,19 @@ namespace DoDo {
 
 		//m_rendering_policy->clear_vulkan_buffer();
 
+		//std::vector<VkFence> all_windows_fences;
+		//for(size_t list_index = 0; list_index < window_element_lists.size(); ++list_index)
+		//{
+		//	FSlateWindowElementList& element_list = *window_element_lists[list_index];
+		//
+		//	if (element_list.get_render_window())
+		//	{
+		//		SWindow* window_to_draw = element_list.get_render_window();
+		//		FSlateVulkanViewport& view_port = m_window_to_viewport_map.find(window_to_draw)->second;
+		//		all_windows_fences.push_back(view_port.m_fence);
+		//	}
+		//}
+
 		for(size_t list_index = 0; list_index < window_element_lists.size(); ++list_index)
 		{
 			FSlateWindowElementList& element_list = *window_element_lists[list_index];
@@ -223,6 +236,8 @@ namespace DoDo {
 				VkDevice device = *(VkDevice*)m_logic_device->get_native_handle();
 				VkSwapchainKHR swap_chain = *(VkSwapchainKHR*)view_port.m_vulkan_swap_chain->get_native_handle();
 
+				//note:also wait the all windows element fence, but don't reset last fence
+
 				//wait until the gpu has finished rendering the last frame, timeout of 1 second
 				//cpu wait gpu
 				VK_CHECK(vkWaitForFences(device, 1, &view_port.m_fence, true, 1000000000));
@@ -231,6 +246,7 @@ namespace DoDo {
 				//request image from the swap chain, one second timeout
 				uint32_t swap_chain_image_index;
 				//1 seconds is our fps lock
+				//image available semaphore
 				VK_CHECK(vkAcquireNextImageKHR(device, swap_chain, 1000000000, view_port.m_present_semaphore, nullptr, &swap_chain_image_index));
 
 				VK_CHECK(vkResetCommandBuffer(view_port.m_command_buffer, 0));
@@ -247,8 +263,8 @@ namespace DoDo {
 				VK_CHECK(vkBeginCommandBuffer(cmd, &cmd_begin_info));
 
 				VkClearValue clearValue;
-				float flash = abs(sin(m_frame_number / 120.f));
-				clearValue.color = { { 0.0f, 0.0f, flash, 1.0f } };
+				//float flash = abs(sin(m_frame_number / 120.f));
+				clearValue.color = { { 0.0f, 0.0f, 0.4, 1.0f } };
 
 				VkRenderPassBeginInfo rpInfo = {};
 				rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -286,7 +302,7 @@ namespace DoDo {
 				vkCmdSetScissor(cmd, 0, 1, &scissor);
 
 				//todo:draw
-				m_rendering_policy->draw_elements(cmd, *(VkPipelineLayout*)(m_pipeline_state_object->get_pipeline_layout()),m_view_matrix * view_port.m_projection_matrix, batch_data.get_first_render_batch_index(), batch_data.get_render_batches());
+				m_rendering_policy->draw_elements(cmd, *(VkPipelineLayout*)(m_pipeline_state_object->get_pipeline_layout()),m_view_matrix * view_port.m_projection_matrix, batch_data.get_first_render_batch_index(), batch_data.get_render_batches(), batch_data.get_total_vertex_offset(), batch_data.get_total_index_offset());
 
 				vkCmdEndRenderPass(cmd);
 
@@ -327,12 +343,16 @@ namespace DoDo {
 
 				VK_CHECK(vkQueuePresentKHR(queue, &presentInfo));
 
+				//last_windows_fences.push_back(view_port.m_fence);
+
 				//all elements have been drawn, reset all cached data
 				//m_element_batcher->reset
 			}
 		}
 
 		++m_frame_number;
+
+		m_rendering_policy->reset_offset();
 
 		//flush the cache if needed
 	}
@@ -353,10 +373,16 @@ namespace DoDo {
 				allocator_info.instance = m_vulkan_instance;
 				vmaCreateAllocator(&allocator_info, &m_allocator);
 
+				m_deletion_queue.push_function([=]()
+				{
+					vmaDestroyAllocator(m_allocator);
+				});
+
 				//todo:implement create texture manager
 
 				//todo:implement rendering policy
 				m_rendering_policy = std::make_shared<FSlateVulkanRenderingPolicy>(m_allocator);//note:vma need first initialize
+				m_rendering_policy->reset_offset();
 
 				//todo:implement element batcher
 				m_element_batcher = std::make_unique<FSlateElementBatcher>();
@@ -385,7 +411,17 @@ namespace DoDo {
 	{
 		Renderer::destroy();
 
-		//vkDeviceWaitIdle();
+		VkDevice device = *(VkDevice*)m_logic_device->get_native_handle();
+
+		vkDeviceWaitIdle(device);
+
+		m_pipeline_state_object->Destroy(&device);
+
+		m_rendering_policy->clear_vulkan_buffer(m_allocator);
+
+		m_vertex_shader_module->Destroy(&device);
+
+		m_fragment_shader_module->Destroy(&device);
 
 		m_deletion_queue.flush();
 
@@ -733,13 +769,13 @@ namespace DoDo {
 		VkVertexInputAttributeDescription colorAttribute = {};
 		colorAttribute.binding = 0;
 		colorAttribute.location = 2;
-		colorAttribute.format = VK_FORMAT_B8G8R8A8_UNORM;
+		colorAttribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
 		colorAttribute.offset = offsetof(FSlateVertex, m_color);
 
 		VkVertexInputAttributeDescription color2Attribute = {};
 		color2Attribute.binding = 0;
 		color2Attribute.location = 3;
-		color2Attribute.format = VK_FORMAT_B8G8R8A8_UNORM;
+		color2Attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
 		color2Attribute.offset = offsetof(FSlateVertex, m_secondary_color);
 
 		description.attributes.push_back(texcoordAttribute);

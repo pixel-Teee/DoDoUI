@@ -94,6 +94,23 @@ namespace DoDo
 
 //todo:implement SLATE_SLOT_ARGUMENT
 
+/*
+ * use this macro between SLATE_BEGIN_ARGS and SLATE_END_ARGS
+ * in order to add support for slots with the construct pattern
+ */
+#define SLATE_SLOT_ARGUMENT(SlotType, SlotName) \
+		std::vector<typename SlotType::FSlotArguments> _##SlotName; \
+		WidgetArgsType& operator + (typename SlotType::FSlotArguments& slot_to_add) \
+		{ \
+			_##SlotName.push_back(std::move(slot_to_add)); \
+			return static_cast<WidgetArgsType*>(this)->Me(); \
+		} \
+		WidgetArgsType& operator + (typename SlotType::FSlotArguments&& slot_to_add) \
+		{ \
+			_##SlotName.push_back(std::move(slot_to_add)); \
+			return static_cast<WidgetArgsType*>(this)->Me(); \
+		} \
+
 
 #define SLATE_PRIVATE_SLOT_BEGIN_ARGS(SlotType, SlotParentType) \
 	{\

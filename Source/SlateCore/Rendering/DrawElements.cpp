@@ -60,7 +60,9 @@ namespace DoDo
 	                                                      const glm::vec4& in_tint)
 	{
 		//todo:implement EElementType
-		EElementType element_type = (in_brush->m_draw_as == ESlateBrushDrawType::Border) ? EElementType::ET_Border : (in_brush->m_draw_as == ESlateBrushDrawType::RoundedBox) ? EElementType::ET_RoundedBox : EElementType::ET_Box;
+		//EElementType element_type = (in_brush->m_draw_as == ESlateBrushDrawType::Border) ? EElementType::ET_Border : (in_brush->m_draw_as == ESlateBrushDrawType::RoundedBox) ? EElementType::ET_RoundedBox : EElementType::ET_Box;
+
+		EElementType element_type = EElementType::ET_Box;
 
 		//todo:create a FSlateDrawElement
 
@@ -126,6 +128,8 @@ namespace DoDo
 	void FSlateWindowElementList::reset_element_list()
 	{
 		m_batch_data.reset_data();
+
+		m_uncached_draw_elements.clear();//todo:this is important, every frame need to clear
 	}
 
 	FSlateBatchData& FSlateWindowElementList::get_batch_data()

@@ -13,6 +13,8 @@ namespace DoDo
 
 		m_vertex_buffer.create_buffer(allocator, sizeof(FSlateVertex));
 		m_index_buffer.create_buffer(allocator);
+		m_last_vertex_buffer_offset = 0;
+		m_last_index_buffer_offset = 0;
 	}
 
 	FSlateVulkanRenderingPolicy::~FSlateVulkanRenderingPolicy()
@@ -24,13 +26,21 @@ namespace DoDo
 		//todo:delete buffer
 	}
 
-	void FSlateVulkanRenderingPolicy::clear_vulkan_buffer()
+	void FSlateVulkanRenderingPolicy::clear_vulkan_buffer(VmaAllocator& allocator)
 	{
-		m_deletion_queue->flush();//flush 
+		m_deletion_queue->flush();//flush
+
+		m_vertex_buffer.destroy_buffer(allocator);
+		m_index_buffer.destroy_buffer(allocator);
+	}
+
+	void FSlateVulkanRenderingPolicy::reset_offset()
+	{
+		m_last_index_buffer_offset = m_last_vertex_buffer_offset = 0;
 	}
 
 	void FSlateVulkanRenderingPolicy::draw_elements(VkCommandBuffer cmd_buffer, VkPipelineLayout pipeline_layout, const glm::mat4x4& view_projection_matrix, int32_t first_batch_index,
-		const std::vector<FSlateRenderBatch>& render_batches)
+	                                                const std::vector<FSlateRenderBatch>& render_batches, uint32_t total_vertex_offset, uint32_t total_index_offset)
 	{
 		//todo:check vertex buffer and index buffer valid
 		if(m_vertex_buffer.m_buffer.m_buffer == nullptr ||
@@ -54,17 +64,19 @@ namespace DoDo
 
 			//todo:get render batch information to bind
 
-			const uint32_t offset = render_batch.m_vertex_offset * sizeof(FSlateVertex);
+			const uint32_t offset = render_batch.m_vertex_offset * sizeof(FSlateVertex) + total_vertex_offset;
 
 			VkDeviceSize vertex_buffer_offset = offset;
 
 			//push constants
 			vkCmdPushConstants(cmd_buffer, pipeline_layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &view_projection_matrix);
 
+			//note:this vertex offset is bytes
 			//bind vertex buffer from offset
 			vkCmdBindVertexBuffers(cmd_buffer, 0, 1, &m_vertex_buffer.m_buffer.m_buffer, &vertex_buffer_offset);
 
-			vkCmdDrawIndexed(cmd_buffer, render_batch.m_num_indices, 1, render_batch.m_index_offset, 0, 0);
+			//note:this index buffer offset is number
+			vkCmdDrawIndexed(cmd_buffer, render_batch.m_num_indices, 1, render_batch.m_index_offset + total_index_offset / sizeof(uint16_t), 0, 0);
 		}
 	}
 
@@ -75,6 +87,9 @@ namespace DoDo
 		//todo:implement interms of current size to resize
 		//m_deletion_queue->flush();//todo:remove this
 
+		in_batch_data.set_total_vertex_offset(m_last_vertex_buffer_offset);
+		in_batch_data.set_total_index_offset(m_last_index_buffer_offset);
+
 		if(!in_batch_data.get_render_batches().empty())
 		{
 			//todo:get the batch data bached data to generate buffer
@@ -82,41 +97,46 @@ namespace DoDo
 			const FSlateVertexArray& final_vertex_data = in_batch_data.get_final_vertex_data();
 			const FSlateIndexArray& final_index_data = in_batch_data.get_final_index_data();
 
-			if (final_vertex_data.size() > 0)
+			if (!final_vertex_data.empty())
 			{
 				const uint32_t num_vertices = final_vertex_data.size();
 
 				//resize if needed
-				if (num_vertices * sizeof(FSlateVertex) > m_vertex_buffer.get_buffer_size())
+				if (num_vertices * sizeof(FSlateVertex) + m_last_vertex_buffer_offset > m_vertex_buffer.get_buffer_size())
 				{
-					uint32_t num_bytes_needed = num_vertices * sizeof(FSlateVertex);
+					uint32_t num_bytes_needed = (num_vertices + m_last_vertex_buffer_offset) * sizeof(FSlateVertex);
 					m_vertex_buffer.resize_buffer(allocator, num_bytes_needed + (num_vertices / 4) * sizeof(FSlateVertex));// extra 1/4 space
 				}
-
-				if (final_index_data.size() > 0)
-				{
-					const uint32_t num_indices = final_index_data.size();
-
-					if (num_indices > m_index_buffer.get_max_num_indices())
-					{
-						m_index_buffer.resize_buffer(allocator, num_indices + (num_indices / 4));
-					}
-				}
-
-				//map and copy
-				uint8_t* vertices_ptr = nullptr;
-				uint8_t* indices_ptr = nullptr;
-				{
-					vertices_ptr = (uint8_t*)m_vertex_buffer.lock(allocator, 0);
-					indices_ptr = (uint8_t*)m_index_buffer.lock(allocator, 0);
-				}
-
-				std::memcpy(vertices_ptr, final_vertex_data.data(), final_vertex_data.size() * sizeof(FSlateVertex));
-				std::memcpy(indices_ptr, final_index_data.data(), final_index_data.size() * sizeof(uint16_t));
-
-				m_vertex_buffer.unlock(allocator);
-				m_index_buffer.unlock(allocator);
 			}
+
+			if (!final_index_data.empty())
+			{
+				const uint32_t num_indices = final_index_data.size();
+
+				const uint32_t last_offset = m_last_index_buffer_offset / sizeof(uint16_t);
+
+				if (num_indices + last_offset > m_index_buffer.get_max_num_indices())
+				{
+					m_index_buffer.resize_buffer(allocator, num_indices + last_offset + (num_indices / 4));
+				}
+			}
+
+			//map and copy
+			uint8_t* vertices_ptr = nullptr;
+			uint8_t* indices_ptr = nullptr;
+			{
+				vertices_ptr = (uint8_t*)m_vertex_buffer.lock(allocator, m_last_vertex_buffer_offset);
+				indices_ptr = (uint8_t*)m_index_buffer.lock(allocator, m_last_index_buffer_offset);
+			}
+
+			std::memcpy(vertices_ptr, final_vertex_data.data(), final_vertex_data.size() * sizeof(FSlateVertex));
+			std::memcpy(indices_ptr, final_index_data.data(), final_index_data.size() * sizeof(uint16_t));
+
+			m_vertex_buffer.unlock(allocator);
+			m_index_buffer.unlock(allocator);
+
+			m_last_vertex_buffer_offset += final_vertex_data.size() * sizeof(FSlateVertex);
+			m_last_index_buffer_offset += final_index_data.size() * sizeof(uint16_t);
 
 
 			//upload buffer to vulkan memory
