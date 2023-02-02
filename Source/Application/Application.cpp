@@ -91,67 +91,86 @@ namespace DoDo
     {
         std::shared_ptr<SWindow> root_window;
         
-        std::shared_ptr<SBorder> border;
+        //std::shared_ptr<SBorder> border;
         
-        std::shared_ptr<SBorder> border2;
+        //std::shared_ptr<SBorder> border2;
         
         SAssignNew(root_window, SWindow)
             .Title("hello")
             .ClientSize(glm::vec2(1280.0f, 720.0f))
             .ScreenPosition(glm::vec2(200.0f, 200.0f))
             [
-                SAssignNew(border, SBorder)
+                SNew(SBorder)
 				.BorderBackgroundColor(glm::vec4(1.0f, 0.8f, 0.4f, 1.0f))
 				.Padding(100.0f)
 				[
-                    SAssignNew(border2, SBorder)
-                    .BorderBackgroundColor(glm::vec4(0.8f, 0.4f, 0.2f, 1.0f))
+                    SNew(SConstraintCanvas)
+					+ SConstraintCanvas::Slot()
+			        .Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
+			        .Offset(FMargin(0.0f, 0.0f, 147.0f, 253.0f))//position and size
+			        .Alignment(glm::vec2(0.5f, 0.5f))
+			        .AutoSize(false)
+                    [
+                        SNew(SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.3f, 0.7f, 0.8f, 1.0f))
+                    ]
+		            + SConstraintCanvas::Slot()
+			        .Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
+			        .Offset(FMargin(0.0f, 0.0f, 280.0f, 480.0f))//position and size
+			        .Alignment(glm::vec2(0.5f, 0.5f))//control where to place the anchor
+			        .AutoSize(false)
+			        [
+			        	SNew(SBorder)
+			        	.BorderBackgroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))
+			        ]
                 ]
             ];
         
         get().add_window(root_window);
 
-        std::shared_ptr<SWindow> root_window2;
-
-        std::shared_ptr<SBorder> border3;
-
-        std::shared_ptr<SBorder> border4;
-
-        std::shared_ptr<SBorder> border5;
-
-        std::shared_ptr<SConstraintCanvas> canvas;
-
-        SAssignNew(root_window2, SWindow)
-            .Title("hello2")
-            .ClientSize(glm::vec2(1280.0f, 720.0f))
-            .ScreenPosition(glm::vec2(800.0f, 200.0f))
-            [
-                SAssignNew(border3, SBorder)
-                .BorderBackgroundColor(glm::vec4(0.9f, 0.2f,0.4f, 1.0f))
-                .Padding(150.0f)
-                [
-                    SAssignNew(canvas, SConstraintCanvas)
-                    + SConstraintCanvas::Slot()
-					.Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))
-					.Offset(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
-					.AutoSize(false)
-				    [
-                        SAssignNew(border5, SBorder)
-                        .BorderBackgroundColor(glm::vec4(0.6f, 0.3f, 0.4f, 1.0f))
-                    ]
-                    + SConstraintCanvas::Slot()
-                    .Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))
-                    .Offset(FMargin(0.0f, 0.0f, 400.0f, 400.0f))
-                    .AutoSize(false)
-                    [
-                        SAssignNew(border5, SBorder)
-                        .BorderBackgroundColor(glm::vec4(0.9f, 0.7f, 0.2f, 1.0f))
-                    ]
-                ]
-            ] ;
+		//std::shared_ptr<SWindow> root_window2;
+		//
+		//std::shared_ptr<SBorder> border3;
+		//
+		//std::shared_ptr<SBorder> border4;
+		//
+		//std::shared_ptr<SBorder> border5;
+		//
+		//std::shared_ptr<SConstraintCanvas> canvas;
+		//
+		//SAssignNew(root_window2, SWindow)
+		//    .Title("hello2")
+		//    .ClientSize(glm::vec2(1280.0f, 720.0f))
+		//    .ScreenPosition(glm::vec2(200.0f, 200.0f))
+		//    [
+		//        SAssignNew(border3, SBorder)
+		//        .BorderBackgroundColor(glm::vec4(0.9f, 0.2f, 0.4f, 1.0f))
+		//        .Padding(150.0f)
+		//        [
+		//            SAssignNew(canvas, SConstraintCanvas)
+		//            + SConstraintCanvas::Slot()
+		//			.Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
+		//			.Offset(FMargin(0.0f, 0.0f, 200.0f, 200.0f))//position and size
+		//            .Alignment(glm::vec2(0.5f, 0.5f))
+		//			.AutoSize(false)
+		//		    [
+		//                SAssignNew(border5, SBorder)
+		//                .BorderBackgroundColor(glm::vec4(0.6f, 0.3f, 0.4f, 1.0f))
+		//            ]
+		//            + SConstraintCanvas::Slot()
+		//            .Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
+		//            .Offset(FMargin(0.0f, 0.0f, 147.0f, 253.0f))//position and size
+		//            .Alignment(glm::vec2(0.5f, 0.5f))
+		//            .AutoSize(false)
+		//            [
+		//                SNew(SBorder)
+		//                .BorderBackgroundColor(glm::vec4(0.9f, 0.7f, 0.2f, 1.0f))
+		//            ]
+		//        ]
+		//    ] ;
 
         
-        get().add_window(root_window2);
+        //get().add_window(root_window2);
 
         //std::shared_ptr<SWindow> root_window3;
         //

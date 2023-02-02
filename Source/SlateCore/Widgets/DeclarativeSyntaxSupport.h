@@ -14,6 +14,8 @@ namespace DoDo
 	 *
 	 * using SNew and SAssignNew ensures that widgets are populated
 	 */
+#define SNew(WidgetType, ...) \
+	MakeTDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::Make_Required_Args(__VA_ARGS__)) <<= WidgetType::FArguments()
 
 	//just implement SAssignNew
 	//expose as is populated variable
