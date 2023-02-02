@@ -123,6 +123,15 @@ namespace DoDo
 			        	SNew(SBorder)
 			        	.BorderBackgroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))
 			        ]
+					+ SConstraintCanvas::Slot()
+					.Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
+					.Offset(FMargin(0.0f, 0.0f, 480.0f, 280.0f))//position and size
+					.Alignment(glm::vec2(0.5f, 0.5f))//control where to place the anchor
+					.AutoSize(false)
+					[
+						SNew(SBorder)
+						.BorderBackgroundColor(glm::vec4(0.9f, 0.9f, 0.2f, 1.0f))
+					]
                 ]
             ];
         

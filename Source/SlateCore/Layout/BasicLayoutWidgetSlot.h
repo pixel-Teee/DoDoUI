@@ -14,6 +14,27 @@
 
 namespace DoDo
 {
+	/*
+	* a base slot that supports TSlateContainedAttribute
+	* the FChildren that own the FSlot also needs to support SlateContainedAttribute
+	* @see FChildren::SupportsSlotWithSlateAttribute
+	*/
+	template<typename SlotType>
+	class TWidgetSlotWithAttributeSupport : public TSlotBase<SlotType>, public SlateAttributePrivate::ISlateAttributeContainer
+	{
+	private:
+		using Super = TSlotBase<SlotType>;
+	protected:
+		using TSlotBase<SlotType>::TSlotBase;//using constructor
+
+		/*
+		* a slate attribute that is member variable of a FSlot
+		* @usage: TSlateSlotAttribute<int32_t> MyAttribute1; TSlateSlotAttribute<int32_t, TSlateAttributeComparePredicate<>> MyAttribute2;
+		*/
+		//template<typename InObjectType, typename InComparePredicate = TSlateAttributeComparePredicate<>>
+		//todo:implement TSlateContainedAttribute
+	};
+
 	/* mixin to add the alignment functionality to a base slot */
 	template<typename MixedIntoType>
 	class TAlignmentWidgetSlotMixin
@@ -305,5 +326,12 @@ namespace DoDo
 		//todo:implement GetSlotPaddingAttribute function
 	protected:
 		SlotPaddingAttributeType m_slot_padding_attribute;
+	};
+
+	/*a templated basic slot that can be used by layout*/
+	template<typename SlotType>
+	class TBasicLayoutWidgetSlot
+	{
+
 	};
 }
