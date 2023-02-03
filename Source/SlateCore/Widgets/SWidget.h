@@ -15,10 +15,12 @@
 
 #include <optional>//std::optional depends on it
 
+#include "Slate/Widgets/Input/Reply.h"
 #include "SlateCore/Layout/FlowDirection.h"
 
 namespace DoDo
 {
+	struct FKeyEvent;
 	struct FSlateBaseNamedArgs;
 	class FChildren;
 
@@ -147,6 +149,28 @@ namespace DoDo
 			return m_enabled_state_attribute.Get();
 		}
 
+		/*
+		 * @return true if this widget hovered
+		 * @note IsHovered used to be virtual, use set hover to assign an attribute if you need to override the default behaviour
+		 */
+		bool is_hovered() const
+		{
+			return m_hovered_attribute.Get();
+		}
+
+	protected:
+		/*
+		 * set the hover state
+		 * once set, the attribute that the ownership and SWidget code will not update the attribute value
+		 * you can return the control to the SWidget code by setting an empty TAttribute
+		 */
+		bool set_hover(TAttribute<bool> in_hovered)
+		{
+			m_b_is_hovered_attribute_set = in_hovered.Is_Set();
+			m_hovered_attribute.Assign(*this, std::move(in_hovered));
+		}
+
+	public:
 		std::optional<FSlateRenderTransform> get_render_transform_with_respect_to_flow_direction() const
 		{
 			if(g_slate_flow_direction == EFlowDirection::LeftToRight)
@@ -212,6 +236,15 @@ namespace DoDo
 		 */
 		int32_t paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const;
 
+		/*
+		 * called after a key is pressed when this widget has focus(this event bubbles if not handled)
+		 *
+		 * @param MyGeometry the geometry of the widget receiving the event
+		 * @param InKeyEvent key event
+		 * @param returns whether the event was handled, along with other possible actions
+		 */
+		virtual FReply On_Key_Down(const FGeometry& my_geometry, const FKeyEvent& in_key_event);
+
 		/* is the widget construction completed(did we called and returned from the Construct() function) */
 		bool Is_Constructed() const { return m_b_Is_Declarative_Syntax_Construction_Completed; }
 
@@ -251,6 +284,9 @@ namespace DoDo
 		/* the SNew or SAssignedNew construction is completed */
 		uint8_t m_b_Is_Declarative_Syntax_Construction_Completed : 1;
 
+		/*is the attribute IsHovered is set?*/
+		uint8_t m_b_is_hovered_attribute_set : 1;
+
 	protected:
 		/*
 		 * called when a child is removed from the tree parent's widget tree either by removing it from a slot
@@ -280,6 +316,9 @@ namespace DoDo
 
 		/* whether or not this widget is enabled */
 		TSlateAttribute<bool> m_enabled_state_attribute;
+
+		/* whether or not this widget is hovered*/
+		TSlateAttribute<bool> m_hovered_attribute;
 
 		/* render transform pivot of this widget(in normalized local space) */
 		TSlateAttribute<glm::vec2> m_render_transform_pivot_attribute;

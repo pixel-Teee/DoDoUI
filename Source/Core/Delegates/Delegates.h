@@ -299,4 +299,7 @@ namespace DoDo {
 		typedef std::vector<Handler> delegate_list;
 		delegate_list m_handlers;
 	};
+
+	//simple delegate, non return, non parameter
+	typedef DoDo::Delegate_Event<void()> FSimpleDelegate;
 }

@@ -151,6 +151,13 @@ namespace DoDo
 
 		/*the type of image*/
 		//TEnumAsByte<enum ESlateBrushImageType::Type> m_image_type;
+
+	private:
+		/*
+		 * the image to render for this brush, can be UTexture or UMaterialInterface or an object implementing
+		 * the AtlasedTextureInteface
+		 */
+		//todo:implement this resource
 	};
 }
 

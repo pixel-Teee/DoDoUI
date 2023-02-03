@@ -15,7 +15,8 @@ namespace DoDo
 	}
 
 	SBorder::SBorder()
-		: m_desired_size_scale_attribute(*this, glm::vec2(1.0f, 1.0f))
+		: m_border_image_attribute(*this, nullptr)//todo:implement FCoreStyle
+		, m_desired_size_scale_attribute(*this, glm::vec2(1.0f, 1.0f))
 		, m_show_disabled_effect_attribute(*this, true)
 		, m_b_flip_for_right_to_left_flow_direction(false)
 		, m_border_back_ground_color_attribute(*this)
@@ -46,6 +47,12 @@ namespace DoDo
 	void SBorder::set_padding(TAttribute<FMargin> in_padding)
 	{
 		m_child_slot.set_padding(in_padding);
+	}
+
+	void SBorder::set_border_image(TAttribute<const FSlateBrush*> in_border_image)
+	{
+		//todo:may be need fix
+		m_border_image_attribute.Assign(*this, in_border_image);
 	}
 
 	int32_t SBorder::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry,

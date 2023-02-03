@@ -28,6 +28,14 @@ namespace DoDo {
 			return FReply(true);//already handled
 		}
 
+		/*
+		 * an event should return a FReply::Unhandled() to let the system know that an event was unhandled
+		 */
+		static FReply un_handled()
+		{
+			return FReply(false);
+		}
+
 	private:
 		/*
 		* hidden default constructor

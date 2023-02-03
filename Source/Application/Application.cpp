@@ -164,7 +164,7 @@ namespace DoDo
                     .max_width(600.0f)
                     [
                         SNew(SBorder)
-                        .BorderBackgroundColor(glm::vec4(0.2f, 0.5f, 0.4f, 1.0f))
+                        .BorderBackgroundColor(glm::vec4(0.95f, 0.3f, 0.6f, 1.0f))
                     ]
                     + SHorizontalBox::Slot()
                     .Padding(40.0f, 40.0f)
@@ -173,6 +173,22 @@ namespace DoDo
                     [
                         SNew(SBorder)
                         .BorderBackgroundColor(glm::vec4(0.2f, 0.5f, 0.4f, 1.0f))
+                    ]
+                    + SHorizontalBox::Slot()
+                    .Padding(40.0f, 40.0f)
+                    .fill_width(0.3f)
+                    .max_width(600.0f)
+                    [
+                        SNew(SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
+                    ]
+                    + SHorizontalBox::Slot()
+                    .Padding(40.0f, 40.0f)
+                    .fill_width(0.4f)
+                    .max_width(600.0f)
+                    [
+                        SNew(SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.9f, 0.2f, 0.0f, 1.0f))
                     ]
 				]
 

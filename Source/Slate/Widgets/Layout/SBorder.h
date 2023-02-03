@@ -6,6 +6,7 @@
 
 namespace DoDo
 {
+	struct FSlateBrush;
 	/*
 	 * a border is an widget that can be used to contain other widgets
 	 * it has a border image property, which allows it to take an different appearances
@@ -79,6 +80,9 @@ namespace DoDo
 
 		void set_padding(TAttribute<FMargin> in_padding);
 
+		/*see BorderImage attribute*/
+		void set_border_image(TAttribute<const FSlateBrush*> in_border_image);
+
 		/*
 		 * sets the content for border
 		 *
@@ -89,9 +93,10 @@ namespace DoDo
 
 	private:
 		//todo:implement FSlateBrush
+		TSlateAttribute<const FSlateBrush*> m_border_image_attribute;
 
 		//todo:implement FSlateColor
-		TSlateAttribute<glm::vec4> m_border_back_ground_color_attribute;
+		TSlateAttribute<glm::vec4> m_border_back_ground_color_attribute;//control back ground color
 
 		TSlateAttribute<glm::vec2> m_desired_size_scale_attribute;
 

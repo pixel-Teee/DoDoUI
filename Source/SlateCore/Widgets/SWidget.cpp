@@ -105,7 +105,9 @@ namespace DoDo {
 	}
 
 	SWidget::SWidget()
-		: m_b_has_registered_slate_attribute(false)
+		: m_b_is_hovered_attribute_set(false)
+		, m_hovered_attribute(*this, false)
+		, m_b_has_registered_slate_attribute(false)
 		, m_Visibility_Attribute(*this, EVisibility::visible)
 		, m_enabled_state_attribute(*this, true)
 		, m_render_transform_pivot_attribute(*this, glm::vec2(0.0f))
@@ -134,6 +136,13 @@ namespace DoDo {
 		int32_t new_layer_id = On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, b_parent_enabled);
 
 		return new_layer_id;
+	}
+
+	FReply SWidget::On_Key_Down(const FGeometry& my_geometry, const FKeyEvent& in_key_event)
+	{
+		//todo:implement support focus
+
+		return FReply::un_handled();
 	}
 
 	void SWidget::invalidate_child_remove_from_tree(SWidget& child)

@@ -14,6 +14,8 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "SlateCore/*.cpp"
 "Slate/Widgets/*.h"
 "Slate/Widgets/*.cpp"
+"Slate/Framework/*.h"
+"Slate/Framework/*.cpp"
 "Core/*.h"
 "Core/*.cpp"
 "Core/Math/*.h"
