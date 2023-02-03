@@ -13,6 +13,7 @@ namespace DoDo
 	{
 		FArrangedChildren arranged_children(EVisibility::visible);
 
+		//this function will to call virtual function
 		Arrange_Children(allotted_geometry, arranged_children);//todo:call virtual function to arrange children
 
 		//todo:call other function
@@ -28,7 +29,8 @@ namespace DoDo
 		//wants to an overlay for all of it's contents
 		int32_t max_layer_id = layer_id;
 
-		const FPaintArgs new_args = args.with_new_parent(this);
+		//todo:fix FPaintArgs
+		//const FPaintArgs new_args = args.with_new_parent(this);
 		const bool b_should_be_enabled = should_be_enabled(b_parent_enabled);
 
 		for(int32_t child_index = 0; child_index < arranged_children.num(); ++child_index)
@@ -38,7 +40,7 @@ namespace DoDo
 			//todo:implement culling
 
 			//dispatch to virtual function
-			const int32_t curr_widgets_max_layer_id = current_widget.m_widget->paint(new_args, current_widget.m_geometry, my_culling_rect, out_draw_elements, layer_id,
+			const int32_t curr_widgets_max_layer_id = current_widget.m_widget->paint(args, current_widget.m_geometry, my_culling_rect, out_draw_elements, layer_id,
 				in_widget_style, b_parent_enabled);
 		}
 

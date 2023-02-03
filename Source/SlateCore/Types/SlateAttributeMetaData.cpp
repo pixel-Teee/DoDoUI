@@ -88,6 +88,13 @@ namespace DoDo {
 		}
 	}
 
+	void FSlateAttributeMetaData::Register_Attribute(ISlateAttributeContainer& owning_container,
+		FSlateAttributeBase& attribute, ESlateAttributeType attribute_type,
+		std::unique_ptr<ISlateAttributeGetter>&& wrapper)
+	{
+		//todo:implement this function
+	}
+
 	bool FSlateAttributeMetaData::UnRegister_Attribute(SWidget& owning_widget, const FSlateAttributeBase& attribute)
 	{
 		if(FSlateAttributeMetaData* attribute_meta_data = FSlateAttributeMetaData::find_meta_data(owning_widget))
@@ -102,8 +109,15 @@ namespace DoDo {
 		return false;
 	}
 
+	bool FSlateAttributeMetaData::UnRegister_Attribute(ISlateAttributeContainer& owning_container,
+		const FSlateAttributeBase& attribute)
+	{
+		SWidget& owning_widget = owning_container.Get_Container_Widget();
+		return UnRegister_Attribute(owning_widget, attribute);
+	}
+
 	void FSlateAttributeMetaData::In_Validate_Widget(SWidget& owning_widget, const FSlateAttributeBase& attribute,
-		ESlateAttributeType attribute_type, EInvalidateWidgetReason reason)
+	                                                 ESlateAttributeType attribute_type, EInvalidateWidgetReason reason)
 	{
 		/*
 		 * the widget is in the construction phase or is building in the widget list
@@ -150,6 +164,12 @@ namespace DoDo {
 
 		//pass reason to widget invalidate function, interms of reason to mark different flag
 		owning_widget.Invalidate(reason);
+	}
+
+	void FSlateAttributeMetaData::In_Validate_Widget(ISlateAttributeContainer& owning_container,
+		const FSlateAttributeBase& attribute, ESlateAttributeType attribute_type, EInvalidateWidgetReason reason)
+	{
+		//todo:implement this function
 	}
 
 	FDelegateHandle FSlateAttributeMetaData::Get_Attribute_Getter_Handle(const SWidget& Owning_Widget,

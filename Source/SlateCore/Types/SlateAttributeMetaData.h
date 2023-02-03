@@ -56,11 +56,15 @@ namespace DoDo {
 	private:
 		using ESlateAttributeType = SlateAttributePrivate::ESlateAttributeType;
 		using ISlateAttributeGetter = SlateAttributePrivate::ISlateAttributeGetter;
+		using ISlateAttributeContainer = SlateAttributePrivate::ISlateAttributeContainer;
 
 		//register a FSlateAttributeBase ISlateAttributeGetter to SWidget slate meta's array
 		static void Register_Attribute(SWidget& owning_widget, FSlateAttributeBase& attribute, ESlateAttributeType attribute_type, std::unique_ptr<ISlateAttributeGetter>&& wrapper);
+		static void Register_Attribute(ISlateAttributeContainer& owning_container, FSlateAttributeBase& attribute, ESlateAttributeType attribute_type, std::unique_ptr<ISlateAttributeGetter>&& wrapper);
 		static bool UnRegister_Attribute(SWidget& owning_widget, const FSlateAttributeBase& attribute);
+		static bool UnRegister_Attribute(ISlateAttributeContainer& owning_container, const FSlateAttributeBase& attribute);
 		static void In_Validate_Widget(SWidget& owning_widget, const FSlateAttributeBase& attribute, ESlateAttributeType attribute_type, EInvalidateWidgetReason reason);
+		static void In_Validate_Widget(ISlateAttributeContainer& owning_container, const FSlateAttributeBase& attribute, ESlateAttributeType attribute_type, EInvalidateWidgetReason reason);
 		static FDelegateHandle Get_Attribute_Getter_Handle(const SWidget& Owning_Widget, const FSlateAttributeBase& attribute);
 
 	private:

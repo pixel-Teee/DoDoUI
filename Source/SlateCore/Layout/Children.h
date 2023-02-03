@@ -8,7 +8,7 @@
 
 #include "BasicLayoutWidgetSlot.h"//TSingleWidgetChildrenWithBasicLayoutSlot depends on it
 
-#include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"//TSingleWidgetChildrenWithBasicLayoutSlot depends on it
+//#include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"//TSingleWidgetChildrenWithBasicLayoutSlot depends on it
 
 namespace DoDo
 {
@@ -220,6 +220,16 @@ namespace DoDo
 			}
 		}
 
+		void reserve(int32_t num_to_reserve)
+		{
+			m_children.reserve(num_to_reserve);
+		}
+
+		bool is_valid_index(int32_t index) const
+		{
+			return index >= 0 && index < m_children.size();
+		}
+
 		const SlotType& operator[](int32_t index) const
 		{
 			return *m_children[index];
@@ -229,5 +239,111 @@ namespace DoDo
 		{
 			return *m_children[index];
 		}
+	};
+
+	template<typename SlotType>
+	class TPanelChildrenConstIterator
+	{
+	public:
+		TPanelChildrenConstIterator(const TPanelChildren<SlotType>& in_container, EFlowDirection in_layout_flow)
+			: container(in_container)
+			, layout_flow(in_layout_flow)
+		{
+			reset();
+		}
+
+		TPanelChildrenConstIterator(const TPanelChildren<SlotType>& in_container, EOrientation in_orientation, EFlowDirection in_layout_flow)
+			: container(in_container)
+			, layout_flow(in_orientation == Orient_Vertical ? EFlowDirection::LeftToRight : in_layout_flow)
+		{
+			reset();
+		}
+
+		/*advances iterator to the next element in the container*/
+		TPanelChildrenConstIterator<SlotType>& operator++()
+		{
+			switch(layout_flow)
+			{
+			default:
+			case EFlowDirection::LeftToRight:
+				++index;
+				break;
+			case EFlowDirection::RightToLeft:
+				--index;
+				break;
+			}
+
+			return *this;
+		}
+
+		TPanelChildrenConstIterator<SlotType>& operator--()
+		{
+			switch (layout_flow)
+			{
+			default:
+			case EFlowDirection::LeftToRight:
+				--index;
+				break;
+			case EFlowDirection::RightToLeft:
+				++index;
+				break;
+			}
+
+			return *this;
+		}
+
+		const SlotType& operator * () const
+		{
+			return container[index];
+		}
+
+		const SlotType& operator->() const
+		{
+			return &container[index];
+		}
+
+		//note:this is useful for loop stop
+		explicit operator bool() const
+		{
+			return container.is_valid_index(index);
+		}
+
+		int32_t get_index()
+		{
+			return index;
+		}
+
+		void reset()
+		{
+			switch(layout_flow)
+			{
+			default:
+			case EFlowDirection::LeftToRight:
+				index = 0;
+				break;
+			case EFlowDirection::RightToLeft:
+				index = container.num() - 1;
+				break;
+			}
+		}
+
+		void set_to_end()
+		{
+			switch (layout_flow)
+			{
+			default:
+			case EFlowDirection::LeftToRight:
+				index = container.num() - 1;
+				break;
+			case EFlowDirection::RightToLeft:
+				index = 0;
+				break;
+			}
+		}
+
+	private:
+		const TPanelChildren<SlotType>& container;
+		int32_t index;
+		EFlowDirection layout_flow;
 	};
 }

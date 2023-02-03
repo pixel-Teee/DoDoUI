@@ -16,6 +16,8 @@
 
 #include "Slate/Widgets/Layout/SConstraintCanvas.h"
 
+#include "SlateCore/Widgets/SBoxPanel.h"//SHorizontalBoxPanel
+
 #include "SlateCore/Rendering/SlateDrawBuffer.h"//FDrawWindowArgs depends on it
 
 #include "Platform/Application/GLFWApplication.h"//GenericApplication depends on it
@@ -124,7 +126,7 @@ namespace DoDo
 			        	.BorderBackgroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))
 			        ]
 					+ SConstraintCanvas::Slot()
-					.Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
+					.Anchors(FAnchors(0.3f, 0.3f, 0.3f, 0.3f))//middle
 					.Offset(FMargin(0.0f, 0.0f, 480.0f, 280.0f))//position and size
 					.Alignment(glm::vec2(0.5f, 0.5f))//control where to place the anchor
 					.AutoSize(false)
@@ -136,6 +138,47 @@ namespace DoDo
             ];
         
         get().add_window(root_window);
+
+        std::shared_ptr<SWindow> root_window2;
+
+        SAssignNew(root_window2, SWindow)
+			.Title("hello2")
+			.ClientSize(glm::vec2(1280.0f, 720.0f))
+			.ScreenPosition(glm::vec2(1000.0f, 200.0f))
+            [
+                SNew(SBorder)
+                .BorderBackgroundColor(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f))
+				[
+                    SNew(SHorizontalBox)
+                    + SHorizontalBox::Slot()
+                    .Padding(30.0f, 30.0f)
+                    .fill_width(0.2f)
+					.max_width(600.0f)
+                    [
+                        SNew(SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.4f, 0.3f, 0.2f, 1.0f))
+                    ]
+					+ SHorizontalBox::Slot()
+                    .Padding(40.0f, 40.0f)
+                    .fill_width(0.8f)
+                    .max_width(600.0f)
+                    [
+                        SNew(SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.2f, 0.5f, 0.4f, 1.0f))
+                    ]
+                    + SHorizontalBox::Slot()
+                    .Padding(40.0f, 40.0f)
+                    .fill_width(0.3f)
+                    .max_width(600.0f)
+                    [
+                        SNew(SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.2f, 0.5f, 0.4f, 1.0f))
+                    ]
+				]
+
+            ];
+
+        get().add_window(root_window2);
 
 		//std::shared_ptr<SWindow> root_window2;
 		//

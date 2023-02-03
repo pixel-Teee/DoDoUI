@@ -19,8 +19,10 @@ namespace SlateAttributePrivate
 		using FComparePredicate = InComparePredicateType;
 
 		static EInvalidateWidgetReason Get_Invalidation_Reason(const SWidget& widget) { return FInvalidationReasonPredicate::Get_InvalidationReason(widget); }
+		static EInvalidateWidgetReason Get_Invalidation_Reason(const ISlateAttributeContainer& container) { return FInvalidationReasonPredicate::Get_InvalidationReason(container.Get_Container_Widget()); }
 		//use == to compare lhs and rhs
 		static bool Identical_To(const SWidget& widget, const ObjectType& lhs, const ObjectType& rhs) { return FComparePredicate::Identical_To(widget, lhs, rhs); }
+		static bool Identical_To(const ISlateAttributeContainer& container, const ObjectType& lhs, const ObjectType& rhs) { return FComparePredicate::Identical_To(container.Get_Container_Widget(), lhs, rhs); }
 	public:
 		TSlateAttributeBase()
 			: m_Value()

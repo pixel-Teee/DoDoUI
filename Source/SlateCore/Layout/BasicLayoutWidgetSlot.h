@@ -8,33 +8,16 @@
 
 #include "SlateCore/Layout/Margin.h"//TPaddingSingleWidgetSlotMixin depends on it
 
-#include "SlateCore/Layout/Children.h"//TPaddingSingleWidgetSlotMixin depends on it
+//#include "SlateCore/Layout/Children.h"//TPaddingSingleWidgetSlotMixin depends on it
 
 #include "SlateCore/Types/SlateEnums.h"//TAlignmentWidgetSlotMixin depends on it
 
+#include "SlateCore/Layout/WidgetSlotWithAttributeSupport.h"//TBasicLayoutWidgetSlot depends on it
+
+#include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"//slot marco use this header
+
 namespace DoDo
 {
-	/*
-	* a base slot that supports TSlateContainedAttribute
-	* the FChildren that own the FSlot also needs to support SlateContainedAttribute
-	* @see FChildren::SupportsSlotWithSlateAttribute
-	*/
-	template<typename SlotType>
-	class TWidgetSlotWithAttributeSupport : public TSlotBase<SlotType>, public SlateAttributePrivate::ISlateAttributeContainer
-	{
-	private:
-		using Super = TSlotBase<SlotType>;
-	protected:
-		using TSlotBase<SlotType>::TSlotBase;//using constructor
-
-		/*
-		* a slate attribute that is member variable of a FSlot
-		* @usage: TSlateSlotAttribute<int32_t> MyAttribute1; TSlateSlotAttribute<int32_t, TSlateAttributeComparePredicate<>> MyAttribute2;
-		*/
-		//template<typename InObjectType, typename InComparePredicate = TSlateAttributeComparePredicate<>>
-		//todo:implement TSlateContainedAttribute
-	};
-
 	/* mixin to add the alignment functionality to a base slot */
 	template<typename MixedIntoType>
 	class TAlignmentWidgetSlotMixin
@@ -57,7 +40,7 @@ namespace DoDo
 		struct FSlotArgumentsMixin
 		{
 		public:
-			friend TAlignmentWidgetSlotMixin;
+			friend class TAlignmentWidgetSlotMixin;
 
 		public:
 			typename MixedIntoType::FSlotArguments& HAlign(EHorizontalAlignment in_halignment)
@@ -231,6 +214,75 @@ namespace DoDo
 		EVerticalAlignment m_valignment;
 	};
 
+	/*mixin to add the padding functionality to a base slot*/
+	template<typename MixedIntoType>
+	class TPaddingWidgetSlotMixin
+	{
+	public:
+		TPaddingWidgetSlotMixin()
+			: m_slot_padding_attribute(*static_cast<MixedIntoType*>(this))
+		{}
+		TPaddingWidgetSlotMixin(const FMargin& margin)
+			: m_slot_padding_attribute(*static_cast<MixedIntoType*>(this), margin)
+		{}
+
+	public:
+		struct FSlotArgumentsMixin
+		{
+		private:
+			friend TPaddingWidgetSlotMixin;
+			TAttribute<FMargin> _padding;
+
+		public:
+			typename MixedIntoType::FSlotArguments& Padding(TAttribute<FMargin> in_padding)
+			{
+				_padding = std::move(in_padding);
+				return static_cast<typename MixedIntoType::FSlotArguments&>(*this);
+			}
+
+			typename MixedIntoType::FSlotArguments& Padding(float uniform)
+			{
+				_padding = FMargin(uniform);
+				return static_cast<typename MixedIntoType::FSlotArguments&>(*this);
+			}
+
+			typename MixedIntoType::FSlotArguments& Padding(float horizontal, float vertical)
+			{
+				_padding = FMargin(horizontal, vertical);
+				return static_cast<typename MixedIntoType::FSlotArguments&>(*this);
+			}
+
+			typename MixedIntoType::FSlotArguments& Padding(float left, float top, float right, float bottom)
+			{
+				_padding = FMargin(left, top, right, bottom);
+				return static_cast<typename MixedIntoType::FSlotArguments&>(*this);
+			}
+		};
+
+		FMargin get_padding() const
+		{
+			return m_slot_padding_attribute.Get();
+		}
+
+	protected:
+		void Construct_Mixin(const FChildren& slot_owner, FSlotArgumentsMixin&& in_args)
+		{
+			if(in_args._padding.Is_Set())
+			{
+				m_slot_padding_attribute.Assign(*static_cast<MixedIntoType*>(this), std::move(in_args._padding));//steal
+			}
+		}
+
+		//todo:implement register attributes mixin
+
+		//todo:implement set padding function
+	private:
+		using SlotPaddingCompareType = TSlateAttributeComparePredicate<>;
+		//note:this is difference from TPaddingSingleWidgetSlotMixin, this is ContainedAttribute
+		using SlotPaddingType = SlateAttributePrivate::TSlateContainedAttribute<FMargin, SlateAttributePrivate::FSlateAttributeNoInvalidationReason, SlotPaddingCompareType>;
+		SlotPaddingType m_slot_padding_attribute;
+	};
+
 	/* mixin to add the padding functionality to a base slot that is also a single children */
 	template<typename MixedIntoType, EInvalidateWidgetReason InPaddingInvalidationReason = EInvalidateWidgetReason::Layout>
 	class TPaddingSingleWidgetSlotMixin
@@ -330,8 +382,52 @@ namespace DoDo
 
 	/*a templated basic slot that can be used by layout*/
 	template<typename SlotType>
-	class TBasicLayoutWidgetSlot
+	class TBasicLayoutWidgetSlot : public TWidgetSlotWithAttributeSupport<SlotType>//suport container information query
+		, public TPaddingWidgetSlotMixin<SlotType>
+		, public TAlignmentWidgetSlotMixin<SlotType>
 	{
+	public:
+		TBasicLayoutWidgetSlot()
+			: TWidgetSlotWithAttributeSupport<SlotType>()
+			, TPaddingWidgetSlotMixin<SlotType>()
+			, TAlignmentWidgetSlotMixin<SlotType>()
+		{}
 
+		TBasicLayoutWidgetSlot(FChildren& in_owner)
+			: TWidgetSlotWithAttributeSupport<SlotType>(in_owner)
+			, TPaddingWidgetSlotMixin<SlotType>()
+			, TAlignmentWidgetSlotMixin<SlotType>()
+		{}
+
+		TBasicLayoutWidgetSlot(const EHorizontalAlignment& in_halign, const EVerticalAlignment& in_valign)
+			: TWidgetSlotWithAttributeSupport<SlotType>()
+			, TPaddingWidgetSlotMixin<SlotType>()
+			, TAlignmentWidgetSlotMixin<SlotType>(in_halign, in_valign)
+		{}
+
+		TBasicLayoutWidgetSlot(FChildren& in_owner, const EHorizontalAlignment& in_halign, const EVerticalAlignment& in_valign)
+			: TWidgetSlotWithAttributeSupport<SlotType>(in_owner)
+			, TPaddingWidgetSlotMixin<SlotType>()
+			, TAlignmentWidgetSlotMixin<SlotType>(in_halign, in_valign)
+		{}
+
+	public:
+		//inherited from three struct to generate a slot arguments struct
+		SLATE_SLOT_BEGIN_ARGS_TwoMixins(TBasicLayoutWidgetSlot, TSlotBase<SlotType>, TPaddingWidgetSlotMixin<SlotType>, TAlignmentWidgetSlotMixin<SlotType>)
+		SLATE_SLOT_END_ARGS()
+
+		void Construct(const FChildren& slot_owner, FSlotArguments&& in_args)
+		{
+			TWidgetSlotWithAttributeSupport<SlotType>::Construct(slot_owner, std::move(in_args));
+			TPaddingWidgetSlotMixin<SlotType>::Construct_Mixin(slot_owner, std::move(in_args));
+			TAlignmentWidgetSlotMixin<SlotType>::Construct_Mixin(slot_owner, std::move(in_args));
+		}
+
+		static void register_attributes(FSlateWidgetSlotAttributeInitializer& attribute_initializer)
+		{
+			//TWidgetSlotWithAttributeSupport<SlotType>::
+			//todo:implement register
+			TPaddingSingleWidgetSlotMixin<SlotType>::Register_Attributes_Mixin(attribute_initializer);
+		}
 	};
 }

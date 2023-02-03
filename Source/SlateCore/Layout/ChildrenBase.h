@@ -75,6 +75,12 @@ namespace DoDo
 			return false;
 		}
 
+		/*option to give a name to children to slot attribute purposes or for debugging*/
+		DoDoUtf8String get_name() const
+		{
+			return m_name;
+		}
+
 	protected:
 		SWidget* m_owner;
 
