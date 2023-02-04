@@ -6,7 +6,8 @@
 
 namespace DoDo
 {
-#define STRUCT_OFFSET(s, m) ((int32_t)(&((s*)0)->m))
+//todo:need to fix this
+#define STRUCT_OFFSET(s, m) ((uint64_t)(&((s*)0)->m))
 
 	//forward declare
 	namespace SlateAttributePrivate

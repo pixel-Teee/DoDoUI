@@ -43,8 +43,8 @@ namespace DoDo
 	                                                const std::vector<FSlateRenderBatch>& render_batches, uint32_t total_vertex_offset, uint32_t total_index_offset)
 	{
 		//todo:check vertex buffer and index buffer valid
-		if(m_vertex_buffer.m_buffer.m_buffer == nullptr ||
-			m_index_buffer.m_buffer.m_buffer == nullptr)
+		if(m_vertex_buffer.m_buffer.m_buffer == VK_NULL_HANDLE ||
+			m_index_buffer.m_buffer.m_buffer == VK_NULL_HANDLE)
 		{
 			return;
 		}

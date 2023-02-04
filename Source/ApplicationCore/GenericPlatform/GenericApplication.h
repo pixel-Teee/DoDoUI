@@ -91,5 +91,8 @@ namespace DoDo {
 		virtual void initialize_window(const std::shared_ptr<Window>& window, const std::shared_ptr<FGenericWindowDefinition>& in_definition, const std::shared_ptr<Window>& in_parent, const bool b_show_immediately) {}
 
 		static std::shared_ptr<GenericApplication> Create();
+
+	protected:
+		//todo:implement FGenericApplicationMessageHandler
 	};
 }

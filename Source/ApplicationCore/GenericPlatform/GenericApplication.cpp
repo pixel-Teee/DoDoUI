@@ -2,7 +2,11 @@
 
 #include "GenericApplication.h"
 
+#ifdef WIN32
 #include "Platform/Application/GLFWApplication.h"
+#else
+#include "Platform/Application/AndroidApplication.h"
+#endif
 
 #include "Core/Window.h"
 
@@ -24,6 +28,10 @@ namespace DoDo {
 	{
 		//return std::shared_ptr<GenericApplication>();
 		//todo:implement android application
+#ifdef WIN32
 		return std::make_shared<GLFWApplication>();
+#else
+		return std::make_shared<AndroidApplication>();
+#endif
 	}
 }

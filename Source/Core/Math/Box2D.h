@@ -50,7 +50,7 @@ namespace DoDo
 		 */
 		void Init()
 		{
-			m_min = m_max = glm::vec2<T>(0.0f, 0.0f);
+			m_min = m_max = glm::vec<2, T, glm::defaultp>(0.0f, 0.0f);
 			m_b_is_valid = false;
 		}
 	};

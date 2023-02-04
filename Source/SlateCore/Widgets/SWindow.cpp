@@ -8,6 +8,8 @@
 
 #ifdef WIN32
 #include "Platform/Application/WindowsPlatformApplicationMisc.h"
+#else
+#include "Platform/Application/AndroidPlatformApplicationMisc.h"
 #endif
 
 namespace DoDo {

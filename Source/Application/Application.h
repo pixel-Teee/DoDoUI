@@ -26,7 +26,8 @@ namespace DoDo
 
 		~Application();
 
-		static void test_create_widget();
+		static std::shared_ptr<SWindow> test_create_widget();
+		static bool make_platform_window_and_create_view_port(std::shared_ptr<SWindow>);
 
 		static void Create();
 
@@ -50,7 +51,7 @@ namespace DoDo
 
 		//Scope<Window> get_window();
 
-		Window& get_window();
+		Window& get_window();//todo:remove this
 
 		/*event before slate application ticks*/
 		using FSlateTickEvent = Delegate_Event<void(float)>;
@@ -110,6 +111,9 @@ namespace DoDo
 			return *s_current_application;//slate application
 		}
 	public:
+		//a black hole for android window
+		std::shared_ptr<SWindow> get_first_window();
+
 		std::shared_ptr<SWindow> add_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately = true);
 
 		std::shared_ptr<Window> make_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately);

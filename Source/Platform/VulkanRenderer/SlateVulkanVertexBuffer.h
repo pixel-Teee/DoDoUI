@@ -24,7 +24,7 @@ namespace DoDo
 
 		void destroy_buffer(VmaAllocator& allocator);
 
-		void FSlateVulkanVertexBuffer::upload_mesh(VmaAllocator& allocator, uint32_t size);
+		void upload_mesh(VmaAllocator& allocator, uint32_t size);
 
 		void* lock(VmaAllocator& allocator, uint32_t offset);
 		

@@ -54,7 +54,11 @@ namespace DoDo {
 	}while(0)\
 
 #ifdef DEBUG
+#ifdef WIN32
 	static constexpr bool enable_validation_layers = true;
+#else
+	static constexpr bool enable_validation_layers = false;
+#endif
 #else
 	static constexpr bool enable_validation_layers = false;
 #endif
@@ -240,14 +244,14 @@ namespace DoDo {
 
 				//wait until the gpu has finished rendering the last frame, timeout of 1 second
 				//cpu wait gpu
-				VK_CHECK(vkWaitForFences(device, 1, &view_port.m_fence, true, 1000000000));
+				VK_CHECK(vkWaitForFences(device, 1, &view_port.m_fence, true, UINT64_MAX));
 				VK_CHECK(vkResetFences(device, 1, &view_port.m_fence));
 
 				//request image from the swap chain, one second timeout
 				uint32_t swap_chain_image_index;
 				//1 seconds is our fps lock
 				//image available semaphore
-				VK_CHECK(vkAcquireNextImageKHR(device, swap_chain, 1000000000, view_port.m_present_semaphore, nullptr, &swap_chain_image_index));
+				vkAcquireNextImageKHR(device, swap_chain, UINT64_MAX, view_port.m_present_semaphore, VK_NULL_HANDLE, &swap_chain_image_index);
 
 				VK_CHECK(vkResetCommandBuffer(view_port.m_command_buffer, 0));
 
@@ -387,9 +391,13 @@ namespace DoDo {
 				//todo:implement element batcher
 				m_element_batcher = std::make_unique<FSlateElementBatcher>();
 
+#ifdef Android
+				m_vertex_shader_module = Shader::Create("SlateDefaultVertexShader.spv", &device);
+				m_fragment_shader_module = Shader::Create("SlateElementPixelShader.spv", &device);
+#else
 				m_vertex_shader_module = Shader::Create("Shader//SlateDefaultVertexShader.spv", &device);
 				m_fragment_shader_module = Shader::Create("Shader//SlateElementPixelShader.spv", &device);
-
+#endif
 				m_pipeline_state_object = PipelineStateObject::Create(&device);
 
 				std::string target_point = "main";//todo:modify this to other string type
@@ -538,7 +546,7 @@ namespace DoDo {
 		//get logic device native handle
 		VkDevice* device = (VkDevice*)(m_logic_device->get_native_handle());
 
-		viewport.m_vulkan_swap_chain = std::reinterpret_pointer_cast<VulkanSwapChain>(SwapChain::Create(&m_physical_device, device, &surface, *native_window, m_deletion_queue));
+		viewport.m_vulkan_swap_chain = std::static_pointer_cast<VulkanSwapChain>(SwapChain::Create(&m_physical_device, device, &surface, *native_window, m_deletion_queue));
 
 		//create framebuffer, frame buffer connect the render pass and image
 		viewport.m_vulkan_framebuffer = viewport.m_vulkan_swap_chain->create_frame_buffer(*device, m_render_pass, m_deletion_queue);

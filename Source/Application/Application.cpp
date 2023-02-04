@@ -20,7 +20,11 @@
 
 #include "SlateCore/Rendering/SlateDrawBuffer.h"//FDrawWindowArgs depends on it
 
+#ifdef WIN32
 #include "Platform/Application/GLFWApplication.h"//GenericApplication depends on it
+#else
+#include "Platform/Application/AndroidApplication.h"
+#endif
 #include "SlateCore/Rendering/DrawElements.h"
 #include "SlateCore/Styling/WidgetStyle.h"
 
@@ -89,7 +93,7 @@ namespace DoDo
         //m_renderer_instance->Destroy();
     }
 
-    void Application::test_create_widget()
+    std::shared_ptr<SWindow> Application::test_create_widget()
     {
         std::shared_ptr<SWindow> root_window;
         
@@ -137,64 +141,66 @@ namespace DoDo
                 ]
             ];
         
-        get().add_window(root_window);
+        get().add_window(root_window, false);
 
-        std::shared_ptr<SWindow> root_window2;
+        return root_window;
 
-        SAssignNew(root_window2, SWindow)
-			.Title("hello2")
-			.ClientSize(glm::vec2(1280.0f, 720.0f))
-			.ScreenPosition(glm::vec2(1000.0f, 200.0f))
-            [
-                SNew(SBorder)
-                .BorderBackgroundColor(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f))
-				[
-                    SNew(SHorizontalBox)
-                    + SHorizontalBox::Slot()
-                    .Padding(30.0f, 30.0f)
-                    .fill_width(0.2f)
-					.max_width(600.0f)
-                    [
-                        SNew(SBorder)
-                        .BorderBackgroundColor(glm::vec4(0.4f, 0.3f, 0.2f, 1.0f))
-                    ]
-					+ SHorizontalBox::Slot()
-                    .Padding(40.0f, 40.0f)
-                    .fill_width(0.8f)
-                    .max_width(600.0f)
-                    [
-                        SNew(SBorder)
-                        .BorderBackgroundColor(glm::vec4(0.95f, 0.3f, 0.6f, 1.0f))
-                    ]
-                    + SHorizontalBox::Slot()
-                    .Padding(40.0f, 40.0f)
-                    .fill_width(0.3f)
-                    .max_width(600.0f)
-                    [
-                        SNew(SBorder)
-                        .BorderBackgroundColor(glm::vec4(0.2f, 0.5f, 0.4f, 1.0f))
-                    ]
-                    + SHorizontalBox::Slot()
-                    .Padding(40.0f, 40.0f)
-                    .fill_width(0.3f)
-                    .max_width(600.0f)
-                    [
-                        SNew(SBorder)
-                        .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
-                    ]
-                    + SHorizontalBox::Slot()
-                    .Padding(40.0f, 40.0f)
-                    .fill_width(0.4f)
-                    .max_width(600.0f)
-                    [
-                        SNew(SBorder)
-                        .BorderBackgroundColor(glm::vec4(0.9f, 0.2f, 0.0f, 1.0f))
-                    ]
-				]
+        //std::shared_ptr<SWindow> root_window2;
+        //
+        //SAssignNew(root_window2, SWindow)
+		//	.Title("hello2")
+		//	.ClientSize(glm::vec2(1280.0f, 720.0f))
+		//	.ScreenPosition(glm::vec2(1000.0f, 200.0f))
+        //    [
+        //        SNew(SBorder)
+        //        .BorderBackgroundColor(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f))
+		//		[
+        //            SNew(SHorizontalBox)
+        //            + SHorizontalBox::Slot()
+        //            .Padding(30.0f, 30.0f)
+        //            .fill_width(0.2f)
+		//			.max_width(600.0f)
+        //            [
+        //                SNew(SBorder)
+        //                .BorderBackgroundColor(glm::vec4(0.4f, 0.3f, 0.2f, 1.0f))
+        //            ]
+		//			+ SHorizontalBox::Slot()
+        //            .Padding(40.0f, 40.0f)
+        //            .fill_width(0.8f)
+        //            .max_width(600.0f)
+        //            [
+        //                SNew(SBorder)
+        //                .BorderBackgroundColor(glm::vec4(0.95f, 0.3f, 0.6f, 1.0f))
+        //            ]
+        //            + SHorizontalBox::Slot()
+        //            .Padding(40.0f, 40.0f)
+        //            .fill_width(0.3f)
+        //            .max_width(600.0f)
+        //            [
+        //                SNew(SBorder)
+        //                .BorderBackgroundColor(glm::vec4(0.2f, 0.5f, 0.4f, 1.0f))
+        //            ]
+        //            + SHorizontalBox::Slot()
+        //            .Padding(40.0f, 40.0f)
+        //            .fill_width(0.3f)
+        //            .max_width(600.0f)
+        //            [
+        //                SNew(SBorder)
+        //                .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
+        //            ]
+        //            + SHorizontalBox::Slot()
+        //            .Padding(40.0f, 40.0f)
+        //            .fill_width(0.4f)
+        //            .max_width(600.0f)
+        //            [
+        //                SNew(SBorder)
+        //                .BorderBackgroundColor(glm::vec4(0.9f, 0.2f, 0.0f, 1.0f))
+        //            ]
+		//		]
+        //
+        //    ];
 
-            ];
-
-        get().add_window(root_window2);
+        //get().add_window(root_window2);
 
 		//std::shared_ptr<SWindow> root_window2;
 		//
@@ -532,5 +538,15 @@ namespace DoDo
         s_platform_application->initialize_window(new_window, definition, native_parent, b_show_immediately);
 
         return new_window;
+    }
+
+    std::shared_ptr<SWindow> Application::get_first_window() {
+        //todo:fix me
+        return m_windows[0];//return first window
+    }
+
+    bool Application::make_platform_window_and_create_view_port(std::shared_ptr<SWindow> in_window) {
+        in_window->show_window();//create swap chain and viewport
+        return true;
     }
 }
