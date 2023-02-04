@@ -10,6 +10,8 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "SlateCore/Types/*.h"
 "SlateCore/Types/*.inl"
 "SlateCore/Types/*.cpp"
+"SlateCore/Brushes/*.h"
+"SlateCore/Brushes/*.cpp"
 "SlateCore/*.h"
 "SlateCore/*.cpp"
 "Slate/Widgets/*.h"

@@ -28,6 +28,10 @@
 #include "SlateCore/Rendering/DrawElements.h"
 #include "SlateCore/Styling/WidgetStyle.h"
 
+#include "SlateCore/Styling/CoreStyle.h"//initialize core style depends on it
+
+#include "SlateCore/Styling/StarshipCoreStyle.h"
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -141,66 +145,72 @@ namespace DoDo
                 ]
             ];
         
+#ifdef Andorid
         get().add_window(root_window, false);
+#else
+        get().add_window(root_window, true);
+#endif
+
+        
+
+        std::shared_ptr<SWindow> root_window2;
+        
+        SAssignNew(root_window2, SWindow)
+			.Title("hello2")
+			.ClientSize(glm::vec2(1280.0f, 720.0f))
+			.ScreenPosition(glm::vec2(1000.0f, 200.0f))
+            [
+                SNew(SBorder)
+                .BorderBackgroundColor(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f))
+				[
+                    SNew(SHorizontalBox)
+                    + SHorizontalBox::Slot()
+                    .Padding(30.0f, 30.0f)
+                    .fill_width(0.2f)
+					.max_width(600.0f)
+                    [
+                        SNew(SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.4f, 0.3f, 0.2f, 1.0f))
+                    ]
+					+ SHorizontalBox::Slot()
+                    .Padding(40.0f, 40.0f)
+                    .fill_width(0.8f)
+                    .max_width(600.0f)
+                    [
+                        SNew(SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.95f, 0.3f, 0.6f, 1.0f))
+                    ]
+                    + SHorizontalBox::Slot()
+                    .Padding(40.0f, 40.0f)
+                    .fill_width(0.3f)
+                    .max_width(600.0f)
+                    [
+                        SNew(SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.2f, 0.5f, 0.4f, 1.0f))
+                    ]
+                    + SHorizontalBox::Slot()
+                    .Padding(40.0f, 40.0f)
+                    .fill_width(0.3f)
+                    .max_width(600.0f)
+                    [
+                        SNew(SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
+                    ]
+                    + SHorizontalBox::Slot()
+                    .Padding(40.0f, 40.0f)
+                    .fill_width(0.4f)
+                    .max_width(600.0f)
+                    [
+                        SNew(SBorder)
+                        .BorderBackgroundColor(glm::vec4(0.9f, 0.2f, 0.0f, 1.0f))
+                    ]
+				]
+        
+            ];
+
+        get().add_window(root_window2);
 
         return root_window;
-
-        //std::shared_ptr<SWindow> root_window2;
-        //
-        //SAssignNew(root_window2, SWindow)
-		//	.Title("hello2")
-		//	.ClientSize(glm::vec2(1280.0f, 720.0f))
-		//	.ScreenPosition(glm::vec2(1000.0f, 200.0f))
-        //    [
-        //        SNew(SBorder)
-        //        .BorderBackgroundColor(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f))
-		//		[
-        //            SNew(SHorizontalBox)
-        //            + SHorizontalBox::Slot()
-        //            .Padding(30.0f, 30.0f)
-        //            .fill_width(0.2f)
-		//			.max_width(600.0f)
-        //            [
-        //                SNew(SBorder)
-        //                .BorderBackgroundColor(glm::vec4(0.4f, 0.3f, 0.2f, 1.0f))
-        //            ]
-		//			+ SHorizontalBox::Slot()
-        //            .Padding(40.0f, 40.0f)
-        //            .fill_width(0.8f)
-        //            .max_width(600.0f)
-        //            [
-        //                SNew(SBorder)
-        //                .BorderBackgroundColor(glm::vec4(0.95f, 0.3f, 0.6f, 1.0f))
-        //            ]
-        //            + SHorizontalBox::Slot()
-        //            .Padding(40.0f, 40.0f)
-        //            .fill_width(0.3f)
-        //            .max_width(600.0f)
-        //            [
-        //                SNew(SBorder)
-        //                .BorderBackgroundColor(glm::vec4(0.2f, 0.5f, 0.4f, 1.0f))
-        //            ]
-        //            + SHorizontalBox::Slot()
-        //            .Padding(40.0f, 40.0f)
-        //            .fill_width(0.3f)
-        //            .max_width(600.0f)
-        //            [
-        //                SNew(SBorder)
-        //                .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
-        //            ]
-        //            + SHorizontalBox::Slot()
-        //            .Padding(40.0f, 40.0f)
-        //            .fill_width(0.4f)
-        //            .max_width(600.0f)
-        //            [
-        //                SNew(SBorder)
-        //                .BorderBackgroundColor(glm::vec4(0.9f, 0.2f, 0.0f, 1.0f))
-        //            ]
-		//		]
-        //
-        //    ];
-
-        //get().add_window(root_window2);
 
 		//std::shared_ptr<SWindow> root_window2;
 		//
@@ -242,42 +252,42 @@ namespace DoDo
 		//            ]
 		//        ]
 		//    ] ;
+		//
+		//
+		//get().add_window(root_window2);
+		//
+		//std::shared_ptr<SWindow> root_window3;
+		//
+		//std::shared_ptr<SBorder> border6;
+		//std::shared_ptr<SBorder> border7;
+		//
+		//SAssignNew(root_window3, SWindow)
+		//    .Title("hello3")
+		//    .ClientSize(glm::vec2(1280.0f, 720.0f))
+		//    .ScreenPosition(glm::vec2(200.0f, 600.0f))
+		//    [
+		//        SAssignNew(border6, SBorder)
+		//        .BorderBackgroundColor(glm::vec4(0.2f, 0.8f, 0.4f, 1.0f))
+		//    .Padding(100.0f)
+		//    [
+		//        SAssignNew(border7, SBorder)
+		//        .BorderBackgroundColor(glm::vec4(0.8f, 0.6f, 0.2f, 1.0f))
+		//    ]
+		//    ];
+		//
+		//get().add_window(root_window3);
 
-        
-        //get().add_window(root_window2);
-
-        //std::shared_ptr<SWindow> root_window3;
-        //
-        //std::shared_ptr<SBorder> border6;
-        //std::shared_ptr<SBorder> border7;
-        //
-        //SAssignNew(root_window3, SWindow)
-        //    .Title("hello3")
-        //    .ClientSize(glm::vec2(1280.0f, 720.0f))
-        //    .ScreenPosition(glm::vec2(200.0f, 600.0f))
-        //    [
-        //        SAssignNew(border6, SBorder)
-        //        .BorderBackgroundColor(glm::vec4(0.2f, 0.8f, 0.4f, 1.0f))
-        //    .Padding(100.0f)
-        //    [
-        //        SAssignNew(border7, SBorder)
-        //        .BorderBackgroundColor(glm::vec4(0.8f, 0.6f, 0.2f, 1.0f))
-        //    ]
-        //    ];
-        //
-        //get().add_window(root_window3);
-
-        //for(size_t i = 0; i < 10; ++i)
-        //{
-        //    std::shared_ptr<SWindow> window;
-        //
-        //    SAssignNew(window, SWindow)
-        //        .Title("hello")
-        //        .ClientSize(glm::vec2(1280.0f, 720.0f))
-        //        .ScreenPosition(glm::vec2(400.0f + i * 100, 400.0f + i * 100));
-        //
-        //    get().add_window(window);
-        //}
+		//for(size_t i = 0; i < 10; ++i)
+		//{
+		//    std::shared_ptr<SWindow> window;
+		//
+		//    SAssignNew(window, SWindow)
+		//        .Title("hello")
+		//        .ClientSize(glm::vec2(1280.0f, 720.0f))
+		//        .ScreenPosition(glm::vec2(400.0f + i * 100, 400.0f + i * 100));
+		//
+		//    get().add_window(window);
+		//}
     }
 
     void Application::Create()
@@ -292,12 +302,26 @@ namespace DoDo
 
     std::shared_ptr<Application> Application::Create(const std::shared_ptr<GenericApplication>& in_platform_application)
     {
+        //todo:initialize EKeys
+
+        initialize_core_style();
+
         //return std::shared_ptr<Application>();
         s_platform_application = in_platform_application;//platform application
 
         s_current_application = std::make_shared<Application>();//slate application
 
         return s_current_application;
+    }
+
+    void Application::initialize_core_style()
+    {
+        //initialize FCoreStyle
+        if (FCoreStyle::is_star_ship_style())
+        {
+            FStarshipCoreStyle::reset_to_default();
+            
+        }
     }
 
 	void Application::Initialize_Renderer(std::shared_ptr<Renderer> in_renderer)

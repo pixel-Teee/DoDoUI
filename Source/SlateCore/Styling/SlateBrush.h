@@ -6,6 +6,10 @@
 #include "Core/Math/Box2D.h"
 #include "SlateCore/Layout/Margin.h"//FMargin
 
+#include "Core/String/DoDoString.h"
+
+#include "glm/glm.hpp"
+
 namespace DoDo
 {
 	/*
@@ -71,6 +75,24 @@ namespace DoDo
 
 			/*mirror in both directions*/
 			Both
+		};
+	}
+
+	/*
+	* enumerates brush image types
+	*/
+	namespace ESlateBrushImageType
+	{
+		enum Type
+		{
+			//no image loaded, color only brushes
+			NoImage,
+			//the image to be loaded is in full color
+			FullColor,
+			//the image is a special texture in linear space
+			Linear,
+			//the image is vector graphics and will be rendered and cached
+			Vector
 		};
 	}
 
@@ -158,6 +180,22 @@ namespace DoDo
 		 * the AtlasedTextureInteface
 		 */
 		//todo:implement this resource
+
+	protected:
+		/*
+		* this constructor is protected, use one of the deriving classes instead
+		* 
+		* @param InDrawType how to the texture
+		* @param InResourceName the name of the resource
+		* @param InMargin margin to use in border and box modes
+		* @param InTiling tile horizontally/vertically or both?(only in image mode)
+		* @param InImageType the type of image
+		* @param InTint tint to apply to the element
+		* @param InOutlineSettings optional outline border settings for rounded box mode
+		*/
+		FSlateBrush(ESlateBrushDrawType::Type in_draw_type, const DoDoUtf8String in_source_name, const FMargin& in_margin, ESlateBrushTileType::Type in_tiling, 
+		ESlateBrushImageType::Type in_image_type,
+		const glm::vec2& in_image_size, const glm::vec4& in_tint = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), void* in_object_resource = nullptr, bool b_in_dynamically_loaded = false);
 	};
 }
 

@@ -35,6 +35,8 @@ namespace DoDo
 
 		static std::shared_ptr<Application> Create(const std::shared_ptr<GenericApplication>& in_platform_application);
 
+		static void initialize_core_style();
+
 		/*
 		 * gets the renderer being used to draw this application
 		 * @return the slate renderer

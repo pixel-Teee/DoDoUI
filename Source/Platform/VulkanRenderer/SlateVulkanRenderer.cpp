@@ -18,6 +18,8 @@
 
 #include "SlateVulkanRenderingPolicy.h"//rendering policy
 
+#include "Core/Misc/Paths.h"//shader path depends on it
+
 #ifdef WIN32
 //------vulkan for glfw------
 #define VK_USE_PLATFORM_WIN32_KHR
@@ -395,8 +397,10 @@ namespace DoDo {
 				m_vertex_shader_module = Shader::Create("SlateDefaultVertexShader.spv", &device);
 				m_fragment_shader_module = Shader::Create("SlateElementPixelShader.spv", &device);
 #else
-				m_vertex_shader_module = Shader::Create("Shader//SlateDefaultVertexShader.spv", &device);
-				m_fragment_shader_module = Shader::Create("Shader//SlateElementPixelShader.spv", &device);
+				DoDoUtf8String vertex_shader_path = FPaths::engine_dir() / "Shader//SlateDefaultVertexShader.spv";
+				DoDoUtf8String fragment_shader_path = FPaths::engine_dir() / "Shader//SlateElementPixelShader.spv";
+				m_vertex_shader_module = Shader::Create(vertex_shader_path.c_str(), &device);
+				m_fragment_shader_module = Shader::Create(fragment_shader_path.c_str(), &device);
 #endif
 				m_pipeline_state_object = PipelineStateObject::Create(&device);
 

@@ -1,8 +1,10 @@
-#include <Application/Application.h>
+﻿#include <Application/Application.h>
 
 #include <Renderer/Renderer.h>//renderer
 
 #include "Core/String/DoDoString.h"
+
+#include <fstream>
 
 #ifdef WIN32
 #include "Platform/Application/WindowsPlatformApplicationMisc.h"
@@ -117,6 +119,9 @@ int main()
 
     app.Tick();
 #else
+    //DoDo::DoDoUtf8String default_engine_dir("../../../Content/");
+    //DoDo::DoDoUtf8String dir_to_try = default_engine_dir / default_engine_dir;
+
     DoDo::FPlatformApplicationMisc::platform_pre_init();//todo:need to put at the app init function
 
     DoDo::Application::Create();//initialize platform application
