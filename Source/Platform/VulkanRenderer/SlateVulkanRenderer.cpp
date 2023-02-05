@@ -18,7 +18,11 @@
 
 #include "SlateVulkanRenderingPolicy.h"//rendering policy
 
+#include "SlateVulkanTextureManager.h"
+
 #include "Core/Misc/Paths.h"//shader path depends on it
+
+#include "VulkanInitializers.h"
 
 #ifdef WIN32
 //------vulkan for glfw------
@@ -308,7 +312,7 @@ namespace DoDo {
 				vkCmdSetScissor(cmd, 0, 1, &scissor);
 
 				//todo:draw
-				m_rendering_policy->draw_elements(cmd, *(VkPipelineLayout*)(m_pipeline_state_object->get_pipeline_layout()),m_view_matrix * view_port.m_projection_matrix, batch_data.get_first_render_batch_index(), batch_data.get_render_batches(), batch_data.get_total_vertex_offset(), batch_data.get_total_index_offset());
+				m_rendering_policy->draw_elements(device, m_descriptor_set, cmd, *(VkPipelineLayout*)(m_pipeline_state_object->get_pipeline_layout()),m_sampler,m_view_matrix * view_port.m_projection_matrix, batch_data.get_first_render_batch_index(), batch_data.get_render_batches(), batch_data.get_total_vertex_offset(), batch_data.get_total_index_offset());
 
 				vkCmdEndRenderPass(cmd);
 
@@ -385,6 +389,11 @@ namespace DoDo {
 				});
 
 				//todo:implement create texture manager
+				create_sync_objects_for_immediate_upload(device);
+
+				m_texture_manager = std::make_shared<FSlateVulkanTextureManager>();
+
+				m_texture_manager->load_used_textures();//load the texture centrally again
 
 				//todo:implement rendering policy
 				m_rendering_policy = std::make_shared<FSlateVulkanRenderingPolicy>(m_allocator);//note:vma need first initialize
@@ -411,6 +420,7 @@ namespace DoDo {
 				m_pipeline_state_object->set_render_pass(&m_render_pass);
 				VertexInputDescription input_description = get_vertex_description();
 				m_pipeline_state_object->set_input_vertex_layout(&input_description);//todo:get address
+				m_pipeline_state_object->set_descriptor_set(1, &m_shader_set_layout);//set descriptor set layout
 				m_pipeline_state_object->finalize(&device);//todo:fix me
 			}
 		}
@@ -532,6 +542,12 @@ namespace DoDo {
 		//------create command pool------
 
 		return result == VK_SUCCESS ? true : false;
+	}
+
+	void FSlateVulkanRenderer::load_style_resources(const ISlateStyle& style)
+	{
+		//todo:call texture manager
+		m_texture_manager->load_style_resources(style);//create real video memory texture
 	}
 
 	void FSlateVulkanRenderer::private_create_view_port(std::shared_ptr<SWindow> in_window, glm::vec2& window_size)
@@ -692,6 +708,19 @@ namespace DoDo {
 		});
 	}
 
+	void FSlateVulkanRenderer::create_sync_objects_for_immediate_upload(VkDevice device)
+	{
+		VkFenceCreateInfo upload_fence_create_info = {};
+		upload_fence_create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		//upload_fence_create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+		vkCreateFence(device, &upload_fence_create_info, nullptr, &m_upload_context.m_upload_fence);
+
+		m_deletion_queue.push_function([=]() {
+			vkDestroyFence(device, m_upload_context.m_upload_fence, nullptr);
+		});
+	}
+
 	void FSlateVulkanRenderer::init_frame_buffers()
 	{
 		//create the framebuffers for the swapchain images. This will connect the render-pass to the images for rendering
@@ -755,6 +784,86 @@ namespace DoDo {
 		});
 	}
 
+	void FSlateVulkanRenderer::init_descriptors()
+	{
+		//binding
+		VkDescriptorSetLayoutBinding shader_param = descriptorset_layout_binding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+
+		VkDescriptorSetLayoutBinding texture = descriptorset_layout_binding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+
+		VkDescriptorSetLayoutCreateInfo setinfo = {};
+
+		setinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		setinfo.pNext = nullptr;
+
+		VkDescriptorSetLayoutBinding bindings[] = { shader_param, texture };
+
+		//we are going to have 2 binding
+		setinfo.bindingCount = 2;
+		//no flags
+		setinfo.flags = 0;
+		//point to the camera buffer binding
+		setinfo.pBindings = bindings;
+
+		VkDevice device = *(VkDevice*)m_logic_device->get_native_handle();
+
+		vkCreateDescriptorSetLayout(device, &setinfo, nullptr, &m_shader_set_layout);
+
+		std::vector<VkDescriptorPoolSize> sizes =
+		{
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 10},
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 10},
+			//add combined-image-sampler descriptor types to the pool
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 10 }
+		};
+
+		VkDescriptorPoolCreateInfo pool_info = {};
+		pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		pool_info.flags = 0;
+		pool_info.maxSets = 10;
+		pool_info.poolSizeCount = (uint32_t)sizes.size();
+		pool_info.pPoolSizes = sizes.data();
+
+		vkCreateDescriptorPool(device, &pool_info, nullptr, &m_descriptor_pool);
+
+		m_deletion_queue.push_function([&] {
+			vkDestroyDescriptorSetLayout(device, m_shader_set_layout, nullptr);
+			vkDestroyDescriptorPool(device, m_descriptor_pool, nullptr);
+		});
+
+		//create descriptor set
+
+		//------------------create specific sampler and texture descriptor------------------
+
+		//create a sampler for the texture
+		VkSamplerCreateInfo sampler_info = sampler_create_info(VK_FILTER_NEAREST);//todo:fix me
+
+		//VkSampler sampler;
+
+		vkCreateSampler(device, &sampler_info, nullptr, &m_sampler);
+
+		//allocate the descriptor set for texture to use on the material
+		VkDescriptorSetAllocateInfo alloc_info = {};
+		alloc_info.pNext = nullptr;
+		alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		alloc_info.descriptorPool = m_descriptor_pool;
+		alloc_info.descriptorSetCount = 1;
+		alloc_info.pSetLayouts = &m_shader_set_layout;
+
+		vkAllocateDescriptorSets(device, &alloc_info, &m_descriptor_set);
+
+		//write to the descriptor set so that it points to our empire_diffuse texture
+		//VkDescriptorImageInfo imageBufferInfo;
+		//imageBufferInfo.sampler = sampler;
+		//imageBufferInfo.imageView = ;//get the image view
+		//imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		//
+		//VkWriteDescriptorSet texture1 = write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_descriptor_set, &imageBufferInfo, 0);
+		//
+		//vkUpdateDescriptorSets(device, 1, &texture1, 0, nullptr);
+	}
+
 	VertexInputDescription FSlateVulkanRenderer::get_vertex_description()
 	{
 		VertexInputDescription description = {};
@@ -797,6 +906,60 @@ namespace DoDo {
 		return description;
 	}
 
+	void FSlateVulkanRenderer::immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function)
+	{		
+		VkCommandBuffer cmd = m_upload_context.m_command_buffer;
+
+		//begin the command buffer recording. We will use this command buffer exactly once before resetting, so we tell vulkan that
+		VkCommandBufferBeginInfo cmdBeginInfo = command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+		VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
+
+		//execute the function
+		function(cmd);
+
+		VK_CHECK(vkEndCommandBuffer(cmd));
+
+		VkSubmitInfo submit = submit_info(&cmd);
+
+		VkQueue queue = *(VkQueue*)m_logic_device->get_graphics_queue();//get queue
+		VkDevice device = *(VkDevice*)m_logic_device->get_native_handle();
+
+		//submit command buffer to the queue and execute it.
+		// _uploadFence will now block until the graphic commands finish execution
+		VK_CHECK(vkQueueSubmit(queue, 1, &submit, m_upload_context.m_upload_fence));
+
+		vkWaitForFences(device, 1, &m_upload_context.m_upload_fence, true, 9999999999);
+		vkResetFences(device, 1, &m_upload_context.m_upload_fence);
+
+		// reset the command buffers inside the command pool
+		vkResetCommandPool(device, m_upload_context.m_commad_pool, 0);
+	}
+
+	AllocatedBuffer FSlateVulkanRenderer::create_buffer(size_t allocated_size, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage)
+	{
+		//allocate vertex buffer
+		VkBufferCreateInfo bufferInfo = {};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.pNext = nullptr;
+
+		bufferInfo.size = allocated_size;
+		bufferInfo.usage = usage;
+
+		VmaAllocationCreateInfo vmaallocInfo = {};
+		vmaallocInfo.usage = memoryUsage;
+
+		AllocatedBuffer newBuffer;
+
+		//allocate the buffer
+		VK_CHECK(vmaCreateBuffer(m_allocator, &bufferInfo, &vmaallocInfo,
+			&newBuffer.m_buffer,
+			&newBuffer.m_allocation,
+			nullptr));
+
+		return newBuffer;
+	}
+
 	void FSlateVulkanRenderer::create_command_pool()
 	{
 		VkDevice device = *(VkDevice*)m_logic_device->get_native_handle();
@@ -817,6 +980,22 @@ namespace DoDo {
 		{
 			vkDestroyCommandPool(device, m_command_pool, nullptr);
 		});
+
+		//------upload context------
+		VkCommandPoolCreateInfo upload_command_pool_info = command_pool_create_info(queue_family_index.value());
+
+		vkCreateCommandPool(device, &upload_command_pool_info, nullptr, &m_upload_context.m_commad_pool);
+
+		m_deletion_queue.push_function([=]() {
+			vkDestroyCommandPool(device, m_upload_context.m_commad_pool, nullptr);
+		});
+
+		//allocate the default command buffer that we will use for the instant commands
+		VkCommandBufferAllocateInfo cmd_alloc_info = command_buffer_allocate_info(m_upload_context.m_commad_pool, 1);
+
+		VkCommandBuffer cmd;
+		vkAllocateCommandBuffers(device, &cmd_alloc_info, &m_upload_context.m_command_buffer);
+		//------upload context------
 	}
 
 	void FSlateVulkanRenderer::create_command_buffer(FSlateVulkanViewport& view_port)

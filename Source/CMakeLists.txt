@@ -12,6 +12,8 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "SlateCore/Types/*.cpp"
 "SlateCore/Brushes/*.h"
 "SlateCore/Brushes/*.cpp"
+"SlateCore/Textures/*.h"
+"SlateCore/Textures/*.cpp"
 "SlateCore/*.h"
 "SlateCore/*.cpp"
 "Slate/Widgets/*.h"
@@ -29,6 +31,8 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "../ThirdParty/glm/glm/*.h"
 "../ThirdParty/glm/glm/*.hpp"
 "../ThirdParty/glm/glm/*.cpp"
+"../ThirdParty/stbimage/*.h"
+"../ThirdParty/stbimage/*.cpp"
 )
 
 file(GLOB_RECURSE Renderer_Source
@@ -91,7 +95,7 @@ else()
 	target_include_directories(DoDoUI PRIVATE "." ${ANDROID_NDK}/sources/android/native_app_glue "../ThirdParty/glm")
 endif()
 
-target_include_directories(DoDoUI PRIVATE ../ThirdParty/vma)
+target_include_directories(DoDoUI PRIVATE ../ThirdParty/vma ../ThirdParty/stbimage)
 
 # pch
 target_precompile_headers(DoDoUI PRIVATE "PreCompileHeader.h")

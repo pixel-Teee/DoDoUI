@@ -48,7 +48,18 @@ namespace DoDo {
 			m_widget_style_values.insert({ property_name, std::make_shared<DefinitionType>(in_style_definition) });//need to implement copy constructor
 		}
 
+		template<typename BrushType>
+		void set(const DoDoUtf8String& property_name, BrushType* in_brush)//note:the difference between DefinitionType, is this is pointer, we should to free this
+		{
+			m_brush_resources.insert({ property_name, in_brush });
+		}
+
 		virtual const DoDoUtf8String& get_style_set_name() const override;
+
+		//populate to the parameter
+		virtual void get_resources(std::vector<const FSlateBrush*>& out_resources) const override;
+
+		virtual const FSlateBrush* get_brush(const DoDoUtf8String& property_name) const override;
 		
 	protected:
 		/*the name used to identity this style set*/
@@ -61,7 +72,10 @@ namespace DoDo {
 		std::map<DoDoUtf8String, FSlateColor> m_slate_color_values;
 
 		//for button style or some widget style
-		std::map < DoDoUtf8String, std::shared_ptr<FSlateWidgetStyle>> m_widget_style_values;
-		
+		std::map<DoDoUtf8String, std::shared_ptr<FSlateWidgetStyle>> m_widget_style_values;
+
+		/*FSlateBrush property storage*/
+		FSlateBrush* m_default_brush;
+		std::map<DoDoUtf8String, FSlateBrush*> m_brush_resources;//we have life time of FSlateBrush
 	};
 }

@@ -8,7 +8,8 @@ namespace DoDo {
 	enum class EStyleColor : uint8_t
 	{
 		Foreground,
-		ForegroundHover
+		ForegroundHover,
+		Panel
 	};
 	/*
 	* common/themeable colors used by all styles
@@ -23,5 +24,6 @@ namespace DoDo {
 		static const FSlateColor PrimaryHover;
 		static const FSlateColor PrimaryPress;
 		static const FSlateColor DropDown;
+		static const FSlateColor Panel;
 	};
 }

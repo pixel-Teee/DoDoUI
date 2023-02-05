@@ -32,7 +32,7 @@ namespace DoDo
 
 		//void upload_mesh(VmaAllocator& allocator, const FSlateVertexArray& vertex_array, const FSlateIndexArray& index_array);
 
-		void draw_elements(VkCommandBuffer cmd_buffer, VkPipelineLayout pipeline_layout,const glm::mat4x4& view_projection_matrix, int32_t first_batch_index, const std::vector<FSlateRenderBatch>& render_batches, uint32_t total_vertex_offset, uint32_t total_index_offset);
+		void draw_elements(VkDevice device, VkDescriptorSet descriptor_set, VkCommandBuffer cmd_buffer, VkPipelineLayout pipeline_layout, VkSampler sampler,const glm::mat4x4& view_projection_matrix, int32_t first_batch_index, const std::vector<FSlateRenderBatch>& render_batches, uint32_t total_vertex_offset, uint32_t total_index_offset);
 	private:
 		//template<typename T>
 		//void upload_mesh_internal(VmaAllocator& allocator, const T& array);

@@ -5,4 +5,5 @@
 namespace DoDo {
 	const FSlateColor FStyleColors::Foreground = EStyleColor::Foreground;//use table id
 	const FSlateColor FStyleColors::ForegroundHover = EStyleColor::ForegroundHover;
+	const FSlateColor FStyleColors::Panel = EStyleColor::Panel;
 }

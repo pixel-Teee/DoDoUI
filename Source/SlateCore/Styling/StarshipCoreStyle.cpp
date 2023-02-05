@@ -18,6 +18,8 @@
 
 #include "SlateStyleRegistry.h"//central factory
 
+#include "SlateCore/Brushes/SlateColorBrush.h"
+
 namespace DoDo {
 	using namespace CoreStyleConstants;
 
@@ -82,11 +84,17 @@ namespace DoDo {
 			style->set("DefaultForeground", default_fore_ground);
 		}
 
+		//SBorder defaults
+		{
+			style->set("Border", new FSlateColorBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+		}
+
 		return style;
 	}
 	void FStarshipCoreStyle::reset_to_default()
 	{
 		//todo:implement set style
+		//create a private class, this class inherited from ISlateStyle, set to instance
 		set_style(FStarshipCoreStyle::Create());
 	}
 
@@ -105,6 +113,11 @@ namespace DoDo {
 			//register to central
 			FSlateStyleRegistry::register_slate_style(*m_instances.get());
 		}
+	}
+
+	const ISlateStyle& FStarshipCoreStyle::get_core_style()
+	{
+		return *m_instances;
 	}
 
 	void FStarshipCoreStyle::set_up_button_styles(std::shared_ptr<FStyle>& style)

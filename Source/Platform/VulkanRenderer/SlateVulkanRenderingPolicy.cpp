@@ -5,6 +5,10 @@
 #include "SlateVulkanRenderer.h"
 #include "SlateCore/Rendering/ElementBatcher.h"
 
+#include "VulkanInitializers.h"
+
+#include "SlateVulkanTextures.h"
+
 namespace DoDo
 {
 	FSlateVulkanRenderingPolicy::FSlateVulkanRenderingPolicy(VmaAllocator& allocator)
@@ -39,7 +43,7 @@ namespace DoDo
 		m_last_index_buffer_offset = m_last_vertex_buffer_offset = 0;
 	}
 
-	void FSlateVulkanRenderingPolicy::draw_elements(VkCommandBuffer cmd_buffer, VkPipelineLayout pipeline_layout, const glm::mat4x4& view_projection_matrix, int32_t first_batch_index,
+	void FSlateVulkanRenderingPolicy::draw_elements(VkDevice device, VkDescriptorSet descriptor_set, VkCommandBuffer cmd_buffer, VkPipelineLayout pipeline_layout, VkSampler sampler, const glm::mat4x4& view_projection_matrix, int32_t first_batch_index,
 	                                                const std::vector<FSlateRenderBatch>& render_batches, uint32_t total_vertex_offset, uint32_t total_index_offset)
 	{
 		//todo:check vertex buffer and index buffer valid
@@ -62,7 +66,25 @@ namespace DoDo
 
 			next_render_batch_index = render_batch.m_next_batch_index;
 
+			const FSlateShaderResource* shader_resource = render_batch.get_shader_resource();//todo:shader resource is image view
+
 			//todo:get render batch information to bind
+			if (shader_resource != nullptr)
+			{			
+				//------update descriptor set------
+				VkDescriptorImageInfo imageBufferInfo;
+				imageBufferInfo.sampler = sampler;
+				imageBufferInfo.imageView = ((FSlateVulkanTexture*)shader_resource)->get_typed_resource();//get the image view
+				imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+				VkWriteDescriptorSet texture1 = write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptor_set, &imageBufferInfo, 1);
+
+				vkUpdateDescriptorSets(device, 1, &texture1, 0, nullptr);
+				//------update descriptor set------
+
+				//texture descriptor
+				vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_set, 0, nullptr);
+			}	
 
 			const uint32_t offset = render_batch.m_vertex_offset * sizeof(FSlateVertex) + total_vertex_offset;
 

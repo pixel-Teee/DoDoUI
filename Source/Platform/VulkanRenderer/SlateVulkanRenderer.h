@@ -21,6 +21,8 @@
 
 #include <include/vk_mem_alloc.h>
 
+#include "Utils.h"//AllocatedBuffer depends on it
+
 namespace DoDo {
 
 	struct DeletionQueue
@@ -39,6 +41,12 @@ namespace DoDo {
 
 			deletors.clear();
 		}
+	};
+
+	struct UploadContext { //upload for texture
+		VkFence m_upload_fence;
+		VkCommandPool m_commad_pool;
+		VkCommandBuffer m_command_buffer;
 	};
 
 	struct VertexInputDescription {
@@ -94,9 +102,12 @@ namespace DoDo {
 	class Window;//platform window
 	class FSlateVulkanRenderingPolicy;//forward declare
 	class Shader;
+	class FSlateVulkanTextureManager;
 	class FSlateVulkanRenderer : public Renderer//todo:need to inherited from FSlateRenderer
 	{
 	public:
+		friend class FSlateVulkanTextureManager;
+
 		FSlateVulkanRenderer();
 
 		virtual ~FSlateVulkanRenderer();
@@ -115,6 +126,12 @@ namespace DoDo {
 		/*FSlateRenderer Interface*/
 
 		bool create_device();
+
+		virtual void load_style_resources(const ISlateStyle& style) override;
+
+		void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function);
+
+		AllocatedBuffer create_buffer(size_t allocated_size, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 	private:
 		void private_create_view_port(std::shared_ptr<SWindow> in_window, glm::vec2& window_size);
 
@@ -126,6 +143,8 @@ namespace DoDo {
 
 		void create_sync_objects(FSlateVulkanViewport& view_port);
 
+		void create_sync_objects_for_immediate_upload(VkDevice device);
+
 		void create_command_pool();
 
 		void create_command_buffer(FSlateVulkanViewport& view_port);
@@ -133,6 +152,8 @@ namespace DoDo {
 		void init_frame_buffers();
 
 		void init_default_render_pass();
+
+		void init_descriptors();
 
 		VertexInputDescription get_vertex_description(); //todo:move this function to other place
 	private:
@@ -146,6 +167,7 @@ namespace DoDo {
 
 		std::unique_ptr<FSlateElementBatcher> m_element_batcher;
 		std::shared_ptr<FSlateVulkanRenderingPolicy> m_rendering_policy;
+		std::shared_ptr<FSlateVulkanTextureManager> m_texture_manager;
 
 		//todo:implement FSlateElementBatcher
 		//todo:implement FSlateD3DTextureManager
@@ -182,6 +204,13 @@ namespace DoDo {
 		Scope<Shader> m_vertex_shader_module;
 
 		Scope<Shader> m_fragment_shader_module;
+
+		VkDescriptorSetLayout m_shader_set_layout;
+		VkDescriptorPool m_descriptor_pool;
+		VkDescriptorSet m_descriptor_set;
+		VkSampler m_sampler;
+
+		UploadContext m_upload_context;
 	};
 
 }

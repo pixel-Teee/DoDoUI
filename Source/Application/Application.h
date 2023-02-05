@@ -112,6 +112,16 @@ namespace DoDo
 		{
 			return *s_current_application;//slate application
 		}
+
+		/*
+		* returns true if a slate application instance is currently intialized and ready
+		* 
+		* @return true if slate application is initialized
+		*/
+		static bool is_initialized()
+		{
+			return s_current_application != nullptr;
+		}
 	public:
 		//a black hole for android window
 		std::shared_ptr<SWindow> get_first_window();

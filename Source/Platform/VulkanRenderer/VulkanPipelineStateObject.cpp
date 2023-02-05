@@ -192,8 +192,8 @@ namespace DoDo {
 		//------root signature------
 		m_pipeline_layout_create_info = {};
 		m_pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		m_pipeline_layout_create_info.setLayoutCount = 0;//optional
-		m_pipeline_layout_create_info.pSetLayouts = nullptr;//optional
+		//m_pipeline_layout_create_info.setLayoutCount = 0;//optional
+		//m_pipeline_layout_create_info.pSetLayouts = nullptr;//optional
 		m_pipeline_layout_create_info.pushConstantRangeCount = 0;//optional
 		m_pipeline_layout_create_info.pPushConstantRanges = nullptr;//optional
 
@@ -298,6 +298,12 @@ namespace DoDo {
 		{
 			std::cout << "failed to create graphics pipeline!" << std::endl;
 		}
+	}
+
+	void GraphicsPipelineStateObject::set_descriptor_set(uint32_t set_counts, void* descriptor_set)
+	{
+		m_pipeline_layout_create_info.setLayoutCount = set_counts;
+		m_pipeline_layout_create_info.pSetLayouts = (VkDescriptorSetLayout*)descriptor_set;//set array
 	}
 
 	void GraphicsPipelineStateObject::set_input_vertex_layout(void* input_layout)

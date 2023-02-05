@@ -29,6 +29,8 @@ namespace DoDo {
 
 		virtual void finalize(void* logic_device) override;
 
+		virtual void set_descriptor_set(uint32_t set_counts, void* descriptor_set) override;
+
 		virtual void set_input_vertex_layout(void* input_layout) override;
 	private:
 		//------root signature------

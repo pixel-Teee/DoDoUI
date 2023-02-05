@@ -21,6 +21,8 @@ namespace DoDo {
 
 		virtual void set_input_vertex_layout(void* input_layout) = 0;
 
+		virtual void set_descriptor_set(uint32_t set_counts, void* descriptor_set) = 0;
+
 		virtual void* get_render_pass_native_handle() = 0;
 
 		virtual void* get_pipeline_layout() = 0;//root signature

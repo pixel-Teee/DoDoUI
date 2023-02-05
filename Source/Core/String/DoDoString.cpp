@@ -48,6 +48,10 @@ namespace DoDo {
 			m_buffer = rhs.m_buffer;
 			m_len = rhs.m_len;
 			m_count = rhs.m_count;
+
+			rhs.m_buffer = nullptr;//note:this is important
+			rhs.m_len = 0;
+			rhs.m_count = 0;
 		}
 	}
 	DoDoUtf8String::DoDoUtf8String(const DoDoUtf8String& rhs)
@@ -259,6 +263,19 @@ namespace DoDo {
 		}
 	}
 
+	bool operator!=(const DoDoUtf8String& lhs, const DoDoUtf8String& rhs)
+	{
+		if (lhs.m_len != rhs.m_len || lhs.m_count != rhs.m_count) return false;
+		else
+		{
+			for (size_t i = 0; lhs.m_len; ++i)
+			{
+				if (lhs.m_buffer[i] != rhs.m_buffer[i]) return false;
+			}
+			return true;
+		}
+	}
+
 	DoDoUtf8String operator/(const char* lhs, const DoDoUtf8String& rhs)
 	{
 		//int32_t str_len = rhs.get_length();//have '\0'
@@ -283,7 +300,7 @@ namespace DoDo {
 
 		DoDoUtf8String result(lhs, rhs.m_count + 1);
 
-		result.m_buffer[result.m_count - 1] = '\\';
+		result.m_buffer[result.m_count - 1] = '/';
 
 		memcpy(result.m_buffer + result.m_count, rhs.m_buffer, rhs.m_count);
 
@@ -294,14 +311,38 @@ namespace DoDo {
 		return result;
 	}
 
+	DoDoUtf8String operator+(const DoDoUtf8String& lhs, const DoDoUtf8String& rhs)
+	{
+		DoDoUtf8String result;
+
+		if (result.m_buffer != nullptr) delete result.m_buffer;//delete '\0'
+		
+		result.m_buffer = new char[lhs.m_count - 1 + rhs.m_count];
+
+		memset(result.m_buffer, '\0', lhs.m_count - 1 + rhs.m_count);
+
+		result.m_count = lhs.m_count - 1 + rhs.m_count;
+
+		result.m_len = lhs.m_len - 1 + rhs.m_len;
+
+		memcpy(result.m_buffer, lhs.m_buffer, lhs.m_count - 1);
+		memcpy(result.m_buffer + lhs.m_count - 1, rhs.m_buffer, rhs.m_count);
+
+		return result;
+	}
+
 	bool DoDoUtf8String::operator<(const DoDoUtf8String& rhs) const //for hash map
 	{
-		for (size_t i = 0; i < std::min(m_count, rhs.m_count); ++i)
-		{
-			if (m_buffer[i] < rhs.m_buffer[i]) return true;
-		}
-		if (m_len != rhs.m_len) return m_len < rhs.m_len;
-		return true;
+		//for (size_t i = 0; i < std::min(m_count, rhs.m_count); ++i)
+		//{
+		//	if (m_buffer[i] < rhs.m_buffer[i]) return true;
+		//}
+		//if (m_len != rhs.m_len) return m_len < rhs.m_len;
+		//return true;
+
+		//less or equal
+		//check ascii
+		return std::strcmp(m_buffer, rhs.m_buffer) < 0;//todo:fix me
 	}
 
 }

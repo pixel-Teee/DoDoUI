@@ -4,6 +4,8 @@
 
 #include "SlateCore/Layout/Margin.h"
 
+#include "AppStyle.h"
+
 namespace DoDo {
 	class ISlateStyle;
 	/*
@@ -14,6 +16,16 @@ namespace DoDo {
 	public:
 
 		static bool is_star_ship_style();
+
+		static const ISlateStyle& get()
+		{
+			return FAppStyle::get();
+		}
+
+		static const ISlateStyle& get_core_style()
+		{
+			return *(m_instance.get());
+		}
 
 	private:
 		/*singleton instances of this style*/

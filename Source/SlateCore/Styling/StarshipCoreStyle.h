@@ -19,6 +19,7 @@ namespace DoDo {
 
 		static void set_style(const std::shared_ptr<ISlateStyle>& new_style);
 
+		static const ISlateStyle& get_core_style();
 	private:
 		class FStyle;
 

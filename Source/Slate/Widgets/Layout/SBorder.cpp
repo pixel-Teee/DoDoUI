@@ -7,6 +7,11 @@
 #include "SlateCore/Rendering/DrawElements.h"//on paint depends on it
 #include "SlateCore/Styling/SlateBrush.h"//FSlateBrush depends on it
 
+#include "SlateCore/Styling/SlateWidgetStyle.h"
+#include "SlateCore/Styling/CoreStyle.h"
+
+#include "SlateCore/Styling/ISlateStyle.h"
+
 namespace DoDo
 {
 	void SBorder::Private_Register_Attributes(FSlateAttributeInitializer&)
@@ -15,7 +20,7 @@ namespace DoDo
 	}
 
 	SBorder::SBorder()
-		: m_border_image_attribute(*this, nullptr)//todo:implement FCoreStyle
+		: m_border_image_attribute(*this, FCoreStyle::get().get_brush("Border"))//todo:implement FCoreStyle
 		, m_desired_size_scale_attribute(*this, glm::vec2(1.0f, 1.0f))
 		, m_show_disabled_effect_attribute(*this, true)
 		, m_b_flip_for_right_to_left_flow_direction(false)
@@ -61,7 +66,7 @@ namespace DoDo
 	{
 		//todo:get the FSlateBrush
 		//todo:fix me, this is nullptr
-		const FSlateBrush* brush_resource = nullptr;//todo:to implement BorderImageAttribute
+		const FSlateBrush* brush_resource = m_border_image_attribute.Get();//todo:to implement BorderImageAttribute
 
 		const bool b_enabled = should_be_enabled(b_parent_enabled);//put function parameter to this function
 
@@ -70,36 +75,39 @@ namespace DoDo
 		//todo:implement ESlateDrawEffect
 		//todo:implement FSlateBrush
 
-		if(m_b_flip_for_right_to_left_flow_direction && g_slate_flow_direction == EFlowDirection::RightToLeft)
+		if (brush_resource && brush_resource->m_draw_as != ESlateBrushDrawType::NoDrawType)
 		{
-			//todo:implement make child
-			//const FGeometry flipped_geometry = allotted_geometry.make_child()
+			if (m_b_flip_for_right_to_left_flow_direction && g_slate_flow_direction == EFlowDirection::RightToLeft)
+			{
+				//todo:implement make child
+				//const FGeometry flipped_geometry = allotted_geometry.make_child()
 
-			//todo:implement FSlateDrawElement MakeBox
+				//todo:implement FSlateDrawElement MakeBox
 
-			//todo:implement this function
-			
-			FSlateDrawElement::MakeBox(
-				out_draw_elements,
-				layer_id,
-				allotted_geometry.to_paint_geometry(),
-				brush_resource,
-				draw_effects,
-				get_border_back_ground_color()//todo:to implement FSlateBrush's function get tint function
-			);
-			
-		}
-		else
-		{
-			FSlateDrawElement::MakeBox(
-				out_draw_elements,
-				layer_id,
-				allotted_geometry.to_paint_geometry(),
-				brush_resource,
-				draw_effects,
-				get_border_back_ground_color()//todo:to implement FSlateBrush's function get tint function
-			);
-		}
+				//todo:implement this function
+
+				FSlateDrawElement::MakeBox(
+					out_draw_elements,
+					layer_id,
+					allotted_geometry.to_paint_geometry(),
+					brush_resource,
+					draw_effects,
+					get_border_back_ground_color()//todo:to implement FSlateBrush's function get tint function
+				);
+
+			}
+			else
+			{
+				FSlateDrawElement::MakeBox(
+					out_draw_elements,
+					layer_id,
+					allotted_geometry.to_paint_geometry(),
+					brush_resource,
+					draw_effects,
+					get_border_back_ground_color()//todo:to implement FSlateBrush's function get tint function
+				);
+			}
+		}	
 
 		return SCompoundWidget::On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id,
 		                                 in_widget_style,

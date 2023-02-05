@@ -24,6 +24,7 @@ namespace DoDo
 
 		FSlateRenderBatch& add_render_batch(
 			int32_t in_layer,
+			FSlateShaderResource* shader_resource,
 			ESlateDrawPrimitive in_primitive_type,
 			ESlateDrawEffect in_draw_effects
 		);
@@ -108,6 +109,7 @@ namespace DoDo
 
 		FSlateRenderBatch& create_render_batch(
 			int32_t layer,
+			FSlateShaderResource* shader_resource,
 			ESlateDrawPrimitive primitive_type,//triangle or line
 			ESlateDrawEffect draw_effects,
 			const FSlateDrawElement& draw_element

@@ -6,6 +6,7 @@ namespace DoDo
 {
 	class FSlateDrawBuffer;
 	class SWindow;
+	class ISlateStyle;
 	//TODO:temporarily use this renderer
 	class Renderer
 	{
@@ -21,6 +22,11 @@ namespace DoDo
 		 * @param InWindow the window to create the viewport for
 		 */
 		virtual void create_view_port(const std::shared_ptr<SWindow> in_window) = 0;
+
+		/*
+		* loads all the resources used by the specified slate style
+		*/
+		virtual void load_style_resources(const ISlateStyle& style) {}
 
 		/*
 		 * creates necessary resources to render a window and sends draw commands to the rendering thread?

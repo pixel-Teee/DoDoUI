@@ -109,7 +109,7 @@ namespace DoDo
 
 	FChildren* SConstraintCanvas::Get_Children()
 	{
-		
+		return &m_children;
 	}
 
 	void SConstraintCanvas::arrange_layered_children(const FGeometry& allotted_geometry,

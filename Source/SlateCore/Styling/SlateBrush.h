@@ -10,6 +10,8 @@
 
 #include "glm/glm.hpp"
 
+#include "Core/Object/Object.h"//texture object
+
 namespace DoDo
 {
 	/*
@@ -138,8 +140,20 @@ namespace DoDo
 		ESlateBrushMirrorType::Type get_mirroring() const { return m_mirroring; }
 
 		//todo:implement get image type
+		ESlateBrushImageType::Type get_image_type() const { return m_image_type; }
 
 		ESlateBrushDrawType::Type get_draw_type() const { return m_draw_as; }
+
+		/*
+		* gets the name of the resource object, if any
+		* 
+		* @return resource name, or NAME_None if the resource object is not set
+		*/
+		const DoDoUtf8String& get_resource_name() const
+		{
+			return (m_resource_name != "" || m_resource_object == nullptr)
+				? m_resource_name : m_resource_object->get_name();//to get the object name
+		}
 
 
 		/*
@@ -172,7 +186,7 @@ namespace DoDo
 		TEnumAsByte<enum ESlateBrushMirrorType::Type> m_mirroring;
 
 		/*the type of image*/
-		//TEnumAsByte<enum ESlateBrushImageType::Type> m_image_type;
+		TEnumAsByte<enum ESlateBrushImageType::Type> m_image_type;
 
 	private:
 		/*
@@ -180,7 +194,11 @@ namespace DoDo
 		 * the AtlasedTextureInteface
 		 */
 		//todo:implement this resource
+		std::shared_ptr<Object> m_resource_object;
 
+	protected:
+		/*the name of the rendering resource to use*/
+		DoDoUtf8String m_resource_name;
 	protected:
 		/*
 		* this constructor is protected, use one of the deriving classes instead

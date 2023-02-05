@@ -11,6 +11,6 @@ namespace DoDo {
 	}
 	DoDoUtf8String FPaths::engine_content_dir()
 	{
-		return FPaths::engine_dir() / "Content/";
+		return FPaths::engine_dir() / "Content";//todo:need to fix
 	}
 }

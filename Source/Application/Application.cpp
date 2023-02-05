@@ -319,8 +319,8 @@ namespace DoDo
         //initialize FCoreStyle
         if (FCoreStyle::is_star_ship_style())
         {
-            FStarshipCoreStyle::reset_to_default();
-            
+            FStarshipCoreStyle::reset_to_default();//create a ISlateStyle
+            FAppStyle::set_app_style(FStarshipCoreStyle::get_core_style());
         }
     }
 

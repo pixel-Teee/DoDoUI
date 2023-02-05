@@ -39,12 +39,16 @@ namespace DoDo {
 
 		DoDoUtf8String& operator=(const DoDoUtf8String& rhs);
 
+		friend bool operator!=(const DoDoUtf8String& lhs, const DoDoUtf8String& rhs);
+
 		//todo:may be to implement this
 		//DoDoUtf8String conver_to_DoDoUtf8String(std::wstring str);
 
 		friend DoDoUtf8String operator/(const char* lhs, const DoDoUtf8String& rhs);
 
 		friend DoDoUtf8String operator/(const DoDoUtf8String& lhs, const DoDoUtf8String& rhs);
+
+		friend DoDoUtf8String operator+(const DoDoUtf8String& lhs, const DoDoUtf8String& rhs);
 
 		bool operator<(const DoDoUtf8String& rhs) const;
 	private:

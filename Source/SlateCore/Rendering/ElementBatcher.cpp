@@ -9,10 +9,10 @@
 
 namespace DoDo
 {
-	FSlateRenderBatch& FSlateBatchData::add_render_batch(int32_t in_layer, ESlateDrawPrimitive in_primitive_type,
+	FSlateRenderBatch& FSlateBatchData::add_render_batch(int32_t in_layer, FSlateShaderResource* shader_resource, ESlateDrawPrimitive in_primitive_type,
 		ESlateDrawEffect in_draw_effects)
 	{
-		return m_render_batches.emplace_back(in_layer, in_primitive_type, in_draw_effects, &m_uncached_source_batch_vertices, &m_uncached_source_batch_indices, m_uncached_source_batch_vertices.size(), m_uncached_source_batch_indices.size());
+		return m_render_batches.emplace_back(in_layer, shader_resource, in_primitive_type, in_draw_effects, &m_uncached_source_batch_vertices, &m_uncached_source_batch_indices, m_uncached_source_batch_vertices.size(), m_uncached_source_batch_indices.size());
 	}
 
 	void FSlateBatchData::reset_data()
@@ -129,11 +129,11 @@ namespace DoDo
 		}
 	}
 
-	FSlateRenderBatch& FSlateElementBatcher::create_render_batch(int32_t layer, ESlateDrawPrimitive primitive_type,
+	FSlateRenderBatch& FSlateElementBatcher::create_render_batch(int32_t layer, FSlateShaderResource* shader_resource, ESlateDrawPrimitive primitive_type,
 		ESlateDrawEffect draw_effects, const FSlateDrawElement& draw_element)
 	{
 		//render batch store the vertex and index data
-		FSlateRenderBatch& new_batch = m_batch_data->add_render_batch(layer, primitive_type, draw_effects);
+		FSlateRenderBatch& new_batch = m_batch_data->add_render_batch(layer, shader_resource, primitive_type, draw_effects);
 
 		return new_batch;
 	}
@@ -173,16 +173,25 @@ namespace DoDo
 
 		glm::vec2 half_texel;
 
-		//todo:no texture, to implement FSlateShaderResourceProxy
-		size_uv = glm::vec2(1.0f, 1.0f);
-		half_texel = glm::vec2(0.0f, 0.0f);
-
-		glm::vec4 secondary_color;
+		const FSlateShaderResourceProxy* resource_proxy = draw_element_pay_load.get_resource_proxy();//todo:implement this function
+		FSlateShaderResource* resource = nullptr;
+		if (resource_proxy)
+		{
+			resource = resource_proxy->m_resource;
+		}
+		else
+		{
+			//todo:no texture, to implement FSlateShaderResourceProxy
+			size_uv = glm::vec2(1.0f, 1.0f);
+			half_texel = glm::vec2(0.0f, 0.0f);
+		}
+	
+		glm::vec4 secondary_color(0.0f, 0.0f, 0.0f, 0.0f);
 
 		//todo:implement FSlateRenderBatch
-		FSlateRenderBatch& render_batch = create_render_batch(layer, ESlateDrawPrimitive::TriangleList, in_draw_effects, draw_element);
+		FSlateRenderBatch& render_batch = create_render_batch(layer, resource, ESlateDrawPrimitive::TriangleList, in_draw_effects, draw_element);
 
-		glm::vec2 tiling;
+		glm::vec2 tiling(0.0f, 0.0f);
 
 		//todo:implement batch flags
 

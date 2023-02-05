@@ -3,6 +3,7 @@
 #include "ISlateStyle.h"
 
 namespace DoDo {
+
 	ISlateStyle::~ISlateStyle()
 	{
 	}
