@@ -2,6 +2,11 @@
 
 #include "Slate/Widgets/Layout/SBorder.h"
 
+#include "SlateCore/Styling/CoreStyle.h"
+#include "SlateCore/Styling/ISlateStyle.h"
+//#include "SlateCore/Styling/SlateStyle.h"
+#include "SlateCore/Styling/SlateTypes.h"
+
 namespace DoDo
 {
 	struct FButtonStyle;
@@ -14,7 +19,7 @@ namespace DoDo
 
 		SLATE_BEGIN_ARGS(SButton)
 		: _Content()
-		, _ButtonStyle()//todo:implement FCoreStyle
+		, _ButtonStyle(&FCoreStyle::get().get_widget_style<FButtonStyle>("Button"))//todo:implement FCoreStyle1
 		, _HAlign(HAlign_Fill)
 		, _VAlign(VAlign_Fill)
 		, _ContentPadding(FMargin(4.0f, 2.0f))

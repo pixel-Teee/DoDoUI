@@ -34,6 +34,8 @@ namespace DoDo {
 
 	namespace CoreStyleConstants
 	{
+		const glm::vec2 Icon16x16(16.0f, 16.0f);
+
 		//common margins
 		const FMargin default_margins(0.8f, 4.0f);
 

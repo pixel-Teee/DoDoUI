@@ -2,8 +2,11 @@
 
 #include "Core/Core.h"
 
+#include "SlateCore/Textures/SlateShaderResource.h"//FSlateResourceHandle depends on it
+
 namespace DoDo
 {
+	class FSlateBrush;
 	class FSlateDrawBuffer;
 	class SWindow;
 	class ISlateStyle;
@@ -34,6 +37,8 @@ namespace DoDo
 		 * @param WindowDrawBuffer the buffer containing elements to draw
 		 */
 		virtual void draw_windows(FSlateDrawBuffer& in_window_draw_buffer) = 0;
+
+		virtual FSlateResourceHandle get_resource_handle(const FSlateBrush& brush, glm::vec2 local_size, float draw_scale) = 0;//todo:add comment
 
 		virtual bool initialize() = 0;
 

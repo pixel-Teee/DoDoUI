@@ -19,6 +19,8 @@ namespace DoDo
 		m_index_buffer.create_buffer(allocator);
 		m_last_vertex_buffer_offset = 0;
 		m_last_index_buffer_offset = 0;
+
+		m_shader_resource = nullptr;
 	}
 
 	FSlateVulkanRenderingPolicy::~FSlateVulkanRenderingPolicy()
@@ -69,8 +71,9 @@ namespace DoDo
 			const FSlateShaderResource* shader_resource = render_batch.get_shader_resource();//todo:shader resource is image view
 
 			//todo:get render batch information to bind
-			if (shader_resource != nullptr)
+			if (shader_resource != nullptr && shader_resource != m_shader_resource)
 			{			
+				m_shader_resource = const_cast<FSlateShaderResource*>(shader_resource);
 				//------update descriptor set------
 				VkDescriptorImageInfo imageBufferInfo;
 				imageBufferInfo.sampler = sampler;
@@ -80,11 +83,11 @@ namespace DoDo
 				VkWriteDescriptorSet texture1 = write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptor_set, &imageBufferInfo, 1);
 
 				vkUpdateDescriptorSets(device, 1, &texture1, 0, nullptr);
-				//------update descriptor set------
-
-				//texture descriptor
-				vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_set, 0, nullptr);
+				//------update descriptor set------		
 			}	
+
+			//texture descriptor
+			vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_set, 0, nullptr);
 
 			const uint32_t offset = render_batch.m_vertex_offset * sizeof(FSlateVertex) + total_vertex_offset;
 

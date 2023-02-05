@@ -190,7 +190,7 @@ namespace DoDo {
 		//------depth test------
 
 		//------root signature------
-		m_pipeline_layout_create_info = {};
+		//m_pipeline_layout_create_info;
 		m_pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		//m_pipeline_layout_create_info.setLayoutCount = 0;//optional
 		//m_pipeline_layout_create_info.pSetLayouts = nullptr;//optional

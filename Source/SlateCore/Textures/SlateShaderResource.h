@@ -4,6 +4,8 @@
 
 #include <glm/glm.hpp>
 
+#include <memory>
+
 namespace DoDo {
 	namespace ESlateShaderResource
 	{
@@ -132,5 +134,32 @@ namespace DoDo {
 
 		//holds the resource
 		ResourceType m_shader_resource;
+	};
+
+	/*
+	* a slate resource handle is used as fast path for looking up a rendering resource for a given brush when adding slate draw elements
+	* this can be cached and stored safely in code, it will become invalid when a resource is destroyed
+	*/
+	class FSlateResourceHandle
+	{
+		friend class FSlateShaderResourceManager;//texture manager
+	public:
+		FSlateResourceHandle() {}
+
+		/*
+		* return true if the handle still points to a valid rendering resource
+		*/
+		bool is_valid() const { return m_data.get() && m_data->m_proxy; }
+
+		/*
+		* return the resource proxy used to render
+		*/
+		const FSlateShaderResourceProxy* get_resource_proxy() const
+		{
+			return m_data.get() ? m_data->m_proxy : nullptr;
+		}
+	private:
+		/*internal data to pair the handle to the resource*/
+		std::shared_ptr<FSlateSharedHandleData> m_data;
 	};
 }

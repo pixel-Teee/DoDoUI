@@ -16,7 +16,7 @@ namespace DoDo
 	//class FSlateVertexArray;
 	//class FSlateIndexArray;
 	class FSlateBatchData;
-	
+	class FSlateShaderResource;
 	class FSlateVulkanRenderingPolicy : public FSlateRenderingPolicy
 	{
 	public:
@@ -46,5 +46,7 @@ namespace DoDo
 		FSlateVulkanIndexBuffer m_index_buffer;
 
 		std::shared_ptr<DeletionQueue> m_deletion_queue;
+
+		FSlateShaderResource* m_shader_resource;//black hell, todo:fix me
 	};
 }

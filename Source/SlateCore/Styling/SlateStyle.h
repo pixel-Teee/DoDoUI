@@ -60,6 +60,9 @@ namespace DoDo {
 		virtual void get_resources(std::vector<const FSlateBrush*>& out_resources) const override;
 
 		virtual const FSlateBrush* get_brush(const DoDoUtf8String& property_name) const override;
+
+		virtual const FSlateWidgetStyle* get_widget_style_internal(const DoDoUtf8String desired_type_name, const DoDoUtf8String style_name
+		) const override;
 		
 	protected:
 		/*the name used to identity this style set*/

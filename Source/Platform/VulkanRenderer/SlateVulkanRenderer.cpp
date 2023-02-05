@@ -367,6 +367,11 @@ namespace DoDo {
 		//flush the cache if needed
 	}
 
+	FSlateResourceHandle FSlateVulkanRenderer::get_resource_handle(const FSlateBrush& brush, glm::vec2 local_size, float draw_scale)
+	{
+		return m_texture_manager->get_resource_handle(brush, local_size, draw_scale);
+	}
+
 	bool FSlateVulkanRenderer::initialize()
 	{
 		if(!m_b_has_attempted_initialization)
@@ -540,6 +545,8 @@ namespace DoDo {
 		//------create command pool------
 		create_command_pool();
 		//------create command pool------
+
+		init_descriptors();
 
 		return result == VK_SUCCESS ? true : false;
 	}
@@ -789,7 +796,7 @@ namespace DoDo {
 		//binding
 		VkDescriptorSetLayoutBinding shader_param = descriptorset_layout_binding(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT, 0);
 
-		VkDescriptorSetLayoutBinding texture = descriptorset_layout_binding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 0);
+		VkDescriptorSetLayoutBinding texture = descriptorset_layout_binding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1);
 
 		VkDescriptorSetLayoutCreateInfo setinfo = {};
 

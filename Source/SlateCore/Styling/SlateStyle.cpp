@@ -56,4 +56,12 @@ namespace DoDo {
 
 		return result;
 	}
+	const FSlateWidgetStyle* FSlateStyleSet::get_widget_style_internal(const DoDoUtf8String desired_type_name, const DoDoUtf8String style_name) const
+	{
+		const std::shared_ptr<FSlateWidgetStyle> style_ptr = m_widget_style_values.find(style_name)->second;
+
+		//todo:check
+
+		return style_ptr.get();
+	}
 }

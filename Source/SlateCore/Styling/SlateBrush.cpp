@@ -2,6 +2,10 @@
 
 #include "SlateBrush.h"
 
+#include "Application/Application.h"
+
+#include "Renderer/Renderer.h"
+
 namespace DoDo
 {
 	FSlateBrush::FSlateBrush()
@@ -10,6 +14,16 @@ namespace DoDo
 
 	FSlateBrush::~FSlateBrush()
 	{
+	}
+	void FSlateBrush::update_rendering_resource(glm::vec2 local_size, float draw_scale) const
+	{
+		if (m_draw_as != ESlateBrushDrawType::NoDrawType && (m_resource_name != "" || m_resource_object != nullptr))
+		{
+			if (!m_resource_handle.is_valid() || m_image_type == ESlateBrushImageType::Vector)
+			{
+				m_resource_handle = Application::get().get_renderer()->get_resource_handle(*this, local_size, draw_scale);
+			}
+		}
 	}
 	//todo:called by Slate Rounded Box Brush
 	FSlateBrush::FSlateBrush(ESlateBrushDrawType::Type in_draw_type, 

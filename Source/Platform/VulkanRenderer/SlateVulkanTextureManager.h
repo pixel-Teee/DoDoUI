@@ -41,6 +41,8 @@ namespace DoDo {
 
 		bool load_texture(const FSlateBrush& in_brush, uint32_t& out_width, uint32_t& out_height, std::vector<uint8_t>& out_decoded_image);
 
+		virtual FSlateShaderResourceProxy* get_shader_resource(const FSlateBrush& in_brush, glm::vec2 local_size, float draw_scale) override;
+
 		/*
 		* generates rendering resources for a texture
 		* 

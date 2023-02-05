@@ -20,6 +20,8 @@
 
 #include "SlateCore/Brushes/SlateColorBrush.h"
 
+#include "SlateCore/Brushes/SlateImageBrush.h"
+
 namespace DoDo {
 	using namespace CoreStyleConstants;
 
@@ -89,6 +91,14 @@ namespace DoDo {
 			style->set("Border", new FSlateColorBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 		}
 
+		//common brushes
+		
+		{
+			style->set("Checkboard", new FSlateImageBrush(style->root_to_content_dir("Checkerboard", ".png"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ESlateBrushTileType::Both));
+		}
+
+		set_up_button_styles(style);
+
 		return style;
 	}
 	void FStarshipCoreStyle::reset_to_default()
@@ -145,8 +155,18 @@ namespace DoDo {
 
 		style->set("PrimaryButton", primary_button);//register this 
 
-		set_up_button_styles(style);
-	}
+		const FButtonStyle Button = FButtonStyle()
+			.set_normal(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))//FSlateRoundedBoxBrush
+			.set_hovered(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))
+			//se.set_pressed(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))t_up_button_styles(style);
+			.set_disabled(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))
+			.set_normal_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+			.set_pressed_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+			.set_hovered_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+			.set_disabled_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//todo:fix me
+			.set_normal_padding(button_margins)
+			.set_pressed_padding(pressed_button_margins);
 
-	
+		style->set("Button", Button);
+	}
 }

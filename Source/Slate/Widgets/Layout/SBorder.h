@@ -4,6 +4,9 @@
 
 #include "SlateCore/Types/SlateEnums.h"//EHorizontalAlignment
 
+#include "SlateCore/Styling/CoreStyle.h"
+#include "SlateCore/Styling/ISlateStyle.h"
+
 namespace DoDo
 {
 	struct FSlateBrush;
@@ -23,6 +26,7 @@ namespace DoDo
 		, _HAlign(HAlign_Fill)
 		, _VAlign(VAlign_Fill)
 		, _Padding(FMargin(2.0f))
+		, _BorderImage(FCoreStyle::get().get_brush("Border"))
 		, _ContentScale(glm::vec2(1.0f, 1.0f))
 		, _DesiredSizeScale(glm::vec2(1.0f, 1.0f))
 		, _ColorAndOpacity(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)) //todo:need to modify as FLinearColor
@@ -39,6 +43,7 @@ namespace DoDo
 		SLATE_ATTRIBUTE(FMargin, Padding)
 
 		//todo:implement FSlateBrush*, border image
+		SLATE_ATTRIBUTE(const FSlateBrush*, BorderImage)
 
 		SLATE_ATTRIBUTE(glm::vec2, ContentScale)
 

@@ -20,6 +20,8 @@
 
 #include "Renderer/Device.h"
 
+#include "SlateCore/Styling/SlateStyleRegistry.h"
+
 namespace DoDo {
 
 	FSlateVulkanTextureManager::FSlateVulkanTextureManager()
@@ -34,6 +36,11 @@ namespace DoDo {
 	}
 	void FSlateVulkanTextureManager::load_used_textures()
 	{
+		std::vector<const FSlateBrush*> resources;
+
+		FSlateStyleRegistry::get_all_resources(resources);
+
+		create_textures(resources);
 	}
 	void FSlateVulkanTextureManager::load_style_resources(const ISlateStyle& style)
 	{
@@ -72,7 +79,7 @@ namespace DoDo {
 					//only atlas the texture if none of the brushes that use it tile it
 					info.m_b_should_atlas &= (brush.m_tiling == ESlateBrushTileType::NoTile && info.m_b_srgb);//todo:how to understand it?
 
-					if (info.m_texture_data != nullptr)
+					if (info.m_texture_data == nullptr)
 					{
 						//create memory
 						uint32_t width = 0;
@@ -119,7 +126,7 @@ namespace DoDo {
 		//std::vector<uint8_t> raw_file_data;
 
 		int32_t x = 0, y = 0, n = 0;
-		unsigned char* data = stbi_load(resource_path.c_str(), &x, &y, &n, 0);
+		unsigned char* data = stbi_load(resource_path.c_str(), &x, &y, &n, 4);
 
 		if (data != nullptr)
 		{
@@ -129,9 +136,9 @@ namespace DoDo {
 
 			//todo:check 4 component
 
-			out_decoded_image.resize(x * y * n);//todo:need png
+			out_decoded_image.resize(x * y * 4);//todo:need png
 
-			std::memcpy(out_decoded_image.data(), data, x * y * n);//todo:fix me
+			std::memcpy(out_decoded_image.data(), data, x * y * 4);//todo:fix me
 
 			//todo:only png support in slate
 			stbi_image_free(data);
@@ -139,6 +146,22 @@ namespace DoDo {
 		}
 
 		return false;
+	}
+	FSlateShaderResourceProxy* FSlateVulkanTextureManager::get_shader_resource(const FSlateBrush& in_brush, glm::vec2 local_size, float draw_scale)
+	{
+		FSlateShaderResourceProxy* texture = nullptr;
+
+		if (in_brush.get_image_type() == ESlateBrushImageType::Vector)
+		{
+			//todo:
+		}
+		else//todo:implement dynamic resource
+		{
+			auto it = m_resource_map.find(in_brush.get_resource_name());
+			texture = it->second;
+		}
+
+		return texture;
 	}
 	FSlateShaderResourceProxy* FSlateVulkanTextureManager::generate_texture_resource(const FNewTextureInfo& info, DoDoUtf8String texture_name)
 	{
@@ -270,6 +293,8 @@ namespace DoDo {
 
 			texture->set_image(newImage);
 			texture->set_shader_resource(image_view);//todo:fix me
+
+			m_non_atlased_textures.push_back(std::move(texture));
 		}
 
 		return new_proxy;

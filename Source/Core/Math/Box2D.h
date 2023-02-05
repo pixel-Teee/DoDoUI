@@ -46,6 +46,17 @@ namespace DoDo
 		}
 
 		/*
+		* gets the box size
+		* 
+		* @return box size
+		* @see GetArea, GetCenter, GetCenterAndExtents, GetExtent
+		*/
+		glm::vec<2, T> get_size() const
+		{
+			return glm::vec<2, T>(m_max - m_min);
+		}
+
+		/*
 		 * set the initial values of the bounding box to zero
 		 */
 		void Init()

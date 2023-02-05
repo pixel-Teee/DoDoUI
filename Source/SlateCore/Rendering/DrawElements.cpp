@@ -85,7 +85,7 @@ namespace DoDo
 
 		box_payload->set_tint(in_tint);//set tint
 
-		//box_payload->set_brush(in_brush, paint_geometry.get_local_size(), paint_geometry.m_draw_scale);
+		box_payload->set_brush(in_brush, paint_geometry.get_local_Size(), paint_geometry.m_draw_scale);
 
 		//todo:implement FSlateDrawElement's Init function
 		element.init(element_list, element_type, in_layer, paint_geometry, in_draw_effect);

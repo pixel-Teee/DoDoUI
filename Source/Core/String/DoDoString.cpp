@@ -265,14 +265,14 @@ namespace DoDo {
 
 	bool operator!=(const DoDoUtf8String& lhs, const DoDoUtf8String& rhs)
 	{
-		if (lhs.m_len != rhs.m_len || lhs.m_count != rhs.m_count) return false;
+		if (lhs.m_len != rhs.m_len || lhs.m_count != rhs.m_count) return true;
 		else
 		{
-			for (size_t i = 0; lhs.m_len; ++i)
+			for (size_t i = 0; i < lhs.m_len; ++i)
 			{
-				if (lhs.m_buffer[i] != rhs.m_buffer[i]) return false;
+				if (lhs.m_buffer[i] != rhs.m_buffer[i]) return true;
 			}
-			return true;
+			return false;
 		}
 	}
 

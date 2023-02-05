@@ -20,7 +20,7 @@ void main()
 
 	//todo:gamma correct
 
-	vec3 texture_color = texture(element_texture, texcoords.xy * texcoords.zw);
+	vec4 texture_color = texture(element_texture, texcoords.xy + texcoords.zw) * color;
 
-	out_color = color;
+	out_color = texture_color;
 }

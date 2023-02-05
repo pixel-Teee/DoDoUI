@@ -35,6 +35,8 @@ namespace DoDo
 
 		set_border_back_ground_color(in_args._BorderBackgroundColor);
 
+		set_border_image(in_args._BorderImage);
+
 		m_child_slot
 		.HAlign(in_args._HAlign)
 		.VAlign(in_args._VAlign)

@@ -68,6 +68,16 @@ namespace DoDo
 			m_draw_type = in_brush->get_draw_type();
 
 			//todo:from in_brush to get the shader resource proxy
+			FSlateResourceHandle handle = in_brush->get_rendering_resource(local_size, draw_scale);//todo:find rendering resource from texture map
+
+			if (handle.is_valid())
+			{
+				m_resource_proxy = handle.get_resource_proxy();
+			}
+			else
+			{
+				m_resource_proxy = nullptr;
+			}
 		}
 
 		virtual ~FSlateBoxPayload()

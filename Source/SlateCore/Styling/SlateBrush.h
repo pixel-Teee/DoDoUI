@@ -12,6 +12,10 @@
 
 #include "Core/Object/Object.h"//texture object
 
+#include "SlateCore/Textures/SlateShaderResource.h"
+
+#include "SlateCore/Layout/Margin.h"
+
 namespace DoDo
 {
 	/*
@@ -105,7 +109,7 @@ namespace DoDo
 	struct FSlateBrush
 	{
 		//todo:implement FSlateShaderResourceManager
-
+		friend class FSlateShaderResourceManager;//access the resource handle
 	public:
 		/*size of the resource in slate units*/
 		glm::vec2 m_image_size;
@@ -133,7 +137,7 @@ namespace DoDo
 
 		void set_image_size(glm::vec2 in_image_size) { m_image_size = in_image_size; }
 
-		const FMargin& get_margin() const { m_margin; }
+		const FMargin& get_margin() const { return m_margin; }
 
 		ESlateBrushTileType::Type get_tiling() const { return m_tiling; }
 
@@ -151,10 +155,22 @@ namespace DoDo
 		*/
 		const DoDoUtf8String& get_resource_name() const
 		{
-			return (m_resource_name != "" || m_resource_object == nullptr)
-				? m_resource_name : m_resource_object->get_name();//to get the object name
+			if (m_resource_name != "" || m_resource_object == nullptr)
+			{
+				return m_resource_name;
+			}
+			else
+			{
+				m_resource_object->get_name();
+			}
 		}
 
+		const FSlateResourceHandle& get_rendering_resource(glm::vec2 local_size, float draw_scale) const
+		{
+			update_rendering_resource(get_image_size(), 1.0f);
+
+			return m_resource_handle;
+		}
 
 		/*
 		 * get brush uv region, should check if region is valid before using it
@@ -189,12 +205,16 @@ namespace DoDo
 		TEnumAsByte<enum ESlateBrushImageType::Type> m_image_type;
 
 	private:
+		void update_rendering_resource(glm::vec2 local_size, float draw_scale) const;
 		/*
 		 * the image to render for this brush, can be UTexture or UMaterialInterface or an object implementing
 		 * the AtlasedTextureInteface
 		 */
 		//todo:implement this resource
 		std::shared_ptr<Object> m_resource_object;
+
+		/*rendering resource for this brush*/
+		mutable FSlateResourceHandle m_resource_handle;
 
 	protected:
 		/*the name of the rendering resource to use*/

@@ -13,6 +13,9 @@ namespace DoDo
 
 		virtual ~FButtonStyle();
 
+		static const DoDoUtf8String TypeName;
+		virtual const DoDoUtf8String get_type_name() const override { return TypeName; }
+
 		/*button appearance when the button is not hovered or pressed*/
 		FSlateBrush m_normal;
 		FButtonStyle& set_normal(const FSlateBrush& in_normal) { m_normal = in_normal; return *this; }

@@ -171,13 +171,34 @@ namespace DoDo
 		glm::vec2 end_uv = glm::vec2(1.0f, 1.0f);
 		glm::vec2 size_uv;
 
-		glm::vec2 half_texel;
+		glm::vec2 half_texel(0.0f, 0.0f);
 
 		const FSlateShaderResourceProxy* resource_proxy = draw_element_pay_load.get_resource_proxy();//todo:implement this function
 		FSlateShaderResource* resource = nullptr;
 		if (resource_proxy)
 		{
 			resource = resource_proxy->m_resource;
+		
+			//the width and height of the texture
+			texture_width = resource_proxy->m_actual_size.x != 0 ? resource_proxy->m_actual_size.x : 1;
+			texture_height = resource_proxy->m_actual_size.y != 0 ? resource_proxy->m_actual_size.y : 1;
+
+			//texel offset
+
+			const FBox2D& brush_uv = draw_element_pay_load.get_brush_uv_region();
+
+			if (brush_uv.m_b_is_valid)
+			{
+				size_uv = brush_uv.get_size();
+				start_uv = glm::vec2(brush_uv.m_min.x, brush_uv.m_min.y) + half_texel;
+				end_uv = start_uv + size_uv;
+			}
+			else
+			{
+				size_uv = resource_proxy->m_size_uv;
+				start_uv = resource_proxy->m_start_uv + half_texel;
+				end_uv = start_uv + resource_proxy->m_size_uv;
+			}
 		}
 		else
 		{
