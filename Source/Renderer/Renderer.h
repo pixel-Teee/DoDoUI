@@ -6,7 +6,7 @@
 
 namespace DoDo
 {
-	class FSlateBrush;
+	struct FSlateBrush;
 	class FSlateDrawBuffer;
 	class SWindow;
 	class ISlateStyle;

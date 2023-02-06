@@ -114,7 +114,7 @@ namespace DoDo
             [
                 SNew(SBorder)
 				.BorderBackgroundColor(glm::vec4(1.0f, 0.8f, 0.4f, 1.0f))
-                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+                //.BorderImage(FCoreStyle::get().get_brush("Checkboard"))
 				.Padding(100.0f)
 				[
                     SNew(SConstraintCanvas)
@@ -159,62 +159,62 @@ namespace DoDo
 
         
 
-		//std::shared_ptr<SWindow> root_window2;
-		//
-		//SAssignNew(root_window2, SWindow)
-		//	.Title("hello2")
-		//	.ClientSize(glm::vec2(1280.0f, 720.0f))
-		//	.ScreenPosition(glm::vec2(1000.0f, 200.0f))
-		//    [
-		//        SNew(SBorder)
-		//        .BorderBackgroundColor(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f))
-		//		[
-		//            SNew(SHorizontalBox)
-		//            + SHorizontalBox::Slot()
-		//            .Padding(30.0f, 30.0f)
-		//            .fill_width(0.2f)
-		//			.max_width(600.0f)
-		//            [
-		//                SNew(SBorder)
-		//                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-		//            ]
-		//			+ SHorizontalBox::Slot()
-		//            .Padding(40.0f, 40.0f)
-		//            .fill_width(0.8f)
-		//            .max_width(600.0f)
-		//            [
-		//                SNew(SBorder)
-		//                .BorderBackgroundColor(glm::vec4(0.95f, 0.3f, 0.6f, 1.0f))
-		//            ]
-		//            + SHorizontalBox::Slot()
-		//            .Padding(40.0f, 40.0f)
-		//            .fill_width(0.3f)
-		//            .max_width(600.0f)
-		//            [
-		//                SNew(SBorder)
-		//                .BorderBackgroundColor(glm::vec4(0.2f, 0.5f, 0.4f, 1.0f))
-		//            ]
-		//            + SHorizontalBox::Slot()
-		//            .Padding(40.0f, 40.0f)
-		//            .fill_width(0.3f)
-		//            .max_width(600.0f)
-		//            [
-		//                SNew(SBorder)
-		//                .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
-		//            ]
-		//            + SHorizontalBox::Slot()
-		//            .Padding(40.0f, 40.0f)
-		//            .fill_width(0.4f)
-		//            .max_width(600.0f)
-		//            [
-		//                SNew(SBorder)
-		//                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-		//            ]
-		//		]
-		//
-		//    ];
-		//
-		//get().add_window(root_window2);
+		std::shared_ptr<SWindow> root_window2;
+		
+		SAssignNew(root_window2, SWindow)
+			.Title("hello2")
+			.ClientSize(glm::vec2(1280.0f, 720.0f))
+			.ScreenPosition(glm::vec2(1000.0f, 200.0f))
+		    [
+		        SNew(SBorder)
+		        .BorderBackgroundColor(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f))
+				[
+		            SNew(SHorizontalBox)
+		            + SHorizontalBox::Slot()
+		            .Padding(30.0f, 30.0f)
+		            .fill_width(0.2f)
+					.max_width(600.0f)
+		            [
+		                SNew(SBorder)
+		                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+		            ]
+					+ SHorizontalBox::Slot()
+		            .Padding(40.0f, 40.0f)
+		            .fill_width(0.8f)
+		            .max_width(600.0f)
+		            [
+		                SNew(SBorder)
+		                .BorderBackgroundColor(glm::vec4(0.95f, 0.3f, 0.6f, 1.0f))
+		            ]
+		            + SHorizontalBox::Slot()
+		            .Padding(40.0f, 40.0f)
+		            .fill_width(0.3f)
+		            .max_width(600.0f)
+		            [
+		                SNew(SBorder)
+		                .BorderBackgroundColor(glm::vec4(0.2f, 0.5f, 0.4f, 1.0f))
+		            ]
+		            + SHorizontalBox::Slot()
+		            .Padding(40.0f, 40.0f)
+		            .fill_width(0.3f)
+		            .max_width(600.0f)
+		            [
+		                SNew(SBorder)
+		                .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
+		            ]
+		            + SHorizontalBox::Slot()
+		            .Padding(40.0f, 40.0f)
+		            .fill_width(0.4f)
+		            .max_width(600.0f)
+		            [
+		                SNew(SBorder)
+		                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+		            ]
+				]
+		
+		    ];
+		
+		get().add_window(root_window2);
 
         return root_window;
 

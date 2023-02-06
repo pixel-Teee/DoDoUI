@@ -23,7 +23,11 @@ namespace DoDo {
 		void set_image(const AllocatedImage& allocated_image);
 
 		void set_shader_resource(VkImageView image_view);
+
+		//void set_descriptor_set(VkDescriptorSet descriptor_set);
 	private:
 		AllocatedImage m_image;	
+
+		//VkDescriptorSet m_descriptor_set;//every texture have one descriptor
 	};
 }

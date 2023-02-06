@@ -3,15 +3,20 @@
 #include "SlateVulkanRenderingPolicy.h"
 
 #include "SlateVulkanRenderer.h"
+#include "SlateVulkanTextureManager.h"
 #include "SlateCore/Rendering/ElementBatcher.h"
 
 #include "VulkanInitializers.h"
 
 #include "SlateVulkanTextures.h"
 
+#include "Application/Application.h"
+
+#include "Renderer/Device.h"
+
 namespace DoDo
 {
-	FSlateVulkanRenderingPolicy::FSlateVulkanRenderingPolicy(VmaAllocator& allocator)
+	FSlateVulkanRenderingPolicy::FSlateVulkanRenderingPolicy(VmaAllocator& allocator, std::shared_ptr<FSlateVulkanTextureManager> in_texture_manager)
 	{
 		m_deletion_queue = std::make_shared<DeletionQueue>();
 
@@ -20,7 +25,31 @@ namespace DoDo
 		m_last_vertex_buffer_offset = 0;
 		m_last_index_buffer_offset = 0;
 
-		m_shader_resource = nullptr;
+		//m_shader_resource = nullptr;
+
+		//------create descriptor set------
+		//------descriptor set------
+		m_descriptor_sets.resize(1000);
+		Renderer* renderer = Application::get().get_renderer();
+		FSlateVulkanRenderer* vulkan_renderer = (FSlateVulkanRenderer*)(renderer);
+		std::vector<VkDescriptorSetLayout> layouts(1000, vulkan_renderer->m_shader_set_layout);
+		//VkDescriptorSet image_descriptor_set;
+		//allocate the descriptor set for texture to use on the material
+		VkDescriptorSetAllocateInfo alloc_info = {};
+		alloc_info.pNext = nullptr;
+		alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		alloc_info.descriptorPool = vulkan_renderer->m_descriptor_pool;
+		alloc_info.descriptorSetCount = 1000;//1000(todo:fix me)
+		alloc_info.pSetLayouts = layouts.data();//todo:fix me, not to access private member
+		VkDevice device = *(VkDevice*)(vulkan_renderer->m_logic_device->get_native_handle());
+		vkAllocateDescriptorSets(device, &alloc_info, m_descriptor_sets.data());
+		
+		//texture->set_descriptor_set(image_descriptor_set);
+		//------descriptor set------
+		//------create descriptor set------
+
+		//todo:create white texture
+		m_white_texture = in_texture_manager->create_color_texture("DefaultWhite", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))->m_resource;
 	}
 
 	FSlateVulkanRenderingPolicy::~FSlateVulkanRenderingPolicy()
@@ -45,7 +74,7 @@ namespace DoDo
 		m_last_index_buffer_offset = m_last_vertex_buffer_offset = 0;
 	}
 
-	void FSlateVulkanRenderingPolicy::draw_elements(VkDevice device, VkDescriptorSet descriptor_set, VkCommandBuffer cmd_buffer, VkPipelineLayout pipeline_layout, VkSampler sampler, const glm::mat4x4& view_projection_matrix, int32_t first_batch_index,
+	void FSlateVulkanRenderingPolicy::draw_elements(VkDevice device, VkCommandBuffer cmd_buffer, VkPipelineLayout pipeline_layout, VkSampler sampler, const glm::mat4x4& view_projection_matrix, int32_t first_batch_index,
 	                                                const std::vector<FSlateRenderBatch>& render_batches, uint32_t total_vertex_offset, uint32_t total_index_offset)
 	{
 		//todo:check vertex buffer and index buffer valid
@@ -61,6 +90,7 @@ namespace DoDo
 
 		//set view projection
 
+		uint32_t descriptor_set_offset = 0;
 		int32_t next_render_batch_index = first_batch_index;
 		while (next_render_batch_index != -1)//magic number
 		{
@@ -71,23 +101,36 @@ namespace DoDo
 			const FSlateShaderResource* shader_resource = render_batch.get_shader_resource();//todo:shader resource is image view
 
 			//todo:get render batch information to bind
-			if (shader_resource != nullptr && shader_resource != m_shader_resource)
+			if (shader_resource != nullptr)
 			{			
-				m_shader_resource = const_cast<FSlateShaderResource*>(shader_resource);
+				//m_shader_resource = const_cast<FSlateShaderResource*>(shader_resource);
 				//------update descriptor set------
 				VkDescriptorImageInfo imageBufferInfo;
 				imageBufferInfo.sampler = sampler;
 				imageBufferInfo.imageView = ((FSlateVulkanTexture*)shader_resource)->get_typed_resource();//get the image view
 				imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-				VkWriteDescriptorSet texture1 = write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descriptor_set, &imageBufferInfo, 1);
+				VkWriteDescriptorSet texture1 = write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_descriptor_sets[descriptor_set_offset], &imageBufferInfo, 1);
 
 				vkUpdateDescriptorSets(device, 1, &texture1, 0, nullptr);
-				//------update descriptor set------		
-			}	
+				//------update descriptor set------
 
-			//texture descriptor
-			vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_set, 0, nullptr);
+				//texture descriptor
+				vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &m_descriptor_sets[descriptor_set_offset], 0, nullptr);
+			}
+			else
+			{
+				VkDescriptorImageInfo imageBufferInfo;
+				imageBufferInfo.sampler = sampler;
+				imageBufferInfo.imageView = ((FSlateVulkanTexture*)m_white_texture)->get_typed_resource();//get the image view
+				imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+				VkWriteDescriptorSet texture1 = write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_descriptor_sets[999], &imageBufferInfo, 1);
+
+				vkUpdateDescriptorSets(device, 1, &texture1, 0, nullptr);
+				//todo:add default texture
+				vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &m_descriptor_sets[999], 0, nullptr);
+			}
 
 			const uint32_t offset = render_batch.m_vertex_offset * sizeof(FSlateVertex) + total_vertex_offset;
 
@@ -102,6 +145,8 @@ namespace DoDo
 
 			//note:this index buffer offset is number
 			vkCmdDrawIndexed(cmd_buffer, render_batch.m_num_indices, 1, render_batch.m_index_offset + total_index_offset / sizeof(uint16_t), 0, 0);
+
+			++descriptor_set_offset;
 		}
 	}
 

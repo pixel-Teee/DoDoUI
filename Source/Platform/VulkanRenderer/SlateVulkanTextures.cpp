@@ -17,6 +17,10 @@ namespace DoDo {
 	{
 		m_shader_resource = image_view;
 	}
+	//void FSlateVulkanTexture::set_descriptor_set(VkDescriptorSet descriptor_set)
+	//{
+	//	m_descriptor_set = descriptor_set;
+	//}
 	uint32_t FSlateVulkanTexture::get_width() const
 	{
 		return 0;

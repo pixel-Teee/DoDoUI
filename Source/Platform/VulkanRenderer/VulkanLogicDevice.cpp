@@ -15,7 +15,11 @@ namespace DoDo {
 #endif
 
 	static const std::vector<const char*> device_extensions = {
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+		VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+		VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+		//VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+		VK_KHR_MAINTENANCE3_EXTENSION_NAME
 	};
 
 	static const std::vector<const char*> validation_layers = {
@@ -45,6 +49,20 @@ namespace DoDo {
 		}
 		//------queue create information------
 
+		//VkPhysicalDeviceDescriptorIndexingFeatures physical_indexing_features = {};
+		//physical_indexing_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT;
+		//
+		//VkPhysicalDeviceFeatures2 physical_features = {};
+		//physical_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+		//physical_features.pNext = &physical_indexing_features;
+		//vkGetPhysicalDeviceFeatures2(device, &physical_features);//query index feature
+
+		VkPhysicalDeviceDescriptorIndexingFeaturesEXT indexing_features{};
+		indexing_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT;
+		indexing_features.pNext = nullptr;
+		indexing_features.descriptorBindingSampledImageUpdateAfterBind = true;
+		indexing_features.descriptorBindingUniformBufferUpdateAfterBind = true;//todo:need to query
+
 		VkPhysicalDeviceFeatures device_features{};
 		device_features.samplerAnisotropy = VK_TRUE;
 
@@ -60,6 +78,8 @@ namespace DoDo {
 		create_info.enabledExtensionCount = static_cast<uint32_t>(device_extensions.size());
 		create_info.ppEnabledExtensionNames = device_extensions.data();
 		//------logic device create information------
+
+		create_info.pNext = &indexing_features;
 
 		if (enable_validation_layers)
 		{
@@ -106,6 +126,12 @@ namespace DoDo {
 		VkPhysicalDeviceFeatures device_features{};
 		device_features.samplerAnisotropy = VK_TRUE;
 
+		VkPhysicalDeviceDescriptorIndexingFeaturesEXT indexing_features{};
+		indexing_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT;
+		indexing_features.pNext = nullptr;
+		indexing_features.descriptorBindingSampledImageUpdateAfterBind = true;
+		indexing_features.descriptorBindingUniformBufferUpdateAfterBind = true;//todo:need to query
+
 		//------logic device create information------
 		VkDeviceCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -118,6 +144,8 @@ namespace DoDo {
 		create_info.enabledExtensionCount = static_cast<uint32_t>(device_extensions.size());
 		create_info.ppEnabledExtensionNames = device_extensions.data();
 		//------logic device create information------
+
+		create_info.pNext = &indexing_features;
 
 		if (enable_validation_layers)
 		{

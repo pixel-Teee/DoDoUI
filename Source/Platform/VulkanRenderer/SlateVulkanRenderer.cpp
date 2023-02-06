@@ -74,7 +74,9 @@ namespace DoDo {
 	};
 
 	static const std::vector<const char*> device_extensions = {
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+		VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+		VK_KHR_MAINTENANCE3_EXTENSION_NAME
 	};
 
 	static std::vector<const char*> get_required_extension()
@@ -312,7 +314,7 @@ namespace DoDo {
 				vkCmdSetScissor(cmd, 0, 1, &scissor);
 
 				//todo:draw
-				m_rendering_policy->draw_elements(device, m_descriptor_set, cmd, *(VkPipelineLayout*)(m_pipeline_state_object->get_pipeline_layout()),m_sampler,m_view_matrix * view_port.m_projection_matrix, batch_data.get_first_render_batch_index(), batch_data.get_render_batches(), batch_data.get_total_vertex_offset(), batch_data.get_total_index_offset());
+				m_rendering_policy->draw_elements(device,  cmd, *(VkPipelineLayout*)(m_pipeline_state_object->get_pipeline_layout()),m_sampler,m_view_matrix * view_port.m_projection_matrix, batch_data.get_first_render_batch_index(), batch_data.get_render_batches(), batch_data.get_total_vertex_offset(), batch_data.get_total_index_offset());
 
 				vkCmdEndRenderPass(cmd);
 
@@ -401,7 +403,7 @@ namespace DoDo {
 				m_texture_manager->load_used_textures();//load the texture centrally again
 
 				//todo:implement rendering policy
-				m_rendering_policy = std::make_shared<FSlateVulkanRenderingPolicy>(m_allocator);//note:vma need first initialize
+				m_rendering_policy = std::make_shared<FSlateVulkanRenderingPolicy>(m_allocator, m_texture_manager);//note:vma need first initialize
 				m_rendering_policy->reset_offset();
 
 				//todo:implement element batcher
@@ -495,6 +497,8 @@ namespace DoDo {
 		//------enable extension------
 		static std::vector<const char*> extensions = get_required_extension();//get glfw and debug utils extensions 
 		extensions.push_back("VK_KHR_surface");//surface extensions
+		extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+		//extensions.push_back("VK_EXT_descriptor_indexing");
 		create_info.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
 		create_info.ppEnabledExtensionNames = extensions.data();
 		//------enable extension------
@@ -798,17 +802,24 @@ namespace DoDo {
 
 		VkDescriptorSetLayoutBinding texture = descriptorset_layout_binding(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1);
 
+		VkDescriptorBindingFlags flags[2] = { VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT, VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT };
+		VkDescriptorSetLayoutBindingFlagsCreateInfo bind_flags = {};
+		bind_flags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+		bind_flags.bindingCount = 2;
+		bind_flags.pBindingFlags = flags;
+		bind_flags.pNext = nullptr;
+
 		VkDescriptorSetLayoutCreateInfo setinfo = {};
 
 		setinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		setinfo.pNext = nullptr;
+		setinfo.pNext = &bind_flags;
 
 		VkDescriptorSetLayoutBinding bindings[] = { shader_param, texture };
 
 		//we are going to have 2 binding
 		setinfo.bindingCount = 2;
 		//no flags
-		setinfo.flags = 0;
+		setinfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
 		//point to the camera buffer binding
 		setinfo.pBindings = bindings;
 
@@ -818,17 +829,17 @@ namespace DoDo {
 
 		std::vector<VkDescriptorPoolSize> sizes =
 		{
-			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 10 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2005 },
 			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 10},
 			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 10},
 			//add combined-image-sampler descriptor types to the pool
-			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 10 }
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 20005 }
 		};
 
 		VkDescriptorPoolCreateInfo pool_info = {};
 		pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		pool_info.flags = 0;
-		pool_info.maxSets = 10;
+		pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+		pool_info.maxSets = 1000;
 		pool_info.poolSizeCount = (uint32_t)sizes.size();
 		pool_info.pPoolSizes = sizes.data();
 
@@ -855,14 +866,14 @@ namespace DoDo {
 		});
 
 		//allocate the descriptor set for texture to use on the material
-		VkDescriptorSetAllocateInfo alloc_info = {};
-		alloc_info.pNext = nullptr;
-		alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		alloc_info.descriptorPool = m_descriptor_pool;
-		alloc_info.descriptorSetCount = 1;
-		alloc_info.pSetLayouts = &m_shader_set_layout;
-
-		vkAllocateDescriptorSets(device, &alloc_info, &m_descriptor_set);
+		//VkDescriptorSetAllocateInfo alloc_info = {};
+		//alloc_info.pNext = nullptr;
+		//alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		//alloc_info.descriptorPool = m_descriptor_pool;
+		//alloc_info.descriptorSetCount = 1;
+		//alloc_info.pSetLayouts = &m_shader_set_layout;
+		//
+		//vkAllocateDescriptorSets(device, &alloc_info, &m_descriptor_set);
 
 		//write to the descriptor set so that it points to our empire_diffuse texture
 		//VkDescriptorImageInfo imageBufferInfo;

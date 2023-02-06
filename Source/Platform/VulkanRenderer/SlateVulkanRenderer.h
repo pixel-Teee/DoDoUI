@@ -107,6 +107,7 @@ namespace DoDo {
 	{
 	public:
 		friend class FSlateVulkanTextureManager;
+		friend class FSlateVulkanRenderingPolicy;
 
 		FSlateVulkanRenderer();
 
@@ -209,7 +210,7 @@ namespace DoDo {
 
 		VkDescriptorSetLayout m_shader_set_layout;
 		VkDescriptorPool m_descriptor_pool;
-		VkDescriptorSet m_descriptor_set;
+		//VkDescriptorSet m_descriptor_set;
 		VkSampler m_sampler;
 
 		UploadContext m_upload_context;

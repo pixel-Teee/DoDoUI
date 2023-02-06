@@ -30,7 +30,7 @@ namespace DoDo {
 		{}
 	};
 	class FSlateShaderResourceProxy;
-	class FSlateBrush;
+	struct FSlateBrush;
 	class FSlateResourceHandle;
 	/*
 	* base texture manager class used by a slate renderer to manager texture resources

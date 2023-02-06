@@ -116,6 +116,29 @@ namespace DoDo {
 			m_resource_map.insert({ texture_name, new_texture });
 		}
 	}
+
+	FSlateShaderResourceProxy* FSlateVulkanTextureManager::create_color_texture(const DoDoUtf8String texture_name, glm::vec4 in_color)
+	{
+		FNewTextureInfo info;
+
+		std::vector<uint8_t> raw_data(4);
+		raw_data[0] = in_color.x * 255;
+		raw_data[1] = in_color.y * 255;
+		raw_data[2] = in_color.z * 255;
+		raw_data[3] = in_color.w * 255;
+
+		info.m_b_should_atlas = false;
+
+		uint32_t width = 1, height = 1, stride = 4;
+		info.m_texture_data = std::make_shared<FSlateTextureData>(width, height, stride, raw_data);
+
+		FSlateShaderResourceProxy* new_texture = generate_texture_resource(info, texture_name);
+
+		m_resource_map.insert({ texture_name, new_texture });
+
+		return new_texture;
+	}
+
 	bool FSlateVulkanTextureManager::load_texture(const FSlateBrush& in_brush, uint32_t& out_width, uint32_t& out_height, std::vector<uint8_t>& out_decoded_image)
 	{
 		DoDoUtf8String resource_path = get_resource_path(in_brush);//assume the brush contains the whole name
@@ -297,6 +320,22 @@ namespace DoDo {
 
 			texture->set_image(newImage);
 			texture->set_shader_resource(image_view);//todo:fix me
+
+			//------descriptor set------
+			//VkDescriptorSet image_descriptor_set;
+			////allocate the descriptor set for texture to use on the material
+			//VkDescriptorSetAllocateInfo alloc_info = {};
+			//alloc_info.pNext = nullptr;
+			//alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+			//alloc_info.descriptorPool = vulkan_renderer->m_descriptor_pool;
+			//alloc_info.descriptorSetCount = 1;
+			//alloc_info.pSetLayouts = &vulkan_renderer->m_shader_set_layout;
+			//
+			//vkAllocateDescriptorSets(device, &alloc_info, &image_descriptor_set);
+			//texture->set_descriptor_set(image_descriptor_set);
+			//------descriptor set------
+
+			//todo:fix me, move this to render batch, because descriptor set is 
 
 			m_non_atlased_textures.push_back(std::move(texture));
 		}

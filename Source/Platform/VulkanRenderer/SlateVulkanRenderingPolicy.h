@@ -12,6 +12,7 @@
 
 namespace DoDo
 {
+	class FSlateVulkanTextureManager;
 	struct DeletionQueue;
 	//class FSlateVertexArray;
 	//class FSlateIndexArray;
@@ -20,7 +21,7 @@ namespace DoDo
 	class FSlateVulkanRenderingPolicy : public FSlateRenderingPolicy
 	{
 	public:
-		FSlateVulkanRenderingPolicy(VmaAllocator& allocator);
+		FSlateVulkanRenderingPolicy(VmaAllocator& allocator, std::shared_ptr<FSlateVulkanTextureManager> in_texture_manager);
 
 		~FSlateVulkanRenderingPolicy();
 
@@ -32,7 +33,7 @@ namespace DoDo
 
 		//void upload_mesh(VmaAllocator& allocator, const FSlateVertexArray& vertex_array, const FSlateIndexArray& index_array);
 
-		void draw_elements(VkDevice device, VkDescriptorSet descriptor_set, VkCommandBuffer cmd_buffer, VkPipelineLayout pipeline_layout, VkSampler sampler,const glm::mat4x4& view_projection_matrix, int32_t first_batch_index, const std::vector<FSlateRenderBatch>& render_batches, uint32_t total_vertex_offset, uint32_t total_index_offset);
+		void draw_elements(VkDevice device, VkCommandBuffer cmd_buffer, VkPipelineLayout pipeline_layout, VkSampler sampler,const glm::mat4x4& view_projection_matrix, int32_t first_batch_index, const std::vector<FSlateRenderBatch>& render_batches, uint32_t total_vertex_offset, uint32_t total_index_offset);
 	private:
 		//template<typename T>
 		//void upload_mesh_internal(VmaAllocator& allocator, const T& array);
@@ -47,6 +48,12 @@ namespace DoDo
 
 		std::shared_ptr<DeletionQueue> m_deletion_queue;
 
-		FSlateShaderResource* m_shader_resource;//black hell, todo:fix me
+		//FSlateShaderResource* m_shader_resource;//black hell, todo:fix me
+
+		FSlateShaderResource* m_white_texture;//don't have life time
+
+		std::vector<VkDescriptorSet> m_descriptor_sets;
+
+		std::shared_ptr<FSlateVulkanTextureManager> m_texture_manager;
 	};
 }
