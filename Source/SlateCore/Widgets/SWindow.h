@@ -76,6 +76,9 @@ namespace DoDo
 
 		std::shared_ptr<Window> get_native_window();
 
+		/*@return the list of this window's child windows*/
+		const std::vector<std::shared_ptr<SWindow>>& get_child_windows() const;
+
 		/*return the parent of this window, invalid shared pointer if this window is not a child*/
 		std::shared_ptr<SWindow> get_parent_window() const;
 
@@ -123,6 +126,9 @@ namespace DoDo
 		 */
 		void set_content(std::shared_ptr<SWidget> in_content);
 
+		/*@return true if mouse coordinates is within this window*/
+		bool is_screen_space_mouse_within(glm::vec2 screen_space_mouse_coordinate) const;
+
 		/*resize using already dpi scaled window size including borders/title bar*/
 		void resize_window_size(glm::vec2 new_window_size);
 	private:
@@ -157,6 +163,9 @@ namespace DoDo
 
 		/*when not null, this window will always appear on top of the parent and be closed when the parent is closed*/
 		std::weak_ptr<SWindow> m_parent_window_ptr;
+
+		/*child windows of this window*/
+		std::vector<std::shared_ptr<SWindow>> m_child_windows;
 
 	protected:
 

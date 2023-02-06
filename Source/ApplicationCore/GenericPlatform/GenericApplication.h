@@ -92,6 +92,9 @@ namespace DoDo {
 
 		static std::shared_ptr<GenericApplication> Create();
 
+		/** @return native window under the mouse cursor **/
+		virtual std::shared_ptr<Window> get_window_under_cursor() { return std::shared_ptr<Window>(nullptr); }
+
 	protected:
 		//todo:implement FGenericApplicationMessageHandler
 	};

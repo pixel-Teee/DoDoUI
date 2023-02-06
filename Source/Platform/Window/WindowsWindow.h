@@ -16,7 +16,17 @@ namespace DoDo {
 
 		virtual void Update(RendererInstance& render_instance) override;
 
+		virtual bool is_point_in_window(int32_t x, int32_t y) const override;
+
 		void initialize(GLFWApplication* const application, const std::shared_ptr<FGenericWindowDefinition>& in_definition, const std::shared_ptr<WindowsWindow>& in_parent, const bool b_show_immediately);
+
+		/*
+		 * sets the window region to specified dimensions
+		 *
+		 * @param width the width of the window region(in pixels)
+		 * @param height the height of the window region(in pixels)
+		 */
+		void adjust_window_region(int32_t width, int32_t height);
 	private:
 		//windows window owner this lifetime
 		/*the window's handle*/
@@ -25,7 +35,19 @@ namespace DoDo {
 		/*the application that owns this window*/
 		GLFWApplication* owning_application;
 
+		/*stores the window region size for querying whether a point lies within the window*/
+		int32_t m_region_width;
+		int32_t m_region_height;
+
 		//static bool m_is_initialized_glfw;
 	};
+
+	void WindowsWindow::adjust_window_region(int32_t width, int32_t height)
+	{
+		m_region_width = width;
+		m_region_height = height;
+
+		//todo:create make window region object
+	}
 }
 

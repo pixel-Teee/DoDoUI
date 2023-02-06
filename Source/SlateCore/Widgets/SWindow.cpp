@@ -24,6 +24,13 @@ namespace DoDo {
 		//todo:call Invalidate, child order
 	}
 
+	bool SWindow::is_screen_space_mouse_within(glm::vec2 screen_space_mouse_coordinate) const
+	{
+		const glm::vec2 local_mouse_coordinate = screen_space_mouse_coordinate - m_screen_position;//get the local mouse position
+
+		return m_native_window->
+	}
+
 	void SWindow::Construct(const FArguments& in_args)
 	{
 		this->m_type = in_args._Type;
@@ -85,6 +92,11 @@ namespace DoDo {
 	std::shared_ptr<Window> SWindow::get_native_window()
 	{
 		return m_native_window;//holds the life time
+	}
+
+	const std::vector<std::shared_ptr<SWindow>>& SWindow::get_child_windows() const
+	{
+		return m_child_windows;
 	}
 
 	std::shared_ptr<SWindow> SWindow::get_parent_window() const

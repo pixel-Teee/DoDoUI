@@ -5,6 +5,8 @@
 #include "Core/Delegates/Delegates.h"
 
 #include <vector>
+
+#include "SlateCore/Layout/WidgetPath.h"//FWidgetPath
 //#include "SlateCore/Widgets/SWindow.h"
 
 namespace DoDo
@@ -18,6 +20,8 @@ namespace DoDo
 	class GenericApplication;//platform application
 
 	class Renderer;
+
+	class FPointEvent;
 
 	class Application//slate application
 	{
@@ -102,6 +106,17 @@ namespace DoDo
 		//todo:implement FDrawWindowAndArgs
 		void Draw_Window_And_Children(const std::shared_ptr<SWindow>& window_to_draw, struct FDrawWindowArgs& draw_window_args);
 
+		virtual FWidgetPath locate_widget_in_window(glm::vec2 screen_space_mouse_coordinate, const std::shared_ptr<SWindow>& window, bool b_ignore_enabled_status,
+			int32_t user_index) const;
+	public:
+		/*
+		 * called by the native application in response to a mouse move, routs the event to slate widgets
+		 * @param InMouseEvent Mouse Event
+		 * @param bISynthetic true when the event is synthesized by slate
+		 * @return was this event handled by the slate application?
+		 */
+		bool process_mouse_move_event(const FPointEvent& mouse_event, bool b_is_synthetic = false);
+
 		/*
 		* returns the current instance of the application, the application should have been initialized before
 		* this method is called
@@ -129,6 +144,11 @@ namespace DoDo
 		std::shared_ptr<SWindow> add_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately = true);
 
 		std::shared_ptr<Window> make_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately);
+	public:
+
+		virtual FWidgetPath locate_window_under_mouse(glm::vec2 screen_space_mouse_coordinate, const std::vector<std::shared_ptr<SWindow>>& windows,
+			bool b_ignore_enabled_status = false, int32_t user_index = -1);
+
 	protected:
 		//holds the slate renderer used to render this application
 		std::shared_ptr<Renderer> m_renderer;

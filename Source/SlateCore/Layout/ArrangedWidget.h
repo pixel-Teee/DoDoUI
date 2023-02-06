@@ -4,6 +4,7 @@
 
 namespace DoDo
 {
+	struct FVirtualPointerPosition;
 	class SWidget;
 	/*
 	 * a pair : widget and it's geometry
@@ -20,6 +21,8 @@ namespace DoDo
 			, m_widget(in_widget)
 		{}
 
+		static const FArrangedWidget& get_null_widget();
+
 		/*
 		 * the widget that is being arranged
 		 */
@@ -35,4 +38,17 @@ namespace DoDo
 		std::shared_ptr<SWidget> m_widget;
 	};
 
+	//widget + geometry + mouse position
+	struct FWidgetAndPointer : public FArrangedWidget
+	{
+	public:
+		FWidgetAndPointer();
+		FWidgetAndPointer(const FArrangedWidget& in_widget);
+		FWidgetAndPointer(const FArrangedWidget& in_widget, std::optional<FVirtualPointerPosition> in_position);
+
+	public:
+		std::shared_ptr<const FVirtualPointerPosition> m_pointer_position;
+	private:
+		std::optional<FVirtualPointerPosition> m_optional_pointer_position;
+	};
 }

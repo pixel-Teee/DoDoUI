@@ -11,8 +11,16 @@
 
 #include "ApplicationCore/GenericPlatform/GenericWindowDefinition.h"//generic window definition
 
+#include "glm/glm.hpp"
+
 namespace DoDo {
     //bool WindowsWindow::m_is_initialized_glfw = false;
+
+    //p p1 x p p2
+    int32_t get_cross(int32_t p1x, int32_t p1y, int32_t p2x, int32_t p2y, int32_t px, int32_t py)
+    {
+        return (p1x - px) * (p2y - py) - (p1y - py) * (p2x - px);
+    }
 
 	WindowsWindow::WindowsWindow()
 	{
@@ -59,6 +67,23 @@ namespace DoDo {
 
         render_instance.wait_for_idle();
     }
+
+    bool WindowsWindow::is_point_in_window(int32_t x, int32_t y) const
+    {
+       // bool result = false;
+
+        return (get_cross(m_region_width, 0, x, y, 0, 0) *
+
+            get_cross(0, m_region_height, x, y, m_region_width, m_region_height) >= 0)
+
+            && (get_cross(x, y, 0, m_region_height, 0, 0) *
+
+            get_cross(x, y, m_region_width, 0, m_region_width, m_region_height) >= 0);
+
+        //todo:is point in?
+        //get_cross(m_region_width, 0, x, y, 0, 0)* get_cross(0, m_region_height, x, y, m_region_width, m_region_height);
+    }
+
     void WindowsWindow::initialize(GLFWApplication* const application, const std::shared_ptr<FGenericWindowDefinition>& in_definition, const std::shared_ptr<WindowsWindow>& in_parent, const bool b_show_immediately)
     {
         m_definition = in_definition;//some window information
@@ -83,7 +108,11 @@ namespace DoDo {
         * to create the window
         */
 
+        adjust_window_region(window_width, window_height);
+
         //todo:implement drag and drop operation
 
+        //todo:implement reshape window
+        
     }
 }

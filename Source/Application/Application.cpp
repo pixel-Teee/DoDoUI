@@ -27,12 +27,15 @@
 #else
 #include "Platform/Application/AndroidApplication.h"
 #endif
+
 #include "SlateCore/Rendering/DrawElements.h"
 #include "SlateCore/Styling/WidgetStyle.h"
 
 #include "SlateCore/Styling/CoreStyle.h"//initialize core style depends on it
 
 #include "SlateCore/Styling/StarshipCoreStyle.h"
+
+//#include "SlateCore/Layout/WidgetPath.h"//FWidgetPath
 
 namespace DoDo
 {
@@ -515,6 +518,46 @@ namespace DoDo
 
         //todo:draw the child windows
     }
+
+    FWidgetPath Application::locate_widget_in_window(glm::vec2 screen_space_mouse_coordinate,
+	    const std::shared_ptr<SWindow>& window, bool b_ignore_enabled_status, int32_t user_index) const
+    {
+        //locate widget
+        const bool b_accepts_input = window->is_visible();//todo:check window accepts input
+
+        //if(b_accepts_input && window->is)
+        //note:screen_space_mouse_coordinate is in local space
+        if(b_accepts_input && window->is_screen_space_mouse_within(screen_space_mouse_coordinate))
+        {
+            glm::vec2 cursor_position = screen_space_mouse_coordinate;
+
+            //todo:handle full screen
+
+            //todo:implement get bubble path
+            //std::<FWidgetAndPointer> widgets_and_cursors = window->get_
+        }
+        else
+        {
+            return FWidgetPath();
+        }
+    }
+
+    bool Application::process_mouse_move_event(const FPointEvent& mouse_event, bool b_is_synthetic)
+    {
+        //todo:implement input preprocessors and update tool tip
+
+        /*
+         * when the event came from the OS, we are guaranteed to be over a slate window
+         * otherwise, we are synthesizing a MouseMove ourselves, and must verify that the
+         * cursor is indeed over a slate window, synthesized device input while
+         * the application is inactive also needs to populate the widget path
+         */
+        const bool b_over_slate_window = !b_is_synthetic;//todo:implement is_cursor_directly_over_slate_window
+
+        FWidgetPath widget_under_cursor;//todo:implement locate window under mouse
+
+    }
+
     std::shared_ptr<SWindow> Application::add_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately)
     {
         /*
@@ -568,6 +611,36 @@ namespace DoDo
         s_platform_application->initialize_window(new_window, definition, native_parent, b_show_immediately);
 
         return new_window;
+    }
+
+    FWidgetPath Application::locate_window_under_mouse(glm::vec2 screen_space_mouse_coordinate,
+	    const std::vector<std::shared_ptr<SWindow>>& windows, bool b_ignore_enabled_status, int32_t user_index)
+    {
+        //todo:give the os a chance to tell use which window to use, in case a child window is not guaranteed to stay on top of it's parent window
+        std::shared_ptr<Window> native_window_under_mouse = s_platform_application->get_window_under_cursor();
+
+        //todo:implement this
+
+        for(int32_t window_index = windows.size() - 1; window_index >= 0; --window_index)
+        {
+            const std::shared_ptr<SWindow>& window = windows[window_index];
+
+            //todo:check window visible and window minimized
+
+            //hittest the window's children first
+            FWidgetPath resulting_path = locate_window_under_mouse(screen_space_mouse_coordinate, window->get_child_windows(), b_ignore_enabled_status, user_index);//recursive
+            if(resulting_path.is_valid())
+            {
+                return resulting_path;
+            }
+
+            //if none of the children were hit, hittest the parent
+
+            //only accept input if the current window accepts input and the current window is not under a modal window or an interactive tooltip
+
+            //todo:implement this
+            FWidgetPath path_to_located_widget;
+        }
     }
 
     std::shared_ptr<SWindow> Application::get_first_window() {

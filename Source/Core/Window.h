@@ -15,6 +15,9 @@ namespace DoDo {
 
 		static Scope<Window> Create();
 
+		/*@return true if native window exists underneath the coordinates*/
+		virtual bool is_point_in_window(int32_t x, int32_t y) const;
+
 	protected:
 		std::shared_ptr<FGenericWindowDefinition> m_definition;
 	};

@@ -2,6 +2,9 @@
 
 #include "SButton.h"
 
+#include "SlateCore/Layout/Geometry.h"
+#include "SlateCore/Rendering/DrawElements.h"//FSlateDrawElement depends on it
+
 //#include "SlateCore/Styling/SlateTypes.h"
 
 namespace DoDo
@@ -25,7 +28,7 @@ namespace DoDo
 			.VAlign(in_args._VAlign)
 		);//todo:implement determine Content
 
-		
+		//todo:implement set button style
 	}
 
 	void SButton::set_content_padding(TAttribute<FMargin> in_content_padding)
@@ -49,6 +52,21 @@ namespace DoDo
 		//todo:implement ESlateDrawEffect
 
 		//todo:implement FSlateDrawElement::MakeBox
+
+		bool b_enabled = true;
+
+		const FSlateBrush* brush_resource = get_border_image();
+
+		if(brush_resource && brush_resource->m_draw_as != ESlateBrushDrawType::NoDrawType)
+		{
+			FSlateDrawElement::MakeBox(out_draw_elements,
+				layer_id,
+				allotted_geometry.to_paint_geometry(),
+				brush_resource,
+				ESlateDrawEffect::None,
+				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		}
+
 		return SCompoundWidget::On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, b_parent_enabled);
 	}
 

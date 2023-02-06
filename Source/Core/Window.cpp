@@ -22,4 +22,9 @@ namespace DoDo {
 		return CreateScope<AndroidWindow>();
 #endif
 	}
+
+	bool Window::is_point_in_window(int32_t x, int32_t y) const
+	{
+		return true;
+	}
 }

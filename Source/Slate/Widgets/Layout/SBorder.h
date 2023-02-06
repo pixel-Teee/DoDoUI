@@ -88,6 +88,8 @@ namespace DoDo
 		/*see BorderImage attribute*/
 		void set_border_image(TAttribute<const FSlateBrush*> in_border_image);
 
+		const FSlateBrush* get_border_image() const { return m_border_image_attribute.Get(); }
+
 		/*
 		 * sets the content for border
 		 *

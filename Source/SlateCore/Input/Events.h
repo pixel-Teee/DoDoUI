@@ -3,8 +3,26 @@
 #include "ApplicationCore/GenericPlatform/GenericApplication.h"//FModifierKeyState depends on 
 #include "Core/InputCore/InputCoreTypes.h"//FKey depends on it
 
+#include "glm/vec2.hpp"
+
 namespace DoDo
 {
+	/*represents the current and last cursor position in a "virtual window" for events that are routed to widgets transformed in a 3D scene*/
+	struct FVirtualPointerPosition
+	{
+		FVirtualPointerPosition()
+			: m_current_cursor_position(glm::vec2(0.0f, 0.0f))
+			, m_last_cursor_position(glm::vec2(0.0f, 0.0f))
+		{}
+
+		FVirtualPointerPosition(const glm::vec2& in_current_cursor_position, const glm::vec2& in_last_cursor_position)
+			: m_current_cursor_position(in_current_cursor_position)
+			, m_last_cursor_position(in_last_cursor_position)
+		{}
+
+		glm::vec2 m_current_cursor_position;
+		glm::vec2 m_last_cursor_position;
+	};
 	class FWidgetPath;//todo:implement this type
 	/*
 	 * base class for all mouse and key events
@@ -91,5 +109,41 @@ namespace DoDo
 
 		//original key code received from hardware before any conversion/mapping
 		uint32_t m_key_code;//note:original
+	};
+
+	/*
+	 * FPointerEvent describes a mouse or touch action (e.g. Press, Release, Move, etc)
+	 * it is passed to event handlers dealing with pointer-based input
+	 */
+	struct FPointerEvent
+		: public FInputEvent
+	{
+	public:
+		/*
+		 * Events are immutable once constructed
+		 */
+		FPointerEvent(
+			uint32_t in_pointer_index,
+			const glm::vec2& in_screen_space_position,
+			const glm::vec2& in_last_screen_space_position,
+			const FModifierKeyState& in_modifier_keys
+		)
+			: FInputEvent(in_modifier_keys, 0, false)
+			, m_screen_space_position(in_screen_space_position)
+			, m_last_screen_space_position(in_last_screen_space_position)
+			, m_cursor_delta(in_screen_space_position - in_last_screen_space_position)
+			, m_pointer_index(in_pointer_index)
+		{}
+
+	private:
+		glm::vec2 m_screen_space_position;//screen space position
+		glm::vec2 m_last_screen_space_position;
+		glm::vec2 m_cursor_delta;
+
+		//todo:implement TSet<FKey>
+		//todo:implement FKey
+		uint32_t m_pointer_index;//?
+
+		//todo:implement other information and members
 	};
 }
