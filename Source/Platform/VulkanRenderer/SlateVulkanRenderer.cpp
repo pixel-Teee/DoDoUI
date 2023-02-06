@@ -834,7 +834,7 @@ namespace DoDo {
 
 		vkCreateDescriptorPool(device, &pool_info, nullptr, &m_descriptor_pool);
 
-		m_deletion_queue.push_function([&] {
+		m_deletion_queue.push_function([=] {
 			vkDestroyDescriptorSetLayout(device, m_shader_set_layout, nullptr);
 			vkDestroyDescriptorPool(device, m_descriptor_pool, nullptr);
 		});
@@ -849,6 +849,10 @@ namespace DoDo {
 		//VkSampler sampler;
 
 		vkCreateSampler(device, &sampler_info, nullptr, &m_sampler);
+
+		m_deletion_queue.push_function([=] {
+			vkDestroySampler(device, m_sampler, nullptr);
+		});
 
 		//allocate the descriptor set for texture to use on the material
 		VkDescriptorSetAllocateInfo alloc_info = {};

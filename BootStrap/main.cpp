@@ -134,10 +134,10 @@ int main()
 
     //tick
     //todo:add exit global variable
-	while (true)
-	{
+	//while (true)
+	//{
 		DoDo::Application::get().Tick();
-	}
+	//}
 
     DoDo::Application::shut_down();//todo:in the future, put this at exit function
 

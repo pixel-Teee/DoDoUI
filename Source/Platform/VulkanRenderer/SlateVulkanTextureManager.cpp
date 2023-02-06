@@ -291,6 +291,10 @@ namespace DoDo {
 			VkImageViewCreateInfo imageinfo = imageview_create_info(VK_FORMAT_R8G8B8A8_SRGB, newImage._image, VK_IMAGE_ASPECT_COLOR_BIT);
 			vkCreateImageView(device, &imageinfo, nullptr, &image_view);
 
+			vulkan_renderer->m_deletion_queue.push_function([=]() {
+				vkDestroyImageView(device, image_view, nullptr);
+			});
+
 			texture->set_image(newImage);
 			texture->set_shader_resource(image_view);//todo:fix me
 
