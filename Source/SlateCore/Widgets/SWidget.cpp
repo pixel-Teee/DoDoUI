@@ -3,9 +3,12 @@
 #include "SWidget.h"
 
 #include "DeclarativeSyntaxSupport.h"
+#include "SlateCore/Input/HittestGird.h"
 #include "SlateCore/Types/ISlateMetaData.h"
 
 #include "SlateCore/Types/SlateAttributeDescriptor.h"
+
+#include "SlateCore/Types/PaintArgs.h"//FPaintArgs depends on it
 
 namespace DoDo {
 	//this function will be called at FSlateWidgetClassData construct
@@ -104,6 +107,11 @@ namespace DoDo {
 		//todo:implement left part
 	}
 
+	const FGeometry& SWidget::get_paint_space_geometry() const
+	{
+		return m_persistent_state.m_allotted_geometry;
+	}
+
 	SWidget::SWidget()
 		: m_b_is_hovered_attribute_set(false)
 		, m_hovered_attribute(*this, false)
@@ -132,8 +140,42 @@ namespace DoDo {
 		const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
 		const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
+		SWidget* mutable_this = const_cast<SWidget*>(this);
+
+		FGeometry desktop_space_geometry = allotted_geometry;
+		//todo:implement this variable
+
+		//------collect some information for handle input------
+		//todo:first to get the paint arg's widget, then update paint args's widget
+		//to construct a widget chain
+		SWidget* paint_parent_ptr = const_cast<SWidget*>(args.get_paint_parent());//todo:fix me
+
+		if(paint_parent_ptr)
+		{
+			m_persistent_state.m_paint_parent = paint_parent_ptr->shared_from_this();//todo:fix me?
+		}
+		else
+		{
+			paint_parent_ptr = nullptr;
+		}
+
+		m_persistent_state.m_layer_id = layer_id;
+		m_persistent_state.m_b_parent_enabled = b_parent_enabled;
+		m_persistent_state.m_allotted_geometry = allotted_geometry;
+		m_persistent_state.m_desktop_geometry = desktop_space_geometry;
+		m_persistent_state.m_widget_style = in_widget_style;
+
+		//todo:assign user index
+		m_persistent_state.m_incoming_flow_direction = g_slate_flow_direction;
+		//------collect some information for handle input------
+
+		args.get_hittest_grid().add_widget(mutable_this, 0, layer_id);//todo:implement widget sort order
+
+		//todo:update paint args
+		FPaintArgs updated_args = args.with_new_parent(this);
+
 		//paint the geometry of this widget
-		int32_t new_layer_id = On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, b_parent_enabled);
+		int32_t new_layer_id = On_Paint(updated_args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, b_parent_enabled);
 
 		return new_layer_id;
 	}
@@ -141,6 +183,13 @@ namespace DoDo {
 	FReply SWidget::On_Key_Down(const FGeometry& my_geometry, const FKeyEvent& in_key_event)
 	{
 		//todo:implement support focus
+
+		return FReply::un_handled();
+	}
+
+	FReply SWidget::On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		//todo:get mouse events meta data to handle
 
 		return FReply::un_handled();
 	}

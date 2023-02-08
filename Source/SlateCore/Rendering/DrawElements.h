@@ -49,6 +49,10 @@ namespace DoDo
 
 		~FSlateDrawElement();
 
+		FSlateDrawElement(FSlateDrawElement&& rhs);
+
+		FSlateDrawElement(const FSlateDrawElement& rhs) = delete;
+
 		int32_t get_layer() const { return m_layer_id; }
 
 		EElementType get_element_type() const { return m_element_type; }

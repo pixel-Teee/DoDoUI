@@ -11,7 +11,8 @@
 #include "Core/Window.h"
 
 namespace DoDo {
-	GenericApplication::GenericApplication()
+	GenericApplication::GenericApplication(const std::shared_ptr<ICursor>& in_cursor)
+		: m_cursor(in_cursor)
 	{
 	}
 	GenericApplication::~GenericApplication()

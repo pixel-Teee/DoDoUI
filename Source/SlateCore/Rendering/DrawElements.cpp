@@ -17,8 +17,29 @@ namespace DoDo
 	{
 		if(m_data_payload)
 		{
-			m_data_payload->~FSlateDataPayload();
+			//m_data_payload->~FSlateDataPayload();
+
+			delete m_data_payload;
+
+			m_data_payload = nullptr;
 		}
+	}
+
+	FSlateDrawElement::FSlateDrawElement(FSlateDrawElement&& rhs)
+	{
+		if(rhs.m_data_payload)//move life time
+		{
+			m_data_payload = rhs.m_data_payload;
+			rhs.m_data_payload = nullptr;
+		}
+
+		m_render_transform = rhs.m_render_transform;
+		m_position = rhs.m_position;
+		m_local_size = rhs.m_local_size;
+		m_layer_id = rhs.m_layer_id;
+		m_scale = rhs.m_scale;
+		m_draw_effect = rhs.m_draw_effect;
+		m_element_type = rhs.m_element_type;
 	}
 
 	void FSlateDrawElement::MakeBox(
@@ -116,7 +137,7 @@ namespace DoDo
 		FSlateDrawElementArray& elements = m_uncached_draw_elements;
 
 		//add default element
-		elements.push_back(FSlateDrawElement());
+		elements.emplace_back();
 
 		const int32_t insert_index = elements.size() - 1;
 

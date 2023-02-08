@@ -24,6 +24,7 @@
 
 #ifdef WIN32
 #include "Platform/Application/GLFWApplication.h"//GenericApplication depends on it
+#include "Platform/Application/WindowsPlatformApplicationMisc.h"
 #else
 #include "Platform/Application/AndroidApplication.h"
 #endif
@@ -42,6 +43,131 @@ namespace DoDo
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
 
 	std::shared_ptr<Application> Application::s_current_application = nullptr;//global slate application
+
+    const uint32_t Application::m_cursor_pointer_index = 10;
+
+    const uint32_t Application::m_cursor_user_index = 0;
+
+    class FEventRouter
+    {
+    public:
+
+		class FBubblePolicy
+		{
+		public:
+            FBubblePolicy(const FWidgetPath& in_routing_path)
+	            : m_widget_index(in_routing_path.m_widgets.num() - 1)
+				, m_routing_path(in_routing_path)
+            {}
+
+            static DoDoUtf8String m_name;//
+
+            void next()
+            {
+                --m_widget_index;
+            }
+
+            bool should_keep_going() const
+            {
+                return m_widget_index >= 0;
+            }
+
+            const FWidgetPath& get_routing_path() const
+            {
+                return m_routing_path;
+            }
+
+            const FWidgetPath* get_widgets_under_cursor()
+            {
+                return &m_routing_path;
+            }
+
+            FWidgetAndPointer get_widget() const
+            {
+                return FWidgetAndPointer(m_routing_path.m_widgets[m_widget_index], m_routing_path.get_virtual_pointer_position(m_widget_index));//from widget path to construct a widget that have virtual pointer position
+            }
+		private:
+            int32_t m_widget_index;
+            const FWidgetPath& m_routing_path;
+		};
+
+        /*
+         * route an event based on the routing policy
+         */
+        template<typename ReplyType, typename RoutingPolicyType, typename EventType, typename FuncType>
+        static ReplyType Route(Application* this_application, RoutingPolicyType routing_policy, EventType event_copy, const FuncType& lambda)
+        {
+            ReplyType reply = ReplyType::un_handled();//todo:interms of widget reply to block
+
+            const FWidgetPath& routing_path = routing_policy.get_routing_path();
+            const FWidgetPath* widgets_under_cursor = routing_policy.get_widgets_under_cursor();
+
+            event_copy.set_event_path(routing_path);//event_copy is FPointerEvent etc, to set widget path in this
+
+            for(; !reply.is_event_handled() && routing_policy.should_keep_going(); routing_policy.next()) //from last to first, in terms of policy to traversal widgets
+            {
+                const FWidgetAndPointer& arranged_widget = routing_policy.get_widget();
+
+                if constexpr (Translate<EventType>::translation_needed())
+                {
+                    const EventType translated_event = Translate<EventType>::pointer_event(arranged_widget, event_copy);
+                    reply = lambda(arranged_widget, translated_event).set_handler(arranged_widget.m_widget);
+                    process_reply(this_application, routing_path, reply, widgets_under_cursor, &translated_event);
+                }
+                else
+                {
+                    reply = lambda(arranged_widget, event_copy).set_handler(arranged_widget.m_widget);
+                    process_reply(this_application, routing_path, reply, widgets_under_cursor, &event_copy);
+                }
+            }
+
+            return reply;
+        }
+
+        //noting to do
+        static void process_reply(Application* application, const FWidgetPath& routing_path, const FNoReply& reply, const FWidgetPath* widgets_under_cursor, const FInputEvent*)
+        {
+	        
+        }
+
+        static void process_reply(Application* application, const FWidgetPath& routing_path, const FReply& reply, const FWidgetPath* widgets_under_cursor, const FInputEvent* pointer_event)
+        {
+            //todo:handle process_reply
+        }
+
+        template<typename EventType>
+        struct Translate
+        {
+            static constexpr bool translation_needed() { return false; }
+
+            static EventType pointer_event(const FWidgetAndPointer& in_position, const EventType& in_event)
+            {
+                //most events do not do any coordinate translation
+                return in_event;
+            }
+        };
+    };
+
+    template<>
+    struct FEventRouter::Translate<FPointerEvent>
+    {
+        static constexpr bool translation_needed() { return true; }
+
+        static FPointerEvent pointer_event(const FWidgetAndPointer& in_position, const FPointerEvent& in_event)
+        {
+            //most events do not do any coordinate translation
+			if(!in_position.get_pointer_position().has_value())
+			{
+                return in_event;
+			}
+            else
+            {
+                return FPointerEvent::make_translated_event<FPointerEvent>(in_event, in_position.get_pointer_position().value());
+            }
+        }
+    };
+
+    DoDoUtf8String FEventRouter::FBubblePolicy::m_name = "Bubble";
 
     struct FDrawWindowArgs
     {
@@ -91,7 +217,8 @@ namespace DoDo
         //
         //add_window(root_window2);
 
-
+        //add the standard 'default' user
+        register_new_user(m_cursor_user_index);//this is to identity user
     }
         
 
@@ -162,62 +289,62 @@ namespace DoDo
 
         
 
-		std::shared_ptr<SWindow> root_window2;
-		
-		SAssignNew(root_window2, SWindow)
-			.Title("hello2")
-			.ClientSize(glm::vec2(1280.0f, 720.0f))
-			.ScreenPosition(glm::vec2(1000.0f, 200.0f))
-		    [
-		        SNew(SBorder)
-		        .BorderBackgroundColor(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f))
-				[
-		            SNew(SHorizontalBox)
-		            + SHorizontalBox::Slot()
-		            .Padding(30.0f, 30.0f)
-		            .fill_width(0.2f)
-					.max_width(600.0f)
-		            [
-		                SNew(SBorder)
-		                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-		            ]
-					+ SHorizontalBox::Slot()
-		            .Padding(40.0f, 40.0f)
-		            .fill_width(0.8f)
-		            .max_width(600.0f)
-		            [
-		                SNew(SBorder)
-		                .BorderBackgroundColor(glm::vec4(0.95f, 0.3f, 0.6f, 1.0f))
-		            ]
-		            + SHorizontalBox::Slot()
-		            .Padding(40.0f, 40.0f)
-		            .fill_width(0.3f)
-		            .max_width(600.0f)
-		            [
-		                SNew(SBorder)
-		                .BorderBackgroundColor(glm::vec4(0.2f, 0.5f, 0.4f, 1.0f))
-		            ]
-		            + SHorizontalBox::Slot()
-		            .Padding(40.0f, 40.0f)
-		            .fill_width(0.3f)
-		            .max_width(600.0f)
-		            [
-		                SNew(SBorder)
-		                .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
-		            ]
-		            + SHorizontalBox::Slot()
-		            .Padding(40.0f, 40.0f)
-		            .fill_width(0.4f)
-		            .max_width(600.0f)
-		            [
-		                SNew(SBorder)
-		                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-		            ]
-				]
-		
-		    ];
-		
-		get().add_window(root_window2);
+		//std::shared_ptr<SWindow> root_window2;
+		//
+		//SAssignNew(root_window2, SWindow)
+		//	.Title("hello2")
+		//	.ClientSize(glm::vec2(1280.0f, 720.0f))
+		//	.ScreenPosition(glm::vec2(1000.0f, 200.0f))
+		//    [
+		//        SNew(SBorder)
+		//        .BorderBackgroundColor(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f))
+		//		[
+		//            SNew(SHorizontalBox)
+		//            + SHorizontalBox::Slot()
+		//            .Padding(30.0f, 30.0f)
+		//            .fill_width(0.2f)
+		//			.max_width(600.0f)
+		//            [
+		//                SNew(SBorder)
+		//                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+		//            ]
+		//			+ SHorizontalBox::Slot()
+		//            .Padding(40.0f, 40.0f)
+		//            .fill_width(0.8f)
+		//            .max_width(600.0f)
+		//            [
+		//                SNew(SBorder)
+		//                .BorderBackgroundColor(glm::vec4(0.95f, 0.3f, 0.6f, 1.0f))
+		//            ]
+		//            + SHorizontalBox::Slot()
+		//            .Padding(40.0f, 40.0f)
+		//            .fill_width(0.3f)
+		//            .max_width(600.0f)
+		//            [
+		//                SNew(SBorder)
+		//                .BorderBackgroundColor(glm::vec4(0.2f, 0.5f, 0.4f, 1.0f))
+		//            ]
+		//            + SHorizontalBox::Slot()
+		//            .Padding(40.0f, 40.0f)
+		//            .fill_width(0.3f)
+		//            .max_width(600.0f)
+		//            [
+		//                SNew(SBorder)
+		//                .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
+		//            ]
+		//            + SHorizontalBox::Slot()
+		//            .Padding(40.0f, 40.0f)
+		//            .fill_width(0.4f)
+		//            .max_width(600.0f)
+		//            [
+		//                SNew(SBorder)
+		//                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+		//            ]
+		//		]
+		//
+		//    ];
+		//
+		//get().add_window(root_window2);
 
         return root_window;
 
@@ -301,7 +428,9 @@ namespace DoDo
 
     void Application::Create()
     {
-        Create(GenericApplication::Create());
+        //Create(GenericApplication::Create());
+
+        Create(FPlatformApplicationMisc::create_application());
     }
 
     void Application::shut_down()
@@ -319,6 +448,8 @@ namespace DoDo
         s_platform_application = in_platform_application;//platform application
 
         s_current_application = std::make_shared<Application>();//slate application
+
+        s_platform_application->set_message_handler(s_current_application);//note:this is important
 
         return s_current_application;
     }
@@ -358,7 +489,17 @@ namespace DoDo
         //std::unique_ptr<DoDo::UIRenderer> p_Renderer = DoDo::UIRenderer::Create();    
 	}
 
-    void Application::Tick()
+	glm::vec2 Application::get_cursor_pos() const
+	{
+        return get_cursor_user()->get_cursor_position();
+	}
+
+	glm::vec2 Application::get_last_cursor_pos() const
+	{
+        return get_cursor_user()->get_previous_cursor_position();
+	}
+
+	void Application::Tick()
     {
         const float delta_time = get_delta_time();
         //todo:implement TickPlatform
@@ -388,6 +529,30 @@ namespace DoDo
         }
     }
 
+    std::shared_ptr<FSlateUser> Application::register_new_user(int32_t user_index)
+    {
+        //todo:check
+
+        std::shared_ptr<ICursor> user_cursor;
+        if(user_index == m_cursor_user_index && s_platform_application->m_cursor)//from platform to get cursor
+        {
+            user_cursor = s_platform_application->m_cursor;
+        }
+
+        std::shared_ptr<FSlateUser> new_user = FSlateUser::Create(user_index, user_cursor);
+
+        if(user_index >= m_users.size())
+        {
+            m_users.resize(user_index + 1);
+        }
+
+        m_users[user_index] = new_user;
+
+        //broad cast to user register
+
+        return new_user;
+    }
+
     void Application::tick_time()
     {
         m_last_tick_time = m_current_time;
@@ -398,8 +563,11 @@ namespace DoDo
 
     void Application::tick_platform(float delta_time)
     {
+        s_platform_application->pump_messages(delta_time);
         //todo:handle messenger
         s_platform_application->Tick(delta_time);
+
+        //todo:process deferred events
     }
 
     void Application::Tick_And_Draw_Widgets(float delta_time)
@@ -534,7 +702,9 @@ namespace DoDo
             //todo:handle full screen
 
             //todo:implement get bubble path
-            //std::<FWidgetAndPointer> widgets_and_cursors = window->get_
+            //todo:implement get cursor radius
+            std::vector<FWidgetAndPointer> widgets_and_cursors = window->get_hittest_grid().get_bubble_path(cursor_position, 0.3f, b_ignore_enabled_status, user_index);
+            return FWidgetPath(widgets_and_cursors); 
         }
         else
         {
@@ -542,7 +712,7 @@ namespace DoDo
         }
     }
 
-    bool Application::process_mouse_move_event(const FPointEvent& mouse_event, bool b_is_synthetic)
+    bool Application::process_mouse_move_event(const FPointerEvent& mouse_event, bool b_is_synthetic)
     {
         //todo:implement input preprocessors and update tool tip
 
@@ -554,8 +724,15 @@ namespace DoDo
          */
         const bool b_over_slate_window = !b_is_synthetic;//todo:implement is_cursor_directly_over_slate_window
 
-        FWidgetPath widget_under_cursor;//todo:implement locate window under mouse
+        FWidgetPath widget_under_cursor = b_over_slate_window ? locate_window_under_mouse(mouse_event.get_screen_space_position(),
+            m_windows, false, -1) : FWidgetPath();//todo:implement locate window under mouse
 
+
+        bool b_result = route_pointer_move_event(widget_under_cursor, mouse_event, b_is_synthetic);
+
+        //todo:implement route pointer move event
+
+        return b_result;
     }
 
     std::shared_ptr<SWindow> Application::add_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately)
@@ -639,8 +816,68 @@ namespace DoDo
             //only accept input if the current window accepts input and the current window is not under a modal window or an interactive tooltip
 
             //todo:implement this
-            FWidgetPath path_to_located_widget;
+            FWidgetPath path_to_located_widget = locate_widget_in_window(screen_space_mouse_coordinate, window, b_ignore_enabled_status, user_index);
+            if(path_to_located_widget.is_valid())
+            {
+                return path_to_located_widget;
+            }
         }
+
+        return FWidgetPath();
+    }
+
+    bool Application::route_pointer_move_event(const FWidgetPath& widgets_under_pointer,
+	    const FPointerEvent& pointer_event, bool b_is_synthetic)
+    {
+        bool b_handled = false;
+        //bubble the mouse move event
+        FReply reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(widgets_under_pointer), pointer_event,
+         [=](const FArrangedWidget& cur_widget, const FPointerEvent& event)
+        {
+            FReply temp_reply = FReply::un_handled();
+
+            if(!temp_reply.is_event_handled())
+            {
+                temp_reply = cur_widget.m_widget->On_Mouse_Move(cur_widget.m_geometry, event);
+            }
+
+            return temp_reply;
+        });
+
+        b_handled = reply.is_event_handled();
+
+        return b_handled;
+    }
+
+    void Application::set_cursor_pos(const glm::vec2 mouse_coordinate)
+    {
+        get_cursor_user()->set_cursor_position(mouse_coordinate);
+    }
+
+    bool Application::On_Mouse_Move()
+    {
+        bool result = true;
+
+        const glm::vec2 current_cursor_position = get_cursor_pos();
+        const glm::vec2 last_cursor_position = get_last_cursor_pos();//todo:implement get cursor pos
+
+        //if(current_cursor_position != last_cursor_position)
+        //{
+	        //todo:implement last mouse move time
+            FPointerEvent mouse_event(
+                -1,
+                current_cursor_position,
+                last_cursor_position,
+                m_pressed_mouse_buttons,
+                EKeys::Invalid,
+                0,
+                s_platform_application->get_modifier_keys()
+                );
+
+            result = process_mouse_move_event(mouse_event);
+        //}
+
+        return result;
     }
 
     std::shared_ptr<SWindow> Application::get_first_window() {

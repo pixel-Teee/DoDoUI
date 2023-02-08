@@ -25,7 +25,19 @@ namespace DoDo
 	public:
 		FWidgetPath();
 
+		FWidgetPath(std::vector<FWidgetAndPointer>& in_widgets_and_pointers);
+
+		//FWidgetPath(const FWidgetPath&) = delete;
+
+		//FWidgetPath(FWidgetPath&&) = delete;
+
 		bool is_valid() const;
+
+		/*get the virtual representation of the mouse at each level in the widget path*/
+		std::optional<FVirtualPointerPosition> get_virtual_pointer_position(int32_t index) const
+		{
+			return m_virtual_pointer_positions[index];
+		}
 	public:
 		/*the widgets that make up the widget path, the first item is the root widget, the end is the widget this path was built for*/
 		FArrangedChildren m_widgets;

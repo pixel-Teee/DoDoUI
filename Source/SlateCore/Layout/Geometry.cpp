@@ -23,6 +23,7 @@ namespace DoDo
 		if(this != &rhs)
 		{
 			//todo:implement memcpy rhs to lhs
+			std::memcpy(this, &rhs, sizeof(FGeometry));
 		}
 		return *this;
 	}

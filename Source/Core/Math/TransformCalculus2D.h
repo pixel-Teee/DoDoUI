@@ -227,6 +227,12 @@ namespace DoDo
 				point.y * m_m[0][1] + point.y * m_m[1][1]);
 		}
 
+		/*vector transformation is equivalent to point transformation as our matrix is not homogeneous*/
+		glm::vec2 transform_vector(const glm::vec2& vector) const
+		{
+			return transform_point(vector);
+		}
+
 		/*
 		 * concatenate 2 matrices:
 		 * [A B] * [E F] == [AE+BG AF+BH]
@@ -278,6 +284,14 @@ namespace DoDo
 			: m_m(transform), m_trans(translation)
 		{
 			
+		}
+
+		/*
+		 * 2d transformation of a vector, transforms rotation and scale
+		 */
+		glm::vec2 transform_vector(const glm::vec2& vector) const
+		{
+			return DoDo::transform_vector(m_m, vector);
 		}
 
 		const FMatrix2x2& get_matrix() const { return m_m; }

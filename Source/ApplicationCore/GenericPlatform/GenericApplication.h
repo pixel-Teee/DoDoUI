@@ -1,6 +1,7 @@
 #pragma once
 
 namespace DoDo {
+	class FGenericApplicationMessageHandler;
 
 	//shift tab
 	/*
@@ -74,15 +75,22 @@ namespace DoDo {
 	class Window;
 	struct FGenericWindowDefinition;
 
+	class ICursor;
 	/*
 	* generic platform application interface
 	*/
 	class GenericApplication
 	{
 	public:
-		GenericApplication();
+		GenericApplication(const std::shared_ptr<ICursor>& in_cursor);
 
 		virtual ~GenericApplication();
+
+		virtual void pump_messages(const float time_delta) {}
+
+		virtual void set_message_handler(const std::shared_ptr<FGenericApplicationMessageHandler>& in_message_handler) { m_message_handler = in_message_handler; }
+
+		virtual std::shared_ptr<FGenericApplicationMessageHandler> get_message_handler() { return m_message_handler; }
 
 		virtual void Tick(const float time_delta);
 
@@ -95,7 +103,13 @@ namespace DoDo {
 		/** @return native window under the mouse cursor **/
 		virtual std::shared_ptr<Window> get_window_under_cursor() { return std::shared_ptr<Window>(nullptr); }
 
+		virtual FModifierKeyState get_modifier_keys() const { return FModifierKeyState(); }
+	public:
+		const std::shared_ptr<ICursor> m_cursor;//note:slate application will from there to get the ICursor
 	protected:
 		//todo:implement FGenericApplicationMessageHandler
+		std::shared_ptr<FGenericApplicationMessageHandler> m_message_handler;
+
+		
 	};
 }

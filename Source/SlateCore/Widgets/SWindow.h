@@ -5,6 +5,7 @@
 #include "ApplicationCore/GenericPlatform/GenericWindowDefinition.h"
 
 #include "SlateCore/FastUpdate/SlateInvalidationRoot.h"//FSlateInvalidationContext
+#include "SlateCore/Input/HittestGird.h"//FHittestGrid depends on it
 
 namespace DoDo
 {
@@ -35,7 +36,7 @@ namespace DoDo
 
 		SLATE_END_ARGS()
 
-		//SWindow();
+		SWindow();
 
 		//todo:implement FSlateWindowElementList FWidgetStyle 
 		//int32_t paint_window(double current_time, float delta_time);
@@ -91,6 +92,14 @@ namespace DoDo
 		}
 
 		/*
+		 * access the hittest acceleration data structure for this window
+		 * the grid is filled out every time the window is painted
+		 *
+		 * @see FHittestGrid for more details
+		 */
+		FHittestGrid& get_hittest_grid();
+
+		/*
 		* @return the initially desired screen position of the slate window
 		*/
 		glm::vec2 get_initial_desired_size_in_screen() const;
@@ -105,6 +114,9 @@ namespace DoDo
 		 */
 		glm::vec2 get_size_in_screen() const;
 
+		/* @return the position of the window in screen space */
+		glm::vec2 get_position_in_screen() const;
+
 		/*make the window visible*/
 		void show_window();
 
@@ -116,8 +128,14 @@ namespace DoDo
 		void set_native_window(std::shared_ptr<Window> in_native_window);
 
 		/*sets the actual screen position of the window, this should only be called by the os*/
+		void set_cached_screen_position(glm::vec2 new_position);
+
+		/*sets the actual screen position of the window, this should only be called by the os*/
 		//note:called by the os
 		void set_cached_size(glm::vec2 new_size);
+
+		/*relocate the window to a screenspace position specified by new position and resize it to new size*/
+		void reshape_window(glm::vec2 new_position, glm::vec2 new_size);
 
 		/*
 		 * sets the widget content for this window
@@ -160,6 +178,9 @@ namespace DoDo
 		/*the native window that is backing this slate window*/
 		//todo:implement FGenericWindow
 		std::shared_ptr<Window> m_native_window;
+
+		/*each window has it's own hittest grid for accelerated widget picking*/
+		std::unique_ptr<FHittestGrid> m_hittest_grid;
 
 		/*when not null, this window will always appear on top of the parent and be closed when the parent is closed*/
 		std::weak_ptr<SWindow> m_parent_window_ptr;

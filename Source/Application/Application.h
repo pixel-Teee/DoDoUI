@@ -9,6 +9,10 @@
 #include "SlateCore/Layout/WidgetPath.h"//FWidgetPath
 //#include "SlateCore/Widgets/SWindow.h"
 
+#include "ApplicationCore/GenericPlatform/GenericApplicationMessageHandler.h"
+
+#include "Slate/Framework/SlateUser.h"//FSlateUser depends on it
+
 namespace DoDo
 {
 	class RendererInstance;
@@ -21,9 +25,9 @@ namespace DoDo
 
 	class Renderer;
 
-	class FPointEvent;
+	struct FPointerEvent;
 
-	class Application//slate application
+	class Application : public FGenericApplicationMessageHandler//slate application
 	{
 	public:
 		Application();
@@ -52,6 +56,35 @@ namespace DoDo
 
 		void Initialize_Renderer(std::shared_ptr<Renderer> in_renderer);
 
+		std::shared_ptr<FSlateUser> get_user(int32_t user_index)
+		{
+			return (user_index >= 0 && user_index < m_users.size()) ? m_users[user_index] : nullptr;
+		}
+
+		std::shared_ptr<const FSlateUser> get_user(int32_t user_index) const
+		{
+			return (user_index >= 0 && user_index < m_users.size()) ? m_users[user_index] : nullptr;
+		}
+
+		/*get the standard 'default' user (there's always guaranteed to be at least one)*/
+		std::shared_ptr<const FSlateUser> get_cursor_user() const
+		{
+			std::shared_ptr<const FSlateUser> slate_user = get_user(m_cursor_user_index);//m_cursor_user_index is 0, to identify
+
+			return slate_user;
+		}
+
+		std::shared_ptr<FSlateUser> get_cursor_user()
+		{
+			std::shared_ptr<FSlateUser> slate_user = get_user(m_cursor_user_index);//m_cursor_user_index is 0, to identify
+
+			return slate_user;
+		}
+
+		virtual glm::vec2 get_cursor_pos() const override;
+
+		virtual glm::vec2 get_last_cursor_pos() const override;
+
 		//void Run();
 		void Tick();
 
@@ -67,6 +100,13 @@ namespace DoDo
 		FSlateTickEvent& on_post_tick() { return m_post_tick_event; }
 
 		void destroy_renderer();
+
+		/*
+		 * register a new user with slate, normally this is unnecessary as slate automatically adds
+		 * a user entry if it gets input from a controller for that index, might happed if the user
+		 * allocates the virtual user
+		 */
+		std::shared_ptr<FSlateUser> register_new_user(int32_t user_index);
 
 		/*advances time for the application*/
 		void tick_time();
@@ -115,7 +155,7 @@ namespace DoDo
 		 * @param bISynthetic true when the event is synthesized by slate
 		 * @return was this event handled by the slate application?
 		 */
-		bool process_mouse_move_event(const FPointEvent& mouse_event, bool b_is_synthetic = false);
+		bool process_mouse_move_event(const FPointerEvent& mouse_event, bool b_is_synthetic = false);
 
 		/*
 		* returns the current instance of the application, the application should have been initialized before
@@ -138,6 +178,17 @@ namespace DoDo
 			return s_current_application != nullptr;
 		}
 	public:
+		//------------------------FGenericApplicationMessageHandler Interface------------------------
+		virtual void set_cursor_pos(const glm::vec2 mouse_coordinate) override;
+
+		virtual bool On_Mouse_Move() override;
+
+		//------------------------FGenericApplicationMessageHandler Interface------------------------
+	public:
+		const static uint32_t m_cursor_pointer_index;
+
+		const static uint32_t m_cursor_user_index;
+	public:
 		//a black hole for android window
 		std::shared_ptr<SWindow> get_first_window();
 
@@ -149,12 +200,23 @@ namespace DoDo
 		virtual FWidgetPath locate_window_under_mouse(glm::vec2 screen_space_mouse_coordinate, const std::vector<std::shared_ptr<SWindow>>& windows,
 			bool b_ignore_enabled_status = false, int32_t user_index = -1);
 
+		/*
+		 * directly routes a pointer move event to the widgets in the specified widget path
+		 *
+		 * @param WidgetUnderPointer the path of widgets the event is routed to
+		 * @param PointerEvent the event data that is routed to the widget path
+		 * @param bIsSynthetic whether or not the move event is synthetic, synthetic pointer moves used simulate an event without the pointer actually moving
+		 */
+		bool route_pointer_move_event(const FWidgetPath& widgets_under_pointer, const FPointerEvent& pointer_event, bool b_is_synthetic);
+
 	protected:
 		//holds the slate renderer used to render this application
 		std::shared_ptr<Renderer> m_renderer;
 
 		//holds a pointer to the current slate application
 		static std::shared_ptr<Application> s_current_application;
+
+		std::set<FKey> m_pressed_mouse_buttons;//note:what it is?
 
 		//holds a pointer to the platform application
 		static std::shared_ptr<GenericApplication> s_platform_application;
@@ -183,5 +245,13 @@ namespace DoDo
 
 		//all top-level windows owned by this application, there are tracked here in a platform-agnostic way
 		std::vector<std::shared_ptr<SWindow>> m_windows;
+
+		/*
+		 * all users currently registered with slate
+		 * normally there's just one, but any case where multiple users can provide input to the same application will register multiple users
+		 *
+		 * note: the array my contain invalid entries, users have associated indices that they expect to maintain, independent of the existence of other users
+		 */
+		std::vector<std::shared_ptr<FSlateUser>> m_users;
 	};
 }

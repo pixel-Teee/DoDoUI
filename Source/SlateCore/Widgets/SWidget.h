@@ -16,6 +16,7 @@
 #include <optional>//std::optional depends on it
 
 #include "Slate/Widgets/Input/Reply.h"
+#include "SlateCore/FastUpdate/WidgetProxy.h"
 #include "SlateCore/Layout/FlowDirection.h"
 
 namespace DoDo
@@ -32,9 +33,10 @@ namespace DoDo
 	class FSlateWindowElementList;
 	class FWidgetStyle;
 	class FArrangedChildren;
-
+	struct FPointerEvent;
 	class SWidget : public FSlateControlledConstruction, public std::enable_shared_from_this<SWidget>
 	{
+		friend class SWindow;
 	public:
 		//widgets should only ever be constructed via SNew or SAssignNew
 		//todo:need to implement Private_Register Attributes static function
@@ -48,7 +50,7 @@ namespace DoDo
 		//SWidget();
 
 	public:
-		virtual ~SWidget();
+		virtual ~SWidget() override;
 
 	public:
 		//layout
@@ -58,6 +60,8 @@ namespace DoDo
 
 		/* return the desired size that was computed the last time CachedDesiredSize() was called */
 		glm::vec2 get_desired_size() const;
+
+		std::shared_ptr<SWidget> advanced_get_paint_parent_widget() const { return m_persistent_state.m_paint_parent.lock(); }//todo:may be to check
 
 		void assign_parent_widget(std::shared_ptr<SWidget> in_parent);
 		/* be used by FSlotBase to detach this widget from parent widget*/
@@ -206,6 +210,12 @@ namespace DoDo
 			}
 		}
 
+		/*
+		 * gets the last geometry used to tick the widget, this data may not exist yet if this call happens prior to
+		 * the widget having been ticked/painted, or it may be out of date, or a frame behind
+		 */
+		const FGeometry& get_paint_space_geometry() const;
+
 	public:
 		/*
 		 * hidden default constructor
@@ -244,6 +254,15 @@ namespace DoDo
 		 * @param returns whether the event was handled, along with other possible actions
 		 */
 		virtual FReply On_Key_Down(const FGeometry& my_geometry, const FKeyEvent& in_key_event);
+
+		/*
+		 * the system calls this method to notify the widget that a mouse moved within it, this event is bubbled
+		 *
+		 * @param MyGeometry the geometry of the widget receiving the event
+		 * @param MouseEvent information about the input event
+		 * @return whether the event was handled along with possible requests for the system to take action
+		 */
+		virtual FReply On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event);
 
 		/* is the widget construction completed(did we called and returned from the Construct() function) */
 		bool Is_Constructed() const { return m_b_Is_Declarative_Syntax_Construction_Completed; }
@@ -286,6 +305,10 @@ namespace DoDo
 
 		/*is the attribute IsHovered is set?*/
 		uint8_t m_b_is_hovered_attribute_set : 1;
+
+	private:
+
+		mutable FSlateWidgetPersistentState m_persistent_state;
 
 	protected:
 		/*

@@ -20,4 +20,9 @@ namespace DoDo
 
 		//todo:implement FKeyDatils
 	};
+
+	struct EKeys
+	{
+		static const FKey Invalid;
+	};
 }

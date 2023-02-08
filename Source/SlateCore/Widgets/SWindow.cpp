@@ -3,7 +3,10 @@
 #include "SWindow.h"
 
 #include "Application/Application.h"//slate application
+#include "Core/Window.h"
 #include "Renderer/Renderer.h"
+#include "SlateCore/Layout/BasicLayoutWidgetSlot.h"
+#include "SlateCore/Layout/BasicLayoutWidgetSlot.h"
 #include "SlateCore/Layout/Geometry.h"
 
 #ifdef WIN32
@@ -11,6 +14,8 @@
 #else
 #include "Platform/Application/AndroidPlatformApplicationMisc.h"
 #endif
+
+#include "SlateCore/Types/PaintArgs.h"
 
 namespace DoDo {
 	//SWindow::SWindow()
@@ -26,9 +31,19 @@ namespace DoDo {
 
 	bool SWindow::is_screen_space_mouse_within(glm::vec2 screen_space_mouse_coordinate) const
 	{
-		const glm::vec2 local_mouse_coordinate = screen_space_mouse_coordinate - m_screen_position;//get the local mouse position
+		//const glm::vec2 local_mouse_coordinate = screen_space_mouse_coordinate - m_screen_position;//get the local mouse position
+		const glm::vec2 local_mouse_coordinate = screen_space_mouse_coordinate;
 
-		return m_native_window->
+		return m_native_window->is_point_in_window(local_mouse_coordinate.x, local_mouse_coordinate.y);//check mouse in the native window
+	}
+
+	SWindow::SWindow()
+		: m_initial_desired_screen_position(glm::vec2(0.0f))
+		, m_initial_desired_size(glm::vec2(0.0f, 0.0f))
+		, m_size(glm::vec2(0.0f, 0.0f))
+		, m_view_port_size(glm::vec2(0.0f, 0.0f))
+		, m_hittest_grid(std::make_unique<FHittestGrid>())
+	{
 	}
 
 	void SWindow::Construct(const FArguments& in_args)
@@ -82,9 +97,22 @@ namespace DoDo {
 	int32_t SWindow::paint_window(double current_time, float delta_time, FSlateWindowElementList& out_draw_elements, const FWidgetStyle& in_widget_style,
 	                              bool b_parent_enabled)
 	{
+		//todo:clear hittest grid
+		const bool hittest_cleared = m_hittest_grid->Set_Hittest_Area(get_position_in_screen(), get_view_port_size());
+
+		//------construct paint args------
+		FPaintArgs paint_args(nullptr, get_hittest_grid(), get_position_in_screen(), current_time, delta_time);
+		//------construct paint args------
+
 		FSlateInvalidationContext context(out_draw_elements, in_widget_style);
 
-		FSlateInvalidationResult result = paint_invalidation_root(context);//call FSlateInvalidationRoot's function
+		context.m_paint_args = &paint_args;//get the paint args, pass to context class
+		context.m_in_coming_layer_id = 0;
+
+		m_persistent_state.m_allotted_geometry = get_window_geometry_in_window();
+		//todo:implement culling bounds
+
+		FSlateInvalidationResult result = paint_invalidation_root(context);//call FSlateInvalidationRoot's function, to slow path
 
 		return result.m_max_layer_id_painted;
 	}
@@ -104,6 +132,11 @@ namespace DoDo {
 		return m_parent_window_ptr.lock();//promote
 	}
 
+	FHittestGrid& SWindow::get_hittest_grid()
+	{
+		return *m_hittest_grid;
+	}
+
 	glm::vec2 SWindow::get_initial_desired_size_in_screen() const
 	{
 		return m_initial_desired_size;
@@ -119,6 +152,11 @@ namespace DoDo {
 		return m_size;//window size
 	}
 
+	glm::vec2 SWindow::get_position_in_screen() const
+	{
+		return m_screen_position;//window position
+	}
+
 	void SWindow::show_window()
 	{
 		if(m_native_window)
@@ -126,11 +164,23 @@ namespace DoDo {
 			//we can only create a viewport after the window has been shown(otherwise the swap chain creation may fail)
 			Application::get().get_renderer()->create_view_port(std::static_pointer_cast<SWindow>(shared_from_this()));
 		}
+
+		//reshape window, to set screen position and size, todo:fix me, don't use initial desired size
+		reshape_window(m_initial_desired_screen_position, m_initial_desired_size);
 	}
 
 	void SWindow::set_native_window(std::shared_ptr<Window> in_native_window)
 	{
 		m_native_window = in_native_window;//os related window
+	}
+
+	void SWindow::set_cached_screen_position(glm::vec2 new_position)
+	{
+		m_screen_position = new_position;
+
+		//todo:implement invalidate screen position
+
+		//todo:call on window moved delegate
 	}
 
 	void SWindow::set_cached_size(glm::vec2 new_size)
@@ -146,6 +196,23 @@ namespace DoDo {
 
 			//todo:implement invalidate root child order
 		}
+	}
+
+	void SWindow::reshape_window(glm::vec2 new_position, glm::vec2 new_size)
+	{
+		const glm::vec2 current_position = get_position_in_screen();
+		const glm::vec2 current_size = get_size_in_screen();
+
+		//todo:check difference between parameter
+		if(m_native_window)
+		{
+			set_cached_screen_position(new_position);
+
+			//todo:implement native window reshape window
+
+		}
+
+		set_cached_size(new_size);
 	}
 
 	int32_t SWindow::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const

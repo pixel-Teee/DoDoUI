@@ -28,4 +28,8 @@ namespace DoDo
 		, m_optional_pointer_position(in_position)
 	{
 	}
+
+	FWidgetAndPointer::~FWidgetAndPointer()
+	{
+	}
 }

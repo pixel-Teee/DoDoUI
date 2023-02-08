@@ -3,6 +3,9 @@
 #include "PaintGeometry.h"//FPaintGeometry depends on it
 #include "SlateCore/Rendering/SlateRenderTransform.h"//FSlateRenderTransform depends on it
 
+#include "SlateRect.h"//FSlateRect
+#include "SlateRotatedRect.h"//FSlateRotatedRect
+
 namespace DoDo
 {
 	class FArrangedWidget;
@@ -205,6 +208,30 @@ namespace DoDo
 			return FPaintGeometry(get_accumulated_layout_transform(), get_accumulated_render_transform(), m_size, m_b_has_render_transform);
 		}
 
+		FSlateRect get_layout_bounding_rect() const
+		{
+			return get_layout_bounding_rect(FSlateRect(glm::vec2(0.0f, 0.0f), m_size));
+		}
+
+		FSlateRect get_layout_bounding_rect(const FSlateRect& local_space_rect) const
+		{
+			//get_accumulated_layout_transform()
+			return transform_rect(get_accumulated_layout_transform(), FSlateRotatedRect(local_space_rect)).to_bounding_rect();
+		}
+
+		FSlateRect get_render_bounding_rect()
+		{
+			return get_layout_bounding_rect(FSlateRect(0.0f, 0.0f, m_size.x, m_size.y) );
+		}
+
+		FSlateRect get_render_bounding_rect(const FSlateRect& local_space_rect) const
+		{
+			return transform_rect(get_accumulated_render_transform(), FSlateRotatedRect(local_space_rect)).to_bounding_rect();
+		}
+
+		/** @return the accumulated render transform, shouldn't be needed in general**/
+		const FSlateRenderTransform& get_accumulated_render_transform() const { return m_accumulated_render_transform; }
+
 		/*
 		 * @return the accumulated layout transform, shouldn't be needed in general
 		 */
@@ -213,13 +240,27 @@ namespace DoDo
 			return FSlateLayoutTransform(m_scale, m_absolute_position);
 		}
 
+		/*
+		 * special case method to append a layout transform to a geometry
+		 * this is used in cases where the FGeometry was arranged in window space
+		 * and we need to add the root desktop translation
+		 *
+		 * @param LayoutTransform an additional layout transform to append to this geometry
+		 */
+		void append_transform(const FSlateLayoutTransform& layout_transform)
+		{
+			FSlateLayoutTransform accumulated_layout_transform = DoDo::concatenate(get_accumulated_layout_transform(), layout_transform);
+			m_accumulated_render_transform = DoDo::concatenate(m_accumulated_render_transform, layout_transform);
+			const_cast<glm::vec2&>(m_absolute_position) = accumulated_layout_transform.get_translation();
+			const_cast<float&>(m_scale) = accumulated_layout_transform.get_scale();
+		}
+
 		/* return the size of the geometry in local space*/
 		const glm::vec2& get_local_size() const { return m_size; }
 
-	private:
 
 		/*@return the accumulated render transform, shouldn't be needed general*/
-		const FSlateRenderTransform& get_accumulated_render_transform() const { return m_accumulated_render_transform; }
+		//const FSlateRenderTransform & get_accumulated_render_transform() const { return m_accumulated_render_transform; }
 
 		/*
 		 * get the local position on the surface of the geometry using normalized coordinates
@@ -266,5 +307,4 @@ namespace DoDo
 
 	//todo:fix this 
 	//template<> struct TIsPODType<FGeometry> { enum {Value = true};};
-
 }

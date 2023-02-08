@@ -45,9 +45,9 @@ namespace DoDo {
 
 	protected:
 		//todo:implement FEventRouter
-
+		friend class FEventRouter;
 		/*set the widget that handled the event, undefined if never handled, this method is to be used by slate application only*/
-		ReplyType* set_handler(const std::shared_ptr<SWidget>& in_handler)
+		ReplyType& set_handler(const std::shared_ptr<SWidget>& in_handler)
 		{
 			this->m_event_handler = in_handler;
 			return Me();

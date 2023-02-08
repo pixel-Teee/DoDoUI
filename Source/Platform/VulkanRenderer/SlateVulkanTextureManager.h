@@ -11,7 +11,7 @@
 namespace DoDo {
 
 	class ISlateStyle;
-	class FSlateBrush;
+	struct FSlateBrush;
 	class FSlateShaderResourceProxy;
 	/*
 	* stores a mapping of texture names to their loaded vulkan resource

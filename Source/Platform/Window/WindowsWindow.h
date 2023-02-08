@@ -41,13 +41,5 @@ namespace DoDo {
 
 		//static bool m_is_initialized_glfw;
 	};
-
-	void WindowsWindow::adjust_window_region(int32_t width, int32_t height)
-	{
-		m_region_width = width;
-		m_region_height = height;
-
-		//todo:create make window region object
-	}
 }
 

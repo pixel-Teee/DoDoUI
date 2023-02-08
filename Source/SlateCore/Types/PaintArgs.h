@@ -34,6 +34,16 @@ namespace DoDo
 			m_b_inherited_hittest_ability = in_herited_hittest_ability;
 		}
 
+		const SWidget* get_paint_parent() const
+		{
+			return m_paint_parent_ptr;
+		}
+
+		FHittestGrid& get_hittest_grid() const
+		{
+			return m_current_grid;
+		}
+
 		//todo:implement other set and get functions
 	private:
 		/*the root most grid, only the window should set this and only invalidation panels should modify it*/

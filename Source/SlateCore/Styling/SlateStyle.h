@@ -9,7 +9,7 @@
 #include "SlateColor.h"
 
 namespace DoDo {
-	class FSlateWidgetStyle;
+	struct FSlateWidgetStyle;
 	//class DoDoUtf8String;
 	/*
 	* a slate style chunk that contains a collection of named properties that guide the appearance of slate

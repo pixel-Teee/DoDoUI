@@ -19,6 +19,11 @@ namespace DoDo {
 		//ctor from a scale followed by translate, shortcut to concatenate(InScale, InTranslation)
 		explicit FSlateLayoutTransform(float in_scale = 1.0f, const glm::vec2& in_translation = glm::vec2(0.0f, 0.f));
 
+		FSlateLayoutTransform(const glm::vec2& in_translation)
+			: m_scale(1.0f)
+			, m_translation(in_translation)
+		{}
+
 		/*access to the 2d translation*/
 		glm::vec2 get_translation() const
 		{

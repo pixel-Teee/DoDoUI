@@ -9,7 +9,7 @@ namespace DoDo {
 	* a central repository that can be used to track an manage chunks of slate style data
 	*/
 	class ISlateStyle;
-	class FSlateBrush;
+	struct FSlateBrush;
 	class FSlateStyleRegistry
 	{
 	public:

@@ -2,6 +2,8 @@
 
 #include "WindowsPlatformApplicationMisc.h"
 
+#include "GLFWApplication.h"//specific application
+
 #include "glfw/glfw3.h"
 
 namespace DoDo {
@@ -59,5 +61,13 @@ namespace DoDo {
 		glfwGetMonitorContentScale(find_monitor, &scale_x, &scale_y);
 
 		return scale_x;
+	}
+
+	std::shared_ptr<GenericApplication> FWindowsPlatformApplicationMisc::create_application()
+	{
+		//todo:add app icon
+
+		//dispatch specific os class to create windows application
+		return GLFWApplication::create_windows_application();
 	}
 }

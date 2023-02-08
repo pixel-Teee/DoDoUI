@@ -5,6 +5,8 @@
 
 #include "glm/vec2.hpp"
 
+#include <set>
+
 namespace DoDo
 {
 	/*represents the current and last cursor position in a "virtual window" for events that are routed to widgets transformed in a 3D scene*/
@@ -53,7 +55,11 @@ namespace DoDo
 
 		virtual ~FInputEvent() {}
 
-
+		/*set the widget path along which this event will be routed*/
+		void set_event_path(const FWidgetPath& in_event_path)
+		{
+			m_event_path = &in_event_path;
+		}
 
 	protected:
 		//state of modifier keys when this event happened
@@ -135,14 +141,48 @@ namespace DoDo
 			, m_pointer_index(in_pointer_index)
 		{}
 
+		FPointerEvent(
+			uint32_t in_pointer_index,
+			const glm::vec2& in_screen_space_position,
+			const glm::vec2& in_last_screen_space_position,
+			const std::set<FKey>& in_pressed_buttons,
+			FKey in_effecting_button,
+			float in_wheel_delta,
+			const FModifierKeyState& in_modifier_keys
+		)
+			: FInputEvent(in_modifier_keys, 0, false)
+			, m_screen_space_position(in_screen_space_position)
+			, m_last_screen_space_position(in_last_screen_space_position)
+			, m_cursor_delta(in_screen_space_position - in_last_screen_space_position)
+			, m_pressed_buttons(&in_pressed_buttons)
+			, m_effecting_button(in_effecting_button)
+			, m_pointer_index(in_pointer_index)
+		{}
+
+		/*returns the position of the cursor in screen space*/
+		const glm::vec2 get_screen_space_position() const { return m_screen_space_position; }
+
+		template<typename PointerEventType>
+		static PointerEventType make_translated_event(const PointerEventType& in_pointer_event, const FVirtualPointerPosition& virtual_position)
+		{
+			PointerEventType new_event = in_pointer_event;
+			new_event.m_screen_space_position = virtual_position.m_current_cursor_position;
+			new_event.m_last_screen_space_position = virtual_position.m_last_cursor_position;
+
+			return new_event;
+		}
 	private:
 		glm::vec2 m_screen_space_position;//screen space position
 		glm::vec2 m_last_screen_space_position;
 		glm::vec2 m_cursor_delta;
 
+
+		const std::set<FKey>* m_pressed_buttons;
+		FKey m_effecting_button;
+
 		//todo:implement TSet<FKey>
 		//todo:implement FKey
-		uint32_t m_pointer_index;//?
+		uint32_t m_pointer_index;
 
 		//todo:implement other information and members
 	};

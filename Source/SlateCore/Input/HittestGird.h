@@ -3,9 +3,11 @@
 #include "Core/Math/IntPoint.h"
 #include "glm/vec2.hpp"
 
+#include "SlateCore/Layout/ArrangedWidget.h"//FWidgetAndPointer
+
 namespace DoDo
 {
-	struct FWidgetAndPointer;
+	//struct FWidgetAndPointer;
 	class SWidget;
 	//todo:inherited from FNoncopyable
 	class FHittestGrid
@@ -66,6 +68,7 @@ namespace DoDo
 		/*add SWidget from the hittest grid*/
 		//todo:implement FSlateInvalidationWidgetSortOrder
 		//todo:implement AddWidget
+		void add_widget(const SWidget* in_widget, int32_t in_batch_priority_group, int32_t layer_id);
 
 		/*remove SWidget from the hittest grid*/
 		void remove_widget(const SWidget* in_widget);
@@ -91,6 +94,14 @@ namespace DoDo
 		 */
 		struct FWidgetData
 		{
+			FWidgetData(const std::weak_ptr<SWidget>& in_widget, const FIntPoint& in_upper_left_cell, const FIntPoint& in_lower_right_cell,
+				int64_t in_primary_sort, int32_t in_user_index)
+					: m_weak_widget(in_widget)
+					, m_upper_left_cell(in_upper_left_cell)
+					, m_lower_right_cell(in_lower_right_cell)
+					, m_primary_sort(in_primary_sort)
+					, m_user_index(in_user_index)
+			{}
 			std::weak_ptr<SWidget> m_weak_widget;
 
 			//todo:implement ICustomHitTestPath
@@ -181,12 +192,18 @@ namespace DoDo
 
 		bool is_valid_cell_coord(const FIntPoint& cell_coord) const;
 		bool is_valid_cell_coord(const int32_t x_coord, const int32_t y_coord) const;
+		void clear_internal(int32_t total_cells);
 
 		/*return the index and distance to a hit given the testing params*/
 		FIndexAndDistance get_hit_index_from_cell_index(const FGridTestingParams& params) const;
 
 		/*constrains a float position into the grid coordinate*/
 		FIntPoint get_cell_coordinate(glm::vec2 position) const;
+
+		FCell& cell_at(const int32_t x, const int32_t y)
+		{
+			return m_cells[y * m_num_cells.x + x];
+		}
 
 		/*access a cell at coordinates x, y, coordinates are row and column indexes*/
 		const FCell& cell_at(const int32_t x, const int32_t y) const

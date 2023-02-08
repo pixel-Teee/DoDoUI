@@ -2,6 +2,8 @@
 
 #include "Geometry.h"
 
+#include "SlateCore/Input/Events.h"//FVirtualPointerPosition depends on it
+
 namespace DoDo
 {
 	struct FVirtualPointerPosition;
@@ -15,6 +17,7 @@ namespace DoDo
 	class FArrangedWidget
 	{
 	public:
+		FArrangedWidget() {};//todo:remove this
 
 		FArrangedWidget(std::shared_ptr<SWidget> in_widget, const FGeometry& in_geometry)
 			: m_geometry(in_geometry)
@@ -45,6 +48,13 @@ namespace DoDo
 		FWidgetAndPointer();
 		FWidgetAndPointer(const FArrangedWidget& in_widget);
 		FWidgetAndPointer(const FArrangedWidget& in_widget, std::optional<FVirtualPointerPosition> in_position);
+
+		virtual ~FWidgetAndPointer();
+
+		std::optional<FVirtualPointerPosition> get_pointer_position() const
+		{
+			return m_optional_pointer_position;
+		}
 
 	public:
 		std::shared_ptr<const FVirtualPointerPosition> m_pointer_position;

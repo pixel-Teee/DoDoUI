@@ -17,7 +17,7 @@ namespace DoDo {
     //bool WindowsWindow::m_is_initialized_glfw = false;
 
     //p p1 x p p2
-    int32_t get_cross(int32_t p1x, int32_t p1y, int32_t p2x, int32_t p2y, int32_t px, int32_t py)
+    uint64_t get_cross(uint64_t p1x, uint64_t p1y, uint64_t p2x, uint64_t p2y, uint64_t px, uint64_t py)
     {
         return (p1x - px) * (p2y - py) - (p1y - py) * (p2x - px);
     }
@@ -72,13 +72,12 @@ namespace DoDo {
     {
        // bool result = false;
 
-        return (get_cross(m_region_width, 0, x, y, 0, 0) *
+        uint64_t a = get_cross(m_region_width, 0, x, y, 0, 0);
+        uint64_t b = get_cross(0, m_region_height, x, y, m_region_width, m_region_height);
+        uint64_t c = get_cross(x, y, 0, m_region_height, 0, 0);
+        uint64_t d = get_cross(x, y, m_region_width, 0, m_region_width, m_region_height);
 
-            get_cross(0, m_region_height, x, y, m_region_width, m_region_height) >= 0)
-
-            && (get_cross(x, y, 0, m_region_height, 0, 0) *
-
-            get_cross(x, y, m_region_width, 0, m_region_width, m_region_height) >= 0);
+        return (a * b >= 0) && (c * d >= 0);
 
         //todo:is point in?
         //get_cross(m_region_width, 0, x, y, 0, 0)* get_cross(0, m_region_height, x, y, m_region_width, m_region_height);
@@ -114,5 +113,13 @@ namespace DoDo {
 
         //todo:implement reshape window
         
+    }
+
+    void WindowsWindow::adjust_window_region(int32_t width, int32_t height)
+    {
+        m_region_width = width;
+        m_region_height = height;
+
+        //todo:create make window region object
     }
 }

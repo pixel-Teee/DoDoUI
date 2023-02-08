@@ -43,7 +43,7 @@ file(GLOB_RECURSE Renderer_Source
 )
 
 if(NOT CMAKE_SYSTEN_NAME MATCHES "Android")
-	file(GLOB Glfw_Window "Platform/Window/WindowsWindow.h" "Platform/Window/WindowsWindow.cpp")
+	file(GLOB Glfw_Window "Platform/Window/WindowsWindow.h" "Platform/Window/WindowsWindow.cpp" "Platform/Window/WindowsCursor.h" "Platform/Window/WindowsCursor.cpp")
 	file(GLOB Glfw_Application "Platform/Application/GLFWApplication.h" "Platform/Application/GLFWApplication.cpp")
 	file(GLOB Application_Misc "Platform/Application/WindowsPlatformApplicationMisc.h" "Platform/Application/WindowsPlatformApplicationMisc.cpp")
 	# message(${Glfw_Window})

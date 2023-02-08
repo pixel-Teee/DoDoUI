@@ -25,6 +25,20 @@ namespace DoDo
 		{
 			
 		}
+
+		static FArrangedChildren hittest2_from_array(std::vector<FWidgetAndPointer>& in_widgets) //todo:move?
+		{
+			FArrangedChildren temp(EVisibility::All);
+			//temp.m_array.resize(in_widgets.size());
+			//todo:optimize this
+			for(const FWidgetAndPointer& widget_and_pinter : in_widgets)
+			{
+				temp.m_array.push_back(widget_and_pinter);
+			}
+
+			return temp;
+		}
+
 		//query visibility filter have parameter visibility
 		bool Accepts(EVisibility in_visibility) const
 		{
