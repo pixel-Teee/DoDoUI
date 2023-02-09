@@ -76,6 +76,7 @@ namespace DoDo
 		if(Is_Enabled())
 		{
 			//todo:implement Press
+			Press();
 		}
 		else
 		{

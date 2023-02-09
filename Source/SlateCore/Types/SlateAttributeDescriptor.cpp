@@ -25,7 +25,7 @@ namespace DoDo
 	const FSlateAttributeDescriptor::FAttribute* FSlateAttributeDescriptor::find_member_attribute(
 		OffsetType attribute_offset) const
 	{
-		const FSlateAttributeDescriptor::FAttribute* result;
+		const FSlateAttributeDescriptor::FAttribute* result = nullptr;
 
 		//interms of the memory offset to find attribute
 		auto iter = std::find_if(m_attributes.begin(), m_attributes.end(), [attribute_offset](const FAttribute& other)
@@ -34,7 +34,9 @@ namespace DoDo
 			&& other.m_attribute_type == SlateAttributePrivate::ESlateAttributeType::Member;
 		});
 
-		result = &(*iter);
+		//result = &(*iter);
+
+		if (iter != m_attributes.end()) result = &(*iter);
 
 		return result;
 	}
@@ -44,6 +46,8 @@ namespace DoDo
 	{
 		auto iter = std::find_if(m_attributes.begin(), m_attributes.end(), [attribute_name](const FAttribute& other) { return other.m_name == attribute_name; });
 	
+		//return &(*iter);
+		if (iter == m_attributes.end()) return nullptr;
 		return &(*iter);
 	}
 

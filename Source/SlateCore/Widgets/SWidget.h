@@ -330,6 +330,12 @@ namespace DoDo
 		 */
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements,
 			int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const = 0;
+	protected:
+		/*
+		 * can the widget ever support children? this will be false on SLeafWidgets
+		 * rather than setting this directly, you should probably inherit from SLeafWidget
+		 */
+		uint8_t b_can_have_children : 1;
 	private:
 		/* are bound slate attributes will be updated once per frame */
 		uint8_t m_b_enabled_attributes_update : 1;
