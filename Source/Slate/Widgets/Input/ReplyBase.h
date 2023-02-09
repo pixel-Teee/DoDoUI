@@ -38,7 +38,7 @@ namespace DoDo {
 	{
 	public:
 		TReplyBase(bool b_is_handled)
-		: FReplyBase(m_b_is_handled)
+		: FReplyBase(b_is_handled)
 		{
 			
 		}

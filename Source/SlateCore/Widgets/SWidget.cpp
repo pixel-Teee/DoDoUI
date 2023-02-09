@@ -9,6 +9,7 @@
 #include "SlateCore/Types/SlateAttributeDescriptor.h"
 
 #include "SlateCore/Types/PaintArgs.h"//FPaintArgs depends on it
+#include "SlateCore/Types/SlateMouseEventsMetaData.h"//FSlateMouseEventsMetaData depends on it
 
 namespace DoDo {
 	//this function will be called at FSlateWidgetClassData construct
@@ -112,6 +113,31 @@ namespace DoDo {
 		return m_persistent_state.m_allotted_geometry;
 	}
 
+	namespace Private
+	{
+		std::shared_ptr<FSlateMouseEventsMetaData> find_or_add_mouse_events_meta_data(SWidget* widget)
+		{
+			std::shared_ptr<FSlateMouseEventsMetaData> data = widget->get_meta_data<FSlateMouseEventsMetaData>();
+
+			if(!data)
+			{
+				data = std::make_shared<FSlateMouseEventsMetaData>();
+				widget->add_meta_data(data);
+			}
+			return data;
+		}
+	}
+
+	void SWidget::add_meta_data_internal(const std::shared_ptr<ISlateMetaData>& add_me)
+	{
+		m_Meta_Data.push_back(add_me);
+	}
+
+	void SWidget::set_on_mouse_move(FPointerEventHandler event_handler)
+	{
+		Private::find_or_add_mouse_events_meta_data(this)->m_mouse_move_handler = event_handler;
+	}
+
 	SWidget::SWidget()
 		: m_b_is_hovered_attribute_set(false)
 		, m_hovered_attribute(*this, false)
@@ -190,6 +216,13 @@ namespace DoDo {
 	FReply SWidget::On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
 	{
 		//todo:get mouse events meta data to handle
+		if (std::shared_ptr<FSlateMouseEventsMetaData> data = get_meta_data<FSlateMouseEventsMetaData>())
+		{
+			if (data->m_mouse_move_handler.Is_Bound())
+			{
+				return data->m_mouse_move_handler.Execute(my_geometry, mouse_event);
+			}
+		}
 
 		return FReply::un_handled();
 	}

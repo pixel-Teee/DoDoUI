@@ -229,6 +229,13 @@ namespace DoDo
         //m_renderer_instance->Destroy();
     }
 
+    FReply test_bind(const FGeometry& geometry, const FPointerEvent& event)
+    {
+        std::cout << "widget size(" << geometry.m_size.x << ", " << geometry.m_size.y << ")\n";
+
+        return FReply::un_handled();
+    }
+
     std::shared_ptr<SWindow> Application::test_create_widget()
     {
         std::shared_ptr<SWindow> root_window;
@@ -256,6 +263,7 @@ namespace DoDo
                     [
                         SNew(SBorder)
                         .BorderBackgroundColor(glm::vec4(0.3f, 0.7f, 0.8f, 1.0f))
+						.OnMouseMove_Static<FReply(const FGeometry&, const FPointerEvent&), test_bind>()
                         //.BorderImage(FCoreStyle::get().get_brush("Checkboard"))
                     ]
 		            + SConstraintCanvas::Slot()
@@ -267,6 +275,7 @@ namespace DoDo
 			        	SNew(SBorder)
 			        	.BorderBackgroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))
                         .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+                        .OnMouseMove_Static<FReply(const FGeometry&, const FPointerEvent&), test_bind>()
 			        ]
 					+ SConstraintCanvas::Slot()
 					.Anchors(FAnchors(0.3f, 0.3f, 0.3f, 0.3f))//middle
@@ -277,6 +286,7 @@ namespace DoDo
 						SNew(SBorder)
 						.BorderBackgroundColor(glm::vec4(0.9f, 0.9f, 0.2f, 1.0f))
                         .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+                        .OnMouseMove_Static<FReply(const FGeometry&, const FPointerEvent&), test_bind>()
 					]
                 ]
             ];

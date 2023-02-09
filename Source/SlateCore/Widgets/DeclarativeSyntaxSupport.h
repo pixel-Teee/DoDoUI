@@ -207,7 +207,32 @@ namespace DoDo
 			_##SlotName.m_widget = in_child;\
 			return static_cast<WidgetArgsType*>(this)->Me();\
 		}
-	//todo:implement SLATE_EVENT
+	/*
+	 * use this macro to add event handler support to the declarative syntax of your widget
+	 * it is expected that the widget has a delegate called of type 'EventDelegateType' that is
+	 * named 'EventName'
+	 */
+#define SLATE_EVENT(DelegateName, EventName)\
+		WidgetArgsType& EventName(const DelegateName& InDelegate) \
+		{ \
+			_##EventName = InDelegate; \
+			return static_cast<WidgetArgsType*>(this)->Me();\
+		} \
+		\
+		WidgetArgsType& EventName(DelegateName&& InDelegate) \
+		{ \
+			_##EventName = InDelegate; \
+			return static_cast<WidgetArgsType*>(this)->Me();\
+		} \
+		/* set event delegate to a global function */\
+		/* note: we use a template here to avoid 'typename' issues when hosting attributes inside templated classes */\
+		template<typename StaticFuncPtr, StaticFuncPtr* InFunc> \
+		WidgetArgsType& EventName##_Static()	\
+		{ \
+			_##EventName = DelegateName::From_Fun<InFunc>(); \
+			return static_cast<WidgetArgsType*>(this)->Me(); \
+		} \
+		DelegateName _##EventName;
 
 	/*
 	 * base class for named arguments, provides settings necessary for all widgets

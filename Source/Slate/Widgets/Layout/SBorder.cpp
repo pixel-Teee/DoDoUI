@@ -37,6 +37,11 @@ namespace DoDo
 
 		set_border_image(in_args._BorderImage);
 
+		if(in_args._OnMouseMove.Is_Bound())
+		{
+			set_on_mouse_move(in_args._OnMouseMove);
+		}
+
 		m_child_slot
 		.HAlign(in_args._HAlign)
 		.VAlign(in_args._VAlign)

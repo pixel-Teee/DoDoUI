@@ -18,6 +18,8 @@
 #include "Slate/Widgets/Input/Reply.h"
 #include "SlateCore/FastUpdate/WidgetProxy.h"
 #include "SlateCore/Layout/FlowDirection.h"
+#include "SlateCore/Types/ISlateMetaData.h"
+#include "SlateCore/Types/WidgetMouseEventsDelegate.h"//FPointerEventHandler depends on it
 
 namespace DoDo
 {
@@ -215,6 +217,38 @@ namespace DoDo
 		 * the widget having been ticked/painted, or it may be out of date, or a frame behind
 		 */
 		const FGeometry& get_paint_space_geometry() const;
+	public:
+		/*
+		 * get the metadata of the type provided
+		 * @return the first metadata of the type supplied that we encouter
+		 */
+		template<typename MetaDataType>
+		std::shared_ptr<MetaDataType> get_meta_data() const
+		{
+			for(const auto& meta_data_entry : m_Meta_Data)
+			{
+				if(meta_data_entry->Is_Of_Type<MetaDataType>())
+				{
+					return std::static_pointer_cast<MetaDataType>(meta_data_entry);
+				}
+			}
+			return std::shared_ptr<MetaDataType>();
+		}
+
+		/*
+		 * add metadata to this widget
+		 * @param AddMe the metadata to add to the widget
+		 */
+		template<typename MetaDataType>
+		void add_meta_data(const std::shared_ptr<MetaDataType>& add_me)
+		{
+			add_meta_data_internal(add_me);
+		}
+	private:
+		void add_meta_data_internal(const std::shared_ptr<ISlateMetaData>& add_me);
+	public:
+		/*see OnMouseMove event*/
+		void set_on_mouse_move(FPointerEventHandler event_handler);
 
 	public:
 		/*

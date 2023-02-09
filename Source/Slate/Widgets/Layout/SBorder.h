@@ -7,6 +7,8 @@
 #include "SlateCore/Styling/CoreStyle.h"
 #include "SlateCore/Styling/ISlateStyle.h"
 
+#include "SlateCore/Types/WidgetMouseEventsDelegate.h"//FPointerEventHandler depends on it
+
 namespace DoDo
 {
 	struct FSlateBrush;
@@ -26,6 +28,7 @@ namespace DoDo
 		, _HAlign(HAlign_Fill)
 		, _VAlign(VAlign_Fill)
 		, _Padding(FMargin(2.0f))
+		, _OnMouseMove()
 		, _BorderImage(FCoreStyle::get().get_brush("Border"))
 		, _ContentScale(glm::vec2(1.0f, 1.0f))
 		, _DesiredSizeScale(glm::vec2(1.0f, 1.0f))
@@ -41,6 +44,8 @@ namespace DoDo
 		SLATE_ARGUMENT(EHorizontalAlignment, HAlign)
 		SLATE_ARGUMENT(EVerticalAlignment, VAlign)
 		SLATE_ATTRIBUTE(FMargin, Padding)
+
+		SLATE_EVENT(FPointerEventHandler, OnMouseMove)
 
 		//todo:implement FSlateBrush*, border image
 		SLATE_ATTRIBUTE(const FSlateBrush*, BorderImage)

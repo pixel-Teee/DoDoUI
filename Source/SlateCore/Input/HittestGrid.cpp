@@ -74,7 +74,7 @@ namespace DoDo
 						FGeometry desktop_space_geometry = current_widget->get_paint_space_geometry();
 
 						//todo:implement desktop space geometry
-						desktop_space_geometry.append_transform(FSlateLayoutTransform(m_grid_origin - m_grid_window_origin));
+						//desktop_space_geometry.append_transform(FSlateLayoutTransform(m_grid_origin - m_grid_window_origin));
 
 						path.emplace_back(FArrangedWidget(current_widget, desktop_space_geometry));
 
@@ -100,11 +100,63 @@ namespace DoDo
 			std::min(std::max(y_index, 0), m_num_cells.y - 1));
 	}
 
+	static glm::vec2 closest_point_on_segment_2d(const glm::vec2& point, const glm::vec2& start_point, const glm::vec2& end_point)
+	{
+		const glm::vec2 segment = end_point - start_point;
+		const glm::vec2 vect_to_point = point - start_point;
+
+		//see if closest point is before start point
+		const float dot1 = end_point.x * vect_to_point.x + end_point.y * vect_to_point.y;
+		if(dot1 <= 0)
+		{
+			return start_point;
+		}
+
+		//see if closest point is beyond end point
+		const float dot2 = segment.x * segment.x + segment.y * segment.y;
+		if(dot2 <= dot1)
+		{
+			return end_point;
+		}
+
+		//closest point is within segment
+		return start_point + segment * (dot1 / dot2);//note:need to understand
+	}
+
 	glm::vec2 closest_point_on_slate_rotated_rect(const glm::vec2& point, const FSlateRotatedRect& rotated_rect)
 	{
 		//no need to do any testing if we are inside of the rect
+		if(rotated_rect.is_under_location(point))
+		{
+			return point;
+		}
 
-		return point;//todo:implement this function
+		const static int32_t num_of_corners = 4;
+		glm::vec2 corners[num_of_corners];
+		corners[0] = rotated_rect.m_top_left;
+		corners[1] = corners[0] + rotated_rect.m_extent_x;
+		corners[2] = corners[1] + rotated_rect.m_extent_y;
+		corners[3] = corners[2] + rotated_rect.m_extent_y;
+
+		glm::vec2 ret_point;
+		float closest_dist_sq = FLT_MAX;
+		for(int32_t i = 0; i < num_of_corners; ++i)
+		{
+			//grab the closest point along the line segment
+			const glm::vec2 closest_point = closest_point_on_segment_2d(point, corners[i], corners[(i + 1) % num_of_corners]);
+
+			//get the distance between the two
+			const float test_dist = (point.x - closest_point.x) * (point.x - closest_point.x) + (point.y - closest_point.y) * (point.y - closest_point.y);
+
+			//if the distance is smaller than the current smallest, update our closest
+			if(test_dist < closest_dist_sq)
+			{
+				ret_point = closest_point;
+				closest_dist_sq = test_dist;
+			}
+		}
+
+		return ret_point;//todo:implement this function
 	}
 
 	float dist_squared(const glm::vec2& lhs, const glm::vec2& rhs)
@@ -211,6 +263,8 @@ namespace DoDo
 							)
 						);//todo:what it is?
 
+
+						//note:check cursor position in clip rect
 						if(is_overlapping_slate_rotated_rect(window_space_coordinate, params.m_radius, window_oriented_clip_rect))
 						{
 							//todo:implement Is Overlapping Slate Rotated Rect

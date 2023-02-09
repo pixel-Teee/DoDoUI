@@ -41,6 +41,10 @@ namespace DoDo
 
 		/*convert to a bounding, aligned rect*/
 		FSlateRect to_bounding_rect() const;
+
+	public:
+		/*point-in-rect test*/
+		bool is_under_location(const glm::vec2& location) const;
 	};
 
 	/*transforms a rect by the given transform*/
