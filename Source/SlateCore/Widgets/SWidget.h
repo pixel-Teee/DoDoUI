@@ -289,6 +289,10 @@ namespace DoDo
 		 */
 		virtual FReply On_Key_Down(const FGeometry& my_geometry, const FKeyEvent& in_key_event);
 
+		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event);//todo:add comment
+
+		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event);//todo:add comment
+
 		/*
 		 * the system calls this method to notify the widget that a mouse moved within it, this event is bubbled
 		 *

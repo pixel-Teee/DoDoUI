@@ -165,6 +165,17 @@ namespace DoDo
 			}
 		}
 
+		/*
+		 * gets the brush's tint color
+		 *
+		 * @param InWidgetStyle the widget style to get the tint for
+		 * @return Tint color
+		 */
+		glm::vec4 get_tint() const//todo:add widget style
+		{
+			return m_tint_color;
+		}
+
 		const FSlateResourceHandle& get_rendering_resource(glm::vec2 local_size, float draw_scale) const
 		{
 			update_rendering_resource(get_image_size(), 1.0f);

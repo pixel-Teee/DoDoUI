@@ -28,6 +28,8 @@ namespace DoDo {
 		virtual FModifierKeyState get_modifier_keys() const;
 
 		static std::shared_ptr<GLFWApplication> create_windows_application();
+
+		const std::vector<std::shared_ptr<WindowsWindow>> get_native_windows() const;
 	private:
 
 		std::vector<std::shared_ptr<WindowsWindow>> m_windows;

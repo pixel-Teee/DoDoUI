@@ -8,6 +8,9 @@
 
 #include <map>
 
+#include "SlateCore/Layout/WidgetPath.h"
+#include "SlateCore/Layout/WidgetPath.h"//FWidget depends on it
+
 namespace DoDo
 {
 	/*
@@ -18,6 +21,8 @@ namespace DoDo
 	{
 	public:
 		virtual ~FSlateUser();
+
+		int32_t get_user_index() const { return m_user_index; }
 
 		glm::vec2 get_cursor_position() const;
 
@@ -39,6 +44,9 @@ namespace DoDo
 
 		FSlateUser(int32_t in_user_index, std::shared_ptr<ICursor> in_cursor);//todo:move to private scope
 
+		//todo:implement this function
+		FWidgetPath get_captor_path(uint32_t pointer_index, FWeakWidgetPath::EInterruptedPathHandling::Type interrupted_path_handling = FWeakWidgetPath::EInterruptedPathHandling::Truncate, const FPointerEvent* pointer_event = nullptr);
+
 	private:
 		
 		void update_pointer_position(uint32_t pointer_index, const glm::vec2& position);
@@ -52,5 +60,9 @@ namespace DoDo
 		/*current position of all pointers controlled by this user*/
 		std::map<uint32_t, glm::vec2> m_pointer_positions_by_index;
 		std::map<uint32_t, glm::vec2> m_previous_pointer_position_by_index;
+
+		//note:what it is?
+		/*weak paths to widgets that are currently capturing a particular pointer*/
+		std::map<uint32_t, FWeakWidgetPath> m_pointer_captor_paths_by_index;
 	};
 }

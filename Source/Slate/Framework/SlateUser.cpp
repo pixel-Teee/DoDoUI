@@ -92,6 +92,27 @@ namespace DoDo
 		m_previous_pointer_position_by_index.insert({ Application::m_cursor_pointer_index, glm::vec2(0.0f, 0.0f) });
 	}
 
+	FWidgetPath FSlateUser::get_captor_path(uint32_t pointer_index,
+		FWeakWidgetPath::EInterruptedPathHandling::Type interrupted_path_handling, const FPointerEvent* pointer_event)
+	{
+		FWidgetPath captor_path;
+
+		auto it = m_pointer_captor_paths_by_index.find(pointer_index);
+
+		if(it != m_pointer_captor_paths_by_index.end())
+		{
+			FWeakWidgetPath* weak_captor_path = &(it->second);
+
+			if(weak_captor_path->to_widget_path(captor_path, interrupted_path_handling, pointer_event) == FWeakWidgetPath::EPathResolutionResult::Truncated)
+			{
+				//the path was truncated, meaning it's not actually valid anymore, so we want clear out entry for it out immediately
+				weak_captor_path = nullptr;
+				//todo:implement release capture
+			}
+		}
+		return captor_path;
+	}
+
 	void FSlateUser::update_pointer_position(uint32_t pointer_index, const glm::vec2& position)
 	{
 		auto it = m_pointer_positions_by_index.find(pointer_index);

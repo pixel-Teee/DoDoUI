@@ -24,5 +24,11 @@ namespace DoDo
 	struct EKeys
 	{
 		static const FKey Invalid;
+
+		static const FKey LeftMouseButton;
+		static const FKey RightMouseButton;
+		static const FKey MiddleMouseButton;
+		static const FKey ThumbMouseButton;
+		static const FKey ThumbMouseButton2;
 	};
 }

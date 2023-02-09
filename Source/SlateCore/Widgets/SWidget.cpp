@@ -213,6 +213,32 @@ namespace DoDo {
 		return FReply::un_handled();
 	}
 
+	FReply SWidget::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		if (std::shared_ptr<FSlateMouseEventsMetaData> data = get_meta_data<FSlateMouseEventsMetaData>())
+		{
+			if (data->m_mouse_button_down_handle.Is_Bound())
+			{
+				return data->m_mouse_button_down_handle.Execute(my_geometry, mouse_event);
+			}
+		}
+
+		return FReply::un_handled();
+	}
+
+	FReply SWidget::On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		if (std::shared_ptr<FSlateMouseEventsMetaData> data = get_meta_data<FSlateMouseEventsMetaData>())
+		{
+			if (data->m_mouse_button_up_handle.Is_Bound())
+			{
+				return data->m_mouse_button_up_handle.Execute(my_geometry, mouse_event);
+			}
+		}
+
+		return FReply::un_handled();
+	}
+
 	FReply SWidget::On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
 	{
 		//todo:get mouse events meta data to handle

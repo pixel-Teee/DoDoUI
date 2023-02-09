@@ -91,6 +91,47 @@ namespace DoDo
             const FWidgetPath& m_routing_path;
 		};
 
+        class FToLeafmostPolicy
+        {
+        public:
+            FToLeafmostPolicy(const FWidgetPath& in_routing_path)
+	        : m_b_event_sent(false)
+			, m_routing_path(in_routing_path)
+            {}
+
+            static DoDoUtf8String m_name;
+
+            void next()
+            {
+                m_b_event_sent = true;
+            }
+
+            bool should_keep_going() const
+            {
+                return !m_b_event_sent && m_routing_path.m_widgets.num() > 0;
+            }
+
+            const FWidgetPath& get_routing_path() const
+            {
+                return m_routing_path;
+            }
+
+            const FWidgetPath* get_widgets_under_cursor()
+            {
+                return &m_routing_path;
+            }
+
+            FWidgetAndPointer get_widget() const
+            {
+                const int32_t widget_index = m_routing_path.m_widgets.num() - 1;
+                return FWidgetAndPointer(m_routing_path.m_widgets[widget_index], m_routing_path.get_virtual_pointer_position(widget_index));
+            }
+
+        private:
+            bool m_b_event_sent;
+            const FWidgetPath& m_routing_path;
+        };
+
         /*
          * route an event based on the routing policy
          */
@@ -288,6 +329,21 @@ namespace DoDo
                         .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
                         .OnMouseMove_Static<FReply(const FGeometry&, const FPointerEvent&), test_bind>()
 					]
+                    + SConstraintCanvas::Slot()
+					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+                    .Offset(FMargin(-200.0f, -200.0f, 300.0f, 300.0f))
+                    .Alignment(glm::vec2(1.0f, 1.0f))
+                    [
+                        SNew(SButton)
+                        .ButtonColorAndOpacity(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))
+                        //.ContentPadding(glm::vec4(20.0f, 20.0f, 20.0f, 20.0f))
+                        //.ContentScale(glm::vec2(0.3f, 0.3f))
+                        //[
+                        //    SNew(SBorder)
+                        //    .BorderBackgroundColor(glm::vec4(0.4f, 0.6f, 0.3f, 1.0f))
+						//	.BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+                        //]
+                    ]
                 ]
             ];
         
@@ -539,6 +595,15 @@ namespace DoDo
         }
     }
 
+    std::shared_ptr<FSlateUser> Application::get_or_create_user(int32_t user_index)
+    {
+        if(std::shared_ptr<FSlateUser> found_user = get_user(user_index))
+        {
+            return found_user;
+        }
+        return register_new_user(user_index);
+    }
+
     std::shared_ptr<FSlateUser> Application::register_new_user(int32_t user_index)
     {
         //todo:check
@@ -745,6 +810,30 @@ namespace DoDo
         return b_result;
     }
 
+    bool Application::process_mouse_button_down_event(const std::shared_ptr<Window>& platform_window,
+	    const FPointerEvent& in_mouse_event)
+    {
+        FReply reply = FReply::un_handled();
+
+        //only process mouse down messages if we are not drag/dropping
+        std::shared_ptr<FSlateUser> slate_user = get_or_create_user(in_mouse_event);
+
+        FWidgetPath widgets_under_cursor = locate_window_under_mouse(in_mouse_event.get_screen_space_position(), m_windows, false, slate_user->get_user_index());
+
+        reply = route_pointer_down_event(widgets_under_cursor, in_mouse_event);
+
+        return true;
+    }
+
+    bool Application::process_mouse_button_up_event(const FPointerEvent& mouse_event)
+    {
+        //an empty widget path is passed in, as an optimization, one will be generated only if a captures mouse event isn't routed
+        FWidgetPath empty_path;
+        const bool b_handled = route_pointer_up_event(empty_path, mouse_event).is_event_handled();
+
+        return b_handled;
+    }
+
     std::shared_ptr<SWindow> Application::add_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately)
     {
         /*
@@ -836,8 +925,61 @@ namespace DoDo
         return FWidgetPath();
     }
 
+    FReply Application::route_pointer_down_event(const FWidgetPath& widgets_under_pointer,
+	    const FPointerEvent& pointer_event)
+    {
+        FPointerEvent transformed_pointer_event = pointer_event;//todo:implement transform pointer event
+
+        std::shared_ptr<FSlateUser> slate_user = get_or_create_user(pointer_event);
+
+        //todo:update pointer position
+
+        FReply reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(widgets_under_pointer), transformed_pointer_event, [this](const FArrangedWidget& target_widget, const FPointerEvent& event)
+        {
+            FReply temp_reply = FReply::un_handled();
+
+            if(!temp_reply.is_event_handled())
+            {
+                temp_reply = target_widget.m_widget->On_Mouse_Button_On_Down(target_widget.m_geometry, event);
+            }
+
+            return temp_reply;
+        });
+
+        return reply;
+    }
+
+    FReply Application::route_pointer_up_event(const FWidgetPath& widgets_under_pointer,
+	    const FPointerEvent& pointer_event)
+    {
+        FPointerEvent transformed_pointer_event = pointer_event;//todo:implement transform pointer event
+
+        std::shared_ptr<FSlateUser> slate_user = get_or_create_user(pointer_event);
+
+        FWidgetPath local_widgets_under_pointer = widgets_under_pointer;
+
+        FReply reply = FReply::un_handled();
+
+        if(!widgets_under_pointer.is_valid())
+        {
+	        //generate a event
+            local_widgets_under_pointer = locate_window_under_mouse(pointer_event.get_screen_space_position(), m_windows, false, slate_user->get_user_index());
+        }
+
+        reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(local_widgets_under_pointer), transformed_pointer_event, [&](const FArrangedWidget& cur_widget, const FPointerEvent& event)
+        {
+            FReply temp_reply = FReply::un_handled();
+
+            temp_reply = cur_widget.m_widget->On_Mouse_Button_On_Up(cur_widget.m_geometry, event);
+
+            return temp_reply;
+        });
+
+        return reply;
+    }
+
     bool Application::route_pointer_move_event(const FWidgetPath& widgets_under_pointer,
-	    const FPointerEvent& pointer_event, bool b_is_synthetic)
+                                               const FPointerEvent& pointer_event, bool b_is_synthetic)
     {
         bool b_handled = false;
         //bubble the mouse move event
@@ -864,6 +1006,32 @@ namespace DoDo
         get_cursor_user()->set_cursor_position(mouse_coordinate);
     }
 
+    FKey translate_mouse_button_to_key(const EMouseButtons::Type button)
+    {
+        FKey key = EKeys::Invalid;
+
+        switch(button)
+        {
+        case EMouseButtons::Left:
+            key = EKeys::LeftMouseButton;
+            break;
+        case EMouseButtons::Middle:
+            key = EKeys::MiddleMouseButton;
+            break;
+        case EMouseButtons::Right:
+            key = EKeys::RightMouseButton;
+            break;
+        case EMouseButtons::Thumb01:
+            key = EKeys::ThumbMouseButton;
+            break;
+        case EMouseButtons::Thumb02:
+            key = EKeys::ThumbMouseButton2;
+            break;
+        }
+
+        return key;
+    }
+
     bool Application::On_Mouse_Move()
     {
         bool result = true;
@@ -875,7 +1043,7 @@ namespace DoDo
         //{
 	        //todo:implement last mouse move time
             FPointerEvent mouse_event(
-                -1,
+                get_cursor_user()->get_user_index(),//todo:implement get user index for mouse
                 current_cursor_position,
                 last_cursor_position,
                 m_pressed_mouse_buttons,
@@ -888,6 +1056,52 @@ namespace DoDo
         //}
 
         return result;
+    }
+
+    bool Application::On_Mouse_Down(const std::shared_ptr<Window>& window, const EMouseButtons::Type button)
+    {
+	    return Application::On_Mouse_Down(window, button, get_cursor_pos());
+    }
+
+    bool Application::On_Mouse_Down(const std::shared_ptr<Window>& window, const EMouseButtons::Type button,
+                                    const glm::vec2 cursor_pos)
+    {
+        FKey key = translate_mouse_button_to_key(button);
+
+        FPointerEvent mouse_event(
+            get_cursor_user()->get_user_index(),
+            m_cursor_pointer_index,
+            cursor_pos,
+            get_last_cursor_pos(),
+            m_pressed_mouse_buttons,
+            key,
+            0,
+            s_platform_application->get_modifier_keys()
+        );
+
+        return process_mouse_button_down_event(window, mouse_event);
+    }
+
+    bool Application::On_Mouse_Up(const EMouseButtons::Type button)
+    {
+        return On_Mouse_Up(button, get_cursor_pos());
+    }
+
+    bool Application::On_Mouse_Up(const EMouseButtons::Type button, const glm::vec2 cursor_pos)
+    {
+        FKey key = translate_mouse_button_to_key(button);
+
+        FPointerEvent mouse_event(
+            get_cursor_user()->get_user_index(),
+            m_cursor_pointer_index,
+            cursor_pos,
+            get_last_cursor_pos(), m_pressed_mouse_buttons,
+            key,
+            0,
+            s_platform_application->get_modifier_keys()
+        );
+
+        return process_mouse_button_up_event(mouse_event);
     }
 
     std::shared_ptr<SWindow> Application::get_first_window() {

@@ -16,6 +16,14 @@ namespace DoDo
 	{
 	}
 
+	void SButton::Private_Register_Attributes(FSlateAttributeInitializer& attribute_initializer)
+	{
+		//SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "SlotPadding", m_child_slot.m_slot_padding_attribute, EInvalidateWidgetReason::Layout);
+		//SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "ContentScale", m_content_scale_attribute, EInvalidateWidgetReason::Layout);
+		//SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "ColorAndOpacity", m_content_scale_attribute, EInvalidateWidgetReason::Paint);
+		//SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "ForegroundColor", m_foreground_color_attribute, EInvalidateWidgetReason::Paint);
+	}
+
 	void SButton::Construct(const FArguments& in_args)
 	{
 		m_border_foreground_color_attribute.Assign(*this, in_args._ForegroundColor);
@@ -29,11 +37,21 @@ namespace DoDo
 		);//todo:implement determine Content
 
 		//todo:implement set button style
+		set_button_style(in_args._ButtonStyle);
 	}
 
 	void SButton::set_content_padding(TAttribute<FMargin> in_content_padding)
 	{
 		m_content_padding_attribute.Assign(*this, std::move(in_content_padding));
+	}
+
+	void SButton::set_button_style(const FButtonStyle* button_style)
+	{
+		m_style = button_style;
+
+		update_padding();
+		update_border_image();
+		update_foreground_color();
 	}
 
 	int32_t SButton::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry,
@@ -64,7 +82,7 @@ namespace DoDo
 				allotted_geometry.to_paint_geometry(),
 				brush_resource,
 				ESlateDrawEffect::None,
-				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				brush_resource->get_tint() * get_border_back_ground_color());
 		}
 
 		return SCompoundWidget::On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, b_parent_enabled);
@@ -87,6 +105,35 @@ namespace DoDo
 		return reply;
 	}
 
+	FReply SButton::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		FReply reply = FReply::un_handled();
+
+		if(Is_Enabled()) //todo:check is left mouse button
+		{
+			Press();
+
+			//todo:get the reply from execute function
+			reply = FReply::handled();
+		}
+
+		return reply;
+	}
+
+	FReply SButton::On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		FReply reply = FReply::un_handled();
+
+		Release();
+
+		if(Is_Enabled())
+		{
+			//todo:implement this
+		}
+
+		return reply;
+	}
+
 	void SButton::Press()
 	{
 		if(!m_b_is_pressed)
@@ -100,6 +147,16 @@ namespace DoDo
 
 			//todo:implement update press state changed
 			update_press_state_changed();//update button state, image color something
+		}
+	}
+
+	void SButton::Release()
+	{
+		if(m_b_is_pressed)
+		{
+			m_b_is_pressed = false;
+			//todo:implement on released
+			update_press_state_changed();
 		}
 	}
 
@@ -146,5 +203,9 @@ namespace DoDo
 		//todo:check border foreground color attribute use FWidgetStyle color
 
 		set_foreground_color(m_border_foreground_color_attribute.Get());
+	}
+
+	SButton::~SButton()
+	{
 	}
 }

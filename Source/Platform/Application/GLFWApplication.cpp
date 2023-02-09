@@ -38,6 +38,24 @@ namespace DoDo {
 		application->get_message_handler()->On_Mouse_Move();//todo:call this function
 	}
 
+	static void mouse_button_call_back(GLFWwindow* native_window, int32_t button, int32_t action, int32_t mods)
+	{
+		GLFWApplication* application = (GLFWApplication*)glfwGetWindowUserPointer(native_window);
+
+		//find window
+		const std::shared_ptr<WindowsWindow> window = find_window_by_glfw_window(application->get_native_windows(), native_window);
+
+		if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+		{
+			application->get_message_handler()->On_Mouse_Down(window, EMouseButtons::Left);
+		}
+
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+		{
+			application->get_message_handler()->On_Mouse_Up(EMouseButtons::Left);
+		}
+	}
+
 	GLFWApplication::GLFWApplication()
 		: GenericApplication(std::make_shared<FWindowsCursor>())
 	{
@@ -70,6 +88,8 @@ namespace DoDo {
 		glfwSetWindowUserPointer(native_window_handle, window_application.get());
 
 		glfwSetCursorPosCallback(native_window_handle, cursor_position_call_back);//register message call back
+
+		glfwSetMouseButtonCallback(native_window_handle, mouse_button_call_back);//register mouse button call back
 	}
 
 	int32_t GLFWApplication::process_message()
@@ -103,5 +123,10 @@ namespace DoDo {
 	{
 		window_application = std::make_shared<GLFWApplication>();
 		return window_application;
+	}
+
+	const std::vector<std::shared_ptr<WindowsWindow>> GLFWApplication::get_native_windows() const
+	{
+		return m_windows;//todo:may be const?
 	}
 }

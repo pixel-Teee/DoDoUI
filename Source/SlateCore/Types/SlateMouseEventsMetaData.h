@@ -12,6 +12,8 @@ namespace DoDo
 	public:
 		SLATE_METADATA_TYPE(FSlateMouseEventsMetaData, ISlateMetaData)
 
+		FPointerEventHandler m_mouse_button_down_handle;
+		FPointerEventHandler m_mouse_button_up_handle;
 		FPointerEventHandler m_mouse_move_handler;
 	};
 }

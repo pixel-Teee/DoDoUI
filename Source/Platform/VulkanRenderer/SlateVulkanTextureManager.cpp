@@ -181,7 +181,9 @@ namespace DoDo {
 		else//todo:implement dynamic resource
 		{
 			auto it = m_resource_map.find(in_brush.get_resource_name());
-			texture = it->second;
+			//texture = it->second;
+			if (it != m_resource_map.end())
+				texture = it->second;
 		}
 
 		return texture;

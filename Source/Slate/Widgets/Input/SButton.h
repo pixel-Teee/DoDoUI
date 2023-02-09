@@ -58,7 +58,7 @@ namespace DoDo
 
 		SLATE_END_ARGS()
 
-	protected:
+
 		SButton();
 
 	public:
@@ -84,14 +84,22 @@ namespace DoDo
 		/*see content padding attribute*/
 		void set_content_padding(TAttribute<FMargin> in_content_padding);
 
+		/*see button style attribute*/
+		void set_button_style(const FButtonStyle* button_style);
 	public:
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
 
 		virtual FReply On_Key_Down(const FGeometry& my_geometry, const FKeyEvent& in_key_event) override;
 
+		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+
+		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+
 	protected:
 		/*press the button*/
 		virtual void Press();
+
+		virtual void Release();
 
 		/*@return combines the user-specified margin and the button's internal margin*/
 		FMargin get_combined_padding() const;
@@ -104,7 +112,8 @@ namespace DoDo
 		void update_border_image();
 
 		void update_foreground_color();
-
+	public:
+		~SButton() override;
 	private:
 		/*the location in screen space the button was pressed*/
 		glm::vec2 m_pressed_screen_space_position;

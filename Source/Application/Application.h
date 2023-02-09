@@ -13,6 +13,8 @@
 
 #include "Slate/Framework/SlateUser.h"//FSlateUser depends on it
 
+#include "Slate/Widgets/Input/Reply.h"//FReply depends on it
+
 namespace DoDo
 {
 	class RendererInstance;
@@ -102,6 +104,18 @@ namespace DoDo
 		void destroy_renderer();
 
 		/*
+		 * locates the slate user object corresponding to the index, creating a new one if it doesn't exist
+		 * asserts if given an invalid (ie, negative) index
+		 */
+		std::shared_ptr<FSlateUser> get_or_create_user(int32_t user_index);
+
+		/*
+		 * locates the slate user object corresponding to the index, creating a new one if it doesn't exist
+		 * asserts if given an invalid (ie, negative) index
+		 */
+		std::shared_ptr<FSlateUser> get_or_create_user(const FInputEvent& input_event) { return get_or_create_user(input_event.get_user_index()); }
+
+		/*
 		 * register a new user with slate, normally this is unnecessary as slate automatically adds
 		 * a user entry if it gets input from a controller for that index, might happed if the user
 		 * allocates the virtual user
@@ -158,6 +172,24 @@ namespace DoDo
 		bool process_mouse_move_event(const FPointerEvent& mouse_event, bool b_is_synthetic = false);
 
 		/*
+		 * called by the native application in response to a mouse button press, routs the event to slate widgets
+		 *
+		 * @param PlatformWindow the platform window the event originated form, used to set focus at the platform level
+		 *						 if invalid the mouse event will work but there will be no effect on the platform
+		 * @param InMouseEvent mouse event
+		 * @return was this event handled by the slate application?
+		 */
+		bool process_mouse_button_down_event(const std::shared_ptr<Window>& platform_window, const FPointerEvent& in_mouse_event);
+
+		/*
+		 * called by the native application in response to a mouse button release, routs the event to slate widgets
+		 *
+		 * @param InMouseEvent mouse event
+		 * @return was this event handled by the slate application?
+		 */
+		bool process_mouse_button_up_event(const FPointerEvent& mouse_event);
+
+		/*
 		* returns the current instance of the application, the application should have been initialized before
 		* this method is called
 		* 
@@ -183,6 +215,14 @@ namespace DoDo
 
 		virtual bool On_Mouse_Move() override;
 
+		virtual bool On_Mouse_Down(const std::shared_ptr<Window>& window, const EMouseButtons::Type button) override;
+
+		virtual bool On_Mouse_Down(const std::shared_ptr<Window>& window, const EMouseButtons::Type button, const glm::vec2 cursor_pos) override;
+
+		virtual bool On_Mouse_Up(const EMouseButtons::Type button) override;
+
+		virtual bool On_Mouse_Up(const EMouseButtons::Type button, const glm::vec2 cursor_pos) override;
+
 		//------------------------FGenericApplicationMessageHandler Interface------------------------
 	public:
 		const static uint32_t m_cursor_pointer_index;
@@ -199,6 +239,26 @@ namespace DoDo
 
 		virtual FWidgetPath locate_window_under_mouse(glm::vec2 screen_space_mouse_coordinate, const std::vector<std::shared_ptr<SWindow>>& windows,
 			bool b_ignore_enabled_status = false, int32_t user_index = -1);
+
+		/*
+		 * directly routes a pointer down event to the widgets in the specified widget path
+		 *
+		 * @param widgets under pointer the path of widgets the event is routed to
+		 * @param pointer event the event data that is routed to the widget path
+		 *
+		 * @return the reply returned by the widget that handled the event
+		 */
+		FReply route_pointer_down_event(const FWidgetPath& widgets_under_pointer, const FPointerEvent& pointer_event);
+
+		/*
+		 * directly routes a pointer up event to the widgets in the specified widget path
+		 *
+		 * @param widgets under pointer the path of widgets the event is routed to
+		 * @param pointer event the event data that it is routed to the widget path
+		 *
+		 * @return the reply from the event
+		 */
+		FReply route_pointer_up_event(const FWidgetPath& widgets_under_pointer, const FPointerEvent& pointer_event);
 
 		/*
 		 * directly routes a pointer move event to the widgets in the specified widget path

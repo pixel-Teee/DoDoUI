@@ -61,6 +61,14 @@ namespace DoDo
 			m_event_path = &in_event_path;
 		}
 
+		/*
+		 * returns the index of the user that generated this event
+		 */
+		uint32_t get_user_index() const
+		{
+			return m_user_index;
+		}
+
 	protected:
 		//state of modifier keys when this event happened
 		FModifierKeyState m_modifier_keys;//shift tab caps lock
@@ -151,6 +159,25 @@ namespace DoDo
 			const FModifierKeyState& in_modifier_keys
 		)
 			: FInputEvent(in_modifier_keys, 0, false)
+			, m_screen_space_position(in_screen_space_position)
+			, m_last_screen_space_position(in_last_screen_space_position)
+			, m_cursor_delta(in_screen_space_position - in_last_screen_space_position)
+			, m_pressed_buttons(&in_pressed_buttons)
+			, m_effecting_button(in_effecting_button)
+			, m_pointer_index(in_pointer_index)
+		{}
+
+		FPointerEvent(
+			uint32_t in_user_index,
+			uint32_t in_pointer_index,
+			const glm::vec2& in_screen_space_position,
+			const glm::vec2& in_last_screen_space_position,
+			const std::set<FKey>& in_pressed_buttons,
+			FKey in_effecting_button,
+			float in_wheel_delta,
+			const FModifierKeyState& in_modifier_keys
+		)
+			: FInputEvent(in_modifier_keys, in_user_index, false)
 			, m_screen_space_position(in_screen_space_position)
 			, m_last_screen_space_position(in_last_screen_space_position)
 			, m_cursor_delta(in_screen_space_position - in_last_screen_space_position)
