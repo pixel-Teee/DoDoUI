@@ -65,4 +65,30 @@ namespace DoDo
 
 		//todo:implement unlink colors function
 	};
+
+	/*
+	 * represents the appearance of an SSplitter
+	 */
+	struct FSplitterStyle : public FSlateWidgetStyle
+	{
+		FSplitterStyle();
+
+		virtual ~FSplitterStyle();
+
+		virtual void get_resources(std::vector<const FSlateBrush*>& out_brushes) const override;
+
+		static const DoDoUtf8String TypeName;
+
+		virtual const DoDoUtf8String get_type_name() const override { return TypeName; }
+
+		//static const FSplitterStyle& get_default();
+
+		/*brush used to draw the handle in it's normal state*/
+		FSlateBrush m_handled_normal_brush;
+		FSplitterStyle& set_handle_normal_brush(const FSlateBrush& in_handle_normal_brush) { m_handled_normal_brush = in_handle_normal_brush; return *this; }
+
+		/*brush used to draw the handle in it's highlight state*/
+		FSlateBrush m_handle_highlight_brush;
+		FSplitterStyle& set_handle_highlight_brush(const FSlateBrush& in_handle_highlight_brush) { m_handle_highlight_brush = in_handle_highlight_brush; return *this; }
+	};
 }

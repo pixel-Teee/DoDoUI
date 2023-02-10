@@ -174,7 +174,10 @@ namespace DoDo
 		/*advanced : no gamma correction should be done*/
 		NoGamma = 1 << 2,
 		/*advanced : change the alpha value to 1 - Alpha*/
-		InvertAlpha = 1 << 3
+		InvertAlpha = 1 << 3,
+
+		/*draw the element with a disabled effect*/
+		DisabledEffect = 1 << 5
 	};
 
 

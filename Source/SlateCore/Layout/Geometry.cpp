@@ -3,6 +3,7 @@
 #include "Geometry.h"
 
 #include "ArrangedWidget.h"
+#include "LayoutGeometry.h"
 
 #include "SlateCore/Widgets/SWidget.h"
 
@@ -28,8 +29,14 @@ namespace DoDo
 		return *this;
 	}
 
+	FArrangedWidget FGeometry::make_child(const std::shared_ptr<SWidget>& child_widget,
+		const FLayoutGeometry& layout_geometry) const
+	{
+		return make_child(child_widget, layout_geometry.get_size_in_local_space(), layout_geometry.get_local_to_parent_transform());
+	}
+
 	FArrangedWidget FGeometry::make_child(const std::shared_ptr<SWidget>& child_widget, const glm::vec2& in_local_size,
-		const FSlateLayoutTransform& layout_transform) const
+	                                      const FSlateLayoutTransform& layout_transform) const
 	{
 		//todo:implement this function
 		const std::optional<FSlateRenderTransform> render_transform = child_widget->get_render_transform_with_respect_to_flow_direction();

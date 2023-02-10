@@ -29,6 +29,8 @@
 #include "Platform/Application/AndroidApplication.h"
 #endif
 
+#include "Slate/Widgets/Layout/SSplitter.h"//SSplitter
+
 #include "SlateCore/Rendering/DrawElements.h"
 #include "SlateCore/Styling/WidgetStyle.h"
 
@@ -353,8 +355,6 @@ namespace DoDo
         get().add_window(root_window, true);
 #endif
 
-        
-
 		//std::shared_ptr<SWindow> root_window2;
 		//
 		//SAssignNew(root_window2, SWindow)
@@ -411,6 +411,58 @@ namespace DoDo
 		//    ];
 		//
 		//get().add_window(root_window2);
+
+        std::shared_ptr<SWindow> root_window4;
+
+        SAssignNew(root_window4, SWindow)
+            .Title("hello4")
+            .ClientSize(glm::vec2(800.0f, 600.0f))
+            .ScreenPosition(glm::vec2(100.0f, 100.0f))
+            [
+                SNew(SBorder)
+                .BorderBackgroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))//control background color
+				.Padding(100.0f)
+				[
+					SNew(SSplitter)
+                    + SSplitter::Slot()
+					.SizeRule(SSplitter::FractionOfParent)
+					.MinSize(20.0f)
+					.Value(0.2f)
+                    [
+                        SNew(SBorder)
+                        .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+                    ]
+					+ SSplitter::Slot()
+                    .SizeRule(SSplitter::FractionOfParent)
+                    .MinSize(20.0f)
+                    .Value(0.2f)
+                    [
+                        SNew(SBorder)
+                        .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+                        .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
+                    ]
+                    + SSplitter::Slot()
+                    .SizeRule(SSplitter::FractionOfParent)
+                    .MinSize(20.0f)
+                    .Value(0.7f)
+                    [
+                        SNew(SBorder)
+                        .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+                        .BorderBackgroundColor(glm::vec4(0.69f, 0.2f, 0.3f, 1.0f))
+                    ]
+                    + SSplitter::Slot()
+                    .SizeRule(SSplitter::FractionOfParent)
+                    .MinSize(20.0f)
+                    .Value(0.7f)
+                    [
+                        SNew(SBorder)
+                        .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+						.BorderBackgroundColor(glm::vec4(0.75f, 0.75f, 0.2f, 1.0f))
+                    ]
+                ]
+            ];
+
+        get().add_window(root_window4);
 
         return root_window;
 

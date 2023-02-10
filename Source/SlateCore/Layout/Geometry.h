@@ -8,6 +8,7 @@
 
 namespace DoDo
 {
+	class FLayoutGeometry;
 	class FArrangedWidget;
 	class SWidget;
 	/*
@@ -158,6 +159,16 @@ namespace DoDo
 			return FGeometry(in_local_size, layout_transform, get_accumulated_layout_transform(), get_accumulated_render_transform(), m_b_has_render_transform);
 		}
 
+		/*
+		 * create a child geometry+widget relative to this one using the given layout geometry
+		 *
+		 * @param ChildWidget the child widget this geometry is being created for
+		 * @param LayoutGeometry layout geometry of the child
+		 *
+		 * @return the new child geometry
+		 */
+		FArrangedWidget make_child(const std::shared_ptr<SWidget>& child_widget, const FLayoutGeometry& layout_geometry) const;
+
 		FArrangedWidget make_child(const std::shared_ptr<SWidget>& child_widget, const glm::vec2& in_local_size, const FSlateLayoutTransform& layout_transform) const;
 
 		/*
@@ -206,6 +217,38 @@ namespace DoDo
 		FPaintGeometry to_paint_geometry() const
 		{
 			return FPaintGeometry(get_accumulated_layout_transform(), get_accumulated_render_transform(), m_size, m_b_has_render_transform);
+		}
+
+		/*
+		 * create a paint geometry relative to this one with a given local space size and layout transform given as a scale + offset
+		 * the paint geometry inherits the widget's render transform
+		 *
+		 * @param LocalOffset offset of the paint geometry relative to the parent, scale + offset effectively define the layout transform
+		 * @param LocalSize the size of the paint geometry in local space
+		 * @param LocalScale scale of the paint geometry relative to the parent, scale + offset effectively define the layout transform
+		 *
+		 * @return the new paint geometry derived from this one
+		 */
+		FPaintGeometry to_paint_geometry(const glm::vec2& in_local_offset, const glm::vec2& in_local_size, float in_local_scale = 1.0f) const
+		{
+			//since child offset is given as a local space offset, we must convert this offset into the space of the parent to construct a valid layout transform
+			//the extra transform point below does this by converting the local offset to an offset in parent space
+			return to_paint_geometry(in_local_size, FSlateLayoutTransform(in_local_scale, transform_point(in_local_scale, in_local_offset)));
+		}
+
+		/*
+		 * create a paint geometry relative to this one with a given local space size and layout transform
+		 * the paint geometry inherits the widget's render transform
+		 *
+		 * @param local size the size of the child geometry in local space
+		 * @param layout transform layout transform of the paint geometry relative to this geometry
+		 *
+		 * @return the new paint geometry derived from this one
+		 */
+		FPaintGeometry to_paint_geometry(const glm::vec2& in_local_size, const FSlateLayoutTransform& in_layout_transform) const
+		{
+			FSlateLayoutTransform new_accumulated_layout_transform = DoDo::concatenate(in_layout_transform, get_accumulated_layout_transform());
+			return FPaintGeometry(new_accumulated_layout_transform, DoDo::concatenate(in_layout_transform, get_accumulated_render_transform()), in_local_size, m_b_has_render_transform);
 		}
 
 		FSlateRect get_layout_bounding_rect() const

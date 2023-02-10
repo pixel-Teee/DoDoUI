@@ -46,7 +46,7 @@ namespace DoDo {
 	struct TSlateAttributeInvalidationReason
 	{
 		static_assert(FSlateAttributeBase::Is_Invalidate_Widget_Reason_Supported(InvalidationReason));
-		static constexpr EInvalidateWidgetReason Get_Invalidation_Reason(const SWidget&) { return InvalidationReason; }
+		static constexpr EInvalidateWidgetReason Get_InvalidationReason(const SWidget&) { return InvalidationReason; }
 	};
 
 	//------inline template header file------

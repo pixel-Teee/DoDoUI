@@ -59,8 +59,13 @@ namespace DoDo
 				m_array.push_back(in_widget_geometry);
 			}
 		}
-	public:
-		
+
+		/*
+		 * add an arranged widget (i.e. widget and its resulting geometry) to the list of arranged children
+		 * based on the visibility filter and the arranged widget's visibility
+		 */
+		void add_widget(const FArrangedWidget& in_widget_geometry);
+
 	private:
 		/*internal representation of the array widgets*/
 		FArrangedWidgetArray m_array;
@@ -82,5 +87,6 @@ namespace DoDo
 		{
 			return m_array[index];
 		}
-	}; 
+	};
+
 }

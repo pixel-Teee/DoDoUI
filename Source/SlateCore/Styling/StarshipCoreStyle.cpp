@@ -97,6 +97,14 @@ namespace DoDo {
 			style->set("Checkboard", new FSlateImageBrush(style->root_to_content_dir("Checkerboard", ".png"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ESlateBrushTileType::Both));
 		}
 
+		//SSplitter
+		{
+			style->set("Splitter", FSplitterStyle()
+				.set_handle_normal_brush(FSlateColorBrush(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f)))
+				.set_handle_highlight_brush(FSlateColorBrush(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f)))
+			);
+		}
+
 		set_up_button_styles(style);
 
 		return style;
