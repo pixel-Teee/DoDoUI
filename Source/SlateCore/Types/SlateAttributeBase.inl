@@ -154,7 +154,7 @@ namespace SlateAttributePrivate
 			//	return true;
 			//}
 
-			if (Previous_Getter_Handler != getter.Get_Handle())
+			if (Previous_Getter_Handler != getter.get_handle())
 			{
 				Construct_Wrapper(widget, std::move(getter));
 
@@ -222,7 +222,7 @@ namespace SlateAttributePrivate
 
 			virtual FDelegateHandle Get_Delegate_Handle() const override
 			{
-				return m_getter.Get_Handle();
+				return m_getter.get_handle();
 			}
 
 			FUpdateAttributeResult Update_Attribute(const SWidget& widget) override

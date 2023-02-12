@@ -4,6 +4,8 @@
 
 #include "TabManager.h"
 
+#include "Core/Delegates/Delegate.h"
+
 namespace DoDo {
 	class SSplitter;
 	//class FTabManager;

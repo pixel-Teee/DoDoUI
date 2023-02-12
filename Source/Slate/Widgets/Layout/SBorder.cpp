@@ -37,7 +37,7 @@ namespace DoDo
 
 		set_border_image(in_args._BorderImage);
 
-		if(in_args._OnMouseMove.Is_Bound())
+		if(in_args._OnMouseMove.is_bound())
 		{
 			set_on_mouse_move(in_args._OnMouseMove);
 		}

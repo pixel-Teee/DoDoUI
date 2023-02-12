@@ -306,7 +306,7 @@ namespace DoDo
                     [
                         SNew(SBorder)
                         .BorderBackgroundColor(glm::vec4(0.3f, 0.7f, 0.8f, 1.0f))
-						.OnMouseMove_Static<FReply(const FGeometry&, const FPointerEvent&), test_bind>()
+						.OnMouseMove_Static(test_bind)
                         //.BorderImage(FCoreStyle::get().get_brush("Checkboard"))
                     ]
 		            + SConstraintCanvas::Slot()
@@ -318,7 +318,7 @@ namespace DoDo
 			        	SNew(SBorder)
 			        	.BorderBackgroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))
                         .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-                        .OnMouseMove_Static<FReply(const FGeometry&, const FPointerEvent&), test_bind>()
+                        .OnMouseMove_Static(test_bind)
 			        ]
 					+ SConstraintCanvas::Slot()
 					.Anchors(FAnchors(0.3f, 0.3f, 0.3f, 0.3f))//middle
@@ -329,15 +329,15 @@ namespace DoDo
 						SNew(SBorder)
 						.BorderBackgroundColor(glm::vec4(0.9f, 0.9f, 0.2f, 1.0f))
                         .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-                        .OnMouseMove_Static<FReply(const FGeometry&, const FPointerEvent&), test_bind>()
+                        .OnMouseMove_Static(test_bind)
 					]
                     + SConstraintCanvas::Slot()
 					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
-                    .Offset(FMargin(-200.0f, -200.0f, 300.0f, 300.0f))
+                    .Offset(FMargin(-100.0f, -100.0f, 50.0f, 50.0f))
                     .Alignment(glm::vec2(1.0f, 1.0f))
                     [
                         SNew(SButton)
-                        .ButtonColorAndOpacity(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))
+                        .ButtonColorAndOpacity(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f))
                         //.ContentPadding(glm::vec4(20.0f, 20.0f, 20.0f, 20.0f))
                         //.ContentScale(glm::vec2(0.3f, 0.3f))
                         //[
@@ -412,57 +412,57 @@ namespace DoDo
 		//
 		//get().add_window(root_window2);
 
-        std::shared_ptr<SWindow> root_window4;
-
-        SAssignNew(root_window4, SWindow)
-            .Title("hello4")
-            .ClientSize(glm::vec2(800.0f, 600.0f))
-            .ScreenPosition(glm::vec2(100.0f, 100.0f))
-            [
-                SNew(SBorder)
-                .BorderBackgroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))//control background color
-				.Padding(100.0f)
-				[
-					SNew(SSplitter)
-                    + SSplitter::Slot()
-					.SizeRule(SSplitter::FractionOfParent)
-					.MinSize(20.0f)
-					.Value(0.2f)
-                    [
-                        SNew(SBorder)
-                        .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-                    ]
-					+ SSplitter::Slot()
-                    .SizeRule(SSplitter::FractionOfParent)
-                    .MinSize(20.0f)
-                    .Value(0.2f)
-                    [
-                        SNew(SBorder)
-                        .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-                        .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
-                    ]
-                    + SSplitter::Slot()
-                    .SizeRule(SSplitter::FractionOfParent)
-                    .MinSize(20.0f)
-                    .Value(0.7f)
-                    [
-                        SNew(SBorder)
-                        .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-                        .BorderBackgroundColor(glm::vec4(0.69f, 0.2f, 0.3f, 1.0f))
-                    ]
-                    + SSplitter::Slot()
-                    .SizeRule(SSplitter::FractionOfParent)
-                    .MinSize(20.0f)
-                    .Value(0.7f)
-                    [
-                        SNew(SBorder)
-                        .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-						.BorderBackgroundColor(glm::vec4(0.75f, 0.75f, 0.2f, 1.0f))
-                    ]
-                ]
-            ];
-
-        get().add_window(root_window4);
+		//std::shared_ptr<SWindow> root_window4;
+		//
+		//SAssignNew(root_window4, SWindow)
+		//    .Title("hello4")
+		//    .ClientSize(glm::vec2(800.0f, 600.0f))
+		//    .ScreenPosition(glm::vec2(100.0f, 100.0f))
+		//    [
+		//        SNew(SBorder)
+		//        .BorderBackgroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))//control background color
+		//		.Padding(100.0f)
+		//		[
+		//			SNew(SSplitter)
+		//            + SSplitter::Slot()
+		//			.SizeRule(SSplitter::FractionOfParent)
+		//			.MinSize(20.0f)
+		//			.Value(0.2f)
+		//            [
+		//                SNew(SBorder)
+		//                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+		//            ]
+		//			+ SSplitter::Slot()
+		//            .SizeRule(SSplitter::FractionOfParent)
+		//            .MinSize(20.0f)
+		//            .Value(0.2f)
+		//            [
+		//                SNew(SBorder)
+		//                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+		//                .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
+		//            ]
+		//            + SSplitter::Slot()
+		//            .SizeRule(SSplitter::FractionOfParent)
+		//            .MinSize(20.0f)
+		//            .Value(0.7f)
+		//            [
+		//                SNew(SBorder)
+		//                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+		//                .BorderBackgroundColor(glm::vec4(0.69f, 0.2f, 0.3f, 1.0f))
+		//            ]
+		//            + SSplitter::Slot()
+		//            .SizeRule(SSplitter::FractionOfParent)
+		//            .MinSize(20.0f)
+		//            .Value(0.7f)
+		//            [
+		//                SNew(SBorder)
+		//                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+		//				.BorderBackgroundColor(glm::vec4(0.75f, 0.75f, 0.2f, 1.0f))
+		//            ]
+		//        ]
+		//    ];
+		//
+		//get().add_window(root_window4);
 
         return root_window;
 

@@ -217,9 +217,9 @@ namespace DoDo {
 	{
 		if (std::shared_ptr<FSlateMouseEventsMetaData> data = get_meta_data<FSlateMouseEventsMetaData>())
 		{
-			if (data->m_mouse_button_down_handle.Is_Bound())
+			if (data->m_mouse_button_down_handle.is_bound())
 			{
-				return data->m_mouse_button_down_handle.Execute(my_geometry, mouse_event);
+				return data->m_mouse_button_down_handle.execute(my_geometry, mouse_event);
 			}
 		}
 
@@ -230,9 +230,9 @@ namespace DoDo {
 	{
 		if (std::shared_ptr<FSlateMouseEventsMetaData> data = get_meta_data<FSlateMouseEventsMetaData>())
 		{
-			if (data->m_mouse_button_up_handle.Is_Bound())
+			if (data->m_mouse_button_up_handle.is_bound())
 			{
-				return data->m_mouse_button_up_handle.Execute(my_geometry, mouse_event);
+				return data->m_mouse_button_up_handle.execute(my_geometry, mouse_event);
 			}
 		}
 
@@ -244,9 +244,9 @@ namespace DoDo {
 		//todo:get mouse events meta data to handle
 		if (std::shared_ptr<FSlateMouseEventsMetaData> data = get_meta_data<FSlateMouseEventsMetaData>())
 		{
-			if (data->m_mouse_move_handler.Is_Bound())
+			if (data->m_mouse_move_handler.is_bound())
 			{
-				return data->m_mouse_move_handler.Execute(my_geometry, mouse_event);
+				return data->m_mouse_move_handler.execute(my_geometry, mouse_event);
 			}
 		}
 

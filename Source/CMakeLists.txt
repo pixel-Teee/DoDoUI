@@ -24,6 +24,7 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "Core/*.cpp"
 "Core/Math/*.h"
 "Core/Math/*.cpp"
+"Core/*.inl"
 "Application/*.h"
 "Application/*.cpp"
 "ApplicationCore/GenericPlatform/*.h"

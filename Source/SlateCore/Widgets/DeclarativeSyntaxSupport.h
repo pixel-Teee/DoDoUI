@@ -226,10 +226,10 @@ namespace DoDo
 		} \
 		/* set event delegate to a global function */\
 		/* note: we use a template here to avoid 'typename' issues when hosting attributes inside templated classes */\
-		template<typename StaticFuncPtr, StaticFuncPtr* InFunc> \
-		WidgetArgsType& EventName##_Static()	\
+		template<typename StaticFuncPtr, typename... VarTypes> \
+		WidgetArgsType& EventName##_Static(StaticFuncPtr InFunc, VarTypes... Vars )	\
 		{ \
-			_##EventName = DelegateName::From_Fun<InFunc>(); \
+			_##EventName = DelegateName::CreateStatic(InFunc, Vars...); \
 			return static_cast<WidgetArgsType*>(this)->Me(); \
 		} \
 		DelegateName _##EventName;

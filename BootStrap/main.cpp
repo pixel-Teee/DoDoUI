@@ -6,6 +6,8 @@
 
 #include <fstream>
 
+#include "Core/Delegates/DelegateCombinations.h"
+
 #ifdef WIN32
 #include "Platform/Application/WindowsPlatformApplicationMisc.h"
 #endif
@@ -119,6 +121,7 @@ int main()
 
     app.Tick();
 #else
+
     //DoDo::DoDoUtf8String default_engine_dir("../../../Content/");
     //DoDo::DoDoUtf8String dir_to_try = default_engine_dir / default_engine_dir;
 
