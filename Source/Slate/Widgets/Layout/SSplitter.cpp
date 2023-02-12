@@ -46,6 +46,11 @@ namespace DoDo {
 		return FSlot::FSlotArguments(std::make_unique<FSlot>());
 	}
 
+	SSplitter::FScopedWidgetSlotArguments SSplitter::add_slot(int32_t at_index)
+	{
+		return FScopedWidgetSlotArguments{ std::make_unique<FSlot>(), m_children, at_index };//when this destroy, to call destruction function
+	}
+
 	SSplitter::SSplitter()
 		: m_children(this)
 		, m_hovered_handle_index(-1)

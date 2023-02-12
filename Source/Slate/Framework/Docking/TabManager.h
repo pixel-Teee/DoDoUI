@@ -8,10 +8,20 @@
 
 #include "glm/glm.hpp"
 
+#include "WorkspaceItem.h"//FTabSpawnerEntry depends on it
+
+#include "Slate/Widgets/Docking/SDockTab.h"
+
+//#include "Slate/Framework/Docking/SDockingArea.h"
+
 namespace DoDo
 {
 	class SWindow;
 	class SWidget;
+	class SDockingArea;
+	class SDockingNode;
+	class SDockingSplitter;
+	struct FSidebarTabLists;
 
 	enum class ESidebarLocation : uint8_t
 	{
@@ -39,6 +49,17 @@ namespace DoDo
 			InvalidTab = 0x1 << 3
 		};
 	}
+
+	struct FTabSpawnerEntry : public FWorkspaceItem
+	{
+
+	private:
+		DoDoUtf8String m_tab_type;//tab type
+
+		//std::weak_ptr<SDockTab> m_spawned_tab_ptr;//todo:implement this
+
+		friend class FTabManager;
+	};
 
 	enum class EOutputCanBeNullptr//note:restore_from function return value is nullptr?
 	{
@@ -68,6 +89,10 @@ namespace DoDo
 
 	struct FTabId
 	{
+		bool operator==(const FTabId& other) const
+		{
+			return m_tab_type == other.m_tab_type && (m_instance_id == -1 || other.m_instance_id == -1 || m_instance_id == other.m_instance_id);
+		}
 		DoDoUtf8String m_tab_type;
 		int32_t m_instance_id;
 
@@ -112,6 +137,7 @@ namespace DoDo
 		//todo:implement FTab and FStack
 		struct FTab
 		{
+
 			FTabId m_tab_id;//tab id, need save?
 			ETabState::Type m_tab_state;//the tab state, open or close or sidebar?
 			ESidebarLocation m_side_bar_location;//tab sidebar location
@@ -183,12 +209,58 @@ namespace DoDo
 			/*the layout will be saved into a config file with this name, e.g. LevelEditorLayout or MaterialEditorLayout*/
 			DoDoUtf8String m_layout_name;
 		};
+	protected:
+		std::shared_ptr<SDockingArea> restore_area(
+			const std::shared_ptr<FArea>& area_to_restore, const std::shared_ptr<SWindow>& in_parent_window,
+			const bool b_embed_title_area_content = false, const EOutputCanBeNullptr out_put_can_be_nullptr = EOutputCanBeNullptr::Never
+		);//note:restore area, be called from restore_from
+
+
+		std::shared_ptr<SDockingNode> restore_area_helper(const std::shared_ptr<FLayoutNode>& layout_node, const std::shared_ptr<SWindow>& parent_window,
+			const bool b_embed_title_area_content, FSidebarTabLists& out_sidebar_tabs, const EOutputCanBeNullptr output_can_be_nullptr = EOutputCanBeNullptr::Never);
+	public:
+		/*
+		* it searches for valid and open tabs on some node
+		* @return it returns true if there is at least a valid open tab in the input some node
+		*/
+		bool has_valid_open_tabs(const std::shared_ptr<FTabManager::FLayoutNode>& some_node) const;
 
 	public:
 		std::shared_ptr<SWidget> restore_from(const std::shared_ptr<FLayout>& layout, const std::shared_ptr<SWindow>& parent_window,
 		const bool b_embed_title_area_content = false, const EOutputCanBeNullptr restore_are_out_put_can_be_nullptr = EOutputCanBeNullptr::Never);//fourth parameter controls the return value
 	protected:
 
+		using FTabSpawner = std::map<DoDoUtf8String, std::shared_ptr<FTabSpawnerEntry>>;//key is tab id's tab type
+
+		/*
+		* use can restore splitter content + restore splitter content when the output of its internal restore area helper can be a nullptr
+		* usage example:
+		*	std::vector<std::shared_ptr<SDockingNode>> DockingNodes;
+		*	if(CanRestoreSplitterContent(DockingNodes, SplitterNode, ParentWindow, OuputCanBeNullptr))
+		*	{
+		*		//create splitter widget only if it will be filled with at least 1 docking nodes
+		*		std::shared_ptr<SDockingSplitter> SplitterWidget = SNew(SDockingSplitter, SplitterNode);
+		*		//restore content
+		*		RestoreSplitterContent(DockingNodes, SplitterWidget);
+		*	}
+		*/
+
+		bool can_restore_splitter_content(std::vector<std::shared_ptr<SDockingNode>>& docking_nodes, const std::shared_ptr<FSplitter>& splitter_node,
+			const std::shared_ptr<SWindow>& parent_window, FSidebarTabLists& out_side_bar_tabs, const EOutputCanBeNullptr out_put_can_be_nullptr);
+
+		void restore_splitter_content(const std::vector<std::shared_ptr<SDockingNode>>& docking_nodes, const std::shared_ptr<SDockingSplitter>& splitter_widget);
+
+		/*
+		* use this standalone restore splitter content when the output of its internal restore area helper cannot be a nullptr
+		*/
+		void restore_splitter_content(const std::shared_ptr<FSplitter>& splitter_node, const std::shared_ptr<SDockingSplitter>& splitter_widget, const std::shared_ptr<SWindow>& parent_window,
+			FSidebarTabLists& out_sidebar_tabs);
+
+		bool is_valid_tab_for_spawning(const FTab& some_tab) const;
+		bool is_allowed_tab(const FTabId& tab_id) const;
+		bool is_allowed_tab_type(const DoDoUtf8String tab_type) const;//note:these are function to check tab is valid
+
+		//note:pass predicate to check tab
 		template<typename MatchFunctorType> static bool has_any_matching_tabs(const std::shared_ptr<FTabManager::FLayoutNode>& some_node, const MatchFunctorType& matcher);
 	protected:
 		bool has_valid_tabs(const std::shared_ptr<FTabManager::FLayoutNode>& some_node) const;
@@ -203,7 +275,18 @@ namespace DoDo
 		void set_tabs_on(const std::shared_ptr<FTabManager::FLayoutNode>& some_node, const ETabState::Type new_tab_state, const ETabState::Type original_tab_state) const;
 
 	protected:
+		FTabSpawner m_tab_spawner;//FTabSpawner is FTabSpawner entry map
+
+		std::shared_ptr<FTabSpawner> m_nomed_tab_spawner;
+
 		/*the name of the layout being used*/
 		DoDoUtf8String m_active_layout_name;
+
+		/*allow systems to dynamically hide tabs*/
+		//note:in terms of tab types to hide tabs
+		//todo:implement FNamePermissionList
+
+		/*tabs which have been temporarily put in the a sidebar*/
+		std::vector<std::weak_ptr<SDockTab>> m_temporarily_sidebared_tabs;
 	};
 }

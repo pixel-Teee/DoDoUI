@@ -2,8 +2,12 @@
 
 #include "SDockingNode.h"
 
+#include "TabManager.h"
+
 namespace DoDo {
 	class SSplitter;
+	//class FTabManager;
+	//class FTabManager::FSplitter;
 	/*dynamic n-way splitter that provides the resizing functionality in the docking framework*/
 	class SDockingSplitter : public SDockingNode
 	{
@@ -13,12 +17,21 @@ namespace DoDo {
 		SLATE_END_ARGS()
 
 		//todo:implement FTabManager FSplitter
-		//void Construct(const FArguments& in_args, const std::shared_ptr<FTabManager::FSplitter>& persistent_node);
+		void Construct(const FArguments& in_args, const std::shared_ptr<FTabManager::FSplitter>& persistent_node);
 
 		virtual Type get_node_type() const override
 		{
 			return SDockingNode::DockSplitter;//dock splitter
 		}
+
+		/*
+		* add a new child dock node at the desired location
+		* assumes this dock node is a splitter
+		* 
+		* @param InChild the dock node child to add
+		* @param InLocation index at which to add, INDEX_NONE adds to the end of this list
+		*/
+		void add_child_node(const std::shared_ptr<SDockingNode>& in_child, int32_t in_location = -1);
 
 	protected:
 		//todo:implement these functions

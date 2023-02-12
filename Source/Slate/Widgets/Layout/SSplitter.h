@@ -10,6 +10,8 @@
 
 #include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"
 
+#include "SlateCore/Styling/SlateTypes.h"//FSplitterStyle depends on it
+
 namespace DoDo {
 	struct FSplitterStyle;
 	/*
@@ -83,6 +85,19 @@ namespace DoDo {
 		static FSlot::FSlotArguments Slot();
 
 		//using FScopedWidgetSlotArguments = TPanelChildren<FSlot>::FScopedWidgetSlotArguments;//todo:implement this
+
+		/*
+		* add a slot to the splitter at the specified index
+		* sample usage:
+		*	SomeSplitter->AddSlot()
+		*	[
+		*		SNew(SSomeWidget)
+		*	]
+		* @return the new slot
+		*/
+		using FScopedWidgetSlotArguments = TPanelChildren<FSlot>::FScopedWidgetSlotArguments;
+
+		FScopedWidgetSlotArguments add_slot(int32_t at_index = -1);
 
 		SLATE_BEGIN_ARGS(SSplitter)
 			: _Style(&FCoreStyle::get().get_widget_style<FSplitterStyle>("Splitter"))

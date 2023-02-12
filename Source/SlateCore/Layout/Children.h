@@ -10,6 +10,8 @@
 
 //#include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"//TSingleWidgetChildrenWithBasicLayoutSlot depends on it
 
+#include <functional>
+
 namespace DoDo
 {
 	/* a FChildren that has only one child and can take a templated slot */
@@ -220,6 +222,16 @@ namespace DoDo
 			}
 		}
 
+		void insert_slot(typename SlotType::FSlotArguments&& slot_arguments, int32_t index)
+		{
+			std::unique_ptr<SlotType> new_slot = slot_arguments.steal_slot();
+			
+			//insert at index
+			m_children.insert(m_children.begin() + index, std::move(new_slot));//todo:may need to fix
+
+			m_children[index]->Construct(*this, std::move(slot_arguments));
+		}
+
 		void reserve(int32_t num_to_reserve)
 		{
 			m_children.reserve(num_to_reserve);
@@ -239,6 +251,54 @@ namespace DoDo
 		{
 			return *m_children[index];
 		}
+	public:
+		/*at the end of the scope a slot will be constructed and added to the FChildren*/
+		struct FScopedWidgetSlotArguments : public SlotType::FSlotArguments
+		{
+		public:
+			FScopedWidgetSlotArguments(std::unique_ptr<SlotType> in_slot, TPanelChildren<SlotType>& in_children, int32_t in_index)
+			: SlotType::FSlotArguments(std::move(in_slot))
+			, m_children(in_children)
+			, m_index(in_index)
+			{}
+
+			FScopedWidgetSlotArguments(std::unique_ptr<SlotType> in_slot, TPanelChildren<SlotType>& in_children, int32_t in_index, std::function<void(const SlotType*, int32_t)> on_added)
+			: SlotType::FSlotArguments(std::move(in_slot))
+			, m_children(in_children)
+			, m_index(in_index)
+			, m_added(on_added)
+			{}
+
+			FScopedWidgetSlotArguments(const FScopedWidgetSlotArguments&) = delete;
+			FScopedWidgetSlotArguments& operator=(const FScopedWidgetSlotArguments&) = delete;
+			FScopedWidgetSlotArguments(FScopedWidgetSlotArguments&&) = delete;
+			FScopedWidgetSlotArguments& operator=(FScopedWidgetSlotArguments&&) = delete;
+
+			virtual ~FScopedWidgetSlotArguments()
+			{
+				if (const SlotType* slot_ptr = this->get_slot()) 
+				{
+					if (m_index == -1)
+					{
+						m_index = m_children.add_slot(std::move(*this)); //when destroy this, to add slot to TPanelChildren
+					}
+					else
+					{
+						m_children.insert_slot(std::move(*this), m_index);
+					}
+					if (m_added)
+					{
+						m_added(slot_ptr, m_index);
+					}
+				}
+			}
+
+		private:
+			TPanelChildren<SlotType>& m_children;
+			int32_t m_index;
+
+			std::function<void(const SlotType*, int32_t)> m_added;//added function
+		};
 	};
 
 	template<typename SlotType>

@@ -331,6 +331,26 @@ namespace DoDo
 			Arg1Type& m_arg1;
 		};
 
+		template<typename Arg0Type, typename Arg1Type, typename Arg2Type>
+		struct T3RequiredArgs
+		{
+			T3RequiredArgs(Arg0Type&& in_arg0, Arg1Type&& in_arg1, Arg2Type&& in_arg2)
+				: m_arg0(in_arg0)
+				, m_arg1(in_arg1)
+				, m_arg2(in_arg2)
+			{}
+
+			template<class WidgetType>
+			void CallConstruct(const std::shared_ptr<WidgetType>& on_widget, const typename WidgetType::FArguments& with_named_args) const
+			{
+				on_widget->Construct(with_named_args, std::forward<Arg0Type>(m_arg0), std::forward<Arg1Type>(m_arg1), std::forward<Arg2Type>(m_arg2));
+			}
+
+			Arg0Type&& m_arg0;
+			Arg1Type&& m_arg1;
+			Arg2Type&& m_arg2;
+		};
+
 		//todo:fix this
 		//todo:if we discard inline declaration, we will get error
 		inline T0RequiredArgs Make_Required_Args()

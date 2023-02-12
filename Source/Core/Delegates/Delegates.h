@@ -13,6 +13,9 @@ namespace DoDo {
 	{
 	public:
 		typedef Return_Type(*Static_Function_Type)(void* p, Delegate_Template_Type...);
+		
+		template<typename T, typename... Var_Types>
+		using TConstMethodPtr = Return_Type(T::*)(Var_Types...) const;//const method type
 
 		Delegate()
 		{
@@ -71,6 +74,8 @@ namespace DoDo {
 		//delegate handle
 		FDelegateHandle m_delegate_handle;
 
+	public:
+
 		template<class T, Return_Type(T::*Fun_Name)(Delegate_Template_Type...)>
 		static Return_Type Method_Stub(void* p, Delegate_Template_Type... delegate_value)
 		{
@@ -84,6 +89,13 @@ namespace DoDo {
 			T* ap = (T*)p;
 			return (ap->*Fun_Name)(delegate_value...);
 		}
+
+		//template<class T>
+		//static Return_Type Const_Method_Stub(void* p, TConstMethodPtr<T, Delegate_Template_Type...> method, Delegate_Template_Type... delegate_value)
+		//{
+		//	T* ap = (T*)p;
+		//	return (ap->*method)(delegate_value...);
+		//}
 
 		template<Return_Type(*Fun_Name)(Delegate_Template_Type...)>
 		static Return_Type Fun_Stub(void* p, Delegate_Template_Type... delegate_value)
@@ -121,6 +133,12 @@ namespace DoDo {
 		{
 			return Create((void*)p, &Method_Stub<T, Fun_Name>);
 		}
+
+		//template<class T, typename... Var_Types>
+		//static Delegate From_Method(T* p, TConstMethodPtr method_ptr)
+		//{
+		//	return Create((void*)p, &Const_Method_Stub<T>);//pass pointer
+		//}
 
 		template<Return_Type(*Fun_Name)(Delegate_Template_Type...)>
 		static Delegate From_Fun()

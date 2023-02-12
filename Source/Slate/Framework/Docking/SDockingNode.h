@@ -2,7 +2,10 @@
 
 #include "SlateCore/Widgets/SCompoundWidget.h"
 
+#include "Slate/Widgets/Layout/SSplitter.h"
+
 namespace DoDo {
+	
 	/*
 	* a node in the docking/tabbing hierarchy
 	* any SDockingNode can be either a stack of tabs or a splitter
@@ -63,5 +66,16 @@ namespace DoDo {
 
 		/*a tab can be removed from a stack when a user drags it away or when the user closes it*/
 
+		/*should this node auto-size or be a percentage of its parent size, this setting is usually determined by users*/
+		virtual SSplitter::ESizeRule get_size_rule() const { return SSplitter::FractionOfParent; }
+
+		/*@return the numerator for the fraction of available space that this dock node should occupy*/
+		float get_size_coefficient() const;
+
+		/*set the coefficient size*/
+		void set_size_coefficient(float in_size_coefficient);
+	protected:
+
+		float m_size_coefficient;
 	};
 }

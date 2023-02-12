@@ -4,6 +4,15 @@
 
 namespace DoDo
 {
+	class SDockTab;
+	/*
+	* list of tabs that should be in each sidebar
+	*/
+	struct FSidebarTabLists
+	{
+		std::vector<std::shared_ptr<SDockTab>> m_left_side_bar_tabs;
+		std::vector<std::shared_ptr<SDockTab>> m_right_side_bar_tabs;
+	};
 	/*
 	 * represents the root node in a hierarchy of DockNodes
 	 */
@@ -30,5 +39,7 @@ namespace DoDo
 			/*what to put into the DockArea initially, usually a TabStack, so that some tabs can be added to it*/
 			SLATE_ARGUMENT(std::shared_ptr<SDockingNode>, InitialContent)
 		SLATE_END_ARGS()
+
+		void Construct(const FArguments& in_args, const std::shared_ptr<FTabManager>& in_tab_manager, const std::shared_ptr<FTabManager::FArea>& persistent_node);
 	};
 }
