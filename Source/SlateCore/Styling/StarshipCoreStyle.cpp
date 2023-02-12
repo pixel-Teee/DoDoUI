@@ -68,7 +68,7 @@ namespace DoDo {
 
 		style->set_content_root(FPaths::engine_dir() / "Slate");
 
-		const DoDoUtf8String& canary_path = style->root_to_content_dir("Checkerboard", ".png");//todo:interms of FPlatformMisc::EngineDir to get root directory
+		const DoDoUtf8String& canary_path = style->root_to_content_dir("Checkboard", ".png");//todo:interms of FPlatformMisc::EngineDir to get root directory
 		//canary_path just to check
 
 		if (!std::filesystem::exists(canary_path.c_str()))
@@ -94,7 +94,7 @@ namespace DoDo {
 		//common brushes
 		
 		{
-			style->set("Checkboard", new FSlateImageBrush(style->root_to_content_dir("Checkerboard", ".png"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ESlateBrushTileType::Both));
+			style->set("Checkboard", new FSlateImageBrush(style->root_to_content_dir("Checkboard", ".png"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ESlateBrushTileType::Both));
 		}
 
 		//SSplitter
