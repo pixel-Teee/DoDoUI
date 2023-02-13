@@ -31,9 +31,13 @@ namespace DoDo {
 			FractionOfParent
 		};
 
-		using FOnSlotResized = Delegate<void(float)>;//the new size coefficient of the slot
+		//using FOnSlotResized = Delegate<void(float)>;//the new size coefficient of the slot
 
-		using FOnGetMaxSlotSize = Delegate<glm::vec2(int32_t)>;
+		DECLARE_DELEGATE_OneParam(FOnSlotResized, float);
+
+		DECLARE_DELEGATE_RetVal_OneParam(glm::vec2, FOnGetMaxSlotSize, int32_t)
+
+		//using FOnGetMaxSlotSize = Delegate<glm::vec2(int32_t)>;
 
 	public:
 

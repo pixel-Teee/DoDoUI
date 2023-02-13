@@ -26,10 +26,31 @@ class TDelegate<InRetValType(ParamTypes...), UserPolicy> : public TDelegateBase<
 	using DelegateInstanceType = typename UserPolicy::FDelegateInstanceExtras;//IDelegateInstance
 
 public:
-
-public:
 	typedef InRetValType RetValType;
 	typedef InRetValType TFuncType(ParamTypes...);
+
+	/*helper typedefs for getting a member function pointer type for the delegate with a given payload*/
+	template<typename UserClass, typename... VarTypes> using TMethodPtr		 = typename TMemFunPtrType<false, UserClass, RetValType(ParamTypes..., VarTypes...)>::Type;
+	template<typename UserClass, typename... VarTypes> using TConstMethodPtr = typename TMemFunPtrType<true,  UserClass, RetValType(ParamTypes..., VarTypes...)>::Type;
+
+	/*declare the user's shared pointer-based delegate instance types*/
+	template<typename UserClass>
+	struct TSPMethodDelegate : TBaseSPMethodDelegateInstance<false, UserClass, FuncType, UserPolicy>
+	{
+		typedef TBaseSPMethodDelegateInstance<false, UserClass, FuncType, UserPolicy> Super;//none const
+		TSPMethodDelegate(const std::shared_ptr<UserClass>& in_user_object, typename Super::FMethodPtr in_method_ptr)
+			: Super(in_user_object, in_method_ptr)
+		{}
+	};
+
+	template<typename UserClass>
+	struct TSPMethodDelegate_Const : TBaseSPMethodDelegateInstance<true, UserClass, FuncType, UserPolicy>
+	{
+		typedef TBaseSPMethodDelegateInstance<true, UserClass, FuncType, UserPolicy> Super;//none const
+		TSPMethodDelegate_Const(const std::shared_ptr<UserClass>& in_user_object, typename Super::FMethodPtr in_method_ptr)
+			: Super(in_user_object, in_method_ptr)
+		{}
+	};
 
 	/*declare the user's static function delegate instance types*/
 	template<typename... VarTypes> struct FStaticDelegate : TBaseStaticDelegateInstance<FuncType, UserPolicy, VarTypes...>
@@ -41,6 +62,28 @@ public:
 	};
 
 public:
+	/*
+	 * static: creates a shared pointer-based member function delegate
+	 *
+	 * shared pointer delegates keep a weak reference to your object
+	 * you can user execute if bound to call them
+	 */
+	template<typename UserClass, typename... VarTypes>
+	inline static TDelegate<RetValType(ParamTypes...), UserPolicy> CreateSP(const std::shared_ptr<UserClass>& in_user_object_ref, typename TMemFunPtrType<false, UserClass, RetValType(ParamTypes..., VarTypes...)>::Type in_func, VarTypes... vars)
+	{
+		TDelegate<RetValType(ParamTypes...), UserPolicy> Result;
+		TBaseSPMethodDelegateInstance<false, UserClass, FuncType, UserPolicy, VarTypes...>::Create(Result, in_user_object_ref, in_func, vars...);
+		return Result;
+	}
+
+	template<typename UserClass, typename... VarTypes>
+	inline static TDelegate<RetValType(ParamTypes...), UserPolicy> CreateSP(const std::shared_ptr<UserClass>& in_user_object_ref, typename TMemFunPtrType<true, UserClass, RetValType(ParamTypes..., VarTypes...)>::Type in_func, VarTypes... vars)
+	{
+		TDelegate<RetValType(ParamTypes...), UserPolicy> Result;
+		TBaseSPMethodDelegateInstance<true, UserClass, FuncType, UserPolicy, VarTypes...>::Create(Result, in_user_object_ref, in_func, vars...);
+		return Result;
+	}
+
 	/*
 	* static: creates a raw c++ pointer global function delegate
 	*/
@@ -120,7 +163,8 @@ public:
 	{
 		DelegateInstanceInterfaceType* local_delegate_instance = get_delegate_instance_protected();
 
-		return local_delegate_instance->execute(Params...);
+		if (local_delegate_instance != nullptr)
+			return local_delegate_instance->execute(Params...);//todo:implement execute if bound
 	}
 
 protected:

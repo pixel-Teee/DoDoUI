@@ -5,7 +5,8 @@
 #include "Slate/Widgets/Layout/SSplitter.h"
 
 namespace DoDo {
-	
+
+	class SDockingSplitter;
 	/*
 	* a node in the docking/tabbing hierarchy
 	* any SDockingNode can be either a stack of tabs or a splitter
@@ -63,6 +64,10 @@ namespace DoDo {
 		*/
 		//virtual void set_parent_node(std::shared_ptr<>)
 		//todo:implement SDockingSplitter
+		virtual void set_parent_node(std::shared_ptr<SDockingSplitter> in_parent)
+		{
+			m_parent_node_ptr = in_parent;
+		}
 
 		/*a tab can be removed from a stack when a user drags it away or when the user closes it*/
 
@@ -75,6 +80,12 @@ namespace DoDo {
 		/*set the coefficient size*/
 		void set_size_coefficient(float in_size_coefficient);
 	protected:
+
+		/*
+		 * weak reference to the parent noe, it is nullptr until the node
+		 * is inherited into the hierarchy, also null for root nodes (aka SDockingArea)
+		 */
+		std::weak_ptr<SDockingSplitter> m_parent_node_ptr;
 
 		float m_size_coefficient;
 	};

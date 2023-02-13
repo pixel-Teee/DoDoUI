@@ -232,6 +232,19 @@ namespace DoDo
 			_##EventName = DelegateName::CreateStatic(InFunc, Vars...); \
 			return static_cast<WidgetArgsType*>(this)->Me(); \
 		} \
+		/*set event delegate to a shared pointer-based class method, slate mostly uses shared pointers so we can use an overload for this type of binding*/ \
+		template<class UserClass, typename... VarTypes> \
+		WidgetArgsType& EventName(std::shared_ptr<UserClass> in_user_object_ref, typename DelegateName::template TMethodPtr<UserClass, VarTypes...> in_func, VarTypes... Vars) \
+		{ \
+			_##EventName = DelegateName::CreateSP(in_user_object_ref, in_func, Vars...);\
+			return static_cast<WidgetArgsType*>(this)->Me(); \
+		} \
+		template<class UserClass, typename... VarTypes> \
+		WidgetArgsType& EventName(std::shared_ptr<UserClass> in_user_object_ref, typename DelegateName::template TConstMethodPtr<UserClass, VarTypes...> in_func, VarTypes... Vars) \
+		{ \
+			_##EventName = DelegateName::CreateSP(in_user_object_ref, in_func, Vars...);\
+			return static_cast<WidgetArgsType*>(this)->Me(); \
+		} \
 		DelegateName _##EventName;
 
 	/*

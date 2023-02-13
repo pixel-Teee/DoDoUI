@@ -10,6 +10,9 @@ namespace DoDo {
 #define DECLARE_DELEGATE_OneParam(DelegateName, Param1Type) FUNC_DECLARE_DELEGATE(DelegateName, void, Param1Type)
 #define DECLARE_DELEGATE_RetVal_OneParam(ReturnValueType, DelegateName, Param1Type) FUNC_DECLARE_DELEGATE(DelegateName, ReturnValueType, Param1Type)
 
-#define DECLARE_DELEGATE_TwoParams(DelegateName, Param1Type, Param2Type) FUNC_DECLARE_DELEGATE(DelegateName, ReturnValueType, Param1Type, Param2Type)
+#define DECLARE_DELEGATE_TwoParams(DelegateName, Param1Type, Param2Type) FUNC_DECLARE_DELEGATE(DelegateName, Param1Type, Param2Type)
 #define DECLARE_DELEGATE_RetVal_TwoParams(ReturnValueType, DelegateName, Param1Type, Param2Type) FUNC_DECLARE_DELEGATE(DelegateName, ReturnValueType, Param1Type, Param2Type)
+
+
+		DECLARE_DELEGATE(FSimpleDelegate)//simple delegate
 }

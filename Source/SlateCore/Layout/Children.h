@@ -232,6 +232,18 @@ namespace DoDo
 			m_children[index]->Construct(*this, std::move(slot_arguments));
 		}
 
+		void move(int32_t index_to_move, int32_t index_to_destination)
+		{
+			std::unique_ptr<SlotType> slot_to_move = std::move(m_children[index_to_move]);//move
+
+			m_children.erase(m_children.begin() + index_to_move);//remove
+
+			m_children.insert(m_children.begin() + index_to_destination, std::move(slot_to_move));
+
+			//todo:implement EInvalidationWidgetReason::ChildOrder
+			get_owner().Invalidate(EInvalidateWidgetReason::Child_Order);
+		}
+
 		void reserve(int32_t num_to_reserve)
 		{
 			m_children.reserve(num_to_reserve);

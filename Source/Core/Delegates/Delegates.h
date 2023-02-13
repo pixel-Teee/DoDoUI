@@ -319,5 +319,5 @@ namespace DoDo {
 	};
 
 	//simple delegate, non return, non parameter
-	typedef DoDo::Delegate_Event<void()> FSimpleDelegate;
+	//typedef DoDo::Delegate_Event<void()> FSimpleDelegate;
 }

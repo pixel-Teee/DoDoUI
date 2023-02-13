@@ -143,7 +143,7 @@ namespace DoDo
 			//todo:implement play pressed source
 
 			//todo:call delegate
-			m_on_pressed.Invoke();
+			m_on_pressed.execute();
 
 			//todo:implement update press state changed
 			update_press_state_changed();//update button state, image color something

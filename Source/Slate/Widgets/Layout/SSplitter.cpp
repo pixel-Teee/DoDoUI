@@ -30,7 +30,7 @@ namespace DoDo {
 
 		m_min_size_value = in_args._MinSize;
 
-		if(in_args._OnSlotResized.Is_Bound())
+		if(in_args._OnSlotResized.is_bound())
 		{
 			m_on_slot_resized_handler = std::move(in_args._OnSlotResized);
 		}

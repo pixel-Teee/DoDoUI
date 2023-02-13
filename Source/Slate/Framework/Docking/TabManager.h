@@ -10,7 +10,7 @@
 
 #include "WorkspaceItem.h"//FTabSpawnerEntry depends on it
 
-#include "Slate/Widgets/Docking/SDockTab.h"
+//#include "Slate/Widgets/Docking/SDockTab.h"
 
 //#include "Slate/Framework/Docking/SDockingArea.h"
 
@@ -21,6 +21,7 @@ namespace DoDo
 	class SDockingArea;
 	class SDockingNode;
 	class SDockingSplitter;
+	class SDockTab;
 	struct FSidebarTabLists;
 
 	enum class ESidebarLocation : uint8_t
