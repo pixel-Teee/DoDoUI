@@ -27,7 +27,9 @@ namespace DoDo
 		//	[
 		//		SNew(SOverlay)
 		//		+ SOverlay::Slot()
-		//		
+		//		[
+		//			SNew(SImage)
+		//		]
 		//	]
 		//);
 

@@ -31,6 +31,8 @@ namespace DoDo {
 
 		virtual DoDoUtf8String root_to_content_dir(const char* relative_path, const char* extension);
 
+		virtual FSlateBrush* get_default_brush() const override;
+
 		/*
 		* add a FSlateLinearColor property to this style's collection
 		* 

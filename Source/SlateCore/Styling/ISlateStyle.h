@@ -44,5 +44,12 @@ namespace DoDo {
 
 		/*destructor*/
 		virtual ~ISlateStyle();
+
+		/*
+		* get default FSlateBrush
+		* 
+		* @return default slate brush value
+		*/
+		virtual FSlateBrush* get_default_brush() const = 0;
 	};
 }

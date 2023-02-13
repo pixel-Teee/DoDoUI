@@ -3,10 +3,17 @@
 
 #include "SlateWidgetStyle.h"
 
+#include "SlateCore/Brushes/SlateImageBrush.h"
+
+#include "Core/Misc/Paths.h"
+
 namespace DoDo {
 	FSlateStyleSet::FSlateStyleSet(const DoDoUtf8String& in_style_set_name)
 		: m_style_set_name(in_style_set_name)
+		, m_default_brush(new FSlateImageBrush(FPaths::engine_content_dir() / "Slate/Checkboard.png", glm::vec2(16.0f, 16.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ESlateBrushTileType::Both))
 	{
+		//add a mapping so that this resource will be discovered by get style resources
+		set("Default", get_default_brush());
 	}
 	FSlateStyleSet::~FSlateStyleSet()
 	{
@@ -24,6 +31,10 @@ namespace DoDo {
 	DoDoUtf8String FSlateStyleSet::root_to_content_dir(const char* relative_path, const char* extension)
 	{
 		return m_content_root_dir / relative_path + extension;
+	}
+	FSlateBrush* FSlateStyleSet::get_default_brush() const
+	{
+		return m_default_brush;
 	}
 	const DoDoUtf8String& FSlateStyleSet::get_style_set_name() const
 	{

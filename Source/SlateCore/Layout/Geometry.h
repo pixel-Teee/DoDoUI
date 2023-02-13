@@ -159,6 +159,11 @@ namespace DoDo
 			return FGeometry(in_local_size, layout_transform, get_accumulated_layout_transform(), get_accumulated_render_transform(), m_b_has_render_transform);
 		}
 
+		FGeometry make_child(const FSlateRenderTransform& render_transform, const glm::vec2& render_transform_pivot = glm::vec2(0.5f, 0.5f)) const
+		{
+			return FGeometry(get_local_size(), FSlateLayoutTransform(), render_transform, render_transform_pivot, get_accumulated_layout_transform(), get_accumulated_render_transform());
+		}
+
 		/*
 		 * create a child geometry+widget relative to this one using the given layout geometry
 		 *
