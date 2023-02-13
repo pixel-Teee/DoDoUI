@@ -1,6 +1,9 @@
-#include "Renderer/PipelineStateObject.h"
 
 #include <vulkan/vulkan.h>
+
+#include "SlateVulkanRenderer.h"
+
+#include "Renderer/PipelineStateObject.h"//todo:remove this
 
 namespace DoDo {
 	class GraphicsPipelineStateObject : public PipelineStateObject
@@ -18,9 +21,17 @@ namespace DoDo {
 		
 		virtual void* get_render_pass_native_handle() override;
 
+		virtual void* get_pipeline_layout() override;
+
 		virtual void* get_native_handle() override;
 
+		virtual void set_render_pass(void* render_pass) override;
+
 		virtual void finalize(void* logic_device) override;
+
+		virtual void set_descriptor_set(uint32_t set_counts, void* descriptor_set) override;
+
+		virtual void set_input_vertex_layout(void* input_layout) override;
 	private:
 		//------root signature------
 		VkPipelineLayoutCreateInfo m_pipeline_layout_create_info;
@@ -36,6 +47,9 @@ namespace DoDo {
 
 		VkPipelineShaderStageCreateInfo m_shader_stage_create_info[2];
 
-		VkRenderPass m_render_pass;
+		VertexInputDescription m_vertex_layout;
+		VkPipelineVertexInputStateCreateInfo m_vertex_input_state_create_info;
+
+		VkRenderPass m_render_pass;//todo:remove this
 	};
 }

@@ -29,6 +29,17 @@ namespace DoDo
 		/*
 		 * compares two enumeration values for equality
 		 *
+		 * @param InValue the value to compare with
+		 * @return true if the two values are equal, false otherwise
+		 */
+		bool operator==(TEnum in_value) const
+		{
+			return static_cast<TEnum>(m_value) == in_value;
+		}
+
+		/*
+		 * compares two enumeration values for equality
+		 *
 		 * @param in_value the value to compare with
 		 * @return true if the two values are equal, false otherwise
 		 */

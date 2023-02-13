@@ -3,14 +3,23 @@
 #include "Core/Math/IntPoint.h"
 #include "glm/vec2.hpp"
 
+#include "SlateCore/Layout/ArrangedWidget.h"//FWidgetAndPointer
+
 namespace DoDo
 {
+	//struct FWidgetAndPointer;
 	class SWidget;
 	//todo:inherited from FNoncopyable
 	class FHittestGrid
 	{
 	public:
 		FHittestGrid();
+
+		/*
+		 * given a slate units coordinate in virtual desktop space, perform a hittest
+		 * and return the path along which the corresponding event would be bubbled
+		 */
+		std::vector<FWidgetAndPointer> get_bubble_path(glm::vec2 desktop_space_coordinate, float cursor_radius, bool b_ignore_enabled_status, int32_t user_index = -1);
 
 		/*
 		 * given a slate units coordinate in virtual desktop space, perform a hittest
@@ -59,6 +68,7 @@ namespace DoDo
 		/*add SWidget from the hittest grid*/
 		//todo:implement FSlateInvalidationWidgetSortOrder
 		//todo:implement AddWidget
+		void add_widget(const SWidget* in_widget, int32_t in_batch_priority_group, int32_t layer_id);
 
 		/*remove SWidget from the hittest grid*/
 		void remove_widget(const SWidget* in_widget);
@@ -84,6 +94,14 @@ namespace DoDo
 		 */
 		struct FWidgetData
 		{
+			FWidgetData(const std::weak_ptr<SWidget>& in_widget, const FIntPoint& in_upper_left_cell, const FIntPoint& in_lower_right_cell,
+				int64_t in_primary_sort, int32_t in_user_index)
+					: m_weak_widget(in_widget)
+					, m_upper_left_cell(in_upper_left_cell)
+					, m_lower_right_cell(in_lower_right_cell)
+					, m_primary_sort(in_primary_sort)
+					, m_user_index(in_user_index)
+			{}
 			std::weak_ptr<SWidget> m_weak_widget;
 
 			//todo:implement ICustomHitTestPath
@@ -112,6 +130,10 @@ namespace DoDo
 				, m_widget_index(in_index)
 			{}
 
+			bool is_valid() const { return m_grid != nullptr && (m_widget_index >= 0 && m_widget_index < m_grid->m_widget_array.size()); }
+
+			const FWidgetData& get_widget_data() const;
+
 		private:
 			const FHittestGrid* m_grid;
 
@@ -129,11 +151,13 @@ namespace DoDo
 				: FWidgetIndex(widget_index)
 				, m_distance_sq_to_widget(in_distance_sq)
 			{}
-
+		
 			float get_distance_sq_to_widget() const { return m_distance_sq_to_widget; }
 		private:
 			float m_distance_sq_to_widget;
 		};
+
+		struct FGridTestingParams;
 
 		/*
 		 * all the available space is partitioned into cells
@@ -166,6 +190,35 @@ namespace DoDo
 			std::weak_ptr<const FHittestGrid> m_grid;
 		};
 
+		bool is_valid_cell_coord(const FIntPoint& cell_coord) const;
+		bool is_valid_cell_coord(const int32_t x_coord, const int32_t y_coord) const;
+		void clear_internal(int32_t total_cells);
+
+		/*return the index and distance to a hit given the testing params*/
+		FIndexAndDistance get_hit_index_from_cell_index(const FGridTestingParams& params) const;
+
+		/*constrains a float position into the grid coordinate*/
+		FIntPoint get_cell_coordinate(glm::vec2 position) const;
+
+		FCell& cell_at(const int32_t x, const int32_t y)
+		{
+			return m_cells[y * m_num_cells.x + x];
+		}
+
+		/*access a cell at coordinates x, y, coordinates are row and column indexes*/
+		const FCell& cell_at(const int32_t x, const int32_t y) const
+		{
+			return m_cells[y * m_num_cells.x + x];
+		}
+
+		using FCollapsedHittestGridArray = std::vector<const FHittestGrid*>;
+		/*get all the hittest grid appended to this grid*/
+		void get_collapsed_hittest_grid(FCollapsedHittestGridArray& out_result) const;
+
+		using FCollapsedWidgetsArray = std::vector<FWidgetIndex>;
+
+		/*return the list of all the widget in that cell*/
+		void get_collapsed_widgets(FCollapsedWidgetsArray& out, const int32_t x, const int32_t y) const;
 	private:
 		/*map of all the widget currently in the hit test grid to their stable index*/
 		std::map<const SWidget*, int32_t> m_widget_map;
@@ -174,7 +227,7 @@ namespace DoDo
 		//todo:implement TSpareArray
 		std::vector<FWidgetData> m_widget_array;
 
-		/*the celss that make up the space partition*/
+		/*the cells that make up the space partition*/
 		std::vector<FCell> m_cells;
 
 		/*the collapsed grid cached untitled it's dirtied*/
@@ -200,4 +253,6 @@ namespace DoDo
 		/*the current slate user index that should be associated with any added widgets*/
 		int32_t m_current_user_index;
 	};
+
+	
 }

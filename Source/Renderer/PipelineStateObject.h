@@ -19,7 +19,15 @@ namespace DoDo {
 
 		virtual void set_pixel_shader(Shader& pixel_shader, const std::string& target_point) = 0;
 
+		virtual void set_input_vertex_layout(void* input_layout) = 0;
+
+		virtual void set_descriptor_set(uint32_t set_counts, void* descriptor_set) = 0;
+
 		virtual void* get_render_pass_native_handle() = 0;
+
+		virtual void* get_pipeline_layout() = 0;//root signature
+
+		virtual void set_render_pass(void* render_pass) = 0;
 
 		virtual void finalize(void* logic_device) = 0;
 

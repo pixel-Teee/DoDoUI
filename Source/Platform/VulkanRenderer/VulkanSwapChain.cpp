@@ -2,6 +2,7 @@
 
 #include "VulkanSwapChain.h"
 
+#include "SlateVulkanRenderer.h"
 #include "Utils.h"
 
 #include "Core/Window.h"
@@ -175,10 +176,100 @@ namespace DoDo {
 		vkGetSwapchainImagesKHR(device, m_swap_chain, &image_count, m_swap_chain_images.data());
 		//------create swap chain------
 
-		create_image_views(device);
-
-		create_frame_buffers(device, pass);
+		//create_image_views(device);
+		//
+		//create_frame_buffers(device, pass);
 	}
+
+	VulkanSwapChain::VulkanSwapChain(void* vulkan_physical_device, void* logic_device, void* surface, Window& window, DeletionQueue& deletion_queue)
+	{
+		VkPhysicalDevice physical_device = *(VkPhysicalDevice*)vulkan_physical_device;
+
+		VkDevice device = *(VkDevice*)logic_device;
+
+		VkSurfaceKHR surface_khr = *(VkSurfaceKHR*)surface;
+
+		//VkRenderPass pass = *(VkRenderPass*)render_pass;
+
+		VulkanUtils::SwapChainSupportDetails swap_chain_support_details;
+
+		swap_chain_support_details = query_swap_chain_support(physical_device, surface_khr);
+
+		m_surface_format = choose_swap_surface_format(swap_chain_support_details.formats);
+
+		VkPresentModeKHR present_mode = choose_swap_present_mode(swap_chain_support_details.present_modes);
+
+		m_extent_2d = choose_swap_extent(swap_chain_support_details.capabilities, window);
+
+		//------get image count(image just buffer)------
+		uint32_t image_count = swap_chain_support_details.capabilities.minImageCount + 1;
+
+		if (swap_chain_support_details.capabilities.maxImageCount > 0 && image_count > swap_chain_support_details.capabilities.maxImageCount)
+		{
+			image_count = swap_chain_support_details.capabilities.maxImageCount;
+		}
+		//------get image count(image just buffer)------
+
+		VkSwapchainCreateInfoKHR create_info{};
+		create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		create_info.surface = surface_khr;
+
+		create_info.minImageCount = image_count;
+		create_info.imageFormat = m_surface_format.format;
+		create_info.imageColorSpace = m_surface_format.colorSpace;
+		create_info.imageExtent = m_extent_2d;
+		create_info.imageArrayLayers = 1;//describe every image consist of array layer numbers
+		create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;//as attachment 
+
+		VulkanUtils::QueueFamilyIndices indices = VulkanUtils::find_queue_families(physical_device, surface_khr);
+
+		uint32_t queue_family_indices[] = { indices.graphics_family.value(), indices.present_family.value() };
+
+		if (indices.graphics_family != indices.present_family)
+		{
+			create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+			create_info.queueFamilyIndexCount = 2;
+			create_info.pQueueFamilyIndices = queue_family_indices;
+		}
+		else
+		{
+			create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			create_info.queueFamilyIndexCount = 0;//optional
+			create_info.pQueueFamilyIndices = nullptr;//optional
+		}
+
+		create_info.preTransform = swap_chain_support_details.capabilities.currentTransform;
+
+		create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+		create_info.clipped = VK_TRUE;
+
+		create_info.oldSwapchain = VK_NULL_HANDLE;
+
+		if (vkCreateSwapchainKHR(device, &create_info, nullptr, &m_swap_chain) != VK_SUCCESS)
+		{
+			std::cout << "failed to create device" << std::endl;
+		}
+
+		//------create swap chain------
+		vkGetSwapchainImagesKHR(device, m_swap_chain, &image_count, nullptr);
+		m_swap_chain_images.resize(image_count);
+		vkGetSwapchainImagesKHR(device, m_swap_chain, &image_count, m_swap_chain_images.data());
+		//------create swap chain------
+
+		deletion_queue.push_function([=]()
+		{
+			vkDestroySwapchainKHR(device, m_swap_chain, nullptr);
+		});
+
+		//todo:implement create_image_views
+		create_image_views(device, deletion_queue);
+
+		//create_frame_buffers(device, pass);
+
+		//todo:add render pass for create framebuffer
+	}
+
 	VulkanSwapChain::~VulkanSwapChain()
 	{
 		//vkDestroySwapchainKHR(device, swapChain, nullptr);
@@ -217,6 +308,43 @@ namespace DoDo {
 		return std::make_pair(m_extent_2d.width, m_extent_2d.height);
 	}
 
+	std::vector<VkFramebuffer> VulkanSwapChain::create_frame_buffer(VkDevice logic_device, VkRenderPass render_pass, DeletionQueue& deletion_queue)
+	{
+		std::vector<VkFramebuffer> framebuffers;
+		//render pass describes how to control image and how to clear image
+		framebuffers.resize(m_swap_chain_image_views.size());
+
+		for (size_t i = 0; i < framebuffers.size(); ++i)
+		{
+			VkImageView attachments[] = { m_swap_chain_image_views[i] };
+
+			VkFramebufferCreateInfo frame_buffer_info{};
+			frame_buffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			frame_buffer_info.renderPass = render_pass;//render pass;
+			frame_buffer_info.attachmentCount = 1;
+			frame_buffer_info.pAttachments = attachments;
+			frame_buffer_info.width = m_extent_2d.width;
+			frame_buffer_info.height = m_extent_2d.height;
+			frame_buffer_info.layers = 1;
+
+			if (vkCreateFramebuffer(logic_device, &frame_buffer_info, nullptr, &framebuffers[i]) != VK_SUCCESS)
+			{
+				std::cout << "failed to create framebuffer" << std::endl;
+			}
+		}
+
+		for (size_t i = 0; i < framebuffers.size(); ++i)
+		{
+			deletion_queue.push_function([=]()
+			{
+				vkDestroyFramebuffer(logic_device, framebuffers[i], nullptr);
+			});
+		}
+
+		//copy return
+		return framebuffers;
+	}
+
 	void VulkanSwapChain::create_image_views(VkDevice logic_device)
 	{
 		m_swap_chain_image_views.resize(m_swap_chain_images.size());
@@ -224,6 +352,16 @@ namespace DoDo {
 		for (size_t i = 0; i < m_swap_chain_images.size(); ++i)
 		{
 			m_swap_chain_image_views[i] = create_image_view(m_swap_chain_images[i], m_surface_format.format, VK_IMAGE_ASPECT_COLOR_BIT, logic_device);
+		}
+	}
+
+	void VulkanSwapChain::create_image_views(VkDevice logic_device, DeletionQueue& deletion_queue)
+	{
+		m_swap_chain_image_views.resize(m_swap_chain_images.size());
+
+		for (size_t i = 0; i < m_swap_chain_images.size(); ++i)
+		{
+			m_swap_chain_image_views[i] = create_image_view(m_swap_chain_images[i], m_surface_format.format, VK_IMAGE_ASPECT_COLOR_BIT, logic_device, deletion_queue);
 		}
 	}
 
@@ -269,6 +407,33 @@ namespace DoDo {
 		if (vkCreateImageView(logic_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create texture image view!");
 		}
+
+		return imageView;
+	}
+
+	VkImageView VulkanSwapChain::create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect_flags,
+		VkDevice logic_device, DeletionQueue& deletion_queue)
+	{
+		VkImageViewCreateInfo viewInfo{};
+		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.image = image;
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.format = format;
+		viewInfo.subresourceRange.aspectMask = aspect_flags;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+
+		VkImageView imageView;
+		if (vkCreateImageView(logic_device, &viewInfo, nullptr, &imageView) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create texture image view!");
+		}
+
+		deletion_queue.push_function([=]()
+		{
+			vkDestroyImageView(logic_device, imageView, nullptr);
+		});
 
 		return imageView;
 	}

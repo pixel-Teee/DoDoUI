@@ -2,6 +2,8 @@
 
 #include "Core/String/DoDoString.h"
 
+#include <cmath>
+
 namespace DoDo
 {
 	/*

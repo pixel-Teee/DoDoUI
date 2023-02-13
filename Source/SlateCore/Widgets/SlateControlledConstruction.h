@@ -2,16 +2,12 @@
 
 //#include <type_traits>
 
+#include "Core/Templates/Identity.h"
+
 #include "SlateCore/Types/SlateAttributeDescriptor.h"
 
 namespace DoDo
 {
-	template<typename T>
-	struct TIdentity
-	{
-		typedef T Type;
-	};
-
 	//forward declare
 	class FSlateControlledConstruction;
 

@@ -2,13 +2,13 @@
 
 #include "SWidget.h"
 
-#include "glm/glm.hpp"
+//#include "glm/glm.hpp"
 
 #include "SlateCore/Layout/Children.h"//SCompoundWidget depends on it
 
 namespace DoDo {
 	class FPaintArgs;
-	class FGeometry;
+	struct FGeometry;
 	class FSlateRect;
 	class FSlateWindowElementList;
 	class FWidgetStyle;
@@ -43,6 +43,16 @@ namespace DoDo {
 			m_content_scale_attribute.Assign(*this, std::move(In_Content_Scale));
 		}
 
+		/*
+		* sets the widget's foreground color
+		*
+		* @param InColor the color to set
+		*/
+		void set_foreground_color(TAttribute<glm::vec4> in_fore_ground_color)
+		{
+			m_foreground_color_attribute.Assign(*this, std::move(in_fore_ground_color));
+		}
+
 		//todo:implement FPaintArgs
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements,
 			int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
@@ -52,6 +62,9 @@ namespace DoDo {
 		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
 
 	protected:
+
+		/*disallow public construction*/
+		SCompoundWidget();
 
 		/*------begin SWidget overrides------*/
 		virtual glm::vec2 Compute_Desired_Size(float) const override;

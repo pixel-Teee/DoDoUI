@@ -20,7 +20,7 @@ namespace DoDo
 			: m_owner(in_owner)
 			, m_name("Children")
 		{
-			
+			//m_owner = in_owner;
 		}
 
 		FChildren(SWidget* in_owner, DoDoUtf8String in_name)
@@ -73,6 +73,12 @@ namespace DoDo
 		virtual bool Support_Slot_With_Slate_Attribute() const
 		{
 			return false;
+		}
+
+		/*option to give a name to children to slot attribute purposes or for debugging*/
+		DoDoUtf8String get_name() const
+		{
+			return m_name;
 		}
 
 	protected:

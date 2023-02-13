@@ -4,6 +4,41 @@
 
 namespace DoDo {
     namespace VulkanUtils {
+        std::optional<uint32_t> find_queue_families(VkPhysicalDevice device)
+        {
+            {
+                std::optional<uint32_t> indice;
+
+                //logic to find graphics queue family
+                uint32_t queue_family_count = 0;
+
+                vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
+
+                std::vector<VkQueueFamilyProperties> queue_families(queue_family_count);
+
+                vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_families.data());
+
+                int32_t i = 0;
+                for (const auto& queue_families : queue_families)
+                {
+                    if (queue_families.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+                    {
+                        indice = i;
+                        //indices.present_family = i;
+                    }
+
+                    if(indice.has_value())
+                    {
+                        break;
+                    }
+
+                    ++i;
+                }
+
+                return indice;
+            }
+        }
+
         QueueFamilyIndices find_queue_families(VkPhysicalDevice device, VkSurfaceKHR surface)
         {
             {

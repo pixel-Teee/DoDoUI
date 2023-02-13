@@ -64,6 +64,7 @@ namespace SlateAttributePrivate {
 		virtual ~ISlateAttributeGetter() = default;
 	};
 
+	//these function will dispatch to FSlateAttributeMetaData's static function
 	struct FSlateAttributeImpl : public FSlateAttributeBase
 	{
 	protected:
@@ -75,9 +76,19 @@ namespace SlateAttributePrivate {
 
 		bool protected_is_bound(const SWidget& widget, ESlateAttributeType attribute_type) const;
 
+		//ISlateAttributeGetter* protected_find_getter(const SWidget& widget, ESlateAttributeType attribute_type) const;
+
 		ISlateAttributeGetter* protected_find_getter(const SWidget& widget, ESlateAttributeType attribute_type) const;
 
 		FDelegateHandle protected_find_getter_handle(const SWidget& widget, ESlateAttributeType attribute_type) const;
+
+		void protected_register_attribute(ISlateAttributeContainer& container, ESlateAttributeType attribute_type, Scope<ISlateAttributeGetter>&& wrapper);
+
+		void protected_unregister_attribute(ISlateAttributeContainer& container, ESlateAttributeType attribute_type) const;
+
+		void protected_invalidate_widget(ISlateAttributeContainer& container, ESlateAttributeType attribute_type, EInvalidateWidgetReason invalidation_reason) const;
+
+		FDelegateHandle protected_find_getter_handle(const ISlateAttributeContainer& container, ESlateAttributeType attribute_type) const;
 
 		void protected_update_now(SWidget& widget, ESlateAttributeType attribute_type);
 	};

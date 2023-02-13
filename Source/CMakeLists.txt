@@ -10,19 +10,30 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "SlateCore/Types/*.h"
 "SlateCore/Types/*.inl"
 "SlateCore/Types/*.cpp"
+"SlateCore/Brushes/*.h"
+"SlateCore/Brushes/*.cpp"
+"SlateCore/Textures/*.h"
+"SlateCore/Textures/*.cpp"
 "SlateCore/*.h"
 "SlateCore/*.cpp"
 "Slate/Widgets/*.h"
 "Slate/Widgets/*.cpp"
+"Slate/Framework/*.h"
+"Slate/Framework/*.cpp"
 "Core/*.h"
 "Core/*.cpp"
 "Core/Math/*.h"
 "Core/Math/*.cpp"
+"Core/*.inl"
 "Application/*.h"
 "Application/*.cpp"
+"ApplicationCore/GenericPlatform/*.h"
+"ApplicationCore/GenericPlatform/*.cpp"
 "../ThirdParty/glm/glm/*.h"
 "../ThirdParty/glm/glm/*.hpp"
 "../ThirdParty/glm/glm/*.cpp"
+"../ThirdParty/stbimage/*.h"
+"../ThirdParty/stbimage/*.cpp"
 )
 
 file(GLOB_RECURSE Renderer_Source
@@ -33,13 +44,17 @@ file(GLOB_RECURSE Renderer_Source
 )
 
 if(NOT CMAKE_SYSTEN_NAME MATCHES "Android")
-	file(GLOB Glfw_Window "Platform/Window/WindowsWindow.h" "Platform/Window/WindowsWindow.cpp")
+	file(GLOB Glfw_Window "Platform/Window/WindowsWindow.h" "Platform/Window/WindowsWindow.cpp" "Platform/Window/WindowsCursor.h" "Platform/Window/WindowsCursor.cpp")
+	file(GLOB Glfw_Application "Platform/Application/GLFWApplication.h" "Platform/Application/GLFWApplication.cpp")
+	file(GLOB Application_Misc "Platform/Application/WindowsPlatformApplicationMisc.h" "Platform/Application/WindowsPlatformApplicationMisc.cpp")
 	# message(${Glfw_Window})
-	list(APPEND Renderer_Source ${Glfw_Window})
+	list(APPEND Renderer_Source ${Glfw_Window} ${Glfw_Application} ${Application_Misc})
 else()
 	file(GLOB Android_Window "Platform/Window/AndroidWindow.h" "Platform/Window/AndroidWindow.cpp")
+	file(GLOB Android_Application "Platform/Application/AndroidApplication.h" "Platform/Application/AndroidApplication.cpp")
+	file(GLOB Application_Misc "Platform/Application/AndroidPlatformApplicationMisc.h" "Platform/Application/AndroidPlatformApplicationMisc.cpp")
 	# list(APPEND Renderer_Source ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
-	list(APPEND Renderer_Source ${Android_Window})
+	list(APPEND Renderer_Source ${Android_Window} ${Android_Application} ${Application_Misc})
 endif()
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${Do_Do_UI_Source})
@@ -80,6 +95,8 @@ else()
 	# message(${ANDROID_NDK}/sources/android/native_app_glue/)
 	target_include_directories(DoDoUI PRIVATE "." ${ANDROID_NDK}/sources/android/native_app_glue "../ThirdParty/glm")
 endif()
+
+target_include_directories(DoDoUI PRIVATE ../ThirdParty/vma ../ThirdParty/stbimage)
 
 # pch
 target_precompile_headers(DoDoUI PRIVATE "PreCompileHeader.h")

@@ -19,8 +19,10 @@ namespace SlateAttributePrivate
 		using FComparePredicate = InComparePredicateType;
 
 		static EInvalidateWidgetReason Get_Invalidation_Reason(const SWidget& widget) { return FInvalidationReasonPredicate::Get_InvalidationReason(widget); }
+		static EInvalidateWidgetReason Get_Invalidation_Reason(const ISlateAttributeContainer& container) { return FInvalidationReasonPredicate::Get_InvalidationReason(container.Get_Container_Widget()); }
 		//use == to compare lhs and rhs
 		static bool Identical_To(const SWidget& widget, const ObjectType& lhs, const ObjectType& rhs) { return FComparePredicate::Identical_To(widget, lhs, rhs); }
+		static bool Identical_To(const ISlateAttributeContainer& container, const ObjectType& lhs, const ObjectType& rhs) { return FComparePredicate::Identical_To(container.Get_Container_Widget(), lhs, rhs); }
 	public:
 		TSlateAttributeBase()
 			: m_Value()
@@ -36,6 +38,12 @@ namespace SlateAttributePrivate
 
 		TSlateAttributeBase(ObjectType&& In_Value)
 			: m_Value(std::move(In_Value))
+		{
+			
+		}
+
+		TSlateAttributeBase(SWidget& widget)
+			: m_Value()
 		{
 			
 		}
@@ -98,6 +106,23 @@ namespace SlateAttributePrivate
 			return !b_Is_Identical;
 		}
 
+		bool Assign(ContainerType& widget, const TAttribute<ObjectType>& other_attribute)
+		{
+			//other_attribute bind a function
+			if (other_attribute.Is_Bound())
+			{
+				return Assign_Binding(widget, other_attribute.Get_Binding());
+			}//other_attribute does not bind a function, but assign a value
+			else if (other_attribute.Is_Set())
+			{
+				return Set(widget, other_attribute.Get());
+			}
+			else
+			{
+				return false;
+			}
+		}
+
 		//from TAttribute to construct TSlateAttributeBase
 		bool Assign(ContainerType& widget, TAttribute<ObjectType>&& other_attribute)
 		{
@@ -129,7 +154,7 @@ namespace SlateAttributePrivate
 			//	return true;
 			//}
 
-			if (Previous_Getter_Handler != getter.Get_Handle())
+			if (Previous_Getter_Handler != getter.get_handle())
 			{
 				Construct_Wrapper(widget, std::move(getter));
 
@@ -197,7 +222,7 @@ namespace SlateAttributePrivate
 
 			virtual FDelegateHandle Get_Delegate_Handle() const override
 			{
-				return m_getter.Get_Handle();
+				return m_getter.get_handle();
 			}
 
 			FUpdateAttributeResult Update_Attribute(const SWidget& widget) override

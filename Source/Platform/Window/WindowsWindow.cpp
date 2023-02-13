@@ -9,22 +9,34 @@
 
 #include "Renderer/RendererInstance.h"
 
+#include "ApplicationCore/GenericPlatform/GenericWindowDefinition.h"//generic window definition
+
+#include "glm/glm.hpp"
+
 namespace DoDo {
+    //bool WindowsWindow::m_is_initialized_glfw = false;
+
+    //p p1 x p p2
+    uint64_t get_cross(uint64_t p1x, uint64_t p1y, uint64_t p2x, uint64_t p2y, uint64_t px, uint64_t py)
+    {
+        return (p1x - px) * (p2y - py) - (p1y - py) * (p2x - px);
+    }
+
 	WindowsWindow::WindowsWindow()
 	{
-        //------init glfw------
-        m_p_window = nullptr;
-
-        if (!glfwInit())
-        {
-            std::cout << "create glfw window error!" << std::endl;
-            return;
-        }
-        //------init glfw------
-
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);//don't create opengl context
-
-        m_p_window = glfwCreateWindow(1280, 720, "window", nullptr, nullptr);
+        ////------init glfw------
+        //m_p_window = nullptr;
+        //
+        //if (!glfwInit())
+        //{
+        //    std::cout << "create glfw window error!" << std::endl;
+        //    return;
+        //}
+        ////------init glfw------
+        //
+        //glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);//don't create opengl context
+        //
+        //m_p_window = glfwCreateWindow(1280, 720, "window", nullptr, nullptr);
 	}
 	WindowsWindow::~WindowsWindow()
 	{
@@ -54,5 +66,60 @@ namespace DoDo {
         }
 
         render_instance.wait_for_idle();
+    }
+
+    bool WindowsWindow::is_point_in_window(int32_t x, int32_t y) const
+    {
+       // bool result = false;
+
+        uint64_t a = get_cross(m_region_width, 0, x, y, 0, 0);
+        uint64_t b = get_cross(0, m_region_height, x, y, m_region_width, m_region_height);
+        uint64_t c = get_cross(x, y, 0, m_region_height, 0, 0);
+        uint64_t d = get_cross(x, y, m_region_width, 0, m_region_width, m_region_height);
+
+        return (a * b >= 0) && (c * d >= 0);
+
+        //todo:is point in?
+        //get_cross(m_region_width, 0, x, y, 0, 0)* get_cross(0, m_region_height, x, y, m_region_width, m_region_height);
+    }
+
+    void WindowsWindow::initialize(GLFWApplication* const application, const std::shared_ptr<FGenericWindowDefinition>& in_definition, const std::shared_ptr<WindowsWindow>& in_parent, const bool b_show_immediately)
+    {
+        m_definition = in_definition;//some window information
+        owning_application = application;//don't owns the life time of application
+
+        int32_t window_x = m_definition->x_desired_position_on_screen;
+        int32_t window_y = m_definition->y_desired_position_on_screen;
+        int32_t window_width = m_definition->m_width_desired_on_screen;//todo:need to trunc to int
+        int32_t window_height = m_definition->m_height_desired_on_screen;
+
+        /*
+        * finally, let's initialize the new native window object
+        * calling this function will often cause os window messages to be sent(such as messages)
+        */
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);//don't create opengl context
+
+        //todo:implement SWindow construct
+        m_p_window = glfwCreateWindow(window_width, window_height, m_definition->m_title.c_str(), nullptr, nullptr);
+
+        glfwSetWindowPos(m_p_window, window_x, window_y);
+        /*
+        * to create the window
+        */
+
+        adjust_window_region(window_width, window_height);
+
+        //todo:implement drag and drop operation
+
+        //todo:implement reshape window
+        
+    }
+
+    void WindowsWindow::adjust_window_region(int32_t width, int32_t height)
+    {
+        m_region_width = width;
+        m_region_height = height;
+
+        //todo:create make window region object
     }
 }

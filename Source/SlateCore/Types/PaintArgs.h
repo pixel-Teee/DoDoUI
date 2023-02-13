@@ -19,11 +19,29 @@ namespace DoDo
 
 		FPaintArgs(const SWidget* paint_parent, FHittestGrid& in_root_hittest_grid, glm::vec2 in_window_offset, double in_current_time, float in_delta_time);
 
+		FPaintArgs with_new_parent(const SWidget* paint_parent) const
+		{
+			FPaintArgs args(*this);
+			args.m_paint_parent_ptr = paint_parent;
+
+			return args;
+		}
+
 		//todo:implement InsertCustomHitTestPath
 
 		void set_inherited_hittest_ability(bool in_herited_hittest_ability)
 		{
 			m_b_inherited_hittest_ability = in_herited_hittest_ability;
+		}
+
+		const SWidget* get_paint_parent() const
+		{
+			return m_paint_parent_ptr;
+		}
+
+		FHittestGrid& get_hittest_grid() const
+		{
+			return m_current_grid;
 		}
 
 		//todo:implement other set and get functions

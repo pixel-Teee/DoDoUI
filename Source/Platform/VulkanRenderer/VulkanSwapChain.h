@@ -10,6 +10,8 @@ namespace DoDo {
 	public:
 		VulkanSwapChain(void* vulkan_physical_device, void* logic_device, void* surface, void* render_pass, Window& window);
 
+		VulkanSwapChain(void* vulkan_physical_device, void* logic_device, void* surface, Window& window, DeletionQueue& deletion_queue);
+
 		virtual ~VulkanSwapChain();
 
 		virtual void Destroy(void* logic_device) override;
@@ -20,12 +22,19 @@ namespace DoDo {
 
 		virtual std::pair<uint32_t, uint32_t> get_swap_chain_extent() override;
 
+		//framebuffer connect the render pass to the VkImage rendering to
+		std::vector<VkFramebuffer> create_frame_buffer(VkDevice logic_device, VkRenderPass render_pass, DeletionQueue& deletion_queue);
+
 	private:
 		void create_image_views(VkDevice logic_device);
+
+		void create_image_views(VkDevice logic_device, DeletionQueue& deletion_queue);
 
 		void create_frame_buffers(VkDevice logic_device, VkRenderPass render_pass);
 
 		VkImageView create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect_flags, VkDevice logic_device);
+
+		VkImageView create_image_view(VkImage image, VkFormat format, VkImageAspectFlags aspect_flags, VkDevice logic_device, DeletionQueue& deletion_queue);
 
 		VkSwapchainKHR m_swap_chain;
 

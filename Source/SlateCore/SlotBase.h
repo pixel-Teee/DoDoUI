@@ -62,6 +62,7 @@ namespace DoDo
 			detach_parent_from_content();
 			m_widget = in_widget;
 			//todo:implement after content or owner assigned
+			after_content_or_owner_assigned();
 		}
 
 		/*

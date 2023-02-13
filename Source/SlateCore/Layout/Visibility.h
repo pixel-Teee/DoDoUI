@@ -13,6 +13,10 @@ namespace DoDo
 		/*visible and hit-testable(can interact with cursor), default value*/
 		static const EVisibility visible;
 
+
+		/*any visibility will do*/
+		static const EVisibility All;
+
 		/*
 		 * default constructor
 		 * the default visibility is 'visible'

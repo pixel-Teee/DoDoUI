@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Core/Delegates/Delegates.h"
+#include "Core/Delegates/DelegateCombinations.h"
+
+//#include "Core/Delegates/Delegates.h"//Delegate
 
 namespace DoDo {
 	/*
@@ -17,7 +19,9 @@ namespace DoDo {
 
 			return the attribute's value
 		*/
-		using FGetter = Delegate<ObjectType()>;
+		//using FGetter = Delegate<ObjectType()>;
+
+		DECLARE_DELEGATE_RetVal(ObjectType, FGetter);
 
 		//default constructor
 		TAttribute() : m_value()
@@ -47,6 +51,23 @@ namespace DoDo {
 		{
 
 		}
+
+		/*
+		* constructs by binding an arbitrary function that will be called to generate this attribute's value an demand
+		* after binding, the attribute will no longer have a value that can be accessed directly, and instead the bound
+		* function will always be called to generate the value
+		* 
+		* @param InUserObject shared pointer to the instance of the class that contains the member function you want to bind, the attribute will only retain a weak pointer to this class
+		* @param InMethodPtr member function to bind, the function's structure (return value, arguments, etc) must match IBoundAttributeDelegate's definition
+		*/
+		//template<class SourceType>
+		//TAttribute(std::shared_ptr<SourceType> in_user_object, typename FGetter::template TConstMethodPtr<SourceType> in_method_ptr)
+		//	: m_value()
+		//	, m_b_is_set(true)
+		//	, m_getter(FGetter::Create(in_user_object.get(), in_method_ptr))//todo:may be need weak ptr support
+		//{
+		//
+		//}
 
 		/*
 		 * set the attribute's value
@@ -89,9 +110,9 @@ namespace DoDo {
 		const ObjectType& Get() const
 		{
 			//if we have a getter delegate, then we'll call that to generate the value
-			if(m_getter.Is_Bound())
+			if(m_getter.is_bound())
 			{
-				m_value = m_getter.Execute();
+				m_value = m_getter.execute();
 			}
 
 			//return stored value
@@ -113,7 +134,7 @@ namespace DoDo {
 		 */
 		bool Is_Bound() const
 		{
-			return m_getter.Is_Bound();
+			return m_getter.is_bound();
 		}
 
 		const FGetter& Get_Binding() const

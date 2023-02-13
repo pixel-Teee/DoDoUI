@@ -25,13 +25,47 @@ namespace DoDo
 		{
 			
 		}
+
+		static FArrangedChildren hittest2_from_array(std::vector<FWidgetAndPointer>& in_widgets) //todo:move?
+		{
+			FArrangedChildren temp(EVisibility::All);
+			//temp.m_array.resize(in_widgets.size());
+			//todo:optimize this
+			for(const FWidgetAndPointer& widget_and_pinter : in_widgets)
+			{
+				temp.m_array.push_back(widget_and_pinter);
+			}
+
+			return temp;
+		}
+
 		//query visibility filter have parameter visibility
 		bool Accepts(EVisibility in_visibility) const
 		{
 			return EVisibility::Does_Visibility_Pass_Filter(in_visibility, m_visibility_filter);
 		}
-	public:
-		
+
+		/*
+		 * add an arranged widget(i.e. widget and its resulting geometry) to the list of arranged children
+		 *
+		 * @param VisibilityOverride the arranged function may override the visibility of the widget for the purposes
+		 *							of layout or performances (i.e. prevent redundant call to widet->get_visibility())
+		 * @param InWidgetGeometry the arranged widget (i.e. widget and it's geometry)
+		 */
+		void add_widget(EVisibility visiblity_override, const FArrangedWidget& in_widget_geometry)
+		{
+			if(Accepts(visiblity_override))
+			{
+				m_array.push_back(in_widget_geometry);
+			}
+		}
+
+		/*
+		 * add an arranged widget (i.e. widget and its resulting geometry) to the list of arranged children
+		 * based on the visibility filter and the arranged widget's visibility
+		 */
+		void add_widget(const FArrangedWidget& in_widget_geometry);
+
 	private:
 		/*internal representation of the array widgets*/
 		FArrangedWidgetArray m_array;
@@ -53,5 +87,6 @@ namespace DoDo
 		{
 			return m_array[index];
 		}
-	}; 
+	};
+
 }

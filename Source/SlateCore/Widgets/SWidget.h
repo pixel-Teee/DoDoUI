@@ -13,21 +13,32 @@
 
 #include "SlateCore/Rendering/SlateRenderTransform.h"//m_render_transform_attribute depends on it
 
+#include <optional>//std::optional depends on it
+
+#include "Slate/Widgets/Input/Reply.h"
+#include "SlateCore/FastUpdate/WidgetProxy.h"
+#include "SlateCore/Layout/FlowDirection.h"
+#include "SlateCore/Types/ISlateMetaData.h"
+#include "SlateCore/Types/WidgetMouseEventsDelegate.h"//FPointerEventHandler depends on it
+
 namespace DoDo
 {
+	struct FKeyEvent;
+	struct FSlateBaseNamedArgs;
 	class FChildren;
 
 	class ISlateMetaData;
 
 	class FPaintArgs;
-	class FGeometry;
+	struct FGeometry;
 	class FSlateRect;
 	class FSlateWindowElementList;
 	class FWidgetStyle;
 	class FArrangedChildren;
-
-	class SWidget : public FSlateControlledConstruction
+	struct FPointerEvent;
+	class SWidget : public FSlateControlledConstruction, public std::enable_shared_from_this<SWidget>
 	{
+		friend class SWindow;
 	public:
 		//widgets should only ever be constructed via SNew or SAssignNew
 		//todo:need to implement Private_Register Attributes static function
@@ -35,10 +46,13 @@ namespace DoDo
 
 		friend class FSlateAttributeMetaData;
 
+		template<class WidgetType, typename RequiredArgsPayloadType>
+		friend struct TSlateDecl;//for SWidget construct use
+
 		//SWidget();
 
 	public:
-		virtual ~SWidget();
+		virtual ~SWidget() override;
 
 	public:
 		//layout
@@ -48,6 +62,8 @@ namespace DoDo
 
 		/* return the desired size that was computed the last time CachedDesiredSize() was called */
 		glm::vec2 get_desired_size() const;
+
+		std::shared_ptr<SWidget> advanced_get_paint_parent_widget() const { return m_persistent_state.m_paint_parent.lock(); }//todo:may be to check
 
 		void assign_parent_widget(std::shared_ptr<SWidget> in_parent);
 		/* be used by FSlotBase to detach this widget from parent widget*/
@@ -132,7 +148,109 @@ namespace DoDo
 				InComparePredicate>::TSlateMemberAttribute;
 		};
 
+	public:
+		/* @return whether or not this widget is enabled */
+		inline bool Is_Enabled() const
+		{
+			return m_enabled_state_attribute.Get();
+		}
+
+		/*
+		 * @return true if this widget hovered
+		 * @note IsHovered used to be virtual, use set hover to assign an attribute if you need to override the default behaviour
+		 */
+		bool is_hovered() const
+		{
+			return m_hovered_attribute.Get();
+		}
+
 	protected:
+		/*
+		 * set the hover state
+		 * once set, the attribute that the ownership and SWidget code will not update the attribute value
+		 * you can return the control to the SWidget code by setting an empty TAttribute
+		 */
+		bool set_hover(TAttribute<bool> in_hovered)
+		{
+			m_b_is_hovered_attribute_set = in_hovered.Is_Set();
+			m_hovered_attribute.Assign(*this, std::move(in_hovered));
+		}
+
+	public:
+		std::optional<FSlateRenderTransform> get_render_transform_with_respect_to_flow_direction() const
+		{
+			if(g_slate_flow_direction == EFlowDirection::LeftToRight)
+			{
+				return m_render_transform_attribute.Get();
+			}
+			else
+			{
+				//if we are going right to left, flip the x translation on render transforms
+				std::optional<FSlateRenderTransform> transform = m_render_transform_attribute.Get();
+
+				if(transform.has_value())
+				{
+					glm::vec2 translation = transform.value().get_translation();
+					transform.value().set_translation(glm::vec2(-translation.x, translation.y));
+				}
+				return transform;
+			}
+		}
+
+		glm::vec2 get_render_transform_pivot_with_respect_to_flow_direction() const
+		{
+			if(g_slate_flow_direction == EFlowDirection::LeftToRight)
+			{
+				return m_render_transform_pivot_attribute.Get();
+			}
+			else
+			{
+				//if we're going right to left, filp the x's pivot mirrored about 0.5
+				glm::vec2 transform_pivot = m_render_transform_pivot_attribute.Get();
+				transform_pivot.x = 0.5f + (0.5f - transform_pivot.x);
+				return transform_pivot;
+			}
+		}
+
+		/*
+		 * gets the last geometry used to tick the widget, this data may not exist yet if this call happens prior to
+		 * the widget having been ticked/painted, or it may be out of date, or a frame behind
+		 */
+		const FGeometry& get_paint_space_geometry() const;
+	public:
+		/*
+		 * get the metadata of the type provided
+		 * @return the first metadata of the type supplied that we encouter
+		 */
+		template<typename MetaDataType>
+		std::shared_ptr<MetaDataType> get_meta_data() const
+		{
+			for(const auto& meta_data_entry : m_Meta_Data)
+			{
+				if(meta_data_entry->Is_Of_Type<MetaDataType>())
+				{
+					return std::static_pointer_cast<MetaDataType>(meta_data_entry);
+				}
+			}
+			return std::shared_ptr<MetaDataType>();
+		}
+
+		/*
+		 * add metadata to this widget
+		 * @param AddMe the metadata to add to the widget
+		 */
+		template<typename MetaDataType>
+		void add_meta_data(const std::shared_ptr<MetaDataType>& add_me)
+		{
+			add_meta_data_internal(add_me);
+		}
+	private:
+		void add_meta_data_internal(const std::shared_ptr<ISlateMetaData>& add_me);
+	public:
+		/*see OnMouseMove event*/
+		void set_on_mouse_move(FPointerEventHandler event_handler);
+
+	public:
 		/*
 		 * hidden default constructor
 		 *
@@ -142,8 +260,62 @@ namespace DoDo
 		 */
 		SWidget();
 
+		/*construct a SWidget based on initial parameters*/
+		void SWidgetConstruct(const FSlateBaseNamedArgs& args);
+
+		/*
+		 * called to tell a widget to paint itself (and it's children)
+		 *
+		 * the widget should respond by populating the out draw elements array with FDrawElements
+		 * that represent it and any of it's children
+		 *
+		 * @param Args all the arguments necessary to paint this widget(@todo ump: move all params into this struct)
+		 * @param AllottedGeometry the FGeometry that describes an area in which the widget should appear
+		 * @param MyCullingRect the clipping rectangle allocated for this widget and it's children
+		 * @param OutDrawElements a list of FDrawElements to populate with the output
+		 * @param LayerId the layer onto which this widget should be rendered
+		 * @param InColorAndOpacity color and opacity to be applied to all the descendants of the widget being paintes
+		 * @param bParentEnabled true if the parent of this widget is enabled
+		 * @return the maximum layer id attained by this widget or any of it's children
+		 */
+		int32_t paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const;
+
+		/*
+		 * called after a key is pressed when this widget has focus(this event bubbles if not handled)
+		 *
+		 * @param MyGeometry the geometry of the widget receiving the event
+		 * @param InKeyEvent key event
+		 * @param returns whether the event was handled, along with other possible actions
+		 */
+		virtual FReply On_Key_Down(const FGeometry& my_geometry, const FKeyEvent& in_key_event);
+
+		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event);//todo:add comment
+
+		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event);//todo:add comment
+
+		/*
+		 * the system calls this method to notify the widget that a mouse moved within it, this event is bubbled
+		 *
+		 * @param MyGeometry the geometry of the widget receiving the event
+		 * @param MouseEvent information about the input event
+		 * @return whether the event was handled along with possible requests for the system to take action
+		 */
+		virtual FReply On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event);
+
 		/* is the widget construction completed(did we called and returned from the Construct() function) */
 		bool Is_Constructed() const { return m_b_Is_Declarative_Syntax_Construction_Completed; }
+
+		/*
+		 * determines if this widget should be enabled
+		 *
+		 * @param InParentEnabled true if the parent of this widget is enabled
+		 * @return true if the widget is enabled
+		 */
+		bool should_be_enabled(bool in_parent_enabled) const
+		{
+			//this widget should enabled if it's parent is enabled and it is enabled
+			return in_parent_enabled && Is_Enabled();
+		}
 
 	private:
 		/*
@@ -162,12 +334,25 @@ namespace DoDo
 		 */
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements,
 			int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const = 0;
+	protected:
+		/*
+		 * can the widget ever support children? this will be false on SLeafWidgets
+		 * rather than setting this directly, you should probably inherit from SLeafWidget
+		 */
+		uint8_t b_can_have_children : 1;
 	private:
 		/* are bound slate attributes will be updated once per frame */
 		uint8_t m_b_enabled_attributes_update : 1;
 
 		/* the SNew or SAssignedNew construction is completed */
 		uint8_t m_b_Is_Declarative_Syntax_Construction_Completed : 1;
+
+		/*is the attribute IsHovered is set?*/
+		uint8_t m_b_is_hovered_attribute_set : 1;
+
+	private:
+
+		mutable FSlateWidgetPersistentState m_persistent_state;
 
 	protected:
 		/*
@@ -198,6 +383,9 @@ namespace DoDo
 
 		/* whether or not this widget is enabled */
 		TSlateAttribute<bool> m_enabled_state_attribute;
+
+		/* whether or not this widget is hovered*/
+		TSlateAttribute<bool> m_hovered_attribute;
 
 		/* render transform pivot of this widget(in normalized local space) */
 		TSlateAttribute<glm::vec2> m_render_transform_pivot_attribute;

@@ -3,6 +3,7 @@
 
 #include "SlateCore/Layout/FlowDirection.h"//On_Arrange_Children depends on it
 #include "SlateCore/Layout/LayoutUtils.h"//On_Arrange_Children depends on it
+#include "SlateCore/Styling/WidgetStyle.h"
 
 namespace DoDo {
 	/*
@@ -12,6 +13,7 @@ namespace DoDo {
 	*/
 	void SCompoundWidget::Private_Register_Attributes(FSlateAttributeInitializer& attribute_initializer)
 	{
+		SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "SlotPadding", m_child_slot.m_slot_padding_attribute, EInvalidateWidgetReason::Layout);
 		SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "ContentScale", m_content_scale_attribute, EInvalidateWidgetReason::Layout);
 		SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "ColorAndOpacity", m_content_scale_attribute, EInvalidateWidgetReason::Paint);
 		SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "ForegroundColor", m_foreground_color_attribute, EInvalidateWidgetReason::Paint);
@@ -44,11 +46,12 @@ namespace DoDo {
 			FArrangedWidget& the_child = arranged_children[0];
 
 			//todo:implement FWidgetStyle
+			FWidgetStyle compounded_widget_style;
 
 			int32_t layer = 0;
 
 			//todo:implement SWidget's paint function
-			//layer = the_child.m_widget->Paint();
+			layer = the_child.m_widget->paint(args, the_child.m_geometry, my_culling_rect, out_draw_elements, layer_id + 1, compounded_widget_style, b_should_be_enabled);
 
 			return layer;
 		}
@@ -65,8 +68,19 @@ namespace DoDo {
 	void SCompoundWidget::On_Arrange_Children(const FGeometry& allotted_geometry,
 		FArrangedChildren& arranged_children) const
 	{
-		//call template function
-		Arrange_Single_Child(g_flow_direction, allotted_geometry, arranged_children, m_child_slot, Get_Content_Scale());
+		if(m_child_slot.get_widget() != nullptr)//todo:remove this
+		{
+			//call template function
+			Arrange_Single_Child(g_slate_flow_direction, allotted_geometry, arranged_children, m_child_slot, Get_Content_Scale());
+		}
+	}
+
+	SCompoundWidget::SCompoundWidget()
+		: m_child_slot(this)
+		, m_content_scale_attribute(*this, glm::vec2(1.0f, 1.0f))
+		, m_color_and_opacity_attribute(*this, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//white
+		, m_foreground_color_attribute(*this, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//todo:use foreground
+	{
 	}
 
 	glm::vec2 SCompoundWidget::Compute_Desired_Size(float) const
