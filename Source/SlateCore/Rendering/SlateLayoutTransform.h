@@ -74,6 +74,11 @@ namespace DoDo {
 		glm::vec2 m_translation;
 	};
 
+	/*concatenation rules for layout transform*/
+	template<> struct ConcatenateRules<FSlateLayoutTransform, float> { typedef FSlateLayoutTransform ResultType; };
+	/*concatenation rules for layout transform*/
+	template<> struct ConcatenateRules<float, FSlateLayoutTransform> { typedef FSlateLayoutTransform ResultType; };
+
 	//from layout transform to render transform
 	//adapter
 	template<> template<> inline FTransform2D TransformCoverter<FTransform2D>::convert<FSlateLayoutTransform>(const FSlateLayoutTransform& transform)

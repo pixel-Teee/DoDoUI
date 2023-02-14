@@ -3,6 +3,7 @@
 #include "ElementBatcher.h"
 
 #include "DrawElements.h"
+#include "ShaderResourceManager.h"
 #include "SlateRenderBatch.h"
 #include "glm/vec2.hpp"
 #include "SlateCore/Widgets/SWindow.h"
@@ -377,5 +378,44 @@ namespace DoDo
 			render_batch.add_index(index_start + 1);
 			render_batch.add_index(index_start + 3);
 		}
+	}
+
+	template <ESlateVertexRounding rounding>
+	void FSlateElementBatcher::add_text_element(const FSlateDrawElement& draw_element)
+	{
+		const FSlateTextPayload& draw_element_pay_load = draw_element.get_data_pay_load<FSlateTextPayload>();
+
+		glm::vec4 base_tint = draw_element_pay_load.get_tint();
+
+		//todo:implement FFontOutlineSettings
+
+		int32_t len = draw_element_pay_load.get_text_length();
+
+		ESlateDrawEffect in_draw_effects = draw_element.get_draw_effects();
+
+		const int32_t layer = draw_element.get_layer();
+
+		//extract the layout transform from the draw element
+		FSlateLayoutTransform layout_transform(draw_element.get_scale(), draw_element.get_position());
+
+		//we don't just scale up fonts, we draw them in local space pre-scaled so we don't get scaling artifacts
+		//so we need to pull the layout scale out of the layout and render transform so we can apply them
+		//in local space with pre-scaled fonts
+		const float font_scale = layout_transform.get_scale();
+		FSlateLayoutTransform inverse_layout_transform = inverse(concatenate(inverse(font_scale), layout_transform));
+		const FSlateRenderTransform render_transform = concatenate(inverse(font_scale), draw_element.get_render_transform());
+		//concatenate(inverse(font_scale), layout_transform);
+
+		//todo:implement font cache
+		//todo:get resource manager
+		//FSlateShaderResourceManager& resource_manager = *
+
+		auto build_font_geometry = [&](const glm::vec4& in_tint, int32_t in_layer)
+		{
+
+		};
+
+		//todo:implement outline
+
 	}
 }

@@ -4,6 +4,7 @@
 #include "Core/Math/Box2D.h"//FSlateBoxPayload depends on it
 
 #include "glm/vec4.hpp"
+#include "SlateCore/Fonts/SlateFontInfo.h"//FSlateFontInfo depends on it
 #include "SlateCore/Layout/Margin.h"//FSlatBoxPayload depends on it
 #include "SlateCore/Styling/SlateBrush.h"//FSlateBoxPayload depends on it
 
@@ -83,6 +84,28 @@ namespace DoDo
 		virtual ~FSlateBoxPayload()
 		{
 			
+		}
+	};
+
+	struct FSlateTextPayload : public FSlateDataPayload, public FSlateTintableElement
+	{
+		//the font to use when rendering
+		FSlateFontInfo m_font_info;
+
+		//basic text data
+		DoDoUtf8String m_immutable_text;
+
+		int32_t get_text_length() const { return m_immutable_text.get_length(); }
+
+		void set_text(const DoDoUtf8String& in_text, const FSlateFontInfo& in_font_info, int32_t in_start_index, int32_t in_end_index)
+		{
+			//todo:implement this function
+		}
+
+		void set_text(const DoDoUtf8String& in_text, const FSlateFontInfo& in_font_info)
+		{
+			m_font_info = in_font_info;
+			m_immutable_text = in_text;
 		}
 	};
 }

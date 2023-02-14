@@ -6,6 +6,8 @@
 #include "SlateCore/Layout/PaintGeometry.h"//paint geometry
 #include "SlateCore/Styling/SlateBrush.h"
 
+#include "SlateCore/Fonts/SlateFontInfo.h"//FSlateFontInfo depends on it
+
 namespace DoDo
 {
 	FSlateDrawElement::FSlateDrawElement()
@@ -60,8 +62,36 @@ namespace DoDo
 		MakeBoxInternal(element_list, in_layer, paint_geometry, in_brush, in_draw_effects, in_tint);
 	}
 
+	void FSlateDrawElement::make_text(FSlateWindowElementList& element_list, uint32_t in_layer,
+		const FPaintGeometry& paint_geometry, const DoDoUtf8String& in_text, const FSlateFontInfo& in_font_info,
+		ESlateDrawEffect in_draw_effects, const glm::vec4& in_tint)
+	{
+		paint_geometry.commit_transforms_if_using_legacy_constructor();
+
+		//don't try and render empty text
+		if(in_text.get_length() == 0 || in_text == "")
+		{
+			return;
+		}
+
+		//don't do anything if there the font would be completely transparent
+		if(in_tint.a == 0) //todo:implement outline settings
+		{
+			return;
+		}
+
+		FSlateDrawElement& element = element_list.add_uninitialized();
+
+		FSlateTextPayload& data_pay_load = element_list.create_pay_load<FSlateTextPayload>(element);
+
+		data_pay_load.set_tint(in_tint);
+		data_pay_load.set_text(in_text, in_font_info);
+
+		element.init(element_list, EElementType::ET_Text, in_layer, paint_geometry, in_draw_effects);
+	}
+
 	void FSlateDrawElement::init(FSlateWindowElementList& element_list, EElementType in_element_type, uint32_t in_layer,
-		const FPaintGeometry& paint_geometry, ESlateDrawEffect in_draw_effects)
+	                             const FPaintGeometry& paint_geometry, ESlateDrawEffect in_draw_effects)
 	{
 		m_render_transform = paint_geometry.get_accumulated_render_transform();
 		m_position = paint_geometry.m_draw_position;

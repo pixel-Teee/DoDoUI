@@ -12,6 +12,7 @@
 
 namespace DoDo
 {
+	struct FSlateFontInfo;
 	struct FPaintGeometry;
 	struct FSlateBrush;
 	struct FSlateDataPayload;
@@ -98,6 +99,24 @@ namespace DoDo
 			ESlateDrawEffect in_draw_effects,
 			const glm::vec4& in_tint);
 
+		/*
+		 * creates a text element which displays a string of a rendered in a certain font on the screen
+		 *
+		 * @param ElementList the list in which to add elements
+		 * @param InLayer the layer to draw the element on
+		 * @param PaintGeometry draw space position and dimensions, see FPaintGeometry
+		 * @param InText the string to draw
+		 * @param StartIndex inclusive index to start rendering from on the specified text
+		 * @param EndIndex exclusive index to stop rendering on the specified text
+		 * @param InFontInfo the font to draw the string with
+		 * @param InDrawEffects optional draw effects to apply
+		 * @param InTint color to tint the element
+		 */
+		//todo:implement FSlateFontInfo
+		static void make_text(FSlateWindowElementList& element_list, uint32_t in_layer, const FPaintGeometry& paint_geometry, const DoDoUtf8String& in_text,
+		const FSlateFontInfo& in_font_info, ESlateDrawEffect in_draw_effects = ESlateDrawEffect::None, const glm::vec4& in_tint = glm::vec4(1.0f));
+
+		glm::vec2 get_position() const { return m_position; }
 	private:
 		void init(FSlateWindowElementList& element_list, EElementType in_element_type, uint32_t in_layer, const FPaintGeometry& paint_geometry, ESlateDrawEffect in_draw_effects);
 
