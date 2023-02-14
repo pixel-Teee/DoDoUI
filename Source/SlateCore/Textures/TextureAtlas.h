@@ -84,6 +84,32 @@ namespace DoDo
 		 * @param height the height of the texture we are adding
 		 */
 		const FAtlasedTextureSlot* find_slot_for_texture(uint32_t in_width, uint32_t in_height);
+
+		struct FCopyRawData
+		{
+			/*source data to copy*/
+			const uint8_t* src_data;
+			/*place to copy data to*/
+			uint8_t* dest_data;
+			/*the row number to copy*/
+			uint32_t src_raw;
+			/*the row number to copy to*/
+			uint32_t dest_raw;
+			/*the width of a source row*/
+			uint32_t row_width;
+			/*the width of the source texture*/
+			uint32_t src_texture_width;
+			/*the width of the dest texture*/
+			uint32_t dest_texture_width;
+		};
+
+		/*
+		* copies texture data into the atlas at a given slot
+		* 
+		* @param SlotToCopyTo the occupied slot in the atlas where texture data should be copied to
+		* @param Data the data to copy into the atlas
+		*/
+		void copy_data_into_slot(const FAtlasedTextureSlot* slot_to_copy_to, const std::vector<uint8_t>& data);
 	protected:
 		/*actual texture data contained in the atlas*/
 		std::vector<uint8_t> m_atlas_data;
