@@ -28,6 +28,8 @@ namespace DoDo
 	{
 		m_border_foreground_color_attribute.Assign(*this, in_args._ForegroundColor);
 
+		m_on_pressed = in_args._OnPressed;
+
 		SBorder::Construct(SBorder::FArguments()
 			.ContentScale(in_args._ContentScale)
 			.DesiredSizeScale(in_args._DesiredSizeScale)
@@ -44,6 +46,11 @@ namespace DoDo
 	{
 		m_content_padding_attribute.Assign(*this, std::move(in_content_padding));
 	}
+
+	//void SButton::set_on_pressed(FSimpleDelegate in_on_pressed)
+	//{
+	//	m_on_pressed = in_on_pressed;
+	//}
 
 	void SButton::set_button_style(const FButtonStyle* button_style)
 	{
@@ -143,7 +150,7 @@ namespace DoDo
 			//todo:implement play pressed source
 
 			//todo:call delegate
-			m_on_pressed.execute();
+			m_on_pressed.execute_if_bound();
 
 			//todo:implement update press state changed
 			update_press_state_changed();//update button state, image color something

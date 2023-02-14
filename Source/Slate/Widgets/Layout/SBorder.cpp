@@ -67,6 +67,22 @@ namespace DoDo
 		m_border_image_attribute.Assign(*this, in_border_image);
 	}
 
+	//int32_t i = 0;
+	//
+	//void SBorder::set_color()
+	//{
+	//	if(i % 2)
+	//	{
+	//		m_border_back_ground_color_attribute.Set(*this, glm::vec4(0.2f, 0.6f, 0.9f, 1.0f));
+	//		++i;
+	//	}
+	//	else
+	//	{
+	//		m_border_back_ground_color_attribute.Set(*this, glm::vec4(0.8f, 0.1f, 0.3f, 1.0f));
+	//		++i;
+	//	}
+	//}
+
 	int32_t SBorder::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry,
 	                          const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
 	                          const FWidgetStyle& in_widget_style, bool b_parent_enabled) const

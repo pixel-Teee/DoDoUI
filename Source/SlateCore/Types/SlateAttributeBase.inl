@@ -99,7 +99,7 @@ namespace SlateAttributePrivate
 			protected_unregister_attribute(widget, InAttributeType);
 			if(!b_Is_Identical)
 			{
-				m_Value = std::move(m_Value);
+				m_Value = std::move(new_value);
 				//todo:implement Protected Invalidate Widget
 			}
 

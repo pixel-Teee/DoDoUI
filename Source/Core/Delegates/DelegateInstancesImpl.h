@@ -86,6 +86,21 @@ public:
 
 		return RetValType();//todo:fix me
 	}
+
+	bool execute_if_safe(ParamTypes... params) const final
+	{
+		if(std::shared_ptr<UserClass> shared_user_object = this->m_user_object.lock())
+		{
+			using MutableUserClass = typename std::remove_const<UserClass>::type;
+
+			MutableUserClass* mutable_user_object = const_cast<MutableUserClass*>(shared_user_object.get());
+
+			std::apply(m_method_ptr, std::make_tuple(mutable_user_object, params...));
+
+			return true;
+		}
+		return false;
+	}
 	//------IBaseDelegateInstance interface------
 public:
 	/*
@@ -154,6 +169,13 @@ public:
 	{
 		//pass extra parameter after function parameter
 		return std::apply(m_static_func_ptr, std::make_tuple(params...));//todo:need to handle extra parameter for pay load
+	}
+
+	bool execute_if_safe(ParamTypes... params) const final
+	{
+		std::apply(m_static_func_ptr, std::make_tuple(params...));
+
+		return true;
 	}
 	//------IBaseDelegateInstance interface------
 public:

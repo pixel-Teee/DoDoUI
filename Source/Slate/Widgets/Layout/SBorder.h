@@ -95,6 +95,8 @@ namespace DoDo
 
 		const FSlateBrush* get_border_image() const { return m_border_image_attribute.Get(); }
 
+		//void set_color();
+
 		/*
 		 * sets the content for border
 		 *

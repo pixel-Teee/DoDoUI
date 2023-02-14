@@ -46,7 +46,7 @@ namespace DoDo
 		SLATE_ATTRIBUTE(FMargin, ContentPadding)
 
 		/*called when the button is clicked*/
-		//todo:implement SLATE_EVENT
+		SLATE_EVENT(FSimpleDelegate, OnPressed)
 
 		SLATE_ATTRIBUTE(glm::vec2, DesiredSizeScale)
 
@@ -83,6 +83,8 @@ namespace DoDo
 
 		/*see content padding attribute*/
 		void set_content_padding(TAttribute<FMargin> in_content_padding);
+
+		//void set_on_pressed(FSimpleDelegate in_on_pressed);
 
 		/*see button style attribute*/
 		void set_button_style(const FButtonStyle* button_style);

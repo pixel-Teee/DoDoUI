@@ -167,6 +167,25 @@ public:
 			return local_delegate_instance->execute(Params...);//todo:implement execute if bound
 	}
 
+	/*
+	 * execute the delegate, but only if the function pointer is still valid
+	 *
+	 * @return returns true if the function was executed
+	 */
+	template<
+		typename DummyRetValType = RetValType,
+		std::enable_if_t<std::is_void<DummyRetValType>::value>* = nullptr
+	>
+	inline bool execute_if_bound(ParamTypes... params) const
+	{
+		if(DelegateInstanceInterfaceType* ptr = get_delegate_instance_protected())
+		{
+			return ptr->execute_if_safe(params...);
+		}
+
+		return false;
+	}
+
 protected:
 	DelegateInstanceInterfaceType* get_delegate_instance_protected() const
 	{

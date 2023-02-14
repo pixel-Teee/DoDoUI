@@ -286,6 +286,8 @@ namespace DoDo
         //std::shared_ptr<SBorder> border;
         
         //std::shared_ptr<SBorder> border2;
+        //
+        //std::shared_ptr<SButton> button2;
         
         SAssignNew(root_window, SWindow)
             .Title("hello")
@@ -336,11 +338,14 @@ namespace DoDo
                     .Offset(FMargin(-100.0f, -100.0f, 50.0f, 50.0f))
                     .Alignment(glm::vec2(1.0f, 1.0f))
                     [
-                        SNew(SButton)
+                         SNew(SButton)
                         .ButtonColorAndOpacity(glm::vec4(0.7f, 0.3f, 0.9f, 1.0f))
+                        //.OnPressed(border2, &SBorder::set_color)
                     ]
                 ]
             ];
+
+       // button2->set_on_pressed(FSimpleDelegate::CreateSP(border2, &SBorder::set_color));
         
 #ifdef Andorid
         get().add_window(root_window, false);

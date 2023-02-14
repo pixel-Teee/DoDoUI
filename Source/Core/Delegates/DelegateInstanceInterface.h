@@ -20,6 +20,8 @@ struct IBaseDelegateInstance<RetType(ArgTypes...), UserPolicy> : public UserPoli
 	* execute the delegate, if the function pointer is not valid, an error will occur
 	*/
 	virtual RetType execute(ArgTypes...) const = 0;
+
+	virtual bool execute_if_safe(ArgTypes...) const = 0;
 };
 
 template<bool Const, typename Class, typename FuncType>
