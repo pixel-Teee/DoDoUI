@@ -113,6 +113,12 @@ namespace DoDo
 		template<ESlateVertexRounding rounding>
 		void add_text_element(const FSlateDrawElement& draw_element);
 
+		/*
+		 * creates vertices necessary to draw a gradient box (horizontal or vertical)
+		 */
+		template<ESlateVertexRounding Rounding>
+		void add_gradient_element(const FSlateDrawElement& draw_element);
+
 		FSlateRenderBatch& create_render_batch(
 			int32_t layer,
 			FSlateShaderResource* shader_resource,

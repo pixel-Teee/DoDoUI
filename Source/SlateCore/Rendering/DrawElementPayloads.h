@@ -10,6 +10,25 @@
 
 namespace DoDo
 {
+	struct FSlateGradientStop
+	{
+		glm::vec2 m_position;
+		glm::vec4 m_color;
+
+		/*
+		 * construct a gradient stop from a position and a color
+		 *
+		 * @param InPosition - the position in widget space for this stop, both x and y are used for a single-axis gradient
+		 *						a two stop gradient should go from (0, 0) to (width, height)
+		 *
+		 * @param InColor	 - the color to lerp towards at this stop
+		 */
+		FSlateGradientStop(const glm::vec2& in_position, const glm::vec4& in_color)
+			: m_position(in_position)
+			, m_color(in_color)
+		{}
+	};
+
 	class FSlateShaderResourceProxy;
 	//class FSlateBrush;
 
@@ -106,6 +125,20 @@ namespace DoDo
 		{
 			m_font_info = in_font_info;
 			m_immutable_text = in_text;
+		}
+	};
+
+	struct FSlateGradientPayload : public FSlateDataPayload
+	{
+		std::vector<FSlateGradientStop> m_gradient_stops;
+		EOrientation m_gradient_type;
+		glm::vec4 m_corner_radius;
+
+		void set_gradient(const std::vector<FSlateGradientStop>& in_gradient_stops, EOrientation in_gradient_type, glm::vec4 in_corner_radius)
+		{
+			m_gradient_stops = in_gradient_stops;
+			m_gradient_type = in_gradient_type;
+			m_corner_radius = in_corner_radius;
 		}
 	};
 }

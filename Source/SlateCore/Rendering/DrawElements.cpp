@@ -90,6 +90,21 @@ namespace DoDo
 		element.init(element_list, EElementType::ET_Text, in_layer, paint_geometry, in_draw_effects);
 	}
 
+	void FSlateDrawElement::make_gradient(FSlateWindowElementList& element_list, uint32_t in_layer,
+		const FPaintGeometry& paint_geometry, std::vector<FSlateGradientStop> in_gradient_stops,
+		EOrientation in_gradient_type, ESlateDrawEffect in_draw_effects, glm::vec4 corner_radius)
+	{
+		paint_geometry.commit_transforms_if_using_legacy_constructor();
+
+		FSlateDrawElement& element = element_list.add_uninitialized();
+
+		FSlateGradientPayload& data_pay_load = element_list.create_pay_load<FSlateGradientPayload>(element);
+
+		data_pay_load.set_gradient(in_gradient_stops, in_gradient_type, corner_radius);
+
+		element.init(element_list, EElementType::ET_Gradient, in_layer, paint_geometry, in_draw_effects);
+	}
+
 	void FSlateDrawElement::init(FSlateWindowElementList& element_list, EElementType in_element_type, uint32_t in_layer,
 	                             const FPaintGeometry& paint_geometry, ESlateDrawEffect in_draw_effects)
 	{

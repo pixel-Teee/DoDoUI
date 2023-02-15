@@ -34,6 +34,16 @@ namespace DoDo
 			++m_num_indices;
 		}
 
+		uint32_t get_num_vertices() const
+		{
+			return m_num_vertices;
+		}
+
+		uint32_t get_num_indices() const
+		{
+			return m_num_indices;
+		}
+
 		uint32_t get_vertex_offset() const
 		{
 			return m_vertex_offset;

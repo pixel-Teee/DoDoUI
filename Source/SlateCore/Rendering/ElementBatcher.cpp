@@ -125,6 +125,12 @@ namespace DoDo
 			{
 				//todo:impement pixel snapped
 				add_box_element<ESlateVertexRounding::Disabled>(draw_element);
+				break;
+			}
+			case EElementType::ET_Gradient:
+			{
+				add_gradient_element<ESlateVertexRounding::Disabled>(draw_element);
+				break;
 			}
 			}
 		}
@@ -417,5 +423,149 @@ namespace DoDo
 
 		//todo:implement outline
 
+	}
+
+	template<ESlateVertexRounding Rounding>
+	void FSlateElementBatcher::add_gradient_element(const FSlateDrawElement& draw_element)
+	{
+		const FSlateRenderTransform& render_transform = draw_element.get_render_transform();
+
+		const glm::vec2 local_size = draw_element.get_local_size();
+
+		const FSlateGradientPayload& in_pay_load = draw_element.get_data_pay_load<FSlateGradientPayload>();
+
+		const ESlateDrawEffect in_draw_effects = draw_element.get_draw_effects();
+
+		const int32_t layer = draw_element.get_layer();
+
+		const float draw_scale = draw_element.get_scale();
+
+		//todo:implement FShaderParams
+
+		FSlateRenderBatch& render_batch =
+			create_render_batch(
+				layer,
+				nullptr,
+				ESlateDrawPrimitive::TriangleList,
+				in_draw_effects,
+				draw_element
+			);
+
+		//determine the four corners of the quad containing the gradient
+		glm::vec2 top_left = glm::vec2(0.0f);
+		glm::vec2 top_right = glm::vec2(local_size.x, 0.0f);
+		glm::vec2 bot_left = glm::vec2(0.0f, local_size.y);
+		glm::vec2 bot_right = glm::vec2(local_size.x, local_size.y);
+
+		//copy the gradient stops, we may need to add more
+		std::vector<FSlateGradientStop> gradient_stops = in_pay_load.m_gradient_stops;
+
+		const FSlateGradientStop& first_stop = in_pay_load.m_gradient_stops[0];
+		const FSlateGradientStop& last_stop = in_pay_load.m_gradient_stops[in_pay_load.m_gradient_stops.size() - 1];
+
+		//determine if the first and last stops are not at the start and end of the quad
+		//if they are not add a gradient stop with the same color as the first and/or last stop
+		if(in_pay_load.m_gradient_type == Orient_Vertical)
+		{
+			if(0.0f < first_stop.m_position.x)
+			{
+				//the first stop is after the left side of the quad, add a stop at the left side of the quad using the same color as the first stop
+				gradient_stops.insert(gradient_stops.begin(), FSlateGradientStop(glm::vec2(0.0f), first_stop.m_color));
+			}
+
+			if(local_size.x > last_stop.m_position.x)
+			{
+				//the last stop is before the right side of the quad, add a stop at the right side of the quad using the same color as the last stop
+				gradient_stops.push_back(FSlateGradientStop(local_size, last_stop.m_color));
+			}
+		}
+		else
+		{
+			if(0.0f < first_stop.m_position.y)
+			{
+				//the first stop is after the top side of the quad, add a stop at the top side of the quad using the same color as the first stop
+				gradient_stops.insert(gradient_stops.begin(), FSlateGradientStop(glm::vec2(0.0f), first_stop.m_color));
+			}
+
+			if(local_size.y > last_stop.m_position.y)
+			{
+				//the last stop is before the bottom side of the quad, add a stop at the bottom side of the quad using the same color as the last stop
+				gradient_stops.push_back(FSlateGradientStop(local_size, last_stop.m_color));
+			}
+		}
+
+		//add a pair of vertices for each gradient stop, connecting them to the previous stop if necessary
+		//assumes gradient stops are sorted by position left to right or top to bottom
+		for(int32_t stop_index = 0; stop_index < gradient_stops.size(); ++stop_index)
+		{
+			const uint32_t index_start = render_batch.get_num_vertices();
+
+			const FSlateGradientStop& cur_stop = gradient_stops[stop_index];
+
+			//the start vertex at this stop
+			glm::vec2 start_pt;
+			//the end vertex at this stop
+			glm::vec2 end_pt;
+
+			glm::vec2 start_uv;
+			glm::vec2 end_uv;
+
+			if(in_pay_load.m_gradient_type == Orient_Vertical)
+			{
+				//gradient stop is vertical so gradients to left to right
+				start_pt = top_left;
+				end_pt = bot_left;
+
+				//gradient stops are interpreted in local space
+				start_pt.x += cur_stop.m_position.x;
+				end_pt.x += cur_stop.m_position.x;
+
+				start_uv.x = start_pt.x / top_right.x;
+				start_uv.y = 0;
+
+				end_uv.x = end_pt.x / top_right.x;
+				end_uv.y = 1;
+			}
+			else
+			{
+				//gradient stop is horizontal so gradients to top to bottom
+				start_pt = top_left;
+				end_pt = top_right;
+
+				//gradient stops are interpreted in local space
+				start_pt.y += cur_stop.m_position.y;
+				end_pt.y += cur_stop.m_position.y;
+
+				start_uv.x = 0;
+				start_uv.y = start_pt.y / bot_left.y;
+
+				end_uv.x = 1;
+				end_uv.y = start_pt.y / bot_left.y;
+			}
+
+			if(stop_index == 0)
+			{
+				//first stop does not have a full quad yet so do not create indices
+				//todo:fix me
+				render_batch.add_vertex(FSlateVertex::Make<Rounding>(render_transform, start_pt, local_size, draw_scale, glm::vec4(start_uv.x, start_uv.y, 0, 0), cur_stop.m_color, glm::vec4(0.0f)));
+				render_batch.add_vertex(FSlateVertex::Make<Rounding>(render_transform, end_pt, local_size, draw_scale, glm::vec4(end_uv.x, end_uv.y, 0, 0), cur_stop.m_color, glm::vec4(0.0f)));
+			}
+			else
+			{
+				//all stops after the first have indices and generate quads
+				render_batch.add_vertex(FSlateVertex::Make<Rounding>(render_transform, start_pt, local_size, draw_scale, glm::vec4(start_uv.x, start_uv.y, 0, 0), cur_stop.m_color, glm::vec4(0.0f)));
+				render_batch.add_vertex(FSlateVertex::Make<Rounding>(render_transform, end_pt, local_size, draw_scale, glm::vec4(end_uv.x, end_uv.y, 0, 0), cur_stop.m_color, glm::vec4(0.0f)));
+
+				//connect the indices to the previous vertices
+
+				render_batch.add_index(index_start + 0);
+				render_batch.add_index(index_start - 1);
+				render_batch.add_index(index_start - 2);
+
+				render_batch.add_index(index_start + 1);
+				render_batch.add_index(index_start - 1);
+				render_batch.add_index(index_start + 0);
+			}
+		}
 	}
 }

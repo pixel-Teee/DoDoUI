@@ -5,6 +5,20 @@
 namespace DoDo
 {
 	/*
+	 * specifies how to handle texture atlas padding (when specified for the atlas)
+	 * we only support one pixel of padding because we don't support mips or aniso filtering on atlas textures right noew
+	 */
+	enum ESlateTextureAtlasPaddingStyle
+	{
+		/*don't pad the atlas*/
+		NoPadding,
+		/*dilate the texture by one pixel to pad the atlas*/
+		DilateBorder,
+		/*one pixel uniform padding border filled with zeros*/
+		PadWithZero
+	};
+
+	/*
 	 * structure holding information about where a texture is located in the atlas, inherits a linked-list interface
 	 *
 	 * when a slot is occupied by texture data, the remaining space in the slot (if big enough) is split off into two new (smaller) slots,
@@ -77,6 +91,9 @@ namespace DoDo
 		 */
 		const FAtlasedTextureSlot* add_texture(uint32_t texture_width, uint32_t texture_height, const std::vector<uint8_t>& data);
 
+		/*marks the texture as dirty and needing its rendering resources updated*/
+		void mark_texture_dirty();
+
 		/*
 		 * finds the optimal slot for a texture in the atlas
 		 *
@@ -92,9 +109,9 @@ namespace DoDo
 			/*place to copy data to*/
 			uint8_t* dest_data;
 			/*the row number to copy*/
-			uint32_t src_raw;
+			uint32_t src_row;
 			/*the row number to copy to*/
-			uint32_t dest_raw;
+			uint32_t dest_row;
 			/*the width of a source row*/
 			uint32_t row_width;
 			/*the width of the source texture*/
@@ -104,12 +121,34 @@ namespace DoDo
 		};
 
 		/*
+		 * copies a single row from a source texture to a dest texture
+		 * respecting the padding
+		 *
+		 * @param CopyRawData information for how to copy a row
+		 */
+		void copy_row(const FCopyRawData& copy_row_data);
+
+		/*
+		 * zeros out a row in the dest texture (used with PaddingStyle == PadWithZero)
+		 * respecting the padding
+		 *
+		 * @param CopyRowData information for how to copy a row
+		 */
+		void zero_row(const FCopyRawData& copy_row_data);
+
+		/*
 		* copies texture data into the atlas at a given slot
 		* 
 		* @param SlotToCopyTo the occupied slot in the atlas where texture data should be copied to
 		* @param Data the data to copy into the atlas
 		*/
 		void copy_data_into_slot(const FAtlasedTextureSlot* slot_to_copy_to, const std::vector<uint8_t>& data);
+	private:
+		/*returns the amount of padding needed for the current padding style*/
+		uint8_t get_padding_amount() const
+		{
+			return (m_padding_style == ESlateTextureAtlasPaddingStyle::NoPadding) ? 0 : 1;
+		}
 	protected:
 		/*actual texture data contained in the atlas*/
 		std::vector<uint8_t> m_atlas_data;
@@ -126,6 +165,7 @@ namespace DoDo
 
 		/**/
 		//todo:add padding style
+		ESlateTextureAtlasPaddingStyle m_padding_style;
 
 		/*true if this texture needs to have its rendering resources updated*/
 		bool m_b_needs_update;

@@ -116,6 +116,19 @@ namespace DoDo
 		static void make_text(FSlateWindowElementList& element_list, uint32_t in_layer, const FPaintGeometry& paint_geometry, const DoDoUtf8String& in_text,
 		const FSlateFontInfo& in_font_info, ESlateDrawEffect in_draw_effects = ESlateDrawEffect::None, const glm::vec4& in_tint = glm::vec4(1.0f));
 
+		/*
+		 * creates a gradient element
+		 *
+		 * @param ElementList the list in which to add elements
+		 * @param InLayer the layer to draw the element on
+		 * @param PaintGeometry DrawSpace position and dimensions, see FPaintGeometry
+		 * @param InGradientStops list of gradient stops which define the element
+		 * @param InDrawEffects optional draw effects to apply
+		 * @param CornerRadius Rounds the corners of the box created by the gradient by the specified radius
+		 */
+		static void make_gradient(FSlateWindowElementList& element_list, uint32_t in_layer, const FPaintGeometry& paint_geometry, std::vector<FSlateGradientStop> in_gradient_stops,
+			EOrientation in_gradient_type, ESlateDrawEffect in_draw_effects = ESlateDrawEffect::None, glm::vec4 corner_radius = glm::vec4(0.0f));
+
 		glm::vec2 get_position() const { return m_position; }
 	private:
 		void init(FSlateWindowElementList& element_list, EElementType in_element_type, uint32_t in_layer, const FPaintGeometry& paint_geometry, ESlateDrawEffect in_draw_effects);

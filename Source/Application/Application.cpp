@@ -40,6 +40,8 @@
 
 //#include "SlateCore/Layout/WidgetPath.h"//FWidgetPath
 
+#include "Slate/Widgets/Colors/SComplexGradient.h"//SComplexGradient depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -288,6 +290,12 @@ namespace DoDo
         //std::shared_ptr<SBorder> border2;
         //
         //std::shared_ptr<SButton> button2;
+
+        std::vector<glm::vec4> colors = { {0.51f, 0.99f, 0.73f, 1.0f}, {1.0f, 0.98f, 0.49f, 1.0f}};
+
+        std::vector<glm::vec4> colors2 = { {0.55f, 0.77f, 0.98f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f} };
+
+        std::vector<glm::vec4> colors3 = { {0.98f, 0.67f, 0.49f, 1.0f}, {0.96f, 0.87f, 0.40f, 1.0f} };
         
         SAssignNew(root_window, SWindow)
             .Title("hello")
@@ -328,10 +336,8 @@ namespace DoDo
 					.Alignment(glm::vec2(0.5f, 0.5f))//control where to place the anchor
 					.AutoSize(false)
 					[
-						SNew(SBorder)
-						.BorderBackgroundColor(glm::vec4(0.9f, 0.9f, 0.2f, 1.0f))
-                        .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-                        .OnMouseMove_Static(test_bind)
+						SNew(SComplexGradient)
+						.GradientColors(colors2)
 					]
                     + SConstraintCanvas::Slot()
 					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
@@ -341,6 +347,15 @@ namespace DoDo
                          SNew(SButton)
                         .ButtonColorAndOpacity(glm::vec4(0.7f, 0.3f, 0.9f, 1.0f))
                         //.OnPressed(border2, &SBorder::set_color)
+                    ]
+                    + SConstraintCanvas::Slot()
+                    .Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+                    .Offset(FMargin(-200.0f, -200.0f, 700.0f, 700.0f))
+                    .Alignment(glm::vec2(1.0f, 1.0f))
+                    [
+                        SNew(SComplexGradient)
+                        .GradientColors(colors)
+						//.OnPressed(border2, &SBorder::set_color)
                     ]
                 ]
             ];
@@ -418,7 +433,7 @@ namespace DoDo
 		//    .ScreenPosition(glm::vec2(100.0f, 100.0f))
 		//    [
 		//        SNew(SBorder)
-		//        .BorderBackgroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))//control background color
+		//        .BorderBackgroundColor(glm::vec4(0.85f, 0.83f, 0.95f, 1.0f))//control background color
 		//		.Padding(100.0f)
 		//		[
 		//			SNew(SSplitter)
@@ -427,36 +442,43 @@ namespace DoDo
 		//			.MinSize(20.0f)
 		//			.Value(0.2f)
 		//            [
-		//                SNew(SBorder)
-		//                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+        //                SNew(SComplexGradient)
+        //                .GradientColors(colors3)
 		//            ]
 		//			+ SSplitter::Slot()
 		//            .SizeRule(SSplitter::FractionOfParent)
 		//            .MinSize(20.0f)
 		//            .Value(0.2f)
 		//            [
-		//                SNew(SBorder)
-		//                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-		//                .BorderBackgroundColor(glm::vec4(0.43f, 0.2f, 0.8f, 1.0f))
+		//                SNew(SComplexGradient)
+		//                .GradientColors(colors2)
 		//            ]
 		//            + SSplitter::Slot()
 		//            .SizeRule(SSplitter::FractionOfParent)
 		//            .MinSize(20.0f)
 		//            .Value(0.7f)
 		//            [
-		//                SNew(SBorder)
-		//                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-		//                .BorderBackgroundColor(glm::vec4(0.69f, 0.2f, 0.3f, 1.0f))
+        //                SNew(SComplexGradient)
+        //                .GradientColors(colors)
+        //                .Orientation(EOrientation::Orient_Horizontal)
 		//            ]
 		//            + SSplitter::Slot()
 		//            .SizeRule(SSplitter::FractionOfParent)
 		//            .MinSize(20.0f)
 		//            .Value(0.7f)
 		//            [
-		//                SNew(SBorder)
-		//                .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-		//				.BorderBackgroundColor(glm::vec4(0.75f, 0.75f, 0.2f, 1.0f))
+        //                SNew(SComplexGradient)
+        //                .GradientColors(colors2)
+        //                .Orientation(EOrientation::Orient_Vertical)
 		//            ]
+        //            + SSplitter::Slot()
+        //            .SizeRule(SSplitter::FractionOfParent)
+        //            .MinSize(20.0f)
+        //            .Value(0.7f)
+        //            [
+        //                SNew(SComplexGradient)
+        //                .GradientColors(colors)
+        //            ]
 		//        ]
 		//    ];
 		//
