@@ -26,9 +26,15 @@ namespace DoDo
 
 		this->m_icon_color = in_args._IconColor;
 
+		m_major_tab_style = &FAppStyle::get().get_widget_style<FDockTabStyle>("Docking.MajorTab");
+		m_generic_tab_style = &FAppStyle::get().get_widget_style<FDockTabStyle>("Docking.Tab");//todo:to register these style
+
+		const FButtonStyle* const close_button_style = &get_current_style().m_close_button_style;
+		//todo:add FTextBlockStyle to the FButtonStyle
+
 		//parent construct
 		SBorder::Construct(SBorder::FArguments()
-			.BorderImage(FCoreStyle::get().get_brush("Border")) //todo:implement default brush
+			.BorderImage(FCoreStyle::get().get_brush("Border")) //todo:implement default no brush
 			.VAlign(VAlign_Bottom)
 			.Padding(0.0f)
 			.ForegroundColor(in_args._ForegroundColor)
@@ -54,6 +60,7 @@ namespace DoDo
 				[
 					SNew(SBorder)
 					//don't allow flasher tab overlay to absorb mouse clicks
+					//.Padding(this, &SDockTab::get_tab_padding)
 					//todo:add image
 				]
 				+ SOverlay::Slot()
@@ -69,16 +76,39 @@ namespace DoDo
 					+ SHorizontalBox::Slot()
 					[
 						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()//todo:add text block
+						+ SHorizontalBox::Slot()//todo:add tab label and label suffix
 					]
 					+ SHorizontalBox::Slot()
 					[
-						SNew(SButton)//todo:add SSpacer
+						SNew(SButton)//todo:add SSpacer and close button
 					]
 				]
 			]
 		);
 
 		//todo:implement SOverlay
+	}
+	ETabRole SDockTab::get_tab_role() const
+	{
+		return m_tab_role;
+	}
+	ETabRole SDockTab::get_visual_tab_role() const
+	{
+		return get_tab_role();
+	}
+	const FDockTabStyle& SDockTab::get_current_style() const
+	{
+		if (get_visual_tab_role() == ETabRole::MajorTab)
+		{
+			return *m_major_tab_style;
+		}
+
+		return *m_generic_tab_style;
+	}
+	FMargin SDockTab::get_tab_padding() const
+	{
+		FMargin new_padding;
+
+		return new_padding;
 	}
 }

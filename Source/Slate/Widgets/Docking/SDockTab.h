@@ -5,12 +5,25 @@
 #include "Slate/Framework/Docking/TabManager.h"//FTabId
 
 namespace DoDo {
+	/*
+	* how will this tab be used
+	*/
+	enum ETabRole : uint8_t
+	{
+		MajorTab,
+		PanelTab,
+		NomadTab,
+		DocumentTab,
+		NumRoles
+	};
 	/*the cause of a tab activation*/
 	enum ETabActivationCause : uint8_t
 	{
 		UserClickedOnTab,
 		SetDirectly
 	};
+
+	class FDockTabStyle;
 
 	//class FTabManager;
 	class SDockTab : public SBorder
@@ -83,6 +96,19 @@ namespace DoDo {
 
 		/*Construct the widget from the declaration*/
 		void Construct(const FArguments& in_args);
+
+		/*is this an MajorTab? A tool panel tab?*/
+		ETabRole get_tab_role() const;
+
+		/*similar to get tab role() but returns the correct role for ui style and user input purposes*/
+		ETabRole get_visual_tab_role() const;
+
+	protected:
+		/*@return the style currently applied to the dock tab*/
+		const FDockTabStyle& get_current_style() const;
+
+		/*@return the padding for the tab widget*/
+		FMargin get_tab_padding() const;
 	protected:
 		/*the tab manager that created this tab*/
 		std::weak_ptr<FTabManager> m_my_tab_manager;
@@ -96,6 +122,9 @@ namespace DoDo {
 		/*the tab's layout identifier*/
 		FTabId m_layout_identifier;
 
+		/*Is this an MajorTab?A tool panel tab?*/
+		ETabRole m_tab_role;
+
 		/*the tab's parent tab well, null if it is a floating tab*/
 		//todo:implement SDockingTabWell
 
@@ -104,6 +133,10 @@ namespace DoDo {
 
 		/*the icon on the tab*/
 		TAttribute<const FSlateBrush*> m_tab_icon;
+
+		/*the styles used to draw the tab in its various states*/
+		const FDockTabStyle* m_major_tab_style;
+		const FDockTabStyle* m_generic_tab_style;//note:don't owner the life time
 
 		//todo:add call back
 

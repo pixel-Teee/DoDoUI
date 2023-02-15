@@ -106,6 +106,7 @@ namespace DoDo {
 		}
 
 		set_up_button_styles(style);
+		set_up_docking_styles(style);
 
 		return style;
 	}
@@ -176,5 +177,13 @@ namespace DoDo {
 			.set_pressed_padding(pressed_button_margins);
 
 		style->set("Button", Button);
+	}
+	void FStarshipCoreStyle::set_up_docking_styles(std::shared_ptr<FStyle>& style)
+	{
+		//todo:implement close button
+
+		//FDockTabStyle minor_tab_style = 
+		//	FDockTabStyle()
+		//	.set_close_button_style()
 	}
 }
