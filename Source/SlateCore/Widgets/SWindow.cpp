@@ -32,7 +32,7 @@ namespace DoDo {
 	bool SWindow::is_screen_space_mouse_within(glm::vec2 screen_space_mouse_coordinate) const
 	{
 		//const glm::vec2 local_mouse_coordinate = screen_space_mouse_coordinate - m_screen_position;//get the local mouse position
-		const glm::vec2 local_mouse_coordinate = screen_space_mouse_coordinate;
+		const glm::vec2 local_mouse_coordinate = screen_space_mouse_coordinate - m_screen_position;
 
 		return m_native_window->is_point_in_window(local_mouse_coordinate.x, local_mouse_coordinate.y);//check mouse in the native window
 	}

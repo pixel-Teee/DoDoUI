@@ -80,13 +80,13 @@ endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
 	# link libraries
-	target_link_libraries(DoDoUI glfw ${vulkan_lib})
+	target_link_libraries(DoDoUI glfw ${vulkan_lib} freetype)
 else()
 	find_package(game-activity REQUIRED CONFIG)
 	find_package(Vulkan)
 	find_library(log-lib log)
 	find_library(android-lib android)
-	target_link_libraries(DoDoUI ${android-lib} game-activity::game-activity ${log-lib} Vulkan::Vulkan)
+	target_link_libraries(DoDoUI ${android-lib} game-activity::game-activity ${log-lib} Vulkan::Vulkan freetype)
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")

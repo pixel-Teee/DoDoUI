@@ -27,6 +27,8 @@ endif()
 # source dir and binary dir
 add_subdirectory(Source Do_Do_UI)
 
+add_subdirectory(ThirdParty/FreeType FreeType)
+
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
     # add third party
     add_subdirectory(ThirdParty/glfw GLFW)

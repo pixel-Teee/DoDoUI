@@ -60,5 +60,10 @@ namespace DoDo
 		{
 			return false;
 		}
+
+		virtual std::shared_ptr<Window> get_hittest_window()
+		{
+			return nullptr;
+		}
 	};
 }

@@ -61,8 +61,8 @@ namespace DoDo
 
 	const FDockTabStyle& FDockTabStyle::get_default()
 	{
-		static FDockTabStyle default;
-		return default;
+		static FDockTabStyle Default;
+		return Default;
 	}
 
 	//const FSplitterStyle& FSplitterStyle::get_default()

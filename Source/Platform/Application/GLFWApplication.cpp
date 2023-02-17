@@ -25,11 +25,15 @@ namespace DoDo {
 		return std::shared_ptr<WindowsWindow>();
 	}
 
-	static void cursor_position_call_back(GLFWwindow* window, double x_pos, double y_pos)
+	static void cursor_position_call_back(GLFWwindow* native_window, double x_pos, double y_pos)
 	{
-		GLFWApplication* application = (GLFWApplication*)glfwGetWindowUserPointer(window);
+		GLFWApplication* application = (GLFWApplication*)glfwGetWindowUserPointer(native_window);
 
 		//todo:find WindowsWindow, to call defer message
+		const std::shared_ptr<WindowsWindow> window = find_window_by_glfw_window(application->get_native_windows(), native_window);
+
+		//application->get_message_handler()->set_hittest_window(window);
+		application->m_current_under_cursor_window = window;//note:handle this in the defer message
 
 		//todo:set cursor position
 		application->get_message_handler()->set_cursor_pos(glm::vec2(x_pos, y_pos));//todo:first to update cursor storage position information
@@ -44,6 +48,9 @@ namespace DoDo {
 
 		//find window
 		const std::shared_ptr<WindowsWindow> window = find_window_by_glfw_window(application->get_native_windows(), native_window);
+
+		//application->get_message_handler()->set_hittest_window(window);
+		application->m_current_under_cursor_window = window;
 
 		if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 		{
@@ -102,6 +109,11 @@ namespace DoDo {
 	void GLFWApplication::defer_message(std::shared_ptr<WindowsWindow>& native_window, int32_t mouse_x, int32_t mouse_y)
 	{
 
+	}
+
+	std::shared_ptr<Window> GLFWApplication::get_window_under_cursor()
+	{
+		return m_current_under_cursor_window;
 	}
 
 	FModifierKeyState GLFWApplication::get_modifier_keys() const

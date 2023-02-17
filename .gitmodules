@@ -7,3 +7,6 @@
 [submodule "ThirdParty/vma"]
 	path = ThirdParty/vma
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+[submodule "ThirdParty/FreeType"]
+	path = ThirdParty/FreeType
+	url = https://github.com/pixel-Teee/freetype.git

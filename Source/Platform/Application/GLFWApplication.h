@@ -25,11 +25,15 @@ namespace DoDo {
 		/*defers a windows message for later processing*/
 		void defer_message(std::shared_ptr<WindowsWindow>& native_window, int32_t mouse_x = 0, int32_t mouse_y = 0);
 
+		virtual std::shared_ptr<Window> get_window_under_cursor() override;
+
 		virtual FModifierKeyState get_modifier_keys() const;
 
 		static std::shared_ptr<GLFWApplication> create_windows_application();
 
 		const std::vector<std::shared_ptr<WindowsWindow>> get_native_windows() const;
+
+		std::shared_ptr<WindowsWindow> m_current_under_cursor_window;//note:to handle this in the defer message 
 	private:
 
 		std::vector<std::shared_ptr<WindowsWindow>> m_windows;

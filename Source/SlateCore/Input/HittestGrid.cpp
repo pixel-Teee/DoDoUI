@@ -42,7 +42,7 @@ namespace DoDo
 		float cursor_radius, bool b_ignore_enabled_status, int32_t user_index)
 	{
 		//const glm::vec2 cursor_position_in_grid = desktop_space_coordinate - m_grid_origin;
-		const glm::vec2 cursor_position_in_grid = desktop_space_coordinate;
+		const glm::vec2 cursor_position_in_grid = desktop_space_coordinate;//note:this desktop_space_coordinate is local cursor position(interms of glfw)
 
 		if(m_widget_array.size() > 0 && m_cells.size() > 0)
 		{

@@ -1,8 +1,21 @@
 #pragma once
 #include "Core/String/DoDoString.h"
 
+#include <glm/glm.hpp>//glm::vec4
+
 namespace DoDo
 {
+	/*
+	 * settings for applying an outline to a font
+	 */
+	struct FFontOutlineSettings
+	{
+		/*size of the outline in slate units (at 1.0 font scale this unit is a pixel)*/
+		int32_t m_outline_size;
+
+		/*the color of the outline for any character in this font*/
+		glm::vec4 m_outline_color;
+	};
 	/*
 	 * a representation of a font in slate
 	 */

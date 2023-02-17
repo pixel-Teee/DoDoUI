@@ -4,6 +4,7 @@
 
 namespace DoDo
 {
+	class FSlateShaderResource;
 	/*
 	 * specifies how to handle texture atlas padding (when specified for the atlas)
 	 * we only support one pixel of padding because we don't support mips or aniso filtering on atlas textures right noew
@@ -102,7 +103,7 @@ namespace DoDo
 		 */
 		const FAtlasedTextureSlot* find_slot_for_texture(uint32_t in_width, uint32_t in_height);
 
-		struct FCopyRawData
+		struct FCopyRawData//this is a temp texture to copy one raw data
 		{
 			/*source data to copy*/
 			const uint8_t* src_data;
@@ -171,7 +172,19 @@ namespace DoDo
 		bool m_b_needs_update;
 	};
 
-	class FSlateShaderResource;
+	/*a factory capable of generating a texture atlas or shader resource for textures too big to be in an atlas*/
+	class ISlateTextureAtlasFactory
+	{
+	public:
+		virtual ~ISlateTextureAtlasFactory() {}
+
+		virtual std::unique_ptr<FSlateTextureAtlas> create_texture_atlas(int32_t atlas_size, int32_t atlas_stride, ESlateTextureAtlasPaddingStyle padding_style, bool b_updates_after_initialization) const = 0;
+
+		virtual std::unique_ptr<FSlateTextureAtlas> create_non_atlased_texture(const uint32_t in_width, const uint32_t in_height, const std::vector<uint8_t>& in_raw_data) const = 0;
+
+		virtual void release_texture_atlases(const std::vector<std::unique_ptr<FSlateTextureAtlas>>& in_texture_atlases, const std::vector<std::unique_ptr<FSlateShaderResource>>& in_non_atlased_textures, const bool b_wait_for_release) const = 0;
+	};
+
 	/*interface to allow the slate atlas visualizer to query atlas page information for an atlas provider*/
 	class ISlateAtlasProvider
 	{

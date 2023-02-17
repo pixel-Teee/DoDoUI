@@ -2,8 +2,20 @@
 
 #include "Core/Math/IntPoint.h"
 
+#include "SlateFontInfo.h"//FSlateFontKey's FSlateFontInfo depends on it
+
 namespace DoDo
 {
+	struct FSlateFontKey
+	{
+	public:
+
+	private:
+		FSlateFontInfo m_font_info;//font info
+
+
+	};
+
 	class ISlateFontAtlasFactory
 	{
 	public:

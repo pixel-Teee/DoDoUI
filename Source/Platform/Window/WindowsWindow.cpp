@@ -17,7 +17,7 @@ namespace DoDo {
     //bool WindowsWindow::m_is_initialized_glfw = false;
 
     //p p1 x p p2
-    uint64_t get_cross(uint64_t p1x, uint64_t p1y, uint64_t p2x, uint64_t p2y, uint64_t px, uint64_t py)
+    int64_t get_cross(int64_t p1x, int64_t p1y, int64_t p2x, int64_t p2y, int64_t px, int64_t py)
     {
         return (p1x - px) * (p2y - py) - (p1y - py) * (p2x - px);
     }
@@ -72,12 +72,12 @@ namespace DoDo {
     {
        // bool result = false;
 
-        uint64_t a = get_cross(m_region_width, 0, x, y, 0, 0);
-        uint64_t b = get_cross(0, m_region_height, x, y, m_region_width, m_region_height);
-        uint64_t c = get_cross(x, y, 0, m_region_height, 0, 0);
-        uint64_t d = get_cross(x, y, m_region_width, 0, m_region_width, m_region_height);
+        //int64_t a = get_cross(m_region_width, 0, x, y, 0, 0);
+        //int64_t b = get_cross(0, m_region_height, x, y, m_region_width, m_region_height);
+        //int64_t c = get_cross(x, y, 0, m_region_height, 0, 0);
+        //int64_t d = get_cross(x, y, m_region_width, 0, m_region_width, m_region_height);
 
-        return (a * b >= 0) && (c * d >= 0);
+        return true;
 
         //todo:is point in?
         //get_cross(m_region_width, 0, x, y, 0, 0)* get_cross(0, m_region_height, x, y, m_region_width, m_region_height);
