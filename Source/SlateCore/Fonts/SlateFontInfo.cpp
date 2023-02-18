@@ -4,5 +4,5 @@
 
 namespace DoDo
 {
-	
+	FFontOutlineSettings FFontOutlineSettings::NoOutline;//static data member
 }

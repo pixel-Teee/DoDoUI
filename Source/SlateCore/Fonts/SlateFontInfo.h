@@ -15,6 +15,8 @@ namespace DoDo
 
 		/*the color of the outline for any character in this font*/
 		glm::vec4 m_outline_color;
+
+		static FFontOutlineSettings NoOutline;
 	};
 	/*
 	 * a representation of a font in slate
