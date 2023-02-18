@@ -10,11 +10,38 @@ namespace DoDo
 	class FSlateDrawBuffer;
 	class SWindow;
 	class ISlateStyle;
+	class FSlateFontCache;
+	/*
+	* provides access to the game and render thread font caches that slate should use
+	*/
+	class FSlateFontServices
+	{
+	public:
+		/*
+		* construct the font services from the font cache
+		* 
+		* these pointers may be the same if your renderer doesn't need a separate render thread font cache
+		*/
+		FSlateFontServices(std::shared_ptr<FSlateFontCache> in_game_thread_font_cache, std::shared_ptr<FSlateFontCache> in_render_thread_font_cache);
+
+		~FSlateFontServices();
+
+		/*
+		* get the font cache to use for the current thread
+		*/
+		std::shared_ptr<FSlateFontCache> get_font_cache() const;
+
+	private:
+		std::shared_ptr<FSlateFontCache> m_game_thread_font_cache;
+		std::shared_ptr<FSlateFontCache> m_render_thread_font_cache;
+	};
+
 	//TODO:temporarily use this renderer
 	class Renderer
 	{
 	public:
 		//UIRenderer();
+		Renderer(const std::shared_ptr<FSlateFontServices>& in_slate_font_services);
 
 		/*returns a draw buffer that can be used by slate windows to draw window elements*/
 		virtual FSlateDrawBuffer& get_draw_buffer() = 0;
@@ -47,5 +74,9 @@ namespace DoDo
 		virtual void destroy();
 
 		static std::shared_ptr<Renderer> Create();//transfer owner ship
+
+	protected:
+		/*the font services used by this renderer when drawing text*/
+		std::shared_ptr<FSlateFontServices> m_slate_font_services;
 	};
 }

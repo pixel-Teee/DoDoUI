@@ -16,7 +16,8 @@
 
 namespace DoDo
 {
-	FSlateVulkanRenderingPolicy::FSlateVulkanRenderingPolicy(VmaAllocator& allocator, std::shared_ptr<FSlateVulkanTextureManager> in_texture_manager)
+	FSlateVulkanRenderingPolicy::FSlateVulkanRenderingPolicy(std::shared_ptr<FSlateFontServices> in_slate_font_services, VmaAllocator& allocator, std::shared_ptr<FSlateVulkanTextureManager> in_texture_manager)
+	: FSlateRenderingPolicy(in_slate_font_services)
 	{
 		m_deletion_queue = std::make_shared<DeletionQueue>();
 

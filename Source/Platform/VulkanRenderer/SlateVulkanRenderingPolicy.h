@@ -21,7 +21,7 @@ namespace DoDo
 	class FSlateVulkanRenderingPolicy : public FSlateRenderingPolicy
 	{
 	public:
-		FSlateVulkanRenderingPolicy(VmaAllocator& allocator, std::shared_ptr<FSlateVulkanTextureManager> in_texture_manager);
+		FSlateVulkanRenderingPolicy(std::shared_ptr<FSlateFontServices> in_slate_font_services, VmaAllocator& allocator, std::shared_ptr<FSlateVulkanTextureManager> in_texture_manager);
 
 		~FSlateVulkanRenderingPolicy();
 

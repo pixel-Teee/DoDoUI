@@ -4,6 +4,8 @@
 
 #include "SlateCore/Textures/SlateShaderResource.h"
 
+#include "SlateCore/Fonts/FontTypes.h"
+
 namespace DoDo {
 	/*
 	* encapsulates a vulkan texture that can be accessed by a shader
@@ -29,5 +31,20 @@ namespace DoDo {
 		AllocatedImage m_image;	
 
 		//VkDescriptorSet m_descriptor_set;//every texture have one descriptor
+	};
+
+	/*
+	* representation of a texture for fonts in which characters are packed tightly based on their bounding rectangle
+	*/
+	class FSlateFontAtlasVulkan : public FSlateFontAtlas
+	{
+	public:
+		FSlateFontAtlasVulkan(uint32_t width, uint32_t height, const bool in_is_gray_scale);
+
+		~FSlateFontAtlasVulkan();
+
+	private:
+		/*texture used for rendering*/
+		FSlateVulkanTexture* m_font_texture;
 	};
 }

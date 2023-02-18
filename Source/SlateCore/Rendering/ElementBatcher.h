@@ -10,6 +10,7 @@ namespace DoDo
 {
 	class FSlateRenderBatch;//create render batch depends on it
 	class FSlateWindowElementList;
+	class FSlateRenderingPolicy;
 
 	class FSlateBatchData
 	{
@@ -90,7 +91,9 @@ namespace DoDo
 	class FSlateElementBatcher
 	{
 	public:
+		FSlateElementBatcher(std::shared_ptr<FSlateRenderingPolicy> in_rendering_policy);
 
+		~FSlateElementBatcher();
 		/*
 		 * batches elements to be rendered
 		 *
@@ -130,6 +133,9 @@ namespace DoDo
 	private:
 		/*uncached batch data currently being filled in*/
 		FSlateBatchData* m_batch_data;//life time owns by the FSlateWindowElementList
+
+		/*rendering policy we were created from*/
+		FSlateRenderingPolicy* m_rendering_policy;
 	};
 
 	

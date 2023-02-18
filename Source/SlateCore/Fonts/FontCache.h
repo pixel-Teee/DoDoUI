@@ -118,7 +118,7 @@ namespace DoDo
 	class FCharacterList
 	{
 	public:
-
+		FCharacterList(const FSlateFontKey& in_font_key, FSlateFontCache& in_font_cache);
 
 	private:
 		/*Maintains a fake shaped glyph for each character in the character list*/
@@ -126,9 +126,22 @@ namespace DoDo
 		{
 			/*the shaped glyph data for this character*/
 			FShapedGlyphEntry m_shaped_glyph_entry;
+			/*font data this character was rendered with*/
+			const FFontData* m_font_data = nullptr;
+
+			/*does this character have kerning?*/
+			bool m_has_kerning = false;
+
+			/*has this entry been initialized?*/
+			bool m_valid = false;
 		};
 		/*entries for larger character sets to conserve memory*/
+		std::map<DoDoUtf8String, FCharacterListEntry> m_mapped_entries;
+		/*font for this character list*/
+		FSlateFontKey m_font_key;
 
+		/*reference to the font cache for accessing new unseen characters*/
+		FSlateFontCache& m_font_cache;
 	};
 	/*
 	 * font caching implementation
@@ -145,6 +158,7 @@ namespace DoDo
 		 * @param InFontAtlas platform specific font atlas resource
 		 */
 		//todo:implement ISlateFontAtlasFactory
+		FSlateFontCache(std::shared_ptr<ISlateFontAtlasFactory> in_font_atlas_factory);
 
 		/*
 		 * gets information for how to draw all non-shaped characters in the specified string, caches characters as they are found
@@ -155,9 +169,19 @@ namespace DoDo
 		 */
 		FCharacterList& get_character_list(const FSlateFontInfo& in_font_info, float font_scale, const FFontOutlineSettings& in_outline_settings = FFontOutlineSettings::NoOutline);
 
+
+		virtual int32_t get_num_atlas_pages() const override;
+
+		virtual FSlateShaderResource* get_atlas_page_resource(const int32_t in_index) override;
+
+		virtual bool is_atlas_page_resource_alpha_only(const int32_t in_index) const override;
 	private:
 
 		/*mapping font keys to cached data*/
-		//std::map<FSlateFontKey
+		std::unordered_map<FSlateFontKey, std::unique_ptr<FCharacterList>> m_font_to_character_list_cache;
+
+		/*factory for creating new font atlases*/
+		std::shared_ptr<ISlateFontAtlasFactory> m_font_atlas_factory;
+		
 	};
 }

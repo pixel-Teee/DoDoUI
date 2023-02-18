@@ -101,6 +101,17 @@ namespace DoDo
 		}
 	}
 
+	
+	FSlateElementBatcher::FSlateElementBatcher(std::shared_ptr<FSlateRenderingPolicy> in_rendering_policy)
+		: m_batch_data(nullptr)
+		, m_rendering_policy(in_rendering_policy.get())
+	{
+	}
+
+	FSlateElementBatcher::~FSlateElementBatcher()
+	{
+	}
+
 	void FSlateElementBatcher::add_elements(FSlateWindowElementList& element_list)
 	{
 		//todo:implement viewport size
@@ -413,6 +424,7 @@ namespace DoDo
 		//concatenate(inverse(font_scale), layout_transform);
 
 		//todo:implement font cache
+		FSlateFontCache& font_cache = *(m_rendering_policy->get_font_cache());
 		//todo:get resource manager
 		//FSlateShaderResourceManager& resource_manager = *
 

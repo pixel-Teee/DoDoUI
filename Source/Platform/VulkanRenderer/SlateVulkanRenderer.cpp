@@ -24,6 +24,10 @@
 
 #include "VulkanInitializers.h"
 
+#include "SlateCore/Fonts/FontTypes.h"
+
+#include "SlateCore/Fonts/FontCache.h"//FSlateFontCache depends on it
+
 #ifdef WIN32
 //------vulkan for glfw------
 #define VK_USE_PLATFORM_WIN32_KHR
@@ -170,7 +174,47 @@ namespace DoDo {
 			-(right + left) / (right - left), -(bottom + top) / (bottom - top), -zNear / (-zNear + zFar), 1.0f);
 	}
 
+	//------FSlateVulkanFontAtlasFactory------
+	class FSlateVulkanFontAtlasFactory : public ISlateFontAtlasFactory
+	{
+	public:
+		virtual ~FSlateVulkanFontAtlasFactory()
+		{
+
+		}
+
+		virtual FIntPoint get_atlas_size(const bool in_is_gray_scale) const override
+		{
+			return in_is_gray_scale ? FIntPoint(m_gray_scale_texture_size, m_gray_scale_texture_size)
+				: FIntPoint(m_color_texture_size, m_color_texture_size);
+		}
+
+		virtual std::shared_ptr<FSlateFontAtlas> create_font_atlas(const bool in_is_gray_scale) const override
+		{
+			const FIntPoint atlas_size = get_atlas_size(in_is_gray_scale);
+			return std::make_shared<FSlateFontAtlasVulkan>(atlas_size.x, atlas_size.y, in_is_gray_scale);
+		}
+
+		//todo:create non atlased texture
+
+	private:
+		/*size of each font texture, width and height*/
+		static const uint32_t m_gray_scale_texture_size = 1024;
+		static const uint32_t m_color_texture_size = 512;
+	};
+	//------FSlateVulkanFontAtlasFactory------
+
+	//------font services------
+	std::shared_ptr<FSlateFontServices> create_vulkan_font_services()
+	{
+		const std::shared_ptr<FSlateFontCache> font_cache = std::make_shared<FSlateFontCache>(std::make_shared<FSlateVulkanFontAtlasFactory>());
+
+		return std::make_shared<FSlateFontServices>(font_cache, font_cache);
+	}
+	//------font services------
+
 	FSlateVulkanRenderer::FSlateVulkanRenderer()
+		: Renderer(create_vulkan_font_services())//note:base class holds the font service
 	{
 		m_b_has_attempted_initialization = false;
 		m_view_matrix = glm::mat4x4(1.0f);//identity view matrix
@@ -403,11 +447,11 @@ namespace DoDo {
 				m_texture_manager->load_used_textures();//load the texture centrally again
 
 				//todo:implement rendering policy
-				m_rendering_policy = std::make_shared<FSlateVulkanRenderingPolicy>(m_allocator, m_texture_manager);//note:vma need first initialize
+				m_rendering_policy = std::make_shared<FSlateVulkanRenderingPolicy>(m_slate_font_services, m_allocator, m_texture_manager);//note:vma need first initialize
 				m_rendering_policy->reset_offset();
 
 				//todo:implement element batcher
-				m_element_batcher = std::make_unique<FSlateElementBatcher>();
+				m_element_batcher = std::make_unique<FSlateElementBatcher>(m_rendering_policy);
 
 #ifdef Android
 				m_vertex_shader_module = Shader::Create("SlateDefaultVertexShader.spv", &device);

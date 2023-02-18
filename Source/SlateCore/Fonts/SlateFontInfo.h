@@ -1,6 +1,10 @@
 #pragma once
 #include "Core/String/DoDoString.h"
 
+#include "Core/Templates/TypeHash.h"
+
+#include "CompositeFont.h"
+
 #include <glm/glm.hpp>//glm::vec4
 
 namespace DoDo
@@ -17,6 +21,18 @@ namespace DoDo
 		glm::vec4 m_outline_color;
 
 		static FFontOutlineSettings NoOutline;
+
+		bool is_identical_to_for_caching(const FFontOutlineSettings& other) const
+		{
+			return m_outline_size == other.m_outline_size;
+		}
+
+		friend inline uint32_t Get_Type_Hash(const FFontOutlineSettings& outline_settings)
+		{
+			uint32_t hash = 0;
+			hash = Hash_Combine(hash, Get_Type_Hash(outline_settings.m_outline_size));
+			return hash;
+		}
 	};
 	/*
 	 * a representation of a font in slate
@@ -31,8 +47,10 @@ namespace DoDo
 		void* m_font_material;
 
 		/*settings for applying an outline to a font*/
+		FFontOutlineSettings m_outline_settings;
 
 		//todo:implement FCompositeFont
+		//std::unique_ptr<const FCompositeFont> m_composite_font;
 
 		/*the name of the font to use from the default typeface (None will use the first entry)*/
 		DoDoUtf8String m_type_face_font_name;
@@ -46,5 +64,29 @@ namespace DoDo
 
 		/*the uniform spacing (or tracking) between all characters in the text*/
 		int32_t m_letter_spacing = 0;
+
+	public:
+		bool is_identical_to_for_caching(const FSlateFontInfo& other) const
+		{
+			//todo:ignore composite font
+			//ignore font material because it does not affect the cached glyph
+			return m_font_object == other.m_font_object
+				&& m_outline_settings.is_identical_to_for_caching(other.m_outline_settings)
+				&& m_type_face_font_name == other.m_type_face_font_name
+				&& m_size == other.m_size;
+		}
+
+		friend inline uint32_t Get_Type_Hash(const FSlateFontInfo& font_info)
+		{
+			//ignore font material because it does not affect the cached glyph
+			uint32_t hash = 0;
+			hash = Hash_Combine(hash, Get_Type_Hash((uint64_t)font_info.m_font_object));
+			hash = Hash_Combine(hash, Get_Type_Hash(font_info.m_outline_settings));
+			//hash = Hash_Combine(hash, Get_Type_Hash(font_info.m_type_face_font_name));
+			//todo:implement m_type_face_font_name hash
+			hash = Hash_Combine(hash, Get_Type_Hash(font_info.m_size));
+
+			return hash;
+		}
 	};
 }

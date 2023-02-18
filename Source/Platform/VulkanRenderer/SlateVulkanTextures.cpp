@@ -29,4 +29,13 @@ namespace DoDo {
 	{
 		return 0;
 	}
+	FSlateFontAtlasVulkan::FSlateFontAtlasVulkan(uint32_t width, uint32_t height, const bool in_is_gray_scale)
+		: FSlateFontAtlas(width, height, in_is_gray_scale)
+	{
+		//todo:create a font texture atlas
+		
+	}
+	FSlateFontAtlasVulkan::~FSlateFontAtlasVulkan()
+	{
+	}
 }

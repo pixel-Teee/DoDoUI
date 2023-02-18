@@ -2,9 +2,32 @@
 
 #include <vector>
 #include <memory>
+#include <Core/String/DoDoString.h>
 
 namespace DoDo
 {
+	enum class EFontHinting : uint8_t
+	{
+		Default,
+
+		Auto,
+
+		AutoLight,
+
+		Monochrome,
+
+		None
+	};
+
+	enum class EFontLoadingPolicy : uint8_t
+	{
+		LazyLoad,
+
+		Stream,
+
+		InLine
+	};
+
 	enum class EFontLayoutMethod : uint8_t
 	{
 		/*layout the font using the metrics data available in the font. this is typically the desired option, however some fonts have broken or incorrect metrics so may yield better results when using the bounding box values to layout the font*/
@@ -49,5 +72,15 @@ namespace DoDo
 
 		/*internal data*/
 		std::vector<uint8_t> m_data;
+	};
+
+	/*payload data describing an individual font in a typeface, keep this lean as it's also used as a key!*/
+	struct FFontData
+	{
+		/*default constructor*/
+		FFontData();
+
+		/*construct the raw data from a filename and the font data attributes*/
+		FFontData(DoDoUtf8String in_font_file_name, const EFontHinting in_hinting, const EFontLoadingPolicy in_loading_policy, const int32_t in_sub_face_index = 0);
 	};
 }
