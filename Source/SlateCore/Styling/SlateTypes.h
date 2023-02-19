@@ -4,6 +4,8 @@
 
 #include "SlateBrush.h"
 
+#include "SlateCore/Fonts/SlateFontInfo.h"
+
 namespace DoDo
 {
 	/*represents the appearance of an SButton*/
@@ -178,5 +180,21 @@ namespace DoDo
 		/*the padding applied to the border around the tab icon*/
 		float m_icon_border_padding;
 		FDockTabStyle& set_icon_border_padding(const float in_icon_border_padding) { m_icon_border_padding = in_icon_border_padding; return *this; }
+	};
+	
+	struct FTextBlockStyle : public FSlateWidgetStyle
+	{
+		FTextBlockStyle();
+
+		virtual ~FTextBlockStyle() {}
+
+		virtual void get_resources(std::vector<const FSlateBrush*>& out_brushes) const override;
+
+		static const DoDoUtf8String TypeName;
+
+		virtual const DoDoUtf8String get_type_name() const override { return TypeName; }
+
+		FSlateFontInfo m_font;
+		FTextBlockStyle& set_font(const FSlateFontInfo& in_font) { m_font = in_font; return *this; }
 	};
 }

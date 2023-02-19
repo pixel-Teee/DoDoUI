@@ -65,6 +65,16 @@ namespace DoDo
 		return Default;
 	}
 
+	FTextBlockStyle::FTextBlockStyle()
+	{
+	}
+
+	void FTextBlockStyle::get_resources(std::vector<const FSlateBrush*>& out_brushes) const
+	{
+	}
+
+	const DoDoUtf8String FTextBlockStyle::TypeName("FTextBlockStyle");
+
 	//const FSplitterStyle& FSplitterStyle::get_default()
 	//{
 	//	static FSplitterStyle default;

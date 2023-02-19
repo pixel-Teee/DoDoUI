@@ -8,6 +8,7 @@
 
 namespace DoDo {
 	class ISlateStyle;
+	struct FCompositeFont;
 	/*
 	* core slate style
 	*/
@@ -26,6 +27,9 @@ namespace DoDo {
 		{
 			return *(m_instance.get());
 		}
+
+		/*get the default font for slate*/
+		static std::shared_ptr<const FCompositeFont> get_default_font();
 
 	private:
 		/*singleton instances of this style*/

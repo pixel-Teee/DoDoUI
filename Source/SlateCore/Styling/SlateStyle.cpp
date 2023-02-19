@@ -75,4 +75,10 @@ namespace DoDo {
 
 		return style_ptr.get();
 	}
+	FSlateFontInfo FSlateStyleSet::get_font_style(const DoDoUtf8String& property_name) const
+	{
+		auto it = m_font_info_resources.find(property_name);
+		
+		return it->second;
+	}
 }

@@ -22,10 +22,23 @@
 
 #include "SlateCore/Brushes/SlateImageBrush.h"
 
+#include "SlateCore/Fonts/SlateFontInfo.h"//FSlateFontInfo depends on it
+
+#include "SlateCore/Styling/CoreStyle.h"//FCoreStyle depends on it
+
 namespace DoDo {
 	using namespace CoreStyleConstants;
 
 	std::shared_ptr<ISlateStyle> FStarshipCoreStyle::m_instances = nullptr;
+
+	std::unique_ptr<struct FStyleFonts> FStyleFonts::m_instance = nullptr;
+
+#define FONT(...) FSlateFontInfo(FCoreStyle::get_default_font(), __VA_ARGS__)
+
+	FStyleFonts::FStyleFonts()
+		: m_normal(FONT(10, "Regular"))//note:from the legacy slate font cache to get the font
+	{
+	}
 
 	class FStarshipCoreStyle::FStyle : public FSlateStyleSet
 	{
@@ -80,6 +93,10 @@ namespace DoDo {
 
 		//const std::string canary_path;
 		const FSlateColor default_fore_ground(FStyleColors::Foreground);//use color table id
+
+		const FStyleFonts& style_fonts = FStyleFonts::get();
+
+		set_up_text_styles(style);
 
 		//important colors
 		{
@@ -139,6 +156,19 @@ namespace DoDo {
 		return *m_instances;
 	}
 
+	void FStarshipCoreStyle::set_up_text_styles(std::shared_ptr<FStyle>& style)
+	{
+		const FStyleFonts& style_fonts = FStyleFonts::get();
+
+		const FTextBlockStyle normal_text = FTextBlockStyle()
+			.set_font(style_fonts.m_normal);
+
+		style->set("NormalFont", style_fonts.m_normal);
+
+		//STextBlock defaults...
+		style->set("NormalText", normal_text);
+	}
+
 	void FStarshipCoreStyle::set_up_button_styles(std::shared_ptr<FStyle>& style)
 	{
 		//sbutton defaults
@@ -186,4 +216,5 @@ namespace DoDo {
 		//	FDockTabStyle()
 		//	.set_close_button_style()
 	}
+
 }

@@ -6,10 +6,12 @@
 
 //#include "Core/String/DoDoString.h"
 
+#include "SlateCore/Fonts/SlateFontInfo.h"//FSlateFontInfo depends on it
+
 #include "SlateWidgetStyle.h"
 
 namespace DoDo {
-	//class DoDoUtf8String;
+	class DoDoUtf8String;
 	//class FSlateBrush;
 	class ISlateStyle
 	{
@@ -41,6 +43,8 @@ namespace DoDo {
 
 		virtual const FSlateWidgetStyle* get_widget_style_internal(const DoDoUtf8String desired_type_name, const DoDoUtf8String style_name
 			) const = 0;
+
+		virtual FSlateFontInfo get_font_style(const DoDoUtf8String& property_name) const = 0;
 
 		/*destructor*/
 		virtual ~ISlateStyle();

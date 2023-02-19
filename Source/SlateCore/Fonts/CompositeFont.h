@@ -83,4 +83,79 @@ namespace DoDo
 		/*construct the raw data from a filename and the font data attributes*/
 		FFontData(DoDoUtf8String in_font_file_name, const EFontHinting in_hinting, const EFontLoadingPolicy in_loading_policy, const int32_t in_sub_face_index = 0);
 	};
+
+	struct FTypefaceEntry
+	{
+		FTypefaceEntry()
+		{}
+
+		/*construct the entry from a name*/
+		FTypefaceEntry(const DoDoUtf8String& in_font_name)
+			: m_name(in_font_name)
+		{}
+
+		/*construct the entry from a filename and font data attributes*/
+		FTypefaceEntry(const DoDoUtf8String& in_font_name, DoDoUtf8String in_font_file_name, const EFontHinting in_hinting, const EFontLoadingPolicy in_loading_policy)
+			: m_name(in_font_name)
+			, m_font(std::move(in_font_file_name), in_hinting, in_loading_policy)
+		{}
+
+		/*named used to identify this font within its typeface*/
+		DoDoUtf8String m_name;
+
+		/*raw font data for this font*/
+		FFontData m_font;
+	};
+
+	/*definition for a typeface (a family of fonts)*/
+	struct FTypeface
+	{
+		/*default constructor*/
+		FTypeface()
+		{
+		}
+
+		/*convenience constructor for when your font family only contains a single font*/
+		FTypeface(const DoDoUtf8String& in_font_name, DoDoUtf8String in_font_file_name, const EFontHinting in_hinting, const EFontLoadingPolicy in_loading_policy)
+		{
+
+		}
+
+		/*append a new font into this family*/
+		FTypeface& append_font(const DoDoUtf8String& in_font_name, DoDoUtf8String in_font_file_name, const EFontHinting in_hinting, const EFontLoadingPolicy in_loading_policy)
+		{
+			m_fonts.emplace_back(in_font_name, std::move(in_font_name), in_hinting, in_loading_policy);
+			return *this;
+		}
+
+		/*the fonts contained within this family*/
+		std::vector<FTypefaceEntry> m_fonts;
+	};
+
+	struct FCompositeFont
+	{
+		/*default constructor*/
+		FCompositeFont()
+		{
+
+		}
+
+		FCompositeFont(const DoDoUtf8String& in_font_name, DoDoUtf8String in_font_file_name, const EFontHinting in_hinting, const EFontLoadingPolicy in_loading_policy)
+			: m_default_type_face(in_font_name, std::move(in_font_file_name), in_hinting, in_loading_policy)
+		{}
+
+		/*the default typeface that will be used when not overridden by a sub-typeface*/
+		FTypeface m_default_type_face;
+	};
+
+	//todo:implement FGCObject
+	struct FStandaloneCompositeFont : public FCompositeFont
+	{
+		FStandaloneCompositeFont() {}
+
+		FStandaloneCompositeFont(const DoDoUtf8String& in_font_name, DoDoUtf8String in_font_file_name, const EFontHinting in_hinting, const EFontLoadingPolicy
+			in_loading_policy)
+			: FCompositeFont(in_font_name, std::move(in_font_file_name), in_hinting, in_loading_policy)
+		{}
+	};
 }

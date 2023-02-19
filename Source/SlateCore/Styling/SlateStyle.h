@@ -8,6 +8,8 @@
 
 #include "SlateColor.h"
 
+#include "SlateCore/Fonts/SlateFontInfo.h"
+
 namespace DoDo {
 	struct FSlateWidgetStyle;
 	//class DoDoUtf8String;
@@ -56,6 +58,17 @@ namespace DoDo {
 			m_brush_resources.insert({ property_name, in_brush });
 		}
 
+		/*
+		* set FSlateFontInfo properties
+		* 
+		* @param PropertyName name of the property to set
+		* @param InFontStyle the value to set
+		*/
+		void set(DoDoUtf8String property_name, const FSlateFontInfo& in_font_info)
+		{
+			m_font_info_resources.insert({ property_name, in_font_info });
+		}
+
 		virtual const DoDoUtf8String& get_style_set_name() const override;
 
 		//populate to the parameter
@@ -65,6 +78,8 @@ namespace DoDo {
 
 		virtual const FSlateWidgetStyle* get_widget_style_internal(const DoDoUtf8String desired_type_name, const DoDoUtf8String style_name
 		) const override;
+
+		virtual FSlateFontInfo get_font_style(const DoDoUtf8String& property_name) const override;
 		
 	protected:
 		/*the name used to identity this style set*/
@@ -82,5 +97,8 @@ namespace DoDo {
 		/*FSlateBrush property storage*/
 		FSlateBrush* m_default_brush;
 		std::map<DoDoUtf8String, FSlateBrush*> m_brush_resources;//we have life time of FSlateBrush
+
+		/*FSlateFontInfo property storage*/
+		std::map<DoDoUtf8String, FSlateFontInfo> m_font_info_resources;
 	};
 }

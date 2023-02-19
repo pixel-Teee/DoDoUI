@@ -50,7 +50,7 @@ namespace DoDo
 		FFontOutlineSettings m_outline_settings;
 
 		//todo:implement FCompositeFont
-		//std::unique_ptr<const FCompositeFont> m_composite_font;
+		std::shared_ptr<const FCompositeFont> m_composite_font;
 
 		/*the name of the font to use from the default typeface (None will use the first entry)*/
 		DoDoUtf8String m_type_face_font_name;
@@ -66,6 +66,17 @@ namespace DoDo
 		int32_t m_letter_spacing = 0;
 
 	public:
+		FSlateFontInfo();
+		/*
+		* creates and initializes a new instance with the specified font, size, and emphasis
+		* 
+		* @param InCompositeFont the font instance to use
+		* @param InSize the size of the font
+		* @param InTypefaceFontName the name of the font to use from the default typeface (none will use the first entry)
+		*/
+		FSlateFontInfo(std::shared_ptr<const FCompositeFont> in_composite_font, const int32_t in_size, const DoDoUtf8String& in_type_face_font_name = "",
+			const FFontOutlineSettings& in_outline_settings = FFontOutlineSettings());
+
 		bool is_identical_to_for_caching(const FSlateFontInfo& other) const
 		{
 			//todo:ignore composite font
