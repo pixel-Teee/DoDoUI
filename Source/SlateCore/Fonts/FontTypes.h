@@ -45,6 +45,16 @@ namespace DoDo
 			return key.m_key_hash;
 		}
 
+		const FSlateFontInfo& get_font_info() const
+		{
+			return m_font_info;
+		}
+
+		float get_scale() const
+		{
+			return m_scale;
+		}
+
 	private:
 		FSlateFontInfo m_font_info;//font info
 

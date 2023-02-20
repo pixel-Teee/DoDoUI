@@ -51,6 +51,16 @@ namespace DoDo {
 		friend DoDoUtf8String operator+(const DoDoUtf8String& lhs, const DoDoUtf8String& rhs);
 
 		bool operator<(const DoDoUtf8String& rhs) const;
+
+		const char& operator[](int32_t index) const
+		{
+			return m_buffer[index];
+		}
+
+		char& operator[](int32_t index)
+		{
+			return m_buffer[index];
+		}
 	private:
 		int32_t calculate_length(char* m_buffer);
 

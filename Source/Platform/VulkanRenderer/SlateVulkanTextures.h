@@ -6,11 +6,13 @@
 
 #include "SlateCore/Fonts/FontTypes.h"
 
+#include "SlateCore/Textures/SlateUpdatableTexture.h"//FSlateUpdatableTexture depends on it
+
 namespace DoDo {
 	/*
 	* encapsulates a vulkan texture that can be accessed by a shader
 	*/
-	class FSlateVulkanTexture : public TSlateTexture<VkImageView>
+	class FSlateVulkanTexture : public TSlateTexture<VkImageView>, public FSlateUpdatableTexture
 	{
 	public:
 		FSlateVulkanTexture();
@@ -25,6 +27,8 @@ namespace DoDo {
 		void set_image(const AllocatedImage& allocated_image);
 
 		void set_shader_resource(VkImageView image_view);
+
+		virtual void update_texture(const std::vector<uint8_t>& bytes) override;
 
 		//void set_descriptor_set(VkDescriptorSet descriptor_set);
 	private:
@@ -43,6 +47,7 @@ namespace DoDo {
 
 		~FSlateFontAtlasVulkan();
 
+		void conditional_update_texture() override;
 	private:
 		/*texture used for rendering*/
 		FSlateVulkanTexture* m_font_texture;

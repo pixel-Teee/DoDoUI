@@ -2,6 +2,12 @@
 
 #include "STextBlock.h"
 
+#include "Application/Application.h"//Application
+
+#include "Renderer/Renderer.h"//compute desired function depends on it
+
+#include "SlateCore/Fonts/FontMeasure.h"//compute desired depends on it
+
 namespace DoDo
 {
 	void STextBlock::Private_Register_Attributes(FSlateAttributeInitializer& attribute_initializer)
@@ -60,11 +66,20 @@ namespace DoDo
 	{
 		if(m_b_simple_text_mode)
 		{
-			return glm::vec2(0.0f, 0.0f);//todo:implement this function
+			//todo:calculate local shadow offset and local outline size
+
+			const glm::vec2 text_size = Application::get().get_renderer()->get_font_measure_service()->measure(m_bound_text.Get(), get_font());
+
+			
 		}
 		else
 		{
 			return glm::vec2(0.0f, 0.0f);
 		}
+	}
+
+	FSlateFontInfo STextBlock::get_font() const
+	{
+		return m_text_style.m_font;
 	}
 }

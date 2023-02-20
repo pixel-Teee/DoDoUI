@@ -11,6 +11,7 @@ namespace DoDo
 	class SWindow;
 	class ISlateStyle;
 	class FSlateFontCache;
+	class FSlateFontMeasure;
 	/*
 	* provides access to the game and render thread font caches that slate should use
 	*/
@@ -31,9 +32,16 @@ namespace DoDo
 		*/
 		std::shared_ptr<FSlateFontCache> get_font_cache() const;
 
+		/*
+		 * get access to the font measure service for the current thread
+		 */
+		std::shared_ptr<FSlateFontMeasure> get_font_measure_service() const;
+
 	private:
 		std::shared_ptr<FSlateFontCache> m_game_thread_font_cache;
 		std::shared_ptr<FSlateFontCache> m_render_thread_font_cache;
+
+		std::shared_ptr<FSlateFontMeasure> m_game_thread_font_measure;
 	};
 
 	//TODO:temporarily use this renderer
@@ -72,6 +80,14 @@ namespace DoDo
 		virtual ~Renderer();
 
 		virtual void destroy();
+
+		/*
+		 * get access to the font measure service (game thread only!)
+		 */
+		std::shared_ptr<FSlateFontMeasure> get_font_measure_service() const
+		{
+			return m_slate_font_services->get_font_measure_service();
+		}
 
 		static std::shared_ptr<Renderer> Create();//transfer owner ship
 

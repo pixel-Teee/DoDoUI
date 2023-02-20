@@ -17,6 +17,12 @@ namespace DoDo {
 	{
 		m_shader_resource = image_view;
 	}
+
+	void FSlateVulkanTexture::update_texture(const std::vector<uint8_t>& bytes)
+	{
+		//todo:update texture
+	}
+
 	//void FSlateVulkanTexture::set_descriptor_set(VkDescriptorSet descriptor_set)
 	//{
 	//	m_descriptor_set = descriptor_set;
@@ -37,5 +43,14 @@ namespace DoDo {
 	}
 	FSlateFontAtlasVulkan::~FSlateFontAtlasVulkan()
 	{
+	}
+
+	void FSlateFontAtlasVulkan::conditional_update_texture()
+	{
+		if(m_b_needs_update)
+		{
+			m_font_texture->update_texture(m_atlas_data);
+			m_b_needs_update = false;
+		}
 	}
 }

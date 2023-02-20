@@ -138,6 +138,11 @@ namespace DoDo
 		void zero_row(const FCopyRawData& copy_row_data);
 
 		/*
+		 * updates the texture used for rendering if needed
+		 */
+		virtual void conditional_update_texture() = 0;
+
+		/*
 		* copies texture data into the atlas at a given slot
 		* 
 		* @param SlotToCopyTo the occupied slot in the atlas where texture data should be copied to

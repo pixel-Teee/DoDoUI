@@ -10,6 +10,17 @@
 namespace DoDo
 {
 	/*
+	 * sets the maximum font fallback level, for when a character can't be found in the selected font set
+	 *
+	 */
+	enum class EFontFallback : uint8_t
+	{
+		/*no fallback font*/
+		FF_NoFallback,
+
+		FF_Max
+	};
+	/*
 	 * settings for applying an outline to a font
 	 */
 	struct FFontOutlineSettings
@@ -64,6 +75,8 @@ namespace DoDo
 
 		/*the uniform spacing (or tracking) between all characters in the text*/
 		int32_t m_letter_spacing = 0;
+
+		EFontFallback m_font_fallback;
 
 	public:
 		FSlateFontInfo();

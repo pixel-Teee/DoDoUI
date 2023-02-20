@@ -21,6 +21,11 @@ namespace DoDo {
 		return m_game_thread_font_cache;//note:just one thread
 	}
 
+	std::shared_ptr<FSlateFontMeasure> FSlateFontServices::get_font_measure_service() const
+	{
+		return  m_game_thread_font_measure;
+	}
+
 	Renderer::Renderer(const std::shared_ptr<FSlateFontServices>& in_slate_font_services)
 		: m_slate_font_services(in_slate_font_services)
 	{

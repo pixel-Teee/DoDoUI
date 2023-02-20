@@ -7,6 +7,8 @@
 
 #include "SlateCore/Textures/TextureAtlas.h"//ISlateAtlasProvider depends on it
 
+#include "SlateFontRenderer.h"//FSlateFontCache depends on it
+
 namespace DoDo
 {
 	/*the font atlas data for a single glyph in a shaped text sequence*/
@@ -109,6 +111,49 @@ namespace DoDo
 		mutable std::weak_ptr<FShapedGlyphFontAtlasData> m_cached_atlas_data[2][2];//EFontCacheAtlasDataType::Num
 	};
 
+	/*information for rendering one non-shaped character*/
+	struct FCharacterEntry
+	{
+		/*the character this entry is for*/
+		char character = 0;//todo:need to fix this
+		/*the index of the glyph from the FreeType face that this entry is for*/
+		uint32_t m_glyph_index = 0;
+		/*the raw font data this character was rendered with*/
+		const FFontData* font_data = nullptr;
+		/*the kerning cache that this entry uses*/
+		//std::shared_ptr<FFreeTypeKerningCache>
+		/*scale that was applied when rendering this character*/
+		float m_font_scale = 0.0f;
+		/*any additional scale that should be applied when rendering this glyph*/
+		float m_bitmap_render_scale = 0.0f;
+		/*start x location of the character in the texture*/
+		uint16_t m_start_u = 0;
+		/*start y location of the character in the texture*/
+		uint16_t m_start_v = 0;
+		/*x size of the character in the texture*/
+		uint16_t m_u_size = 0;
+		/*y size of the character in the texture*/
+		uint16_t m_v_size = 0;
+		/*the vertical distance from the baseline to the topmost border of the character*/
+		int16_t m_vertical_offset = 0;
+		/*the vertical distance from the baseline to the left most border of the character*/
+		int16_t m_horizontal_offset = 0;
+		/*the largest vertical distance below the baseline for any character in the font*/
+		int16_t m_global_descendar = 0;
+		/*the amount to advance in x before drawing the next character in a string*/
+		int16_t m_x_advance = 0;
+		/*index to a specific texture in the font cache*/
+		uint8_t m_texture_index = 0;
+		/*the fallback level this character represents*/
+		EFontFallback m_fall_back_level = EFontFallback::FF_Max;
+		/*1 if this entry has kerning, 0 otherwise*/
+		bool m_has_kerning = false;
+		/*1 if this entry supports outline rendering, 0 otherwise*/
+		bool m_supports_outline = false;
+		/*1 if this entry is valid, 0 otherwise*/
+		bool m_valid = false;
+	};
+
 	/*
 	 * manages a potentially large list of non-shaped characters
 	 * uses a directly indexed by TCHAR array until space runs out and maps the rest to conserve memory
@@ -119,6 +164,21 @@ namespace DoDo
 	{
 	public:
 		FCharacterList(const FSlateFontKey& in_font_key, FSlateFontCache& in_font_cache);
+
+		/*
+		 * gets data about how to render and measure a character
+		 * caching and atlasing it if needed
+		 *
+		 * @param Character the character to get
+		 * @param MaxFontFallback the maximum fallback level that can be used when resolving glyphs
+		 * @return data about the character
+		 */
+		FCharacterEntry get_character(char character, const EFontFallback max_font_fall_back);
+
+		/*
+		 * @return the global max height for any character in this font
+		 */
+		uint16_t get_max_height() const;
 
 	private:
 		/*Maintains a fake shaped glyph for each character in the character list*/
@@ -136,12 +196,22 @@ namespace DoDo
 			bool m_valid = false;
 		};
 		/*entries for larger character sets to conserve memory*/
-		std::map<DoDoUtf8String, FCharacterListEntry> m_mapped_entries;
+		std::map<char, FCharacterListEntry> m_mapped_entries;
+
+		/*directly indexed entries for fast lookup*/
+		std::vector<FCharacterListEntry> m_direct_index_entries;
+
 		/*font for this character list*/
 		FSlateFontKey m_font_key;
 
 		/*reference to the font cache for accessing new unseen characters*/
 		FSlateFontCache& m_font_cache;
+
+		/*number of directly indexed entries*/
+		int32_t m_max_direct_indexed_entries;
+
+		/*the global max height for any character in this font*/
+		mutable uint16_t m_max_height;
 	};
 	/*
 	 * font caching implementation
@@ -175,13 +245,40 @@ namespace DoDo
 		virtual FSlateShaderResource* get_atlas_page_resource(const int32_t in_index) override;
 
 		virtual bool is_atlas_page_resource_alpha_only(const int32_t in_index) const override;
+
+	public:
+		/*
+		 * updates the texture used for rendering
+		 */
+		void update_cache();//note:this function will call font atlas texture function to update runtime shader texture
+
+		/*
+		 * returns the height of the largest character in the font
+		 *
+		 * @param InFontInfo a descriptor of the font to get character size for
+		 * @param FontScale the scale to apply to the font
+		 *
+		 * @return the largest character height
+		 */
+		uint16_t get_max_character_height(const FSlateFontInfo& in_font_info, float font_scale) const;
 	private:
+
+		/*FreeType font renderer (owned by this font cache)*/
+		std::unique_ptr<FSlateFontRenderer> m_font_renderer;
 
 		/*mapping font keys to cached data*/
 		std::unordered_map<FSlateFontKey, std::unique_ptr<FCharacterList>> m_font_to_character_list_cache;
 
 		/*factory for creating new font atlases*/
 		std::shared_ptr<ISlateFontAtlasFactory> m_font_atlas_factory;
-		
+
+		/*array of grayscale font atlas indices for use with all font textures (cast the element to FSlateFontAtlas)*/
+		std::vector<uint8_t> m_gray_scale_font_atlas_indices;
+
+		/*array of color font atlas indices for use with all font texture (cast the element to FSlateFontAtlas)*/
+		std::vector<uint8_t> m_color_font_atlas_indices;
+
+		/*array of all font textures - both atlased and non-atlased*/
+		std::vector<std::shared_ptr<ISlateFontTexture>> m_all_font_textures;
 	};
 }

@@ -4,8 +4,10 @@
 #include "SlateCore/Widgets/SLeafWidget.h"
 
 #include "Core/String/DoDoString.h"
+#include "SlateCore/Fonts/SlateFontInfo.h"
+#include "SlateCore/Styling/SlateTypes.h"
 
-#include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"
+#include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"//FTextBlockStyle depends on it
 
 namespace DoDo
 {
@@ -45,12 +47,17 @@ namespace DoDo
 		virtual glm::vec2 Compute_Desired_Size(float Layout_Scale_Multiplier) const override;
 		//------SWidget interface------
 	private:
+		/*gets the current font*/
+		FSlateFontInfo get_font() const;
+	private:
 		/*the text displayed in this text block*/
 		TSlateAttribute<DoDoUtf8String> m_bound_text;
 
 		//todo:implement FSlateTextBlockLayout, wrapped layout for this text block
 
 		//todo:implement FTextBlockStyle, default style used by the TextLayout
+		/*default style used by the text layout*/
+		FTextBlockStyle m_text_style;
 
 		//todo:implement FSlateFontInfo, sets the font used to draw the text
 
