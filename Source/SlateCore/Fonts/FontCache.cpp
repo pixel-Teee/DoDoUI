@@ -48,6 +48,52 @@ namespace DoDo
 		}
 
 		//note:cache character function will call add new entry
+		bool b_need_caching = false;
+
+		if (internal_entry)
+		{
+			b_need_caching = !internal_entry->m_valid;//has already initialized?
+
+			//if the character needs caching, but can't be cached, reject the character
+			if (b_need_caching && !can_cache_character(character, max_font_fall_back))
+			{
+				b_need_caching = false;
+				internal_entry = nullptr;
+			}
+		}
+		//only map the character if it can be cached
+		else if (can_cache_character(character, max_font_fall_back))
+		{
+			b_need_caching = true;
+
+			if (b_direct_index_char)
+			{
+				//insert n elements
+				m_direct_index_entries.insert(m_direct_index_entries.end(), (character - m_direct_index_entries.size()) + 1, {});
+				internal_entry = &m_direct_index_entries[character];
+			}
+			else
+			{
+				auto it = m_mapped_entries.insert({ character, FCharacterListEntry() });
+				internal_entry = &(it.first->second);
+			}
+		}
+
+		if (internal_entry)
+		{
+			if (b_need_caching)
+			{
+				//internal_entry = cache_character(character);
+				//todo:implement this function
+			}
+		}
+
+		if (internal_entry)
+		{
+			return make_character_entry(character, *internal_entry);
+		}
+
+		return FCharacterEntry{};
 	}
 
 	uint16_t FCharacterList::get_max_height() const
@@ -58,6 +104,50 @@ namespace DoDo
 		}
 
 		return m_max_height;
+	}
+
+	bool FCharacterList::can_cache_character(char character, const EFontFallback max_font_fall_back) const
+	{
+		bool b_retuan_val = false;
+
+		//todo:check invalid
+
+		//todo:implement get font data for code point
+
+		//todo:implement can load code point
+
+		return true;
+	}
+
+	FCharacterEntry FCharacterList::make_character_entry(char character, const FCharacterListEntry& internal_entry) const
+	{
+		FCharacterEntry char_entry;
+
+		char_entry.m_valid = internal_entry.m_valid;
+
+		if (char_entry.m_valid)
+		{
+			if (char_entry.m_valid)
+			{
+				char_entry.character = character;
+
+				char_entry.m_glyph_index = internal_entry.m_shaped_glyph_entry.m_graph_index;
+
+				//todo:implement font data
+
+				//todo:implement kerning cache
+
+				//char_entry.m_font_scale = internal_entry.m_shaped_glyph_entry.m_font_face_data->
+
+				//char_entry.m_start_u =
+
+				char_entry.m_x_advance = internal_entry.m_shaped_glyph_entry.m_x_advance;
+
+				char_entry.m_has_kerning = internal_entry.m_has_kerning;
+			}
+		}
+
+		return char_entry;
 	}
 
 	FSlateFontCache::FSlateFontCache(std::shared_ptr<ISlateFontAtlasFactory> in_font_atlas_factory)

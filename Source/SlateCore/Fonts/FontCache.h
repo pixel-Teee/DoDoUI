@@ -181,6 +181,14 @@ namespace DoDo
 		uint16_t get_max_height() const;
 
 	private:
+		/*
+		* returns whether the specified character is valid for caching (i.e. whether it matches the font fall back level)
+		* 
+		* @param character the character to check
+		* @param MaxFontFllback the maximum fallback level that can be used when resolving glyphs
+		*/
+		bool can_cache_character(char character, const EFontFallback max_font_fall_back) const;
+		
 		/*Maintains a fake shaped glyph for each character in the character list*/
 		struct FCharacterListEntry
 		{
@@ -195,6 +203,12 @@ namespace DoDo
 			/*has this entry been initialized?*/
 			bool m_valid = false;
 		};
+
+		/*
+		* convert the cached internal entry to the external data for the old non-shaped api
+		*/
+		FCharacterEntry make_character_entry(char character, const FCharacterListEntry& internal_entry) const;
+
 		/*entries for larger character sets to conserve memory*/
 		std::map<char, FCharacterListEntry> m_mapped_entries;
 
