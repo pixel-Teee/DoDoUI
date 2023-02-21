@@ -65,6 +65,31 @@ namespace DoDo
 		uint32_t m_key_hash;
 	};
 
+	/*contains pixel data for a character rendered from freetype as well as measurement info*/
+	struct FCharacterRenderData
+	{
+		/*raw pixels of the rendered character*/
+		std::vector<uint8_t> m_raw_pixels;
+
+		/*width of the character in pixels*/
+		int16_t m_size_x = 0;
+
+		/*height of the character in pixels*/
+		int16_t m_size_y = 0;
+
+		/*the vertical distance from the baseline to the topmost border of the glyph bitmap*/
+		int16_t m_vertical_offset = 0;
+
+		/*the horizontal distance from the origin to the leftmost border of the glyph bitmap*/
+		int16_t m_horizontal_offset = 0;
+
+		/*true if the rendered character is 8-bit grayscale, or false if it's 8-bit per-channel BGRA color*/
+		bool m_b_is_gray_scale = true;
+
+		/*true if the rendered character supports outlines, false otherwise*/
+		bool m_b_supports_outline = false;
+	};
+
 	/*
 	* interface to all slate font textures, both atlased and non-atlased
 	*/

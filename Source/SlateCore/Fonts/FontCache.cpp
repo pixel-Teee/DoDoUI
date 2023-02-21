@@ -98,6 +98,7 @@ namespace DoDo
 
 	uint16_t FCharacterList::get_max_height() const
 	{
+		//when constructor a FCharacterList, FCharacterList will record FSlateFontCache reference
 		if(m_max_height == 0)
 		{
 			m_max_height = m_font_cache.get_max_character_height(m_font_key.get_font_info(), m_font_key.get_scale());//note:via the slate font cache pass to font renderer
@@ -121,12 +122,14 @@ namespace DoDo
 
 	FCharacterEntry FCharacterList::make_character_entry(char character, const FCharacterListEntry& internal_entry) const
 	{
-		FCharacterEntry char_entry;
+		FCharacterEntry char_entry;//interms of FCharacterListEntry to construct a FCharacterEntry
 
 		char_entry.m_valid = internal_entry.m_valid;
 
 		if (char_entry.m_valid)
 		{
+			FShapedGlyphFontAtlasData shaped_glyph_font_atlas_data = m_font_cache.get_shaped_glyph_font_atlas_data()
+
 			if (char_entry.m_valid)
 			{
 				char_entry.character = character;
@@ -166,12 +169,44 @@ namespace DoDo
 		if (it != m_font_to_character_list_cache.end())
 		{
 			//todo:check is stale
-
 			return *(it->second);
 		}
 
 		//construct a FCharacterList, and insert to this map
 		return *(m_font_to_character_list_cache.insert({ font_key, std::make_unique<FCharacterList>(font_key, *this) }).first->second);
+	}
+
+	FShapedGlyphFontAtlasData FSlateFontCache::get_shaped_glyph_font_atlas_data(const FShapedGlyphEntry& in_shaped_glyph, const FFontOutlineSettings& in_outline_settings)
+	{
+		uint8_t cached_type_index = (uint8_t)(in_outline_settings.m_outline_size <= 0 ? EFontCacheAtlasDataType::Regular : EFontCacheAtlasDataType::Outline);
+
+		const int32_t cached_atlas_data_thread_index = static_cast<int32_t>(0);//
+
+		//has the atlas data already been cached on the glyph?
+		{
+			std::shared_ptr<FShapedGlyphFontAtlasData> cached_atlas_data_pin = in_shaped_glyph.m_cached_atlas_data[cached_type_index][cached_atlas_data_thread_index].lock();
+
+			if (cached_atlas_data_pin)
+			{
+				return *cached_atlas_data_pin;
+			}
+		}
+
+		//not cached on the glyph, so create a key for to look up this glyph, as it may
+		//have already been cached by another shaped text sequence
+		const FShapedGlyphEntryKey glyph_key(*in_shaped_glyph.m_font_face_data, in_shaped_glyph.m_graph_index, in_outline_settings);
+		{
+			//not cached at all... create a new entry
+			std::shared_ptr<FShapedGlyphFontAtlasData> new_atlas_data = std::make_shared<FShapedGlyphFontAtlasData>();
+			add_new_entry(in_shaped_glyph, in_outline_settings, *new_atlas_data);
+
+			if (new_atlas_data->m_valid)//already initialized?
+			{
+				in_shaped_glyph.m_cached_atlas_data[cached_type_index][cached_atlas_data_thread_index] = new_atlas_data;
+				
+			}
+		}
+
 	}
 
 	int32_t FSlateFontCache::get_num_atlas_pages() const
@@ -187,6 +222,14 @@ namespace DoDo
 	bool FSlateFontCache::is_atlas_page_resource_alpha_only(const int32_t in_index) const
 	{
 		return false;
+	}
+
+	bool FSlateFontCache::add_new_entry(const FShapedGlyphEntry& in_shaped_glyph, const FFontOutlineSettings& in_outline_settings, FShapedGlyphFontAtlasData& out_atlas_data)
+	{
+		//render the glyph
+		FCharacterRenderData render_data;
+
+		const bool b_did_render = m_font_renderer->get_render_data(in_shaped_glyph, in_outline_settings, render_data);
 	}
 
 	void FSlateFontCache::update_cache()
@@ -209,6 +252,18 @@ namespace DoDo
 
 	uint16_t FSlateFontCache::get_max_character_height(const FSlateFontInfo& in_font_info, float font_scale) const//note:called by the FCharacterList
 	{
+		//font renderer is bridging point between FreeType and the Slate font system
 		return m_font_renderer->get_max_height(in_font_info, font_scale);
+	}
+
+	FShapedGlyphEntryKey::FShapedGlyphEntryKey(const FShapedGlyphFaceData& in_font_face_data, uint32_t in_glyph_index, const FFontOutlineSettings& in_outline_settings)
+		: m_font_face(in_font_face_data.m_font_face)
+		, m_font_size(in_font_face_data.m_font_size)
+		, m_outline_size(in_font_face_data.m_outline_size)
+		, m_font_scale(in_font_face_data.m_font_scale)
+		, m_glyph_index(in_glyph_index)
+		, m_key_hash(0)
+	{
+		//todo:calculate key hash
 	}
 }

@@ -11,6 +11,18 @@
 
 namespace DoDo
 {
+	enum class EFontCacheAtlasDataType : uint8_t
+	{
+		/*data was cached for a regular non-outline font*/
+		Regular = 0,
+
+		/*data was cached for a outline (stroked) font*/
+		Outline,
+
+		/*must be last*/
+		Num
+	};
+
 	/*the font atlas data for a single glyph in a shaped text sequence*/
 	struct FShapedGlyphFontAtlasData
 	{
@@ -34,6 +46,30 @@ namespace DoDo
 
 		/*true if this entry is valid, false otherwise*/
 		bool m_valid = false;
+	};
+
+	class FFreeTypeFace;
+	/*minimal FShapedGlyphEntry key information used for map lookups*/
+	struct FShapedGlyphEntryKey
+	{
+	public:
+		FShapedGlyphEntryKey(const FShapedGlyphFaceData& in_font_face_data, uint32_t in_glyph_index, const FFontOutlineSettings& in_outline_settings);
+
+	private:
+		/*weak pointer to the freetype face to render with*/
+		std::weak_ptr<FFreeTypeFace> m_font_face;
+		/*provides the point size used to render the font*/
+		int32_t m_font_size;
+		/*the size in pixels of the outline to render for the font*/
+		float m_outline_size;
+		/*if checked, the outline will be completely translucent where the filled area will be*/
+		bool m_outline_separate_fill_alpha;
+		/*provides the final scale used to render to the font*/
+		float m_font_scale;
+		/*the index of this glyph in the free type face*/
+		uint32_t m_glyph_index;
+		/*cached has value used for map lookups*/
+		uint32_t m_key_hash;
 	};
 
 	/*information for rendering one glyph in a shaped text sequence*/
@@ -253,6 +289,10 @@ namespace DoDo
 		 */
 		FCharacterList& get_character_list(const FSlateFontInfo& in_font_info, float font_scale, const FFontOutlineSettings& in_outline_settings = FFontOutlineSettings::NoOutline);
 
+		/*
+		* gets the atlas information for the given shaped glyph, this information will be cached if required
+		*/
+		FShapedGlyphFontAtlasData get_shaped_glyph_font_atlas_data(const FShapedGlyphEntry& in_shaped_glyph, const FFontOutlineSettings& in_outline_settings);
 
 		virtual int32_t get_num_atlas_pages() const override;
 
@@ -260,6 +300,16 @@ namespace DoDo
 
 		virtual bool is_atlas_page_resource_alpha_only(const int32_t in_index) const override;
 
+		/*
+		* add a new entries into a cache atlas
+		* 
+		* @param InFontInfo information about the font being used for the characters
+		* @param Characters the characters to cache
+		* @param FontScale the font scale to use
+		* 
+		* @return true if the characters could be cached, false if the cache is full
+		*/
+		bool add_new_entry(const FShapedGlyphEntry& in_shaped_glyph, const FFontOutlineSettings& in_outline_settings, FShapedGlyphFontAtlasData& out_atlas_data);
 	public:
 		/*
 		 * updates the texture used for rendering

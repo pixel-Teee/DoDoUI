@@ -30,7 +30,7 @@ namespace DoDo
 	{
 		FCharacterList& character_list = m_font_cache->get_character_list(in_font_info, font_scale);//construct a FSlateFontKey, to find FCharacterList
 
-		const uint16_t max_height = character_list.get_max_height();
+		const uint16_t max_height = character_list.get_max_height();//FCharacterList will via the FSlateFontCache to get the FSlateFontRenderer, this is a bridge between slate font and free type
 
 		const bool does_start_at_beginning = start_index == 0;
 		const bool does_finish_at_end = end_index == text.get_length();
@@ -89,5 +89,17 @@ namespace DoDo
 				const FCharacterEntry& entry = character_list.get_character(current_char, in_font_info.m_font_fallback);
 			}
 		}
+
+		//we just finished a line, so need to update the longest line encountered
+		max_line_width = std::max(current_x, max_line_width);
+
+		size.x = (float)max_line_width;
+		size.y = (float)string_sizey;
+
+		//todo:add last whole character before offset
+
+		out_last_character_index = char_index;
+
+		return size;
 	}
 }
