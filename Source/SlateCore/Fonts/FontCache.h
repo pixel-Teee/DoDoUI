@@ -161,7 +161,7 @@ namespace DoDo
 		/*the index of the glyph from the FreeType face that this entry is for*/
 		uint32_t m_glyph_index = 0;
 		/*the raw font data this character was rendered with*/
-		const FFontData* font_data = nullptr;
+		const FFontData* m_font_data = nullptr;
 		/*the kerning cache that this entry uses*/
 		//std::shared_ptr<FFreeTypeKerningCache>
 		/*scale that was applied when rendering this character*/
@@ -238,6 +238,9 @@ namespace DoDo
 			FShapedGlyphEntry m_shaped_glyph_entry;
 			/*font data this character was rendered with*/
 			const FFontData* m_font_data = nullptr;
+
+			/*the fallback level this character uses*/
+			EFontFallback m_fall_back_level = EFontFallback::FF_Max;
 
 			/*does this character have kerning?*/
 			bool m_has_kerning = false;

@@ -54,6 +54,11 @@ namespace DoDo
 		{
 			return m_scale;
 		}
+		
+		const FFontOutlineSettings& get_font_outline_settings() const
+		{
+			return m_outline_settings;
+		}
 
 	private:
 		FSlateFontInfo m_font_info;//font info

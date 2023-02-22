@@ -128,25 +128,48 @@ namespace DoDo
 
 		if (char_entry.m_valid)
 		{
-			FShapedGlyphFontAtlasData shaped_glyph_font_atlas_data = m_font_cache.get_shaped_glyph_font_atlas_data()
+			FShapedGlyphFontAtlasData shaped_glyph_font_atlas_data = m_font_cache.get_shaped_glyph_font_atlas_data(internal_entry.m_shaped_glyph_entry, 
+			m_font_key.get_font_outline_settings());
 
 			if (char_entry.m_valid)
 			{
 				char_entry.character = character;
 
-				char_entry.m_glyph_index = internal_entry.m_shaped_glyph_entry.m_graph_index;
+				char_entry.m_glyph_index = internal_entry.m_shaped_glyph_entry.m_graph_index;//access the character at the freetype texture
 
 				//todo:implement font data
+				char_entry.m_font_data = internal_entry.m_font_data;
 
 				//todo:implement kerning cache
+				
 
-				//char_entry.m_font_scale = internal_entry.m_shaped_glyph_entry.m_font_face_data->
+				char_entry.m_font_scale = internal_entry.m_shaped_glyph_entry.m_font_face_data->m_font_scale;
 
-				//char_entry.m_start_u =
+				char_entry.m_bitmap_render_scale = internal_entry.m_shaped_glyph_entry.m_font_face_data->m_bit_map_render_scale;
+
+				char_entry.m_start_u = shaped_glyph_font_atlas_data.m_start_u;
+
+				char_entry.m_start_v = shaped_glyph_font_atlas_data.m_start_v;
+
+				char_entry.m_u_size = shaped_glyph_font_atlas_data.m_u_size;
+
+				char_entry.m_v_size = shaped_glyph_font_atlas_data.m_v_size;
+
+				char_entry.m_vertical_offset = shaped_glyph_font_atlas_data.m_vertical_offset;
+
+				char_entry.m_horizontal_offset = shaped_glyph_font_atlas_data.m_horizontal_offset;
+
+				char_entry.m_global_descendar = 0.0f;//todo:implement get base line
 
 				char_entry.m_x_advance = internal_entry.m_shaped_glyph_entry.m_x_advance;
 
+				char_entry.m_texture_index = shaped_glyph_font_atlas_data.m_texture_index;
+
 				char_entry.m_has_kerning = internal_entry.m_has_kerning;
+
+				char_entry.m_supports_outline = shaped_glyph_font_atlas_data.m_supports_outline;
+
+				char_entry.m_fall_back_level = internal_entry.m_fall_back_level;
 			}
 		}
 
@@ -333,7 +356,7 @@ namespace DoDo
 	FShapedGlyphEntryKey::FShapedGlyphEntryKey(const FShapedGlyphFaceData& in_font_face_data, uint32_t in_glyph_index, const FFontOutlineSettings& in_outline_settings)
 		: m_font_face(in_font_face_data.m_font_face)
 		, m_font_size(in_font_face_data.m_font_size)
-		, m_outline_size(in_font_face_data.m_outline_size)
+		, m_outline_size(in_outline_settings.m_outline_size)
 		, m_font_scale(in_font_face_data.m_font_scale)
 		, m_glyph_index(in_glyph_index)
 		, m_key_hash(0)
