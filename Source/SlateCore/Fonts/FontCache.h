@@ -38,6 +38,12 @@ namespace DoDo
 		/*start y location of the glyph in the texture*/
 		uint16_t m_start_v = 0;
 
+		/*x size of the glyph in the texture*/
+		uint16_t m_u_size = 0;
+
+		/*y size of the glyph in the texture*/
+		uint16_t m_v_size = 0;
+
 		/*index to a specific texture in the font cache*/
 		uint8_t m_texture_index = 0;
 
@@ -310,6 +316,8 @@ namespace DoDo
 		* @return true if the characters could be cached, false if the cache is full
 		*/
 		bool add_new_entry(const FShapedGlyphEntry& in_shaped_glyph, const FFontOutlineSettings& in_outline_settings, FShapedGlyphFontAtlasData& out_atlas_data);
+
+		bool add_new_entry(const FCharacterRenderData in_render_data, uint8_t& out_texture_index, uint16_t& out_glyph_x, uint16_t& out_glyph_y, uint16_t& out_glyph_width, uint16_t& out_glyph_height);
 	public:
 		/*
 		 * updates the texture used for rendering
@@ -335,6 +343,9 @@ namespace DoDo
 
 		/*factory for creating new font atlases*/
 		std::shared_ptr<ISlateFontAtlasFactory> m_font_atlas_factory;
+
+		/*mapping shaped glyphs to their cached atlas data*/
+		std::map<FShapedGlyphEntryKey, std::shared_ptr<FShapedGlyphFontAtlasData>> m_shaped_glyph_to_atlas_data;
 
 		/*array of grayscale font atlas indices for use with all font textures (cast the element to FSlateFontAtlas)*/
 		std::vector<uint8_t> m_gray_scale_font_atlas_indices;

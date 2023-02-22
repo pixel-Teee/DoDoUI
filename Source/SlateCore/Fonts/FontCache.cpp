@@ -198,13 +198,15 @@ namespace DoDo
 		{
 			//not cached at all... create a new entry
 			std::shared_ptr<FShapedGlyphFontAtlasData> new_atlas_data = std::make_shared<FShapedGlyphFontAtlasData>();
-			add_new_entry(in_shaped_glyph, in_outline_settings, *new_atlas_data);
+			add_new_entry(in_shaped_glyph, in_outline_settings, *new_atlas_data);//note:this function is important, will use freetype to render a character bitmap
 
 			if (new_atlas_data->m_valid)//already initialized?
 			{
 				in_shaped_glyph.m_cached_atlas_data[cached_type_index][cached_atlas_data_thread_index] = new_atlas_data;
-				
+				m_shaped_glyph_to_atlas_data.insert({ glyph_key, new_atlas_data });//interms FShapedGlyphEntry to construct FShapedGlyphEntryKey, map FShapedGlyphFontAtlasData
 			}
+
+			return *new_atlas_data;
 		}
 
 	}
@@ -230,6 +232,78 @@ namespace DoDo
 		FCharacterRenderData render_data;
 
 		const bool b_did_render = m_font_renderer->get_render_data(in_shaped_glyph, in_outline_settings, render_data);
+
+		//note:use add new entry to populate the information to the FShapedGlyphFontAtlasData
+		//note:this function will add the character to the texture atlas (runtime video texture), add get the position and width/height to populate the output parameter
+		out_atlas_data.m_valid = b_did_render && add_new_entry(render_data, out_atlas_data.m_texture_index, out_atlas_data.m_start_u, out_atlas_data.m_start_v,
+			out_atlas_data.m_u_size, out_atlas_data.m_v_size);
+
+		if(out_atlas_data.m_valid)
+		{
+			out_atlas_data.m_vertical_offset = render_data.m_vertical_offset;
+			out_atlas_data.m_horizontal_offset = render_data.m_horizontal_offset;
+			out_atlas_data.m_supports_outline = render_data.m_b_supports_outline;
+		}
+
+		return out_atlas_data.m_valid;//initialized
+	}
+
+	bool FSlateFontCache::add_new_entry(const FCharacterRenderData in_render_data, uint8_t& out_texture_index,
+		uint16_t& out_glyph_x, uint16_t& out_glyph_y, uint16_t& out_glyph_width, uint16_t& out_glyph_height)
+	{
+		//will this entry fit within any atlas texture
+		const FIntPoint font_atlas_size = m_font_atlas_factory->get_atlas_size(in_render_data.m_b_is_gray_scale);//1024 * 1024
+
+		if(in_render_data.m_size_x > font_atlas_size.x || in_render_data.m_size_y > font_atlas_size.y)//note:too big
+		{
+			return false;
+		}
+
+		//reference capture
+		auto fill_output_params_from_atlased_texture_slot = [&](const FAtlasedTextureSlot& atlased_texture_slot)
+		{
+			int32_t glyph_x = atlased_texture_slot.m_x + (int32_t)atlased_texture_slot.m_padding;//note:position and width/height
+			int32_t glyph_y = atlased_texture_slot.m_y + (int32_t)atlased_texture_slot.m_padding;
+			int32_t glyph_width = atlased_texture_slot.m_width - (int32_t)(2.0f * atlased_texture_slot.m_padding);
+			int32_t glyph_height = atlased_texture_slot.m_height - (int32_t)(2.0f * atlased_texture_slot.m_padding);
+
+			out_glyph_x = (uint16_t)glyph_x;
+			out_glyph_y = (uint16_t)glyph_y;
+			out_glyph_width = (uint16_t)glyph_width;
+			out_glyph_height = (uint16_t)glyph_height;
+		};
+
+		std::vector<uint8_t>& font_atlas_indices = in_render_data.m_b_is_gray_scale ? m_gray_scale_font_atlas_indices : m_color_font_atlas_indices;
+
+		for(const uint8_t font_atlas_index : font_atlas_indices)
+		{
+			FSlateFontAtlas& font_atlas = static_cast<FSlateFontAtlas&>(*m_all_font_textures[font_atlas_index]);
+
+			//add the character to the texture
+			const FAtlasedTextureSlot* new_slot = font_atlas.add_character(in_render_data);//note:this function is important
+
+			if(new_slot)
+			{
+				out_texture_index = font_atlas_index;
+				fill_output_params_from_atlased_texture_slot(*new_slot);//populate the output parameter
+				return true;
+			}
+		}
+
+		//------create font atlas------
+		std::shared_ptr<FSlateFontAtlas> font_atlas = m_font_atlas_factory->create_font_atlas(in_render_data.m_b_is_gray_scale);
+		m_all_font_textures.push_back(font_atlas);
+		out_texture_index = m_all_font_textures.size() - 1;
+
+		//add the character to the texture
+		const FAtlasedTextureSlot* new_slot = font_atlas->add_character(in_render_data);
+		if(new_slot)
+		{
+			fill_output_params_from_atlased_texture_slot(*new_slot);
+		}
+
+		return new_slot != nullptr;
+		//------create font atlas------
 	}
 
 	void FSlateFontCache::update_cache()

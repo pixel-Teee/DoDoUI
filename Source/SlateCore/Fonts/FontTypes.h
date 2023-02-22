@@ -108,6 +108,13 @@ namespace DoDo
 		FSlateFontAtlas(uint32_t in_width, uint32_t in_height, const bool in_is_gray_scale);
 
 		virtual ~FSlateFontAtlas();
+
+		/*
+		 * adds a character to the texture
+		 *
+		 * @param CharInfo information about the size of the character
+		 */
+		const struct FAtlasedTextureSlot* add_character(const FCharacterRenderData& char_info);//copy one character bitmap to runtime memory texture atlas
 	};
 
 	class ISlateFontAtlasFactory
