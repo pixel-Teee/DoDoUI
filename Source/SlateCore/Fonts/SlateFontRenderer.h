@@ -30,11 +30,18 @@ namespace DoDo
 		{}
 	};
 
+	namespace SlateFontRendererUtils
+	{
+		/*append the flags needed by the given font data to the given flags variable*/
+		void append_glyph_flags(const FFreeTypeFace& in_face, const FFontData& in_font_data, uint32_t& in_out_glyph_flags);
+	}
+
 	struct FShapedGlyphEntry;
 	struct FSlateFontInfo;
 	struct FFontOutlineSettings;
 	struct FCharacterRenderData;
 	class FFreeTypeLibrary;
+	class FCompositeFontCache;
 	/*
 	 * bridging point between FreeType and the Slate font system
 	 * this class, via the instances you pass to its constructor, knows how to correctly render a slate font
@@ -64,8 +71,19 @@ namespace DoDo
 
 		bool get_render_data_internal(const FFreeTypeFaceGlyphData& in_face_glyph_data, const float in_scale, const FFontOutlineSettings& in_outline_settings, FCharacterRenderData& out_render_data) const;
 
+		/*
+		 * wrapper for get font face, which reverts to fallback or last resort fonts if the face could not be loaded
+		 *
+		 * @param InFontData information about the font to load
+		 * @param InCodePoint the codepoint being loaded
+		 * @param MaxFallbackLevel the maximum fallback level to try for the font
+		 * @return returns the character font face data
+		 */
+		FFreeTypeFaceGlyphData get_font_face_for_code_point(const FFontData& in_font_data, const uint32_t in_code_point, EFontFallback max_fall_back_level) const;
 	private:
 
 		const FFreeTypeLibrary* m_ft_library;
+
+		FCompositeFontCache* m_composite_font_cache;
 	};
 }

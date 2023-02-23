@@ -5,6 +5,17 @@
 namespace DoDo
 {
 	FFontOutlineSettings FFontOutlineSettings::NoOutline;
+
+	const FCompositeFont* FSlateFontInfo::get_composite_font() const
+	{
+		if(m_composite_font)
+		{
+			return m_composite_font.get();
+		}
+
+		return nullptr;
+	}
+
 	FSlateFontInfo::FSlateFontInfo()
 	{
 	}

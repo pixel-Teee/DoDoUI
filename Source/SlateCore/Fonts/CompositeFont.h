@@ -4,6 +4,8 @@
 #include <memory>
 #include <Core/String/DoDoString.h>
 
+#include "Core/Templates/TypeHash.h"//HashCombine
+
 namespace DoDo
 {
 	enum class EFontHinting : uint8_t
@@ -82,6 +84,42 @@ namespace DoDo
 
 		/*construct the raw data from a filename and the font data attributes*/
 		FFontData(DoDoUtf8String in_font_file_name, const EFontHinting in_hinting, const EFontLoadingPolicy in_loading_policy, const int32_t in_sub_face_index = 0);
+
+		/*get the filename of the font to use, this may not actually exist on disk in editor builds*/
+		const DoDoUtf8String& get_font_file_name() const;
+
+		/*get the index of the sub-face that should be used*/
+		int32_t get_sub_face_index() const;
+
+		friend inline uint32_t Get_Type_Hash(const FFontData& key)
+		{
+			uint32_t key_hash = 0;
+
+			key_hash = Hash_Combine(key_hash, key.m_font_file_name_hash);
+
+			return key_hash;
+		}
+
+		bool operator==(const FFontData& other) const;
+
+	private:
+		/*
+		 * the filename of the front to use
+		 * this variable is ignored if we have a font face asset, and is set to the .ufont file in a cooked build
+		 */
+		DoDoUtf8String m_font_file_name;
+
+		/*
+		 * cached hash value of font file name
+		 * must be updated everytime font file name changes
+		 */
+		uint32_t m_font_file_name_hash;
+
+		/*
+		 * the index of the sub-face that should be used
+		 * this is typically zero unless using a ttc/otc font
+		 */
+		int32_t m_sub_face_index;
 	};
 
 	struct FTypefaceEntry
@@ -124,7 +162,7 @@ namespace DoDo
 		/*append a new font into this family*/
 		FTypeface& append_font(const DoDoUtf8String& in_font_name, DoDoUtf8String in_font_file_name, const EFontHinting in_hinting, const EFontLoadingPolicy in_loading_policy)
 		{
-			m_fonts.emplace_back(in_font_name, std::move(in_font_name), in_hinting, in_loading_policy);
+			m_fonts.emplace_back(in_font_name, in_font_file_name, in_hinting, in_loading_policy);
 			return *this;
 		}
 
@@ -159,3 +197,5 @@ namespace DoDo
 		{}
 	};
 }
+
+

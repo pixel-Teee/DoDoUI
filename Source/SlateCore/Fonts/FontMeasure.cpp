@@ -87,6 +87,47 @@ namespace DoDo
 			else
 			{
 				const FCharacterEntry& entry = character_list.get_character(current_char, in_font_info.m_font_fallback);
+
+				int32_t kerning = 0;
+
+				//todo:implement get kerning
+
+				previous_char = current_char;
+
+				const int32_t total_char_spacing =
+					kerning + entry.m_horizontal_offset + //width is any kerning plus how much to advance the position when drawing a new character
+					entry.m_x_advance;//how far we advance
+
+				current_x += kerning + entry.m_x_advance;
+
+				//were we asked to stop measuring after the specified horizontal offset in pixels?
+				if(stop_after_horizontal_offset != -1)
+				{
+					if(char_index_format == ELastCharacterIndexFormat::CharacterAtOffset)
+					{
+						//round our test toward the character's center position
+						if(stop_after_horizontal_offset < current_x - total_char_spacing / 2)
+						{
+							//we've reached the stopping point, so bail
+							break;
+						}
+					}
+					else if(char_index_format == ELastCharacterIndexFormat::LastWholeCharacterBeforeOffset)
+					{
+						if(stop_after_horizontal_offset < current_x)
+						{
+							//last whole character before offset is an inclusive index
+							--char_index;
+							if(char_index < start_index)
+							{
+								char_index = -1;
+							}
+
+							//we've reached the stopping point, so bail
+							break;
+						}
+					}
+				}
 			}
 		}
 

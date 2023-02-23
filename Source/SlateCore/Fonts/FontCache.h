@@ -8,6 +8,7 @@
 #include "SlateCore/Textures/TextureAtlas.h"//ISlateAtlasProvider depends on it
 
 #include "SlateFontRenderer.h"//FSlateFontCache depends on it
+#include "FontCacheCompositeFont.h"//FCompositeFontCache depends on it
 
 namespace DoDo
 {
@@ -61,6 +62,20 @@ namespace DoDo
 	public:
 		FShapedGlyphEntryKey(const FShapedGlyphFaceData& in_font_face_data, uint32_t in_glyph_index, const FFontOutlineSettings& in_outline_settings);
 
+		friend inline uint32_t Get_Type_Hash(const FShapedGlyphEntryKey& key)
+		{
+			return key.m_key_hash;
+		}
+
+		bool operator==(const FShapedGlyphEntryKey& other) const
+		{
+			return m_font_face.lock() == other.m_font_face.lock()
+				&& m_font_size == other.m_font_size
+				&& m_outline_size == other.m_outline_size
+				&& m_outline_separate_fill_alpha == other.m_outline_separate_fill_alpha
+				&& m_font_scale == other.m_font_scale
+				&& m_glyph_index == other.m_glyph_index;
+		}
 	private:
 		/*weak pointer to the freetype face to render with*/
 		std::weak_ptr<FFreeTypeFace> m_font_face;
@@ -230,7 +245,7 @@ namespace DoDo
 		* @param MaxFontFllback the maximum fallback level that can be used when resolving glyphs
 		*/
 		bool can_cache_character(char character, const EFontFallback max_font_fall_back) const;
-		
+
 		/*Maintains a fake shaped glyph for each character in the character list*/
 		struct FCharacterListEntry
 		{
@@ -248,6 +263,13 @@ namespace DoDo
 			/*has this entry been initialized?*/
 			bool m_valid = false;
 		};
+
+		/*
+		 * caches a new character
+		 *
+		 * @param Character the character to cache
+		 */
+		FCharacterListEntry* cache_character(char character);
 
 		/*
 		* convert the cached internal entry to the external data for the old non-shaped api
@@ -272,6 +294,20 @@ namespace DoDo
 		/*the global max height for any character in this font*/
 		mutable uint16_t m_max_height;
 	};
+	
+}
+
+template<>
+struct std::hash<DoDo::FShapedGlyphEntryKey>
+{
+	std::size_t operator()(const DoDo::FShapedGlyphEntryKey& key) const
+	{
+		return Get_Type_Hash(key);
+	}
+};
+
+namespace DoDo
+{
 	/*
 	 * font caching implementation
 	 *
@@ -280,13 +316,14 @@ namespace DoDo
 	class FSlateFontCache : public ISlateAtlasProvider
 	{
 	public:
+		friend FCharacterList;
 		/*
 		 * constructor
 		 *
 		 * @param InTextureSize the size of the atlas texture
 		 * @param InFontAtlas platform specific font atlas resource
 		 */
-		//todo:implement ISlateFontAtlasFactory
+		 //todo:implement ISlateFontAtlasFactory
 		FSlateFontCache(std::shared_ptr<ISlateFontAtlasFactory> in_font_atlas_factory);
 
 		/*
@@ -311,11 +348,11 @@ namespace DoDo
 
 		/*
 		* add a new entries into a cache atlas
-		* 
+		*
 		* @param InFontInfo information about the font being used for the characters
 		* @param Characters the characters to cache
 		* @param FontScale the font scale to use
-		* 
+		*
 		* @return true if the characters could be cached, false if the cache is full
 		*/
 		bool add_new_entry(const FShapedGlyphEntry& in_shaped_glyph, const FFontOutlineSettings& in_outline_settings, FShapedGlyphFontAtlasData& out_atlas_data);
@@ -338,6 +375,9 @@ namespace DoDo
 		uint16_t get_max_character_height(const FSlateFontInfo& in_font_info, float font_scale) const;
 	private:
 
+		/*high-level composite font cache (owned by this font cache)*/
+		std::unique_ptr<FCompositeFontCache> m_composite_font_cache;
+
 		/*FreeType font renderer (owned by this font cache)*/
 		std::unique_ptr<FSlateFontRenderer> m_font_renderer;
 
@@ -348,7 +388,7 @@ namespace DoDo
 		std::shared_ptr<ISlateFontAtlasFactory> m_font_atlas_factory;
 
 		/*mapping shaped glyphs to their cached atlas data*/
-		std::map<FShapedGlyphEntryKey, std::shared_ptr<FShapedGlyphFontAtlasData>> m_shaped_glyph_to_atlas_data;
+		std::unordered_map<FShapedGlyphEntryKey, std::shared_ptr<FShapedGlyphFontAtlasData>> m_shaped_glyph_to_atlas_data;
 
 		/*array of grayscale font atlas indices for use with all font textures (cast the element to FSlateFontAtlas)*/
 		std::vector<uint8_t> m_gray_scale_font_atlas_indices;

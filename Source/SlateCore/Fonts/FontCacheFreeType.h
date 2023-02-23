@@ -5,6 +5,8 @@
 #include <set>
 #include "freetype/freetype.h"
 
+#include <fstream>//todo:may use other io in different platform
+
 namespace DoDo
 {
 	namespace FreeTypeUtils
@@ -44,6 +46,9 @@ namespace DoDo
 	class FFreeTypeFace
 	{
 	public:
+		FFreeTypeFace(const FFreeTypeLibrary* in_ft_library, const DoDoUtf8String& in_file_name, const int32_t in_face_index);
+
+		~FFreeTypeFace();
 
 		float get_bit_map_render_scale() const
 		{
@@ -63,6 +68,7 @@ namespace DoDo
 			return m_ft_face;
 		}
 	private:
+
 		//non-copyable
 		FFreeTypeFace(const FFreeTypeFace&);
 		FFreeTypeFace& operator=(const FFreeTypeFace&);
@@ -70,6 +76,27 @@ namespace DoDo
 		FT_Face m_ft_face;//free type face
 
 		FFontFaceDataConstPtr m_memory;//just a uint8_t memory block
+
+		/*custom FreeType stream handler for reading font data via the unreal file system*/
+		struct FFTStreamHandler
+		{
+			FFTStreamHandler();
+
+			FFTStreamHandler(const DoDoUtf8String& in_file_name);
+
+			static void close_file(FT_Stream in_stream);
+
+			static unsigned long read_data(FT_Stream in_stream, unsigned long in_offset, unsigned char* in_buffer, unsigned long in_count);
+
+			std::ifstream m_file_handle;
+			int64_t m_font_size_bytes;
+		};
+
+		FFTStreamHandler m_ft_stream_handler;
+
+		FT_StreamRec m_ft_stream;
+
+		FT_Open_Args m_ft_face_open_args;
 
 		std::set<DoDoUtf8String>  m_attributes;
 

@@ -78,6 +78,11 @@ namespace DoDo
 
 		EFontFallback m_font_fallback;
 
+		/*
+		 * get the composite font pointer associated with this font info
+		 */
+		const FCompositeFont* get_composite_font() const;
+
 	public:
 		FSlateFontInfo();
 		/*

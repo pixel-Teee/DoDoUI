@@ -70,7 +70,9 @@ namespace DoDo
 
 			const glm::vec2 text_size = Application::get().get_renderer()->get_font_measure_service()->measure(m_bound_text.Get(), get_font());
 
-			
+			m_cached_simple_desired_size = glm::vec2(std::max(m_min_desired_width.Get(), text_size.x), text_size.y);
+
+			return m_cached_simple_desired_size.value();//get the value
 		}
 		else
 		{

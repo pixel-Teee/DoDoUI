@@ -83,14 +83,14 @@ namespace DoDo
 		{
 			if (b_need_caching)
 			{
-				//internal_entry = cache_character(character);
+				internal_entry = cache_character(character);//construct a FCharacterListEntry
 				//todo:implement this function
 			}
 		}
 
 		if (internal_entry)
 		{
-			return make_character_entry(character, *internal_entry);
+			return make_character_entry(character, *internal_entry);//use FCharacterListEntry to construct a FCharacterEntry
 		}
 
 		return FCharacterEntry{};
@@ -120,6 +120,66 @@ namespace DoDo
 		return true;
 	}
 
+	FCharacterList::FCharacterListEntry* FCharacterList::cache_character(char character)
+	{
+		const FSlateFontInfo& font_info = m_font_key.get_font_info();
+
+		//get the data needed to render this character
+		float sub_font_scaling_factor = 1.0f;
+		const FFontData* font_data_ptr = &m_font_cache.m_composite_font_cache->get_font_data_for_code_point(font_info, character, sub_font_scaling_factor);
+		FFreeTypeFaceGlyphData face_glyph_data = m_font_cache.m_font_renderer->get_font_face_for_code_point(*font_data_ptr, character, font_info.m_font_fallback);
+		//note:this is internal struct to use for load the free type
+		if(face_glyph_data.m_face_and_memory->is_face_valid())
+		{
+			const float final_font_scale = m_font_key.get_scale() * sub_font_scaling_factor;
+
+			uint32_t glyph_flags = 0;
+			//todo:append glyph flags
+			//note:add additional flags
+			SlateFontRendererUtils::append_glyph_flags(*face_glyph_data.m_face_and_memory, *font_data_ptr, glyph_flags);
+
+			const bool b_has_kerning = FT_HAS_KERNING(face_glyph_data.m_face_and_memory->get_face()) != 0;
+
+			const bool b_is_white_space = false;//todo:check is white space
+
+			const uint32_t glyph_index = FT_Get_Char_Index(face_glyph_data.m_face_and_memory->get_face(), character);//to get the glyph index (glyph index can access character texture)
+
+			int16_t x_advance = 0;
+			{
+				FT_Fixed cached_advance_data = 0;
+			
+			}
+
+			FCharacterListEntry new_internal_entry;
+			new_internal_entry.m_shaped_glyph_entry.m_font_face_data = std::make_shared<FShapedGlyphFaceData>(face_glyph_data.m_face_and_memory, glyph_flags, font_info.m_size, final_font_scale);
+			new_internal_entry.m_shaped_glyph_entry.m_graph_index = glyph_index;
+			new_internal_entry.m_shaped_glyph_entry.m_x_advance = x_advance;
+			new_internal_entry.m_shaped_glyph_entry.m_b_is_visible = !b_is_white_space;
+
+			new_internal_entry.m_font_data = font_data_ptr;
+			new_internal_entry.m_fall_back_level = face_glyph_data.m_char_fall_back_level;
+			new_internal_entry.m_has_kerning = b_has_kerning;
+			new_internal_entry.m_valid = character == 0 || glyph_index != 0;
+
+			//cache the shaped entry in the font cache
+			if(new_internal_entry.m_valid)
+			{
+				m_font_cache.get_shaped_glyph_font_atlas_data(new_internal_entry.m_shaped_glyph_entry, m_font_key.get_font_outline_settings());
+
+				if(character < m_max_direct_indexed_entries)
+				{
+					m_direct_index_entries[character] = std::move(new_internal_entry);
+					return &m_direct_index_entries[character];
+				}
+				else
+				{
+					auto it = m_mapped_entries.insert({ character, std::move(new_internal_entry) });
+					return &(it.first->second);
+				}
+			}
+		}
+	}
+
 	FCharacterEntry FCharacterList::make_character_entry(char character, const FCharacterListEntry& internal_entry) const
 	{
 		FCharacterEntry char_entry;//interms of FCharacterListEntry to construct a FCharacterEntry
@@ -128,6 +188,7 @@ namespace DoDo
 
 		if (char_entry.m_valid)
 		{
+			//use FShapedGlyphFontAtlasData and FCharacterListEntry to construct a FCharacterEntry
 			FShapedGlyphFontAtlasData shaped_glyph_font_atlas_data = m_font_cache.get_shaped_glyph_font_atlas_data(internal_entry.m_shaped_glyph_entry, 
 			m_font_key.get_font_outline_settings());
 
@@ -362,5 +423,11 @@ namespace DoDo
 		, m_key_hash(0)
 	{
 		//todo:calculate key hash
+		//m_key_hash = Hash_Combine(m_key_hash, Get_Type_Hash(m_font_face));
+		m_key_hash = Hash_Combine(m_key_hash, Get_Type_Hash(m_font_size));
+		m_key_hash = Hash_Combine(m_key_hash, Get_Type_Hash(m_outline_size));
+		m_key_hash = Hash_Combine(m_key_hash, Get_Type_Hash(m_font_scale));
+		//m_key_hash = Hash_Combine(m_key_hash, Get_Type_Hash(m_outline_separate_fill_alpha));
+		m_key_hash = Hash_Combine(m_key_hash, Get_Type_Hash(m_glyph_index));
 	}
 }

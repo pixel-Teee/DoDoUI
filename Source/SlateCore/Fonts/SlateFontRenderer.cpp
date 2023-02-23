@@ -8,6 +8,13 @@
 
 namespace DoDo
 {
+	void SlateFontRendererUtils::append_glyph_flags(const FFreeTypeFace& in_face, const FFontData& in_font_data,
+		uint32_t& in_out_glyph_flags)
+	{
+		//note:setup additional glyph flags
+		in_out_glyph_flags |= FT_LOAD_TARGET_MONO | FT_LOAD_FORCE_AUTOHINT;
+	}
+
 	uint16_t FSlateFontRenderer::get_max_height(const FSlateFontInfo& in_font_info, const float in_scale) const
 	{
 		return 0;//todo:implement this function
@@ -111,5 +118,16 @@ namespace DoDo
 		out_render_data.m_vertical_offset = (int16_t)vertical_offset;
 
 		return true;
+	}
+
+	FFreeTypeFaceGlyphData FSlateFontRenderer::get_font_face_for_code_point(const FFontData& in_font_data,
+		const uint32_t in_code_point, EFontFallback max_fall_back_level) const
+	{
+		FFreeTypeFaceGlyphData return_val;
+
+		//try the requested font first
+		{
+			return_val.m_face_and_memory = m_composite_font_cache->get_font_face(in_font_data);
+		}
 	}
 }
