@@ -19,6 +19,11 @@ namespace DoDo
 	class FCachedTypefaceData
 	{
 	public:
+		FCachedTypefaceData();
+
+		/*construct the cache from the given typeface*/
+		FCachedTypefaceData(const FTypeface& in_type_face, const float in_scaling_factor = 1.0f);
+
 		/*find the font associated with the given name*/
 		const FFontData* get_font_data(const DoDoUtf8String& in_name) const;
 
@@ -30,6 +35,9 @@ namespace DoDo
 	private:
 		/*typeface we cached data from*/
 		const FTypeface* m_type_face;
+
+		/*array of font data - this is sorted by name for a binary search*/
+		//todo:implement FCachedFontData
 
 		/*scaling factor to apply to this typeface*/
 		float m_scaling_factor;
@@ -93,6 +101,8 @@ namespace DoDo
 	class FCompositeFontCache
 	{
 	public:
+		/*constructor*/
+		FCompositeFontCache(const FFreeTypeLibrary* in_ft_library);
 
 		~FCompositeFontCache();
 

@@ -49,6 +49,7 @@ namespace DoDo
 	class FSlateFontRenderer
 	{
 	public:
+		FSlateFontRenderer(const FFreeTypeLibrary* in_ft_library, FCompositeFontCache* in_composite_font_cache);
 		/*
 		 * @return the global max height for any character in the default font
 		 */

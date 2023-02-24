@@ -4,6 +4,7 @@
 
 #include "DeclarativeSyntaxSupport.h"
 #include "SlateCore/Input/HittestGird.h"
+#include "SlateCore/Layout/ChildrenBase.h"
 #include "SlateCore/Types/ISlateMetaData.h"
 
 #include "SlateCore/Types/SlateAttributeDescriptor.h"
@@ -70,8 +71,13 @@ namespace DoDo {
 		return false;
 	}
 
+	void SWidget::cache_desired_size(float in_layout_scale_multiplier)
+	{
+		set_desired_size(Compute_Desired_Size(in_layout_scale_multiplier));
+	}
+
 	void SWidget::Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children,
-		bool b_update_attributes) const
+	                               bool b_update_attributes) const
 	{
 		if(b_update_attributes)
 		{
@@ -239,6 +245,13 @@ namespace DoDo {
 		return FReply::un_handled();
 	}
 
+	void SWidget::slate_prepass(float in_layout_scale_multiplier)
+	{
+		//todo:update all attributes meta data
+
+		prepass_internal(in_layout_scale_multiplier);
+	}
+
 	FReply SWidget::On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
 	{
 		//todo:get mouse events meta data to handle
@@ -251,6 +264,46 @@ namespace DoDo {
 		}
 
 		return FReply::un_handled();
+	}
+
+	void SWidget::prepass_internal(float layout_scale_multipler)
+	{
+		m_prepass_layout_scale_multiplier = layout_scale_multipler;
+
+		bool b_should_prepass_children = true;
+
+		//todo:add custom prepass check
+
+		if(b_can_have_children && b_should_prepass_children)
+		{
+			//cache child desired sizes first, this widget's desired size is
+			//a function of its children's sizes
+			FChildren* my_children = this->Get_Children();
+			const int32_t num_children = my_children->num();
+
+			prepass_child_loop(layout_scale_multipler, my_children);
+		}
+
+		//todo:cache this widget's desired size
+		{
+			//cache this widget's desired size
+			cache_desired_size(m_prepass_layout_scale_multiplier.value_or(1.0f));
+		}
+	}
+
+	void SWidget::prepass_child_loop(float in_layout_scale_multiplier, FChildren* my_children)
+	{
+		int32_t child_index = 0;
+		my_children->for_each_widget([this, &child_index, in_layout_scale_multiplier](SWidget& child)
+		{
+			//todo:update attributes
+
+			const float child_layout_scale_multiplier = in_layout_scale_multiplier;
+
+			child.prepass_internal(child_layout_scale_multiplier);
+
+			++child_index;
+		});
 	}
 
 	void SWidget::invalidate_child_remove_from_tree(SWidget& child)

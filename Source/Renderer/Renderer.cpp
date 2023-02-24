@@ -5,11 +5,13 @@
 //#include "Platform/VulkanRenderer/VulkanRenderer.h"
 
 #include "Platform/VulkanRenderer/SlateVulkanRenderer.h"
+#include "SlateCore/Fonts/FontMeasure.h"
 
 namespace DoDo {
 	FSlateFontServices::FSlateFontServices(std::shared_ptr<FSlateFontCache> in_game_thread_font_cache, std::shared_ptr<FSlateFontCache> in_render_thread_font_cache)
 		: m_game_thread_font_cache(in_game_thread_font_cache)
 		, m_render_thread_font_cache(in_render_thread_font_cache)
+		, m_game_thread_font_measure(FSlateFontMeasure::Create(m_game_thread_font_cache))
 	{
 	}
 	FSlateFontServices::~FSlateFontServices()

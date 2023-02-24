@@ -86,7 +86,7 @@ namespace DoDo
 			}
 			else
 			{
-				const FCharacterEntry& entry = character_list.get_character(current_char, in_font_info.m_font_fallback);
+				const FCharacterEntry& entry = character_list.get_character(current_char, in_font_info.m_font_fallback);//this function will add character to texture atlas
 
 				int32_t kerning = 0;
 

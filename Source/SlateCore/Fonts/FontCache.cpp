@@ -178,6 +178,8 @@ namespace DoDo
 				}
 			}
 		}
+
+		return nullptr;
 	}
 
 	FCharacterEntry FCharacterList::make_character_entry(char character, const FCharacterListEntry& internal_entry) const
@@ -238,7 +240,10 @@ namespace DoDo
 	}
 
 	FSlateFontCache::FSlateFontCache(std::shared_ptr<ISlateFontAtlasFactory> in_font_atlas_factory)
-		: m_font_atlas_factory(in_font_atlas_factory)
+		: m_ft_library(new FFreeTypeLibrary())
+		, m_composite_font_cache(new FCompositeFontCache(m_ft_library.get()))
+		, m_font_atlas_factory(in_font_atlas_factory)
+		, m_font_renderer(new FSlateFontRenderer(m_ft_library.get(), m_composite_font_cache.get()))
 	{
 	}
 

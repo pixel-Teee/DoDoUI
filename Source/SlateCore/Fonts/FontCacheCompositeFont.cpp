@@ -7,6 +7,13 @@
 
 namespace DoDo
 {
+	FCachedTypefaceData::FCachedTypefaceData(const FTypeface& in_type_face, const float in_scaling_factor)
+		: m_type_face(&in_type_face)
+		, m_scaling_factor(in_scaling_factor)
+	{
+
+	}
+
 	const FFontData* FCachedTypefaceData::get_font_data(const DoDoUtf8String& in_name) const
 	{
 
@@ -21,6 +28,11 @@ namespace DoDo
 		: m_composite_font(&in_composite_font)
 	{
 		//todo:add default cached type face data
+
+		//add all the entries from the composite font
+		m_cached_type_faces.push_back(std::make_shared<FCachedTypefaceData>(m_composite_font->m_default_type_face));
+
+		//todo:implement refresh font ranges
 	}
 
 	const FCachedTypefaceData* FCachedCompositeFontData::get_type_face_for_code_point(const uint32_t in_code_point) const
@@ -47,6 +59,12 @@ namespace DoDo
 		return nullptr;
 	}
 
+	FCompositeFontCache::FCompositeFontCache(const FFreeTypeLibrary* in_ft_library)
+		: m_ft_library(in_ft_library)
+	{
+
+	}
+
 	FCompositeFontCache::~FCompositeFontCache()
 	{
 	}
@@ -70,6 +88,7 @@ namespace DoDo
 		{
 			const FCachedTypefaceData* const cached_default_type_face_data = get_default_cached_type_face(resolved_composite_font);
 
+			//pass two FCachedTypefaceData
 			//check the preferred typeface first
 			if(const FFontData* found_font_data = get_font_data_for_character_in_typeface(cached_type_face_data, cached_default_type_face_data, false))
 			{
@@ -92,8 +111,14 @@ namespace DoDo
 		if(!face_and_memory)
 		{
 			//load
-
+			//FFontFaceDataConstPtr font_face_data = in_font_data.get_font_face_data();
 			face_and_memory = std::make_shared<FFreeTypeFace>(m_ft_library, in_font_data.get_font_file_name(), in_font_data.get_sub_face_index());
+
+			//got a valid font?
+			if(face_and_memory)
+			{
+				m_font_face_map.insert({ in_font_data, face_and_memory });
+			}
 		}
 
 		return face_and_memory;

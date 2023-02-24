@@ -56,7 +56,10 @@ namespace DoDo
 			{
 				std::shared_ptr<SWidget> ref = get_child_at(index);
 
-				pred(ref.get());
+				if(ref) //todo:need to fix this
+				{
+					pred(*ref);
+				}
 			}
 		}
 

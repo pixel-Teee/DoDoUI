@@ -23,7 +23,7 @@ namespace DoDo {
 		SetDirectly
 	};
 
-	class FDockTabStyle;
+	struct FDockTabStyle;
 
 	//class FTabManager;
 	class SDockTab : public SBorder

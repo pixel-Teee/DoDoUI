@@ -44,7 +44,7 @@ namespace DoDo
 	/*
 	 * raw font data for a font face asset
 	 */
-	struct FFontFaceData
+	struct FFontFaceData //use for uobject
 	{
 	public:
 		/*default constructor*/
@@ -90,6 +90,9 @@ namespace DoDo
 
 		/*get the index of the sub-face that should be used*/
 		int32_t get_sub_face_index() const;
+
+		/*get the data buffer containing the data for the current font face*/
+		FFontFaceDataConstPtr get_font_face_data() const;
 
 		friend inline uint32_t Get_Type_Hash(const FFontData& key)
 		{

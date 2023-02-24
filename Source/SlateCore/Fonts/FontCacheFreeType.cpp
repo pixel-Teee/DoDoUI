@@ -26,6 +26,7 @@ namespace DoDo
 
 	FFreeTypeFace::FFreeTypeFace(const FFreeTypeLibrary* in_ft_library, const DoDoUtf8String& in_file_name, const int32_t in_face_index)
 		: m_ft_face(nullptr)
+		, m_ft_stream_handler(in_file_name)
 	{
 		//load face
 		std::memset(&m_ft_stream, 0, sizeof(m_ft_stream));

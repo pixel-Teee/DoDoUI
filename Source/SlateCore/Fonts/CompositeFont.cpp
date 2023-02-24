@@ -27,6 +27,11 @@ namespace DoDo
 		return m_sub_face_index;
 	}
 
+	FFontFaceDataConstPtr FFontData::get_font_face_data() const
+	{
+		return nullptr;
+	}
+
 	bool FFontData::operator==(const FFontData& other) const
 	{
 		if (this == &other)

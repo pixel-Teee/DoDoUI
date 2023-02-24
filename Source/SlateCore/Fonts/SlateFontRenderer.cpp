@@ -15,6 +15,13 @@ namespace DoDo
 		in_out_glyph_flags |= FT_LOAD_TARGET_MONO | FT_LOAD_FORCE_AUTOHINT;
 	}
 
+	FSlateFontRenderer::FSlateFontRenderer(const FFreeTypeLibrary* in_ft_library,
+		FCompositeFontCache* in_composite_font_cache)
+			: m_ft_library(in_ft_library)
+			, m_composite_font_cache(in_composite_font_cache)
+	{
+	}
+
 	uint16_t FSlateFontRenderer::get_max_height(const FSlateFontInfo& in_font_info, const float in_scale) const
 	{
 		return 0;//todo:implement this function
@@ -128,6 +135,22 @@ namespace DoDo
 		//try the requested font first
 		{
 			return_val.m_face_and_memory = m_composite_font_cache->get_font_face(in_font_data);
+
+			if(return_val.m_face_and_memory)
+			{
+				return_val.m_glyph_index = FT_Get_Char_Index(return_val.m_face_and_memory->get_face(), in_code_point);//to get glyph index and switch face state to code point
+				return_val.m_char_fall_back_level = EFontFallback::FF_NoFallback;
+			}
 		}
+
+		//if we have valid face and memory but it just hasn't finished loading
+		//return like we found it, so that we don't immediately trigger falling back to yet another font
+		//when it may have the glyph once it's actually done loading
+		//if(return_val.m_face_and_memory && return_val.m_face_and_memory->is_face_loading())
+		//{
+		//	
+		//}
+
+		return return_val;
 	}
 }

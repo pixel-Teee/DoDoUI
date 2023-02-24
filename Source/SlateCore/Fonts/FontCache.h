@@ -374,6 +374,8 @@ namespace DoDo
 		 */
 		uint16_t get_max_character_height(const FSlateFontInfo& in_font_info, float font_scale) const;
 	private:
+		/*FreeType library instance (owned by this font cache)*/
+		std::unique_ptr<FFreeTypeLibrary> m_ft_library;
 
 		/*high-level composite font cache (owned by this font cache)*/
 		std::unique_ptr<FCompositeFontCache> m_composite_font_cache;

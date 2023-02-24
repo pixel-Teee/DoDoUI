@@ -29,7 +29,7 @@ namespace DoDo
 		, m_margin(*this)
 		, m_line_height_percentage(*this, 1.0f)
 		, m_min_desired_width(*this, 0.0f)
-		, m_b_simple_text_mode(false)
+		, m_b_simple_text_mode(true)//todo:modify this to false
 	{
 	}
 
@@ -39,7 +39,9 @@ namespace DoDo
 
 	void STextBlock::Construct(const FArguments& in_args)
 	{
+		m_text_style = *in_args._TextStyle;
 
+		set_text(in_args._Text);
 	}
 
 	int32_t STextBlock::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry,
@@ -78,6 +80,11 @@ namespace DoDo
 		{
 			return glm::vec2(0.0f, 0.0f);
 		}
+	}
+
+	void STextBlock::set_text(TAttribute<DoDoUtf8String> in_text)
+	{
+		m_bound_text.Assign(*this, std::move(in_text));
 	}
 
 	FSlateFontInfo STextBlock::get_font() const

@@ -5,7 +5,9 @@
 
 #include "Core/String/DoDoString.h"
 #include "SlateCore/Fonts/SlateFontInfo.h"
-#include "SlateCore/Styling/SlateTypes.h"
+#include "SlateCore/Styling/CoreStyle.h"
+#include "SlateCore/Styling/ISlateStyle.h"
+#include "SlateCore/Styling/SlateTypes.h"//FCoreStyle
 
 #include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"//FTextBlockStyle depends on it
 
@@ -21,10 +23,14 @@ namespace DoDo
 	public:
 		SLATE_BEGIN_ARGS(STextBlock)
 			: _Text()
+			, _TextStyle(&FCoreStyle::get().get_widget_style<FTextBlockStyle>("NormalText"))
 			{}
 
 			/*the text displayed in this text block*/
 			SLATE_ATTRIBUTE(DoDoUtf8String, Text)
+
+			/*pointer to a style of the text block, which dictates the font, color, and shadow options*/
+			SLATE_STYLE_ARGUMENT(FTextBlockStyle, TextStyle)
 		SLATE_END_ARGS()
 
 		/*Constructor*/
@@ -46,6 +52,10 @@ namespace DoDo
 
 		virtual glm::vec2 Compute_Desired_Size(float Layout_Scale_Multiplier) const override;
 		//------SWidget interface------
+
+	public:
+		/*sets the text for this text block*/
+		void set_text(TAttribute<DoDoUtf8String> in_text);
 	private:
 		/*gets the current font*/
 		FSlateFontInfo get_font() const;

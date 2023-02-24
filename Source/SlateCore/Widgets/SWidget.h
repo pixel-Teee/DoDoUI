@@ -71,6 +71,13 @@ namespace DoDo
 
 	protected:
 		/*
+		 * the system calls this method, it performs a breadth-first traversal of every visible widget and asks
+		 * each widget to cache how bit it needs to be in order to present all of its content
+		 */
+		virtual void cache_desired_size(float in_layout_scale_multiplier);
+
+
+		/*
 		 * compute the ideal size necessary to display this widget. for aggregate widgets (e.g. panels) this size should include the
 		 * size necessary to show all of it's children. CacheDesiredSize() guarantess that the size of descendatnts is computed and cached
 		 * before that of the parents, so it is safe to call GetDesiredSize() for any children while implementing this method
@@ -114,6 +121,16 @@ namespace DoDo
 		 * @param ArrangedChildren the array to which to add the widget geometries that represent the arranged children
 		 */
 		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const = 0;
+
+	private:
+		/*
+		 * explicitly set the desired size, this is highly advanced functionality that is meat
+		 * to be used in conjuction with overriding cache desired size, use compute desired size() instead
+		 */
+		void set_desired_size(const glm::vec2& in_desired_size)
+		{
+			m_desired_size = in_desired_size;
+		}
 
 	public:
 		/*
@@ -294,6 +311,12 @@ namespace DoDo
 		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event);//todo:add comment
 
 		/*
+		 * descends to leaf-most widgets in the hierarchy and gathers desired sizes on the way up
+		 * i.e. caches the desired size of all of this widget's children recursively, then caches desired size for itself
+		 */
+		void slate_prepass(float in_layout_scale_multiplier);
+
+		/*
 		 * the system calls this method to notify the widget that a mouse moved within it, this event is bubbled
 		 *
 		 * @param MyGeometry the geometry of the widget receiving the event
@@ -334,6 +357,12 @@ namespace DoDo
 		 */
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements,
 			int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const = 0;
+
+		void prepass_internal(float layout_scale_multipler);
+
+	protected:
+
+		void prepass_child_loop(float in_layout_scale_multiplier, FChildren* my_children);
 	protected:
 		/*
 		 * can the widget ever support children? this will be false on SLeafWidgets
@@ -397,5 +426,8 @@ namespace DoDo
 
 		//is there at least one slate attribute currently registered
 		uint8_t m_b_has_registered_slate_attribute : 1;
+
+	protected:
+		std::optional<float> m_prepass_layout_scale_multiplier;
 	};
 }

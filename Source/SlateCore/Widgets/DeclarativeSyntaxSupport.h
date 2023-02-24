@@ -99,6 +99,18 @@ namespace DoDo
  */
 #define SLATE_STYLE_ARGUMENT(ArgType, ArgName) \
 		const ArgType* _##ArgName; \
+		WdigetArgsType& ArgName(const ArgType* in_arg) \
+		{\
+			_##ArgName = in_arg; \
+			return static_cast<WidgetArgsType*>(this)->Me(); \
+		}
+
+/*
+ * use this macro to declare a slate argument
+ * arguments differ from attributes in that they can only be values
+ */
+#define SLATE_STYLE_ARGUMENT(ArgType, ArgName) \
+		const ArgType* _##ArgName; \
 		WidgetArgsType& ArgName(const ArgType* in_arg) \
 		{ \
 			_##ArgName = in_arg; \
