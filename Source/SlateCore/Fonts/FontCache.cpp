@@ -150,8 +150,9 @@ namespace DoDo
 			
 			}
 
+			//todo:fix me, use font_info.m_size
 			FCharacterListEntry new_internal_entry;
-			new_internal_entry.m_shaped_glyph_entry.m_font_face_data = std::make_shared<FShapedGlyphFaceData>(face_glyph_data.m_face_and_memory, glyph_flags, font_info.m_size, final_font_scale);
+			new_internal_entry.m_shaped_glyph_entry.m_font_face_data = std::make_shared<FShapedGlyphFaceData>(face_glyph_data.m_face_and_memory, glyph_flags, 28.0f, final_font_scale);
 			new_internal_entry.m_shaped_glyph_entry.m_graph_index = glyph_index;
 			new_internal_entry.m_shaped_glyph_entry.m_x_advance = x_advance;
 			new_internal_entry.m_shaped_glyph_entry.m_b_is_visible = !b_is_white_space;

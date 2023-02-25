@@ -15,6 +15,8 @@ namespace DoDo
 		auto hasher = std::hash<std::string>();
 
 		m_font_file_name_hash = hasher(file_name);//hash this
+
+		m_sub_face_index = in_sub_face_index;
 	}
 
 	const DoDoUtf8String& FFontData::get_font_file_name() const

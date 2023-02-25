@@ -50,7 +50,7 @@ namespace DoDo
 		 * @return the width and height of the string
 		 */
 		glm::vec2 measure_string_internal(const DoDoUtf8String& text, int32_t start_index, int32_t end_index, const FSlateFontInfo& in_font_info,
-			bool include_kerning_with_preceding_char, float font_scale, int32_t stop_after_horizontal_offset, ELastCharacterIndexFormat char_index_format, int32_t out_last_character_index) const;
+			bool include_kerning_with_preceding_char, float font_scale, int32_t stop_after_horizontal_offset, ELastCharacterIndexFormat char_index_format, int32_t& out_last_character_index) const;
 
 		std::shared_ptr<FSlateFontCache> m_font_cache;
 	};

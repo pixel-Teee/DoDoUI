@@ -7,10 +7,38 @@
 
 #include <fstream>//todo:may use other io in different platform
 
+#include <type_traits>
+
 namespace DoDo
 {
 	namespace FreeTypeUtils
 	{
+		template<typename TRetType, typename TParamType>
+		typename std::enable_if<std::is_integral<TParamType>::value, TRetType>::type Convert26Dot6ToRoundedPixel(TParamType InValue)
+		{
+			return static_cast<TRetType>((InValue + (1 << 5)) >> 6);
+		}
+
+		/*covert the given value from 26.6 space into rounded pixel space*/
+		template<typename TRetType, typename TParamType>
+		typename std::enable_if<std::is_floating_point<TParamType>::value, TRetType>::type Convert26Dot6ToRoundedPixel(TParamType InValue)//check floating
+		{
+			return static_cast<TRetType>(InValue / 64.0f);
+		}
+
+		template<typename TRetType, typename TParamType>
+		typename std::enable_if<std::is_integral<TParamType>::value, TRetType>::type ConvertPixelTo26Dot26(TParamType InValue)
+		{
+			return static_cast<TRetType>(InValue << 6);//* 64
+		}
+
+		template<typename TRetType, typename TParamType>
+		typename std::enable_if<std::is_floating_point<TParamType>::value, TRetType>::type ConvertPixelTo16Dot16(TParamType InValue)
+		{
+			return static_cast<TRetType>(InValue * 65536);
+		}
+
+		void apply_size_and_scale(FT_Face in_face, const int32_t in_font_size, const float in_font_scale);
 		/*
 		* load the given glyph into the active slot of the given face
 		*/

@@ -11,8 +11,14 @@ namespace DoDo
 	void SlateFontRendererUtils::append_glyph_flags(const FFreeTypeFace& in_face, const FFontData& in_font_data,
 		uint32_t& in_out_glyph_flags)
 	{
+		in_out_glyph_flags |= FT_LOAD_COLOR;
+
+		if (FT_IS_SCALABLE(in_face.get_face()))
+		{
+			in_out_glyph_flags |= FT_LOAD_NO_BITMAP;//use render glyph
+		}
 		//note:setup additional glyph flags
-		in_out_glyph_flags |= FT_LOAD_TARGET_MONO | FT_LOAD_FORCE_AUTOHINT;
+		in_out_glyph_flags |= FT_LOAD_TARGET_NORMAL;
 	}
 
 	FSlateFontRenderer::FSlateFontRenderer(const FFreeTypeLibrary* in_ft_library,
@@ -71,7 +77,7 @@ namespace DoDo
 		//todo:implement render outline
 
 		//this path renders a standard font with no outline, this may occur if the outline failed to generate
-		FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL);
+		FT_Error error = FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL);
 
 		FT_Bitmap* bitmap = nullptr;
 		FT_Bitmap tmp_bitmap;
@@ -79,6 +85,10 @@ namespace DoDo
 		if (slot->bitmap.pixel_mode == FT_PIXEL_MODE_BGRA)
 		{
 			out_render_data.m_b_is_gray_scale = false;
+			bitmap = &slot->bitmap;
+		}
+		else
+		{
 			bitmap = &slot->bitmap;
 		}
 

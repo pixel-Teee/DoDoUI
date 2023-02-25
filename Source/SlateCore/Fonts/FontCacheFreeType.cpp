@@ -29,23 +29,25 @@ namespace DoDo
 		, m_ft_stream_handler(in_file_name)
 	{
 		//load face
-		std::memset(&m_ft_stream, 0, sizeof(m_ft_stream));
+		std::memset(&m_ft_stream, 0, sizeof(FT_StreamRec));
 
 		m_ft_stream.size = (uint32_t)m_ft_stream_handler.m_font_size_bytes;
 		m_ft_stream.descriptor.pointer = &m_ft_stream_handler;
 		m_ft_stream.close = &FFTStreamHandler::close_file;
 		m_ft_stream.read = &FFTStreamHandler::read_data;
 
-		std::memset(&m_ft_face_open_args, 0, sizeof(m_ft_face_open_args));
+		std::memset(&m_ft_face_open_args, 0, sizeof(FT_Open_Args));
 		m_ft_face_open_args.flags = FT_OPEN_STREAM;
 		m_ft_face_open_args.stream = &m_ft_stream;
 
-		FT_Error error = FT_Open_Face(in_ft_library->get_library(), &m_ft_face_open_args, in_face_index, &m_ft_face);
+		//FT_Error error = FT_Open_Face(in_ft_library->get_library(), &m_ft_face_open_args, in_face_index, &m_ft_face);
 
-		if(error)
-		{
-			m_ft_face = nullptr;
-		}
+		FT_New_Face(in_ft_library->get_library(), in_file_name.c_str(), 0, &m_ft_face);//todo:fix me
+
+		//if(error)
+		//{
+		//	m_ft_face = nullptr;
+		//}
 	}
 
 	FFreeTypeFace::~FFreeTypeFace()
@@ -75,10 +77,7 @@ namespace DoDo
 	{
 		FFTStreamHandler* my_stream = (FFTStreamHandler*)in_stream->descriptor.pointer;//cast to specific pointer
 
-		if(my_stream->m_file_handle)
-		{
-			my_stream->m_file_handle.close();
-		}
+		my_stream->m_file_handle.close();
 	}
 
 	unsigned long FFreeTypeFace::FFTStreamHandler::read_data(FT_Stream in_stream, unsigned long in_offset,
@@ -86,26 +85,11 @@ namespace DoDo
 	{
 		FFTStreamHandler* my_stream = (FFTStreamHandler*)in_stream->descriptor.pointer;
 
-		//if(my_stream->m_file_handle)
-		//{
-		//	
-		//}
+		my_stream->m_file_handle.seekg(in_offset, std::ios::beg);
 
-		//todo:check in_offset over boundary
-
-		if(in_count)
+		if (in_count > 0)
 		{
-			if(my_stream->m_file_handle)
-			{
-				if(!my_stream->m_file_handle.read((char*)in_buffer, in_count))
-				{
-					return 0;
-				}
-			}
-			else
-			{
-				return 0;
-			}
+			my_stream->m_file_handle.read((char*)in_buffer, in_count);
 		}
 
 		return in_count;
@@ -113,9 +97,34 @@ namespace DoDo
 
 	namespace FreeTypeUtils
 	{
+		void apply_size_and_scale(FT_Face in_face, const int32_t in_font_size, const float in_font_scale)
+		{
+			//covert to fixed scale for maximum precision
+			const FT_F26Dot6 fixed_font_size = ConvertPixelTo26Dot26<FT_F26Dot6>(in_font_size);//to pixel size to dot size
+			const FT_Long fixed_font_scale = ConvertPixelTo16Dot16<FT_Long>(in_font_scale);//convert pixel size 
+
+			//convert the requested font size to a pixel size based on our render dpi and the requested scale
+			FT_F26Dot6 required_fixed_font_pixel_size = 0;
+			{
+				required_fixed_font_pixel_size = (fixed_font_size * (FT_Pos)96 + 36) / 72;
+
+				//scale the 26.6 pixel size by the desired 16.6 fractional scaling value
+				required_fixed_font_pixel_size = FT_MulFix(required_fixed_font_pixel_size, fixed_font_scale);
+			}
+
+			//convert the 26.6 scaled pixel size back into pixel space
+			const uint32_t required_font_pixel_size = Convert26Dot6ToRoundedPixel<uint32_t>(required_fixed_font_pixel_size);
+
+			FT_Error error = FT_Set_Pixel_Sizes(in_face, required_font_pixel_size, required_font_pixel_size);
+
+			assert(error == 0);
+
+
+		}
+
 		FT_Error load_glyph(FT_Face in_face, const uint32_t in_glyph_index, const int32_t in_load_flags, const int32_t in_font_size, const float in_font_scale)
 		{
-			//todo:implement apply size and scale
+			apply_size_and_scale(in_face, in_font_size, in_font_scale);
 			return FT_Load_Glyph(in_face, in_glyph_index, in_load_flags);
 		}
 	}

@@ -11,12 +11,30 @@ namespace DoDo
 		: m_type_face(&in_type_face)
 		, m_scaling_factor(in_scaling_factor)
 	{
+		//add all the entries from the typeface
+		for (const FTypefaceEntry& type_face_entry : m_type_face->m_fonts)
+		{
+			m_cached_font_data.emplace_back(type_face_entry.m_name, &type_face_entry.m_font);
+		}
 
+		//sort the entries now so we binary search them later
+		std::sort(m_cached_font_data.begin(), m_cached_font_data.end());
 	}
 
 	const FFontData* FCachedTypefaceData::get_font_data(const DoDoUtf8String& in_name) const
 	{
+		FCachedFontData temp(in_name, nullptr);//temp
+		auto it = std::lower_bound(m_cached_font_data.begin(), m_cached_font_data.end(), temp, [](const FCachedFontData& lhs, const FCachedFontData& rhs)->bool
+		{
+			return lhs.m_name < rhs.m_name;
+		});
 
+		if (it != m_cached_font_data.end())
+		{
+			return it->m_font_data;
+		}
+
+		return nullptr;//todo:fix me
 	}
 
 	FCachedCompositeFontData::FCachedCompositeFontData()
@@ -33,6 +51,7 @@ namespace DoDo
 		m_cached_type_faces.push_back(std::make_shared<FCachedTypefaceData>(m_composite_font->m_default_type_face));
 
 		//todo:implement refresh font ranges
+		refresh_font_ranges();
 	}
 
 	const FCachedTypefaceData* FCachedCompositeFontData::get_type_face_for_code_point(const uint32_t in_code_point) const
@@ -41,22 +60,46 @@ namespace DoDo
 
 		auto get_type_face_from_range = [char_index](const std::vector<FCachedFontRange>& in_font_ranges)->const FCachedTypefaceData*
 		{
-			auto get_type_face_from_range_index = [char_index, &in_font_ranges](const int32_t in_range_index)
+			//note:pass range index, range array index
+			auto get_type_face_from_range_index = [char_index, &in_font_ranges](const int32_t in_range_index)->const FCachedTypefaceData*
 			{
+				if (in_range_index >= 0 && in_range_index < in_font_ranges.size() && in_font_ranges[in_range_index].m_range.Contains(char_index))
+				{
+					return in_font_ranges[in_range_index].m_cached_typeface_data.get();
+				}
+
 				//todo:implement check range
-				return in_font_ranges[in_range_index].m_cached_typeface_data.get();
+				return nullptr;
 			};
 
-			
+			//todo:search InFontRanges
+			const int32_t found_range_index = 0;
 
+			if (const FCachedTypefaceData* range_type_face = get_type_face_from_range_index(found_range_index))
+			{
+				return range_type_face;
+			}
 
+			if (const FCachedTypefaceData* range_type_face = get_type_face_from_range_index(found_range_index - 1))
+			{
+				return range_type_face;
+			}
 			return nullptr;
 		};
 
 
 		//todo:implement this function
+		if (const FCachedTypefaceData* range_type_face = get_type_face_from_range(m_cached_priority_font_ranges))
+		{
+			return range_type_face;
+		}
 
-		return nullptr;
+		return m_cached_type_faces[0].get();
+	}
+
+	void FCachedCompositeFontData::refresh_font_ranges()
+	{
+
 	}
 
 	FCompositeFontCache::FCompositeFontCache(const FFreeTypeLibrary* in_ft_library)
@@ -79,6 +122,8 @@ namespace DoDo
 		{
 			//try to find the correct font from the typeface
 			const FFontData* found_font_data = in_cached_type_face_data->get_font_data(in_font_info.m_type_face_font_name);
+
+			return found_font_data;//todo:add check
 		};
 
 		const FCompositeFont* const resolved_composite_font = in_font_info.get_composite_font();//note:from FSlateFontInfo to get the FCompositeFont

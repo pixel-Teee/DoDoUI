@@ -3,6 +3,8 @@
 
 #include "CompositeFont.h"//FFontData record the filename
 
+#include "Core/Math/Range.h"
+
 namespace DoDo
 {
 	class FFreeTypeLibrary;
@@ -33,11 +35,36 @@ namespace DoDo
 			return m_scaling_factor;
 		}
 	private:
+		/*entry containing a name and the font data associated with that name*/
+		struct FCachedFontData
+		{
+			FCachedFontData()
+			: m_name()
+			, m_font_data(nullptr)
+			{}
+
+			FCachedFontData(const DoDoUtf8String in_name, const FFontData* in_font_data)
+				: m_name(in_name)
+				, m_font_data(in_font_data)
+			{}
+
+			bool operator<(const FCachedFontData& rhs) const {
+				return m_name < rhs.m_name;
+			}
+
+			/*name of the font*/
+			DoDoUtf8String m_name;
+
+			/*data of the font*/
+			const FFontData* m_font_data;
+		};
+
 		/*typeface we cached data from*/
 		const FTypeface* m_type_face;
 
 		/*array of font data - this is sorted by name for a binary search*/
 		//todo:implement FCachedFontData
+		std::vector<FCachedFontData> m_cached_font_data;
 
 		/*scaling factor to apply to this typeface*/
 		float m_scaling_factor;
@@ -63,12 +90,22 @@ namespace DoDo
 		{
 			return m_cached_type_faces[0].get();
 		}
+
+		/*refresh the font ranges used by sub-fonts (should be called when the culture is changed)*/
+		void refresh_font_ranges();
 	private:
 
 		/*entry containing a range and the typeface associated with that range*/
 		struct FCachedFontRange
 		{
+			/*default constructor*/
+			FCachedFontRange()
+				: m_range(FInt32Range::Empty())
+				, m_cached_typeface_data()
+			{}
+
 			/*range to use for the typeface*/
+			FInt32Range m_range;
 
 			/*typeface to which the range applies*/
 			std::shared_ptr<FCachedTypefaceData> m_cached_typeface_data;
@@ -79,6 +116,9 @@ namespace DoDo
 
 		/*array of cached typefaces - 0 is the default typeface, 1 is the fallback typeface, and the remaining entries are sub-typefaces*/
 		std::vector<std::shared_ptr<FCachedTypefaceData>> m_cached_type_faces;
+
+		/*array of font ranges paired with their associated typefaces - this is sorted in ascending order for a binary search*/
+		std::vector<FCachedFontRange> m_cached_priority_font_ranges;
 	};
 
 	class FFreeTypeFace;

@@ -12,7 +12,7 @@ namespace DoDo
 	glm::vec2 FSlateFontMeasure::measure(const DoDoUtf8String& text, const FSlateFontInfo& in_font_info,
 		float font_scale) const
 	{
-		int32_t dummy_last_character_index;
+		int32_t dummy_last_character_index = 0;
 		return measure_string_internal(text, 0, text.get_length(), in_font_info, false, font_scale, -1,
 			ELastCharacterIndexFormat::Unused, dummy_last_character_index);
 	}
@@ -26,7 +26,7 @@ namespace DoDo
 	glm::vec2 FSlateFontMeasure::measure_string_internal(const DoDoUtf8String& text, int32_t start_index,
 		int32_t end_index, const FSlateFontInfo& in_font_info, bool include_kerning_with_preceding_char,
 		float font_scale, int32_t stop_after_horizontal_offset, ELastCharacterIndexFormat char_index_format,
-		int32_t out_last_character_index) const
+		int32_t& out_last_character_index) const
 	{
 		FCharacterList& character_list = m_font_cache->get_character_list(in_font_info, font_scale);//construct a FSlateFontKey, to find FCharacterList
 
