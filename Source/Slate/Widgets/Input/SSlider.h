@@ -17,6 +17,17 @@ namespace DoDo {
 	public:
 		SLATE_BEGIN_ARGS(SSlider)
 			: _IndentHandle(true)
+			, _MouseUsesStep(false)
+			, _RequiresControllerLock(true)
+			, _Locked(false)
+			, _Orientation(EOrientation::Orient_Horizontal)
+			, _SliderBarColor(glm::vec4(1.0f))
+			, _SliderHandleColor(glm::vec4(1.0f))
+			, _StepSize(0.01f)
+			, _Value(1.0f)
+			, _MinValue(0.0f)
+			, _MaxValue(1.0f)
+			, _IsFocusable(true)
 			{}
 
 			/*whether the slidable area should be indented to fit the handle*/
@@ -59,6 +70,21 @@ namespace DoDo {
 
 			//todo:add event
 		SLATE_END_ARGS()
+
+		SSlider();
+
+		/*
+		* construct the widget
+		* 
+		* @param InDeclaration a declaration from which to construct the widget
+		*/
+		void Construct(const SSlider::FArguments& in_declaration);
+
+	public:
+		//SWidget overrides
+
+		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry,
+			const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
 	protected:
 		//todo:implement FSliderStyle
 
