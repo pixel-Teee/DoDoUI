@@ -6,6 +6,8 @@
 
 #include "freetype/ftmodapi.h"
 
+#include "freetype/ftadvanc.h"
+
 namespace DoDo
 {
 	FFreeTypeLibrary::FFreeTypeLibrary()
@@ -129,6 +131,59 @@ namespace DoDo
 		}
 	}
 	
+	FFreeTypeAdvanceCache::FFreeTypeAdvanceCache(FT_Face in_face, const int32_t in_load_flags, const int32_t in_font_size, const float in_font_scale)
+		: m_face(in_face)
+		, m_load_flags(in_load_flags)
+		, m_font_size(in_font_size)
+		, m_font_scale(in_font_scale)
+		, m_advance_map()
+	{
+	}
+
+	bool FFreeTypeAdvanceCache::find_or_cache(const uint32_t in_glyph_index, FT_Fixed& out_cached_advance)
+	{
+		//try and find the advance from the cache...
+		{
+			auto it = m_advance_map.find(in_glyph_index);
+
+			if (it != m_advance_map.end())
+			{
+				out_cached_advance = it->second;
+
+				return true;
+			}
+		}
+
+		FreeTypeUtils::apply_size_and_scale(m_face, m_font_size, m_font_scale);
+
+		//no cached data, go ahead and add an entry for it...
+		const FT_Error error = FT_Get_Advance(m_face, in_glyph_index, m_load_flags, &out_cached_advance);
+
+		if (error == 0)
+		{
+			m_advance_map.insert({ in_glyph_index, out_cached_advance });
+
+			return true;
+		}
+
+		return false;
+	}
+
+	std::shared_ptr<FFreeTypeAdvanceCache> FFreeTypeCacheDirectory::get_advance_cache(FT_Face in_face, const int32_t in_load_flags, const int32_t in_font_size, const float in_font_scale)
+	{
+		const FFontKey key(in_face, in_load_flags, in_font_size, in_font_scale);
+
+		auto it = m_advance_cache_map.find(key);
+
+		if (it == m_advance_cache_map.end())
+		{
+			auto res = m_advance_cache_map.insert({ key, std::make_shared<FFreeTypeAdvanceCache>(in_face, in_load_flags, in_font_size, in_font_scale) });
+			return res.first->second;
+		}
+
+		return it->second;
+	}
+
 }
 
 

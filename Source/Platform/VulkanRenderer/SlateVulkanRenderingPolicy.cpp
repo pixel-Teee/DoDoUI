@@ -215,6 +215,11 @@ namespace DoDo
 		}
 	}
 
+	std::shared_ptr<FSlateShaderResourceManager> FSlateVulkanRenderingPolicy::get_resource_manager() const
+	{
+		return m_texture_manager;
+	}
+
 	/*
 	void FSlateVulkanRenderingPolicy::upload_mesh(VmaAllocator& allocator, const FSlateVertexArray& vertex_array,
 		const FSlateIndexArray& index_array)

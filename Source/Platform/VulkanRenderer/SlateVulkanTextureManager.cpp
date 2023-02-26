@@ -202,7 +202,11 @@ namespace DoDo {
 			//4 bytes per pixel
 			const uint32_t atlas_stride = 4;
 
-			//
+			//always use one pixel padding
+			const uint8_t padding = 1;
+			const FAtlasedTextureSlot* new_slot = nullptr;
+
+			//todo:implement there
 		}
 		else
 		{
@@ -343,6 +347,11 @@ namespace DoDo {
 		}
 
 		return new_proxy;
+	}
+
+	void FSlateVulkanTextureManager::update_cache()
+	{
+
 	}
 
 }

@@ -345,11 +345,12 @@ namespace DoDo
 					]
                     + SConstraintCanvas::Slot()
 					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
-                    .Offset(FMargin(-100.0f, -100.0f, 50.0f, 50.0f))
+                    .Offset(FMargin(-50.0f, -100.0f, 240.0f, 100.0f))
                     .Alignment(glm::vec2(1.0f, 1.0f))
                     [
                          SNew(SButton)
                         .ButtonColorAndOpacity(glm::vec4(0.7f, 0.3f, 0.9f, 1.0f))
+                        .Text("Button")
                         //.OnPressed(border2, &SBorder::set_color)
                     ]
                     + SConstraintCanvas::Slot()
@@ -363,11 +364,11 @@ namespace DoDo
                     ]
                     + SConstraintCanvas::Slot()
                     .Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
-                    .Offset(FMargin(-200.0f, -200.0f, 700.0f, 700.0f))
+                    .Offset(FMargin(-300.0f, -100.0f, 100.0f, 100.0f))
                     .Alignment(glm::vec2(1.0f, 1.0f))
                     [
-                        SNew(STextBlock)
-                        .Text("Hello")
+						SNew(SBorder)
+						.BorderBackgroundColor(glm::vec4(0.4f, 0.7f, 0.8f, 1.0f))
                     ]
                 ]
             ];

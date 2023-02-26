@@ -277,6 +277,8 @@ namespace DoDo {
 			{
 				SWindow* window_to_draw = element_list.get_render_window();
 
+				m_texture_manager->update_cache();
+
 				//add all elements for this window to the element batcher
 				
 				//add_elements will add render batch to the element list's batch data array
@@ -411,6 +413,8 @@ namespace DoDo {
 		}
 
 		++m_frame_number;
+
+		//flush the cache if needed
 
 		m_rendering_policy->reset_offset();
 

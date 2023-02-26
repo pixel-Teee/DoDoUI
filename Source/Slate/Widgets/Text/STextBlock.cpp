@@ -8,6 +8,8 @@
 
 #include "SlateCore/Fonts/FontMeasure.h"//compute desired depends on it
 
+#include "SlateCore/Rendering/DrawElements.h"//FSlateDrawElement depends on it
+
 namespace DoDo
 {
 	void STextBlock::Private_Register_Attributes(FSlateAttributeInitializer& attribute_initializer)
@@ -55,6 +57,14 @@ namespace DoDo
 			//todo:draw shadow
 
 			//draw the text itself
+			FSlateFontInfo local_font = get_font();
+
+			FSlateDrawElement::make_text(out_draw_elements,
+				layer_id,
+				allotted_geometry.to_paint_geometry(),
+				m_bound_text.Get(),
+				local_font,
+				ESlateDrawEffect::None);//todo:fix color
 		}
 		else
 		{

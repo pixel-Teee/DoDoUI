@@ -14,6 +14,8 @@ namespace DoDo
 		virtual ~FSlateRenderingPolicy() {}
 
 		std::shared_ptr<FSlateFontCache> get_font_cache() const;
+
+		virtual std::shared_ptr<class FSlateShaderResourceManager> get_resource_manager() const = 0;
 	private:
 
 		std::shared_ptr<FSlateFontServices> m_font_services;//the life time of this font service is create from 

@@ -11,6 +11,11 @@ namespace DoDo {
 	{
 	}
 
+	bool FSlateFontAtlas::is_gray_scale() const
+	{
+		return m_bytes_per_pixel == 1;//per pixel bytes
+	}
+
 	const FAtlasedTextureSlot* FSlateFontAtlas::add_character(const FCharacterRenderData& render_data)
 	{
 		return add_texture(render_data.m_size_x, render_data.m_size_y, render_data.m_raw_pixels);//note:add to runtime memory

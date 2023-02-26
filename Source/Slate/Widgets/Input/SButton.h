@@ -20,9 +20,11 @@ namespace DoDo
 		SLATE_BEGIN_ARGS(SButton)
 		: _Content()
 		, _ButtonStyle(&FCoreStyle::get().get_widget_style<FButtonStyle>("Button"))//todo:implement FCoreStyle1
+		, _TextStyle(&FCoreStyle::get().get_widget_style<FTextBlockStyle>("NormalText"))//todo:modify to ButtonText
 		, _HAlign(HAlign_Fill)
 		, _VAlign(VAlign_Fill)
 		, _ContentPadding(FMargin(4.0f, 2.0f))
+		, _Text()
 		, _DesiredSizeScale(glm::vec2(1.0f, 1.0f))
 		, _ContentScale(glm::vec2(1.0f, 1.0f))
 		, _ButtonColorAndOpacity(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//white
@@ -36,6 +38,9 @@ namespace DoDo
 		/*the visual style of the button*/
 		SLATE_STYLE_ARGUMENT(FButtonStyle, ButtonStyle)
 
+		/*the text style of the button*/
+		SLATE_STYLE_ARGUMENT(FTextBlockStyle, TextStyle)
+
 		/*horizontal alignment*/
 		SLATE_ARGUMENT(EHorizontalAlignment, HAlign)
 
@@ -44,6 +49,9 @@ namespace DoDo
 
 		/*spacing between button's border and the content*/
 		SLATE_ATTRIBUTE(FMargin, ContentPadding)
+
+		/*the text to display in this button, if no custom content is specified*/
+		SLATE_ATTRIBUTE(DoDoUtf8String, Text)
 
 		/*called when the button is clicked*/
 		SLATE_EVENT(FSimpleDelegate, OnPressed)

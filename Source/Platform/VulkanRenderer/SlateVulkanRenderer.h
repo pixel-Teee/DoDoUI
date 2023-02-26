@@ -108,6 +108,7 @@ namespace DoDo {
 	public:
 		friend class FSlateVulkanTextureManager;
 		friend class FSlateVulkanRenderingPolicy;
+		friend class FSlateVulkanTexture;
 
 		FSlateVulkanRenderer();
 

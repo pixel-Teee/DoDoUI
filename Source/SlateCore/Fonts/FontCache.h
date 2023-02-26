@@ -335,6 +335,9 @@ namespace DoDo
 		 */
 		FCharacterList& get_character_list(const FSlateFontInfo& in_font_info, float font_scale, const FFontOutlineSettings& in_outline_settings = FFontOutlineSettings::NoOutline);
 
+
+		ISlateFontTexture* get_font_texture(uint32_t index) { return m_all_font_textures[index].get(); }
+
 		/*
 		* gets the atlas information for the given shaped glyph, this information will be cached if required
 		*/
@@ -374,8 +377,16 @@ namespace DoDo
 		 */
 		uint16_t get_max_character_height(const FSlateFontInfo& in_font_info, float font_scale) const;
 	private:
+		/*
+		* clears all cached data from the cache
+		*/
+		bool flush_cache();
+
 		/*FreeType library instance (owned by this font cache)*/
 		std::unique_ptr<FFreeTypeLibrary> m_ft_library;
+
+		/*FreeType library cache directory (owned by this font cache)*/
+		std::unique_ptr<FFreeTypeCacheDirectory> m_ft_cache_directory;
 
 		/*high-level composite font cache (owned by this font cache)*/
 		std::unique_ptr<FCompositeFontCache> m_composite_font_cache;

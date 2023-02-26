@@ -60,13 +60,13 @@ namespace DoDo
 	public:
 
 		template<ESlateVertexRounding Rounding>
-		static FSlateVertex Make(const FSlateRenderTransform& render_transform, const glm::vec2 in_local_position, const glm::vec2 in_tex_coord, const glm::vec2 in_tex_coord2, const glm::vec4 in_color, const glm::vec4 secondary_color = glm::vec4())
+		static FSlateVertex Make(const FSlateRenderTransform& render_transform, const glm::vec2 in_local_position, const glm::vec4 in_tex_coord, const glm::vec2 in_tex_coord2, const glm::vec4 in_color, const glm::vec4 secondary_color = glm::vec4())
 		{
 			FSlateVertex vertex;
 			vertex.tex_coords[0] = in_tex_coord.x;
 			vertex.tex_coords[1] = in_tex_coord.y;
-			vertex.tex_coords[2] = in_tex_coord2.x;
-			vertex.tex_coords[3] = in_tex_coord2.y;
+			vertex.tex_coords[2] = in_tex_coord.z;
+			vertex.tex_coords[3] = in_tex_coord.w;
 			vertex.init_common<Rounding>(render_transform, in_local_position, in_color, secondary_color);
 
 			return vertex;

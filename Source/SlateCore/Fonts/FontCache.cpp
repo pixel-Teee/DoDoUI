@@ -147,12 +147,18 @@ namespace DoDo
 			int16_t x_advance = 0;
 			{
 				FT_Fixed cached_advance_data = 0;
-			
+				std::shared_ptr<FFreeTypeAdvanceCache> advance_cache = m_font_cache.m_ft_cache_directory->get_advance_cache(face_glyph_data.m_face_and_memory->get_face(), glyph_flags,
+					font_info.m_size, final_font_scale);
+
+				if (advance_cache->find_or_cache(glyph_index, cached_advance_data))
+				{
+					x_advance = FreeTypeUtils::Convert26Dot6ToRoundedPixel<int16_t>((cached_advance_data + (1 << 9)) >> 10);
+				}
 			}
 
 			//todo:fix me, use font_info.m_size
 			FCharacterListEntry new_internal_entry;
-			new_internal_entry.m_shaped_glyph_entry.m_font_face_data = std::make_shared<FShapedGlyphFaceData>(face_glyph_data.m_face_and_memory, glyph_flags, 28.0f, final_font_scale);
+			new_internal_entry.m_shaped_glyph_entry.m_font_face_data = std::make_shared<FShapedGlyphFaceData>(face_glyph_data.m_face_and_memory, glyph_flags, font_info.m_size, final_font_scale);
 			new_internal_entry.m_shaped_glyph_entry.m_graph_index = glyph_index;
 			new_internal_entry.m_shaped_glyph_entry.m_x_advance = x_advance;
 			new_internal_entry.m_shaped_glyph_entry.m_b_is_visible = !b_is_white_space;
@@ -242,6 +248,7 @@ namespace DoDo
 
 	FSlateFontCache::FSlateFontCache(std::shared_ptr<ISlateFontAtlasFactory> in_font_atlas_factory)
 		: m_ft_library(new FFreeTypeLibrary())
+		, m_ft_cache_directory(new FFreeTypeCacheDirectory())
 		, m_composite_font_cache(new FCompositeFontCache(m_ft_library.get()))
 		, m_font_atlas_factory(in_font_atlas_factory)
 		, m_font_renderer(new FSlateFontRenderer(m_ft_library.get(), m_composite_font_cache.get()))
@@ -385,6 +392,8 @@ namespace DoDo
 		m_all_font_textures.push_back(font_atlas);
 		out_texture_index = m_all_font_textures.size() - 1;
 
+		font_atlas_indices.push_back(out_texture_index);//note:this is important, will be used to update runtime texture
+
 		//add the character to the texture
 		const FAtlasedTextureSlot* new_slot = font_atlas->add_character(in_render_data);
 		if(new_slot)
@@ -418,6 +427,13 @@ namespace DoDo
 	{
 		//font renderer is bridging point between FreeType and the Slate font system
 		return m_font_renderer->get_max_height(in_font_info, font_scale);
+	}
+
+	bool FSlateFontCache::flush_cache()
+	{
+		m_gray_scale_font_atlas_indices.clear();
+		m_color_font_atlas_indices.clear();
+		return true;
 	}
 
 	FShapedGlyphEntryKey::FShapedGlyphEntryKey(const FShapedGlyphFaceData& in_font_face_data, uint32_t in_glyph_index, const FFontOutlineSettings& in_outline_settings)

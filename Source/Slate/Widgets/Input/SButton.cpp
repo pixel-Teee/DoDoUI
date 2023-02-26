@@ -5,6 +5,8 @@
 #include "SlateCore/Layout/Geometry.h"
 #include "SlateCore/Rendering/DrawElements.h"//FSlateDrawElement depends on it
 
+#include "Slate/Widgets/Text/STextBlock.h"
+
 //#include "SlateCore/Styling/SlateTypes.h"
 
 namespace DoDo
@@ -30,12 +32,32 @@ namespace DoDo
 
 		m_on_pressed = in_args._OnPressed;
 
+		struct
+		{
+			std::shared_ptr<SWidget> operator()(const FArguments& in_op_args) const
+			{
+				if ((in_op_args._Content.m_widget == nullptr) && (in_op_args._Text.Is_Bound() || in_op_args._Text.Get().get_length()))
+				{
+					return SNew(STextBlock)
+						.Text(in_op_args._Text)
+						.TextStyle(in_op_args._TextStyle);
+				}
+				else
+				{
+					return in_op_args._Content.m_widget;
+				}
+			}
+		} DetermineContent;
+
 		SBorder::Construct(SBorder::FArguments()
 			.ContentScale(in_args._ContentScale)
 			.DesiredSizeScale(in_args._DesiredSizeScale)
 			.BorderBackgroundColor(in_args._ButtonColorAndOpacity)
 			.HAlign(in_args._HAlign)
 			.VAlign(in_args._VAlign)
+			[
+				DetermineContent(in_args)
+			]
 		);//todo:implement determine Content
 
 		//todo:implement set button style

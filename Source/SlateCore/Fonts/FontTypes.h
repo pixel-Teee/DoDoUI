@@ -102,6 +102,16 @@ namespace DoDo
 	{
 	public:
 		virtual ~ISlateFontTexture() {}
+
+		/*
+		* returns the texture resource used by slate
+		*/
+		virtual class FSlateShaderResource* get_slate_texture() const = 0;
+
+		/*
+		* returns whether the texture resource is 8-bit grayscale or 8-bit per-channel BGRA color
+		*/
+		virtual bool is_gray_scale() const = 0;
 	};
 
 	/*
@@ -113,6 +123,10 @@ namespace DoDo
 		FSlateFontAtlas(uint32_t in_width, uint32_t in_height, const bool in_is_gray_scale);
 
 		virtual ~FSlateFontAtlas();
+
+		//------ISlateFontTexture interface------
+		virtual bool is_gray_scale() const override final;
+		//------ISlateFontTexture interface------
 
 		/*
 		 * adds a character to the texture

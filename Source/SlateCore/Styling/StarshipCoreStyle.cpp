@@ -36,7 +36,7 @@ namespace DoDo {
 #define FONT(...) FSlateFontInfo(FCoreStyle::get_default_font(), __VA_ARGS__)
 
 	FStyleFonts::FStyleFonts()
-		: m_normal(FONT(10, "Regular"))//note:from the legacy slate font cache to get the font
+		: m_normal(FONT(50, "Regular"))//note:from the legacy slate font cache to get the font
 	{
 	}
 

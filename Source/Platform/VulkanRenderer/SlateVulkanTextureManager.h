@@ -51,9 +51,12 @@ namespace DoDo {
 		* @param Info Information on how to generate the texture resource
 		*/
 		FSlateShaderResourceProxy* generate_texture_resource(const FNewTextureInfo& info, DoDoUtf8String texture_name);
+
+		void update_cache();
 	private:
 		
 		/*static non atlased textures*/
 		std::vector<std::unique_ptr<FSlateVulkanTexture>> m_non_atlased_textures;
+
 	};
 }

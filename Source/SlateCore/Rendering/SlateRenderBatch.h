@@ -22,6 +22,16 @@ namespace DoDo
 			int32_t in_index_offset
 		);//todo:implement FSlateVertexArray, FSlateIndexArray, InVertexOffset, InIndexOffset
 
+		void reserve_vertices(uint32_t num)
+		{
+			m_source_vertices->reserve(m_source_vertices->size() + num);//add num
+		}
+
+		void reserve_indices(uint32_t num)
+		{
+			m_source_indices->reserve(m_source_indices->size() + num);//add num
+		}
+
 		void add_vertex(FSlateVertex&& vertex)//move
 		{
 			m_source_vertices->emplace_back(std::forward<FSlateVertex>(vertex));

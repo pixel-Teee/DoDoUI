@@ -8,6 +8,9 @@
 #include "glm/vec2.hpp"
 #include "SlateCore/Widgets/SWindow.h"
 
+#include "SlateCore/Fonts/FontCache.h"
+#include "SlateCore/Rendering/RenderingPolicy.h"
+
 namespace DoDo
 {
 	FSlateRenderBatch& FSlateBatchData::add_render_batch(int32_t in_layer, FSlateShaderResource* shader_resource, ESlateDrawPrimitive in_primitive_type,
@@ -136,6 +139,11 @@ namespace DoDo
 			{
 				//todo:impement pixel snapped
 				add_box_element<ESlateVertexRounding::Disabled>(draw_element);
+				break;
+			}
+			case EElementType::ET_Text:
+			{
+				add_text_element<ESlateVertexRounding::Disabled>(draw_element);
 				break;
 			}
 			case EElementType::ET_Gradient:
@@ -426,15 +434,161 @@ namespace DoDo
 		//todo:implement font cache
 		FSlateFontCache& font_cache = *(m_rendering_policy->get_font_cache());
 		//todo:get resource manager
-		//FSlateShaderResourceManager& resource_manager = *
+		FSlateShaderResourceManager& resource_manager = *(m_rendering_policy->get_resource_manager());//note:texture manager
 
-		auto build_font_geometry = [&](const glm::vec4& in_tint, int32_t in_layer)
+		auto build_font_geometry = [&](const FFontOutlineSettings& in_outline_settings, glm::vec4& in_tint, int32_t in_layer)
 		{
+			FCharacterList& character_list = font_cache.get_character_list(draw_element_pay_load.get_font_info(), font_scale, in_outline_settings);
 
+			float max_height = character_list.get_max_height();
+
+			//todo:implement get max height
+
+			uint32_t font_texture_index = 0;
+			FSlateShaderResource* font_atlas_texture = nullptr;
+			FSlateShaderResource* font_shader_resource = nullptr;
+			glm::vec4 font_tint = in_tint;
+
+			FSlateRenderBatch* render_batch = nullptr;
+			FSlateVertexArray* batch_vertices = nullptr;
+			FSlateIndexArray* batch_indices = nullptr;
+
+			uint32_t vertex_offset = 0;
+			uint32_t index_offset = 0;
+
+			float inv_texture_size_x = 0;
+			float inv_texture_size_y = 0;
+
+			float line_x = 0;
+
+			FCharacterEntry previous_entry;
+
+			int32_t kerning = 0;
+
+			glm::vec2 top_left(0.0f, 0.0f);
+
+			const float pos_x = top_left.x;
+			float pos_y = top_left.y;
+
+			line_x = pos_x;
+
+			//todo:check outline enable
+
+			uint32_t num_chars = len;
+
+			uint32_t num_lines = 1;
+
+			for (uint32_t char_index = 0; char_index < num_chars; ++char_index)
+			{
+				const char current_char = draw_element_pay_load.get_text()[char_index];
+
+				const bool is_new_line = (current_char == '\n');
+
+				if (is_new_line)
+				{
+					pos_y += max_height;
+
+					line_x = pos_x;
+
+					++num_lines;
+				}
+				else
+				{
+					const FCharacterEntry& entry = character_list.get_character(current_char, draw_element_pay_load.get_font_info().m_font_fallback);
+
+					if (entry.m_valid && (font_atlas_texture == nullptr || entry.m_texture_index != font_texture_index))
+					{
+						//font has a new texture for this glyph, refresh the batch we use and the index we are currently using
+
+						font_texture_index = entry.m_texture_index;
+
+						ISlateFontTexture* slate_font_texture = font_cache.get_font_texture(font_texture_index);
+
+						font_atlas_texture = slate_font_texture->get_slate_texture();//get real gpu texture, font texture holds this 
+
+						font_shader_resource = font_atlas_texture;//note:unreal will have material
+
+						const bool b_is_gray_scale = slate_font_texture->is_gray_scale();
+
+						font_tint = b_is_gray_scale ? in_tint : glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);//white
+
+						render_batch = &create_render_batch(in_layer, font_shader_resource, ESlateDrawPrimitive::TriangleList, in_draw_effects, draw_element);
+
+						//reserve memory for the glyphs, this isn't perfect as the text could contain spaces and we might not render the rest of the text in this batch but its
+						//better than resizing constantly
+						const int32_t glyphs_left = num_chars - char_index;
+
+						render_batch->reserve_vertices(glyphs_left * 4);
+						render_batch->reserve_indices(glyphs_left * 6);
+
+						inv_texture_size_x = 1.0f / font_atlas_texture->get_width();
+						inv_texture_size_y = 1.0f / font_atlas_texture->get_height();
+					}
+
+					const bool b_is_white_space = !entry.m_valid || current_char == 0;//todo:check
+
+					if (!b_is_white_space && previous_entry.m_valid)
+					{
+						//kerning = character_list.get_kerning();
+						//todo:implement get kerning
+					}
+					else
+					{
+						kerning = 0;
+					}
+
+					line_x += kerning;
+					previous_entry = entry;
+
+					if (!b_is_white_space)
+					{
+						const float inv_bit_map_render_scale = 1.0f / entry.m_bitmap_render_scale;
+
+						const float x = line_x + entry.m_horizontal_offset;
+						//note posx, posy is the upper left corner of the bounding box representing the string, this computes the y position of the baseline where text will sit
+
+						//todo:implement max_height
+						const float y = pos_y - entry.m_vertical_offset + ((80.0f + entry.m_global_descendar) * inv_bit_map_render_scale);
+						const float u = entry.m_start_u * inv_texture_size_x;
+						const float v = entry.m_start_v * inv_texture_size_y;
+						const float size_x = entry.m_u_size * entry.m_bitmap_render_scale;
+						const float size_y = entry.m_v_size * entry.m_bitmap_render_scale;
+						const float size_u = entry.m_u_size * inv_texture_size_x;
+						const float size_v = entry.m_v_size * inv_texture_size_y;
+
+						glm::vec2 upper_left(x, y);
+						glm::vec2 upper_right(x + size_x, y);
+						glm::vec2 lower_left(x, y + size_y);
+						glm::vec2 lower_right(x + size_x, y + size_y);
+
+						//the start index of these vertices in the index buffer
+						const uint32_t index_start = render_batch->get_num_vertices();
+
+						float ut = 0.0f, vt = 0.0f, ut_max = 0.0f, vt_max = 0.0f;
+
+						//add four vertices to the list of verts to be added to the vertex buffer
+						render_batch->add_vertex(FSlateVertex::Make<rounding>(render_transform, upper_left, glm::vec4(u, v, ut, vt), glm::vec2(0.0f, 0.0f), font_tint));
+						render_batch->add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(lower_right.x, upper_left.y), glm::vec4(u + size_u, v, ut_max, vt), glm::vec2(1.0f, 0.0f), font_tint));
+						render_batch->add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(upper_left.x, lower_right.y), glm::vec4(u, v + size_v, ut, vt_max), glm::vec2(0.0f, 1.0f), font_tint));
+						render_batch->add_vertex(FSlateVertex::Make<rounding>(render_transform, lower_right, glm::vec4(u + size_u, v + size_v, ut_max, vt_max), glm::vec2(1.0f, 1.0f), font_tint));
+
+						render_batch->add_index(index_start + 0);
+						render_batch->add_index(index_start + 1);
+						render_batch->add_index(index_start + 2);
+						render_batch->add_index(index_start + 1);
+						render_batch->add_index(index_start + 3);
+						render_batch->add_index(index_start + 2);
+					}
+
+					line_x += entry.m_x_advance;
+				}
+			}
 		};
 
 		//todo:implement outline
 
+		//no outline, draw normally
+		build_font_geometry(FFontOutlineSettings::NoOutline, base_tint, layer);
 	}
 
 	template<ESlateVertexRounding Rounding>
