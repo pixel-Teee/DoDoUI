@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Delegates/DelegateCombinations.h"
 #include "Core/Delegates/Delegates.h"//FAttributeValueChangedDelegate depends on it
 #include "SlateCore/Widgets/InvalidateWidgetReason.h"
 #include "Core/String/DoDoString.h"
@@ -74,7 +75,9 @@ namespace DoDo
 			FGetter m_getter;
 		};
 
-		using FAttributeValueChangedDelegate = Delegate<void(SWidget&)>;
+		//using FAttributeValueChangedDelegate = Delegate<void(SWidget&)>;
+
+		DECLARE_DELEGATE_OneParam(FAttributeValueChangedDelegate, SWidget&);
 
 		enum class ECallbackOverrideType
 		{
@@ -159,7 +162,7 @@ namespace DoDo
 
 			void Execute_On_Value_Changed(SWidget& widget) const
 			{
-				m_on_value_changed.Execute(widget);
+				m_on_value_changed.execute(widget);
 			}
 
 		private:

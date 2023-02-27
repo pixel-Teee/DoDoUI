@@ -80,6 +80,11 @@ namespace DoDo {
 		*/
 		void Construct(const SSlider::FArguments& in_declaration);
 
+		/*
+		 * get the value attribute scaled from 0 to 1
+		 */
+		float get_normalized_value() const;
+
 	public:
 		//SWidget overrides
 

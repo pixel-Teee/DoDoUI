@@ -45,6 +45,21 @@ namespace DoDo
 		 * @param InArgs the declaration data for this widget
 		 */
 		void Construct(const FArguments& in_args);
+
+		/*
+		 * gets the text assigned to this text block
+		 *
+		 * @return this text block's text string
+		 */
+		const DoDoUtf8String& get_text() const
+		{
+			if(m_b_is_attribute_bound_text_bound)
+			{
+				STextBlock& mutable_self = const_cast<STextBlock&>(*this);
+				mutable_self.m_bound_text.update_now(mutable_self);//todo:implement update now
+			}
+			return m_bound_text.Get();
+		}
 	public:
 		//------SWidget interface------
 		int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
@@ -120,7 +135,15 @@ namespace DoDo
 		mutable  std::optional<glm::vec2> m_cached_simple_desired_size;
 
 		//todo:add flags to check if the slate attribute is set
-
+		union
+		{
+			struct
+			{
+				uint16_t m_b_is_attribute_bound_text_bound : 1;
+				uint16_t m_b_is_attribute_font_set : 1;
+			};
+			uint16_t m_union_flags;
+		};
 
 		bool m_b_simple_text_mode;
 	};

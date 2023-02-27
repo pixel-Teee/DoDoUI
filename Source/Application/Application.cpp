@@ -350,7 +350,7 @@ namespace DoDo
                     [
                          SNew(SButton)
                         .ButtonColorAndOpacity(glm::vec4(0.7f, 0.3f, 0.9f, 1.0f))
-                        .Text("Button")
+                        .Text(s_current_application, &Application::calculate_frame_per_second)
                         //.OnPressed(border2, &SBorder::set_color)
                     ]
                     + SConstraintCanvas::Slot()
@@ -1125,6 +1125,11 @@ namespace DoDo
         b_handled = reply.is_event_handled();
 
         return b_handled;
+    }
+
+    DoDoUtf8String Application::calculate_frame_per_second() const
+    {
+        return DoDoUtf8String("1.0f");
     }
 
     void Application::set_cursor_pos(const glm::vec2 mouse_coordinate)

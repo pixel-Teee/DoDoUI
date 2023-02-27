@@ -67,6 +67,7 @@ namespace DoDo {
 
 		void FSlateAttributeImpl::protected_update_now(SWidget& widget, ESlateAttributeType attribute_type)
 		{
+			FSlateAttributeMetaData::update_attribute(widget, *this);
 		}
 	}
 	

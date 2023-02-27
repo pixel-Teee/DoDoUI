@@ -313,5 +313,9 @@ namespace DoDo
 		 * note: the array my contain invalid entries, users have associated indices that they expect to maintain, independent of the existence of other users
 		 */
 		std::vector<std::shared_ptr<FSlateUser>> m_users;
+
+		//------calculate frame per second------
+		DoDoUtf8String calculate_frame_per_second() const;
+		//------calculate frame per second------
 	};
 }

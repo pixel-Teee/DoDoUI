@@ -172,6 +172,31 @@ namespace DoDo {
 		//todo:implement this function
 	}
 
+	void FSlateAttributeMetaData::update_attribute(SWidget& owning_widget, FSlateAttributeBase& attribute)
+	{
+		if(FSlateAttributeMetaData* attribute_meta_data = FSlateAttributeMetaData::find_meta_data(owning_widget))
+		{
+			const int32_t found_index = attribute_meta_data->Index_Of_Attribute(attribute);
+			if(found_index != -1)
+			{
+				FGetterItem& getter_item = attribute_meta_data->m_attributes[found_index];
+
+				ISlateAttributeGetter::FUpdateAttributeResult result = getter_item.m_getter->Update_Attribute(owning_widget);
+
+				if(result.m_b_Invalidation_Requested && owning_widget.Is_Constructed())
+				{
+					EInvalidateWidgetReason invalidation_reason = result.m_Invalidation_Reason;
+					if(getter_item.m_cached_attribute_descriptor)
+					{
+						getter_item.m_cached_attribute_descriptor->Execute_On_Value_Changed(owning_widget);
+						invalidation_reason = getter_item.m_cached_attribute_descriptor->Get_Invalidation_Reason(owning_widget);
+					}
+					//todo:add invalidation flags
+				}
+			}
+		}
+	}
+
 	FDelegateHandle FSlateAttributeMetaData::Get_Attribute_Getter_Handle(const SWidget& Owning_Widget,
 	                                                                     const FSlateAttributeBase& attribute)
 	{
@@ -243,12 +268,12 @@ namespace DoDo {
 			//attribute offset * 100
 			const uint32_t calculated_sort_order = FSlateAttributeDescriptor::Default_Sort_Order(attribute_offset);
 
-			uint32_t l = 0, r = m_attributes.size() - 1;
+			int32_t l = 0, r = (int32_t)(m_attributes.size()) - 1;
 			while(l < r)
 			{
-				uint32_t mid = l + r >> 1;
+				int32_t mid = l + r >> 1;
 
-				uint32_t sort_order = m_attributes[mid].m_sort_order;//sort order
+				int32_t sort_order = m_attributes[mid].m_sort_order;//sort order
 
 				if (calculated_sort_order >= sort_order) r = mid;
 				else l = mid + 1;

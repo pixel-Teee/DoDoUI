@@ -67,6 +67,12 @@ namespace SlateAttributePrivate
 			return m_Value;
 		}
 
+		/*update the cache value and invalidate the widget if needed*/
+		void update_now(ContainerType& widget)
+		{
+			protected_update_now(widget, InAttributeType);
+		}
+
 		/*
 		 * unbind the slate attribute and set it's value, it may invalidate the widget if the value is different
 		 * return true if the value is considered different and an invalidation occurred
@@ -227,6 +233,19 @@ namespace SlateAttributePrivate
 
 			FUpdateAttributeResult Update_Attribute(const SWidget& widget) override
 			{
+				if(m_getter.is_bound())
+				{
+					ObjectType new_value = m_getter.execute();
+
+					const bool b_is_identical = m_attribute->Identical_To(widget, m_attribute->m_Value, new_value);
+
+					if(!b_is_identical)
+					{
+						//set the value on the widget
+						m_attribute->m_Value = std::move(new_value);
+						return m_attribute->Get_Invalidation_Reason(widget);
+					}
+				}
 				return FUpdateAttributeResult();
 			}
 

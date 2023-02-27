@@ -64,9 +64,27 @@ namespace DoDo
 		/*
 		 * bind attribute with delegate to a global function
 		 * note : we use a template here to avoid 'typename' issues when hosting attributes inside templated classes
-		 */
-		//todo:implement bind function
-
+		 */\
+		template<typename... VarTypes> \
+		WidgetArgsType& AttrName##_Static( typename TAttribute< AttrType >::FGetter::template FStaticDelegate<VarTypes...>::FFuncPtr InFunc, VarTypes... Vars) \
+		{ \
+			_##AttrName = TAttribute< AttrType >::Create(TAttribute< AttrType >::FGetter::CreateStatic(InFunc, Vars...)); \
+			return static_cast<WidgetArgsType*>(this)->Me();\
+		} \
+		/*bind attribute with delegate to a shared pointer-based class method, slate mostly uses shared pointer so we use an overload for this type of binding*/ \
+		template<class UserClass, typename... VarTypes> \
+		WidgetArgsType& AttrName(std::shared_ptr<UserClass> InUserObjectRef, typename TAttribute< AttrType >::FGetter::template TConstMethodPtr< UserClass, VarTypes... > InFunc, VarTypes... Vars)\
+		{ \
+			_##AttrName = TAttribute< AttrType >::Create( TAttribute< AttrType >::FGetter::CreateSP(InUserObjectRef, InFunc, Vars...));\
+			return static_cast<WidgetArgsType*>(this)->Me();\
+		} \
+		/*bind attribute with delegate to a shared pointer-based class method, slate mostly uses shared pointers so we use an overload for this type of binding*/ \
+		template<class UserClass, typename... VarTypes> \
+		WidgetArgsType& AttrName(UserClass* InUserObject, typename TAttribute< AttrType >::FGetter::template TConstMethodPtr< UserClass, VarTypes... > InFunc, VarTypes... Vars) \
+		{ \
+			_##AttrName = TAttribute< AttrType >::Create( TAttribute< AttrType >::FGetter::CreateSP( InUserObject, InFunc, Vars... )); \
+			return static_cast<WidgetArgsType*>(this)->Me();\
+		} 
 #define SLATE_PRIVATE_ARGUMENT_VARIABLE(ArgType, ArgName) \
 		ArgType _##ArgName
 

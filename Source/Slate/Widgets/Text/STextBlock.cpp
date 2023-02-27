@@ -15,6 +15,7 @@ namespace DoDo
 	void STextBlock::Private_Register_Attributes(FSlateAttributeInitializer& attribute_initializer)
 	{
 		//todo:to register attribute
+		SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "Font", m_bound_text, EInvalidateWidgetReason::Layout);//todo:fix me, use slate attribute member attribute definition
 	}
 
 	STextBlock::STextBlock()
@@ -62,7 +63,7 @@ namespace DoDo
 			FSlateDrawElement::make_text(out_draw_elements,
 				layer_id,
 				allotted_geometry.to_paint_geometry(),
-				m_bound_text.Get(),
+				get_text(),//todo:fix me, use bound text's get function
 				local_font,
 				ESlateDrawEffect::None);//todo:fix color
 		}
@@ -94,6 +95,9 @@ namespace DoDo
 
 	void STextBlock::set_text(TAttribute<DoDoUtf8String> in_text)
 	{
+		//cache the IsBound
+		//when the attribute is not bound, we need to go through all the other bound property to check if it is bound
+		m_b_is_attribute_bound_text_bound = in_text.Is_Bound();
 		m_bound_text.Assign(*this, std::move(in_text));
 	}
 

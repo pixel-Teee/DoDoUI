@@ -126,8 +126,6 @@ namespace DoDo
 	};
 }
 
-class DoDo::FFontKey;
-
 template<>
 struct std::hash<DoDo::FFontKey>
 {

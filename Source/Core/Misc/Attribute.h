@@ -70,6 +70,17 @@ namespace DoDo {
 		}
 
 		/*
+		 * static : creates an attribute that's pre-bound to the specified 'getter' delegate
+		 *
+		 * @param InGetter delegate to bind
+		 */
+		static TAttribute Create(const FGetter& in_getter)
+		{
+			const bool b_explicit_constructor = true;
+			return TAttribute(in_getter, b_explicit_constructor);
+		}
+
+		/*
 		 * set the attribute's value
 		 *
 		 * param InNewValue the value to set the attribute to
@@ -143,6 +154,13 @@ namespace DoDo {
 		}
 
 	private:
+		/*special explicit constructor for TAttribute::Create()*/
+		TAttribute(const FGetter& in_getter, bool b_explicit_constructor)
+			: m_value()
+			, m_b_is_set(true)
+			, m_getter(in_getter)
+		{}
+
 		//current value, mutable so that we can cache the value locally when using a bound getter(allows const ref return value)
 		mutable ObjectType m_value;
 
