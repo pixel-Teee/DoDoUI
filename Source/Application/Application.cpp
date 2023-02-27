@@ -6,6 +6,8 @@
 
 #include <Renderer/Renderer.h>
 
+#include <string>//to_string depends on it
+
 //#include <vulkan/vulkan.h>
 
 #include "Renderer/RendererInstance.h"
@@ -235,6 +237,7 @@ namespace DoDo
         , m_current_time(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
 		, m_average_delta_time(1.0f / 30.0f)
     {
+        m_last_time = m_current_time;
         //m_p_vk_instance = CreateScope<VkInstance>();
         //m_p_window = Window::Create();
 
@@ -719,6 +722,14 @@ namespace DoDo
         //m_current_time =
         //todo:implement FPlatformTime
         m_current_time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+        if(m_current_time - m_last_time > 1.0f)
+        {
+            m_last_time = m_current_time;
+            m_last_frame_count = m_frame_count;
+            m_frame_count = 0;
+        }
+        ++m_frame_count;
     }
 
     void Application::tick_platform(float delta_time)
@@ -1129,7 +1140,7 @@ namespace DoDo
 
     DoDoUtf8String Application::calculate_frame_per_second() const
     {
-        return DoDoUtf8String("1.0f");
+        return DoDoUtf8String(std::string("FPS:") + std::to_string(m_last_frame_count));
     }
 
     void Application::set_cursor_pos(const glm::vec2 mouse_coordinate)

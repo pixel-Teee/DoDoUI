@@ -49,12 +49,40 @@ namespace DoDo {
 	{
 		if (FSlateAttributeMetaData* attribute_meta_data = FSlateAttributeMetaData::find_meta_data(Owning_Widget))
 		{
-			
+			attribute_meta_data->update_attributes_impl(Owning_Widget, In_Validation_Style, 0, attribute_meta_data->m_attributes.size());
+		}
+	}
+
+	void FSlateAttributeMetaData::update_only_visibility_attributes(SWidget& owning_widget,
+		EInvalidationPermission in_validation_style)
+	{
+		if(FSlateAttributeMetaData* attribute_meta_data = FSlateAttributeMetaData::find_meta_data(owning_widget))
+		{
+			if(attribute_meta_data->m_affect_visibility_counter > 0)
+			{
+				const int32_t start_index = 0;
+				const int32_t end_index = attribute_meta_data->m_affect_visibility_counter;
+				attribute_meta_data->update_attributes_impl(owning_widget, in_validation_style, start_index, end_index);
+			}
+		}
+	}
+
+	void FSlateAttributeMetaData::update_except_visibility_attributes(SWidget& owning_widget,
+		EInvalidationPermission invalidation_style)
+	{
+		if(FSlateAttributeMetaData* attribute_meta_data = FSlateAttributeMetaData::find_meta_data(owning_widget))
+		{
+			if(attribute_meta_data->m_affect_visibility_counter < attribute_meta_data->m_attributes.size())
+			{
+				const int32_t start_index = attribute_meta_data->m_affect_visibility_counter;
+				const int32_t end_index = attribute_meta_data->m_attributes.size();
+				attribute_meta_data->update_attributes_impl(owning_widget, invalidation_style, start_index, end_index);
+			}
 		}
 	}
 
 	void FSlateAttributeMetaData::Register_Attribute(SWidget& owning_widget, FSlateAttributeBase& attribute,
-		ESlateAttributeType attribute_type, std::unique_ptr<ISlateAttributeGetter>&& wrapper)
+	                                                 ESlateAttributeType attribute_type, std::unique_ptr<ISlateAttributeGetter>&& wrapper)
 	{
 		auto Execute_Register = [&](FSlateAttributeMetaData& attribute_meta_data)
 		{
@@ -85,6 +113,15 @@ namespace DoDo {
 
 			Execute_Register(*new_attribute_meta_data);
 
+			if(new_attribute_meta_data->get_registered_attribute_count())
+			{
+				owning_widget.m_b_has_registered_slate_attribute = true;
+				owning_widget.m_Meta_Data.insert(owning_widget.m_Meta_Data.begin(), new_attribute_meta_data);
+				if(owning_widget.Is_Constructed() && owning_widget.Is_Attributes_Updates_Enabled())
+				{
+					owning_widget.Invalidate(EInvalidateWidgetReason::Attribute_Registration);
+				}
+			}
 		}
 	}
 
@@ -223,7 +260,24 @@ namespace DoDo {
 
 		for (int32_t index = start_index; index < index_num; ++index)
 		{
-			
+			FGetterItem& getter_item = m_attributes[index];
+
+			ISlateAttributeGetter::FUpdateAttributeResult result = getter_item.m_getter->Update_Attribute(Owning_Widget);
+			if(result.m_b_Invalidation_Requested)
+			{
+				if(getter_item.m_cached_attribute_descriptor)
+				{
+					getter_item.m_cached_attribute_descriptor->Execute_On_Value_Changed(Owning_Widget);
+					if(b_allow_invalidation)
+					{
+						InValidation_Reason |= getter_item.m_cached_attribute_descriptor->Get_Invalidation_Reason(Owning_Widget);
+					}
+				}
+				else if(b_allow_invalidation)
+				{
+					InValidation_Reason |= result.m_Invalidation_Reason;
+				}
+			}
 		}
 	}
 	void FSlateAttributeMetaData::register_member_attribute_impl(SWidget& Owning_Widget, FSlateAttributeBase& attribute, std::unique_ptr<ISlateAttributeGetter>&& getter)

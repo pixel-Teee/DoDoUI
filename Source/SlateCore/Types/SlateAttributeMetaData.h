@@ -53,6 +53,24 @@ namespace DoDo {
 		*/
 		static void update_all_attributes(SWidget& Owning_Widget, EInvalidationPermission In_Validation_Style);
 
+		/*
+		 * update attributes that are responsible to change visibility of the widget
+		 * @param InvalidationStyle if we should invalidate the widget
+		 */
+		static void update_only_visibility_attributes(SWidget& owning_widget, EInvalidationPermission in_validation_style);
+
+		/*
+		 * update attributes that are not responsible to change visibility of the widget
+		 * @param InvalidationStyle if we should invalidate the widget
+		 */
+		static void update_except_visibility_attributes(SWidget& owning_widget, EInvalidationPermission invalidation_style);
+	public:
+
+		int32_t get_registered_attribute_count() const
+		{
+			return m_attributes.size();
+		}
+
 	private:
 		using ESlateAttributeType = SlateAttributePrivate::ESlateAttributeType;
 		using ISlateAttributeGetter = SlateAttributePrivate::ISlateAttributeGetter;

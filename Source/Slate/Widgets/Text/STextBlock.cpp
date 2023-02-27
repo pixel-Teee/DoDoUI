@@ -63,7 +63,7 @@ namespace DoDo
 			FSlateDrawElement::make_text(out_draw_elements,
 				layer_id,
 				allotted_geometry.to_paint_geometry(),
-				get_text(),//todo:fix me, use bound text's get function
+				m_bound_text.Get(),//todo:fix me, use bound text's get function
 				local_font,
 				ESlateDrawEffect::None);//todo:fix color
 		}

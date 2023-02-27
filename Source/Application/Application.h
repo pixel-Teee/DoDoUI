@@ -316,6 +316,11 @@ namespace DoDo
 
 		//------calculate frame per second------
 		DoDoUtf8String calculate_frame_per_second() const;
+
+		int64_t m_frame_count = 0;
+		int64_t m_last_frame_count = 0;
+
+		double m_last_time = 0.0f;
 		//------calculate frame per second------
 	};
 }

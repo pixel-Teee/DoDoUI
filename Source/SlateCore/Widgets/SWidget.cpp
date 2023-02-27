@@ -10,6 +10,7 @@
 #include "SlateCore/Types/SlateAttributeDescriptor.h"
 
 #include "SlateCore/Types/PaintArgs.h"//FPaintArgs depends on it
+#include "SlateCore/Types/SlateAttributeMetaData.h"
 #include "SlateCore/Types/SlateMouseEventsMetaData.h"//FSlateMouseEventsMetaData depends on it
 
 namespace DoDo {
@@ -148,6 +149,7 @@ namespace DoDo {
 		: m_b_is_hovered_attribute_set(false)
 		, m_hovered_attribute(*this, false)
 		, m_b_has_registered_slate_attribute(false)
+		, m_b_enabled_attributes_update(true)
 		, m_Visibility_Attribute(*this, EVisibility::visible)
 		, m_enabled_state_attribute(*this, true)
 		, m_render_transform_pivot_attribute(*this, glm::vec2(0.0f))
@@ -248,6 +250,11 @@ namespace DoDo {
 	void SWidget::slate_prepass(float in_layout_scale_multiplier)
 	{
 		//todo:update all attributes meta data
+		//todo:add check
+		//if(Has_Registered_Slate_Attribute())//todo:add global invalidation check
+		{
+			FSlateAttributeMetaData::update_all_attributes(*this, FSlateAttributeMetaData::EInvalidationPermission::Allow_Invalidation_If_Constructed);
+		}
 
 		prepass_internal(in_layout_scale_multiplier);
 	}
@@ -297,10 +304,23 @@ namespace DoDo {
 		my_children->for_each_widget([this, &child_index, in_layout_scale_multiplier](SWidget& child)
 		{
 			//todo:update attributes
+			const bool b_update_attributes = child.Has_Registered_Slate_Attribute();//todo:add more check
+			if(b_update_attributes)
+			{
+				FSlateAttributeMetaData::update_only_visibility_attributes(child, FSlateAttributeMetaData::EInvalidationPermission::Allow_Invalidation_If_Constructed);
+			}
 
-			const float child_layout_scale_multiplier = in_layout_scale_multiplier;
+			if(child.get_visibility() != EVisibility::Collapsed)
+			{
+				if(b_update_attributes)
+				{
+					FSlateAttributeMetaData::update_except_visibility_attributes(child, FSlateAttributeMetaData::EInvalidationPermission::Allow_Invalidation_If_Constructed);
+				}
 
-			child.prepass_internal(child_layout_scale_multiplier);
+				const float child_layout_scale_multiplier = in_layout_scale_multiplier;
+
+				child.prepass_internal(child_layout_scale_multiplier);
+			}
 
 			++child_index;
 		});
