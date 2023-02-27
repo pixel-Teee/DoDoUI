@@ -68,6 +68,50 @@ namespace DoDo
 		//todo:implement unlink colors function
 	};
 
+	/*represents the appearance of an SSlider*/
+	struct FSliderStyle : public FSlateWidgetStyle
+	{
+		FSliderStyle();
+
+		virtual ~FSliderStyle() {}
+
+		virtual void get_resources(std::vector<const FSlateBrush*>& out_brushes) const override;
+
+		static const DoDoUtf8String TypeName;
+		virtual const DoDoUtf8String get_type_name() const override { return TypeName; }
+
+		static const FSliderStyle& get_default();
+
+		/*image to use when the slider bar is in its normal state*/
+		FSlateBrush m_normal_bar_image;
+		FSliderStyle& set_normal_bar_image(const FSlateBrush& in_normal_bar_image) { m_normal_bar_image = in_normal_bar_image; return *this; }
+
+		/*image to use when the slider bar is in its hovered state*/
+		FSlateBrush m_hovered_bar_image;
+		FSliderStyle& set_hovered_bar_image(const FSlateBrush& in_hovered_bar_image) { m_hovered_bar_image = in_hovered_bar_image; return *this; }
+
+		/*image to use when the slier bar is in its disabled state*/
+		FSlateBrush m_disabled_bar_image;
+		FSliderStyle& set_disabled_bar_image(const FSlateBrush& in_disabled_bar_image) { m_disabled_bar_image = in_disabled_bar_image; return *this; }
+
+		/*image to use when the slider thumb is in its normal state*/
+		FSlateBrush m_normal_thumb_image;
+		FSliderStyle& set_normal_thumb_image(const FSlateBrush& in_normal_thumb_image) { m_normal_thumb_image = in_normal_thumb_image; return *this; }
+
+		/*image to use when the slider thumb is in its hovered state*/
+		FSlateBrush m_hovered_thumb_image;
+		FSliderStyle& set_hovered_thumb_image(const FSlateBrush& in_hovered_thumb_image) { m_hovered_thumb_image = in_hovered_thumb_image; return *this; }
+
+		/*image to use when the slider thumb is in its disabled state*/
+		FSlateBrush m_disabled_thumb_image;
+		FSliderStyle& set_disabled_thumb_image(const FSlateBrush& in_disabled_thumb_image) { m_disabled_thumb_image = in_disabled_thumb_image; return *this; }
+
+		float m_bar_thick_ness;
+		FSliderStyle& set_bar_thickness(float in_bar_thickness) { m_bar_thick_ness = in_bar_thickness; return *this; }
+
+		//todo:implement FSlateColor UnlinkColors
+	};
+
 	/*
 	 * represents the appearance of an SSplitter
 	 */

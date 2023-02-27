@@ -202,8 +202,8 @@ namespace DoDo {
 			++temp_count;
 		}
 		
-		//record '\0'
-		return total_length + 1;
+		//don't record '\0' length
+		return total_length;
 	}
 
 	int32_t DoDoUtf8String::calculate_lengths(char* m_buffer, std::vector<uint32_t>& out_character_byte_counts)
@@ -245,7 +245,7 @@ namespace DoDo {
 			++temp_count;
 		}
 
-		//record '\0'
+		//don't record '\0' length
 		return total_length + 1;
 	}
 

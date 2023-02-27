@@ -75,6 +75,30 @@ namespace DoDo
 
 	const DoDoUtf8String FTextBlockStyle::TypeName("FTextBlockStyle");
 
+	FSliderStyle::FSliderStyle()
+		: m_bar_thick_ness(2.0f)
+	{
+
+	}
+
+	void FSliderStyle::get_resources(std::vector<const FSlateBrush*>& out_brushes) const
+	{
+		out_brushes.push_back(&m_normal_bar_image);
+		out_brushes.push_back(&m_hovered_bar_image);
+		out_brushes.push_back(&m_disabled_bar_image);
+		out_brushes.push_back(&m_disabled_thumb_image);
+		out_brushes.push_back(&m_hovered_thumb_image);
+		out_brushes.push_back(&m_disabled_thumb_image);
+	}
+
+	const DoDoUtf8String FSliderStyle::TypeName("FSliderStyle");
+
+	const FSliderStyle& FSliderStyle::get_default()
+	{
+		static FSliderStyle Default;
+		return Default;
+	}
+
 	//const FSplitterStyle& FSplitterStyle::get_default()
 	//{
 	//	static FSplitterStyle default;

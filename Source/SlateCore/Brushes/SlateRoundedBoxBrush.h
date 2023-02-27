@@ -6,6 +6,19 @@ namespace DoDo {
 	struct FSlateRoundedBoxBrush
 		: public FSlateBrush
 	{
+		template<typename FillColorType>
+		FSlateRoundedBoxBrush(const FillColorType& in_color, const glm::vec2& in_image_size = glm::vec2(0.0f))
+			: FSlateBrush(ESlateBrushDrawType::RoundedBox,
+						"",
+						FMargin(0.0f),
+						ESlateBrushTileType::NoTile,
+						ESlateBrushImageType::NoImage,
+						in_image_size,
+						in_color,
+						nullptr,
+						false)
+		{}
+
 		/*
 		* creates and initializes a new instance with the specified color and rounds based on height
 		* 
