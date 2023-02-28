@@ -8,6 +8,12 @@
 
 #include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"
 
+#include "SlateCore/Styling/SlateTypes.h"//FSliderStyle depends on it
+
+#include "SlateCore/Styling/CoreStyle.h"//FCoreStyle depends on it
+
+#include "SlateCore/Styling/ISlateStyle.h"//ISlateStyle depends on it
+
 namespace DoDo {
 	/*
 	* a slate slider control is a linear scale and draggable handle
@@ -23,6 +29,7 @@ namespace DoDo {
 			, _Orientation(EOrientation::Orient_Horizontal)
 			, _SliderBarColor(glm::vec4(1.0f))
 			, _SliderHandleColor(glm::vec4(1.0f))
+			, _Style(&FCoreStyle::get().get_widget_style<FSliderStyle>("Slider"))
 			, _StepSize(0.01f)
 			, _Value(1.0f)
 			, _MinValue(0.0f)
@@ -31,7 +38,7 @@ namespace DoDo {
 			{}
 
 			/*whether the slidable area should be indented to fit the handle*/
-			SLATE_ATTRIBUTE(bool, IndentHandle)
+		SLATE_ATTRIBUTE(bool, IndentHandle)
 
 			/*sets new value if mouse position is greater/less than half the step size*/
 			SLATE_ARGUMENT(bool, MouseUsesStep)
@@ -52,6 +59,7 @@ namespace DoDo {
 			SLATE_ATTRIBUTE(glm::vec4, SliderHandleColor)
 
 			/*the style used to draw the slider*/
+			SLATE_STYLE_ARGUMENT(FSliderStyle, Style)
 
 			/*the input mode while using the controller*/
 			SLATE_ATTRIBUTE(float, StepSize)
@@ -90,8 +98,19 @@ namespace DoDo {
 
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry,
 			const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
+
+		virtual glm::vec2 Compute_Desired_Size(float) const;
+
+	protected:
+
+		const FSlateBrush* get_bar_image() const;
+
+		const FSlateBrush* get_thumb_image() const;
+		
 	protected:
 		//todo:implement FSliderStyle
+		//holds the style passed to the widget upon construction
+		const FSliderStyle* m_style;
 
 		//holds a flag indicating whether the slideable area should be indeted to fit the handle
 		TAttribute<bool> m_indent_handle;

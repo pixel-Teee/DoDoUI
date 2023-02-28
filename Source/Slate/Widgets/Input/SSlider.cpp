@@ -4,6 +4,8 @@
 
 #include "SlateCore/Rendering/RenderingCommon.h"//ESlateDrawEffect
 
+#include "SlateCore/Rendering/DrawElements.h"
+
 namespace DoDo {
 	SSlider::SSlider()
 	{
@@ -11,6 +13,8 @@ namespace DoDo {
 	}
 	void SSlider::Construct(const SSlider::FArguments& in_declaration)
 	{
+		m_style = in_declaration._Style;
+
 		m_indent_handle = in_declaration._IndentHandle;
 		m_b_mouse_uses_step = in_declaration._MouseUsesStep;
 		m_b_required_controller_lock = in_declaration._RequiresControllerLock;
@@ -55,7 +59,7 @@ namespace DoDo {
 		glm::vec2 slider_end_point;
 
 		//calculate slider geometry as if it's a horizontal slider (we'll rotate it later if it's vertical)
-		const glm::vec2 handle_size = glm::vec2(20.0f, 20.0f);//todo:implement get thumb image size
+		const glm::vec2 handle_size = get_thumb_image()->m_image_size;//todo:implement get thumb image size
 		const glm::vec2 half_handle_size = 0.5f * handle_size;
 		const float indentation = m_indent_handle.Get() ? handle_size.x : 0.0f;
 
@@ -84,10 +88,77 @@ namespace DoDo {
 		const ESlateDrawEffect draw_effects = b_enabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect;
 
 		//draw slider bar
+		auto bar_top_left = glm::vec2(slider_start_point.x, slider_start_point.y - m_style->m_bar_thick_ness * 0.5f);
+		auto bar_size = glm::vec2(slider_end_point.x - slider_start_point.x, m_style->m_bar_thick_ness);
 
+		auto bar_image = get_bar_image();
+		auto thumb_image = get_thumb_image();
+		FSlateDrawElement::MakeBox(out_draw_elements,
+			layer_id,
+			slider_geometry.to_paint_geometry(bar_top_left, bar_size),
+			bar_image,
+			draw_effects,
+			bar_image->get_tint() * m_slider_bar_color.Get());//todo:fix me color
 
+		++layer_id;
+
+		//draw slider thumb
+		FSlateDrawElement::MakeBox(out_draw_elements,
+			layer_id,
+			slider_geometry.to_paint_geometry(handle_top_left_point, get_thumb_image()->m_image_size),
+			thumb_image,
+			draw_effects,
+			thumb_image->get_tint() * m_slider_handle_color.Get());//todo:fix me color
 
 		//todo:draw
 		return layer_id;
+	}
+	glm::vec2 SSlider::Compute_Desired_Size(float) const
+	{
+		static const glm::vec2 sslider_desired_size(16.0f, 16.0f);
+
+		if (m_style == nullptr)
+		{
+			return sslider_desired_size;
+		}
+
+		const float thick_ness = std::max(m_style->m_bar_thick_ness, std::max(m_style->m_normal_thumb_image.m_image_size.y, m_style->m_hovered_thumb_image.m_image_size.y));
+
+		if (m_orientation == Orient_Vertical)
+		{
+			return glm::vec2(thick_ness, sslider_desired_size.y);
+		}
+
+		return glm::vec2(sslider_desired_size.x, thick_ness);
+	}
+	const FSlateBrush* SSlider::get_bar_image() const
+	{
+		if (!Is_Enabled() || m_locked_attribute.Get())
+		{
+			return &m_style->m_disabled_bar_image;
+		}
+		else if (is_hovered())
+		{
+			return &m_style->m_hovered_bar_image;
+		}
+		else
+		{
+			return &m_style->m_normal_bar_image;
+		}
+	}
+	const FSlateBrush* SSlider::get_thumb_image() const
+	{
+		if (!Is_Enabled() || m_locked_attribute.Get())
+		{
+			return &m_style->m_disabled_thumb_image;
+		}
+		else if (is_hovered())
+		{
+			return &m_style->m_hovered_thumb_image;
+		}
+		else
+		{
+			return &m_style->m_normal_thumb_image;
+		}
 	}
 }

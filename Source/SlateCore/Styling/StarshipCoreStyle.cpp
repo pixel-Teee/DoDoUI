@@ -115,7 +115,7 @@ namespace DoDo {
 				.set_hovered_bar_image(FSlateRoundedBoxBrush(glm::vec4(1.0f), 2.0f, glm::vec4(1.0f), 1.0f))
 				.set_normal_thumb_image(FSlateRoundedBoxBrush(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f), glm::vec2(8.0f, 8.0f)))
 				.set_hovered_thumb_image(FSlateRoundedBoxBrush(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f), glm::vec2(8.0f, 8.0f)))
-				.set_bar_thickness(4.0f);
+				.set_bar_thickness(20.0f);
 
 			style->set("Slider", slider_style);
 		}
