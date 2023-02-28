@@ -188,6 +188,11 @@ namespace DoDo
             //todo:handle process_reply
         }
 
+        static void process_reply(Application* application, const FWidgetPath& routing_path, const FReply& reply, const FWidgetPath* widgets_under_cursor, const FPointerEvent* pointer_event)
+        {
+            application->process_reply(routing_path, reply, widgets_under_cursor, pointer_event, pointer_event->get_user_index());
+        }
+
         template<typename EventType>
         struct Translate
         {
@@ -1152,6 +1157,11 @@ namespace DoDo
     DoDoUtf8String Application::calculate_frame_per_second() const
     {
         return DoDoUtf8String(std::string("FPS:") + std::to_string(m_last_frame_count));
+    }
+
+    void Application::process_reply(const FWidgetPath& current_event_path, const FReply& the_reply, const FWidgetPath* widgets_under_mouse, const FPointerEvent* in_mouse_event, const int32_t m_user_index)
+    {
+
     }
 
     void Application::set_cursor_pos(const glm::vec2 mouse_coordinate)

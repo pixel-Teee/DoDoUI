@@ -101,6 +101,10 @@ namespace DoDo {
 
 		virtual glm::vec2 Compute_Desired_Size(float) const;
 
+		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+		virtual FReply On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+
 	protected:
 
 		const FSlateBrush* get_bar_image() const;

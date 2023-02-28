@@ -6,6 +6,8 @@
 
 #include "SlateCore/Rendering/DrawElements.h"
 
+#include "Slate/Widgets/Input/Reply.h"//FReply depends on it
+
 namespace DoDo {
 	SSlider::SSlider()
 	{
@@ -130,6 +132,18 @@ namespace DoDo {
 		}
 
 		return glm::vec2(sslider_desired_size.x, thick_ness);
+	}
+	FReply SSlider::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		return FReply::un_handled();
+	}
+	FReply SSlider::On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		return FReply::un_handled();
+	}
+	FReply SSlider::On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		return FReply::un_handled();
 	}
 	const FSlateBrush* SSlider::get_bar_image() const
 	{
