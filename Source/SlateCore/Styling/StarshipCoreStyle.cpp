@@ -138,6 +138,17 @@ namespace DoDo {
 		{
 			//chrome icon or not (we are testing this)
 			style->set("Icons.ArrowLeft", new FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/arrow-left", ".svg"), Icon16x16));
+			style->set("Icons.C++", new FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/CPP", ".svg"), Icon100x100));
+		}
+
+		//heart
+		{
+			style->set("Icons.heart2", new FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/heart2", ".svg"), Icon100x100));
+		}
+
+		//solar-system
+		{
+			style->set("Icons.solar-system", new FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/solar-system", ".svg"), Icon100x100));
 		}
 
 		set_up_button_styles(style);

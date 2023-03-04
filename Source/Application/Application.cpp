@@ -384,11 +384,35 @@ namespace DoDo
 					//]
 					+ SConstraintCanvas::Slot()
 					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
-					.Offset(FMargin(-400.0f, -200.0f, 100.0f, 100.0f))
+					.Offset(FMargin(-400.0f, -200.0f, 16.0f, 16.0f))
 					.Alignment(glm::vec2(1.0f, 1.0f))
 					[
 						SNew(SImage)
 						.Image(FAppStyle::get().get_brush("Icons.ArrowLeft"))
+					]
+		            + SConstraintCanvas::Slot()
+		        	.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+		        	.Offset(FMargin(-600.0f, -400.0f, 100.0f, 100.0f))
+		        	.Alignment(glm::vec2(1.0f, 1.0f))
+                    [
+						SNew(SImage)
+						.Image(FAppStyle::get().get_brush("Icons.C++"))
+                    ]
+					+ SConstraintCanvas::Slot()
+					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+					.Offset(FMargin(-400.0f, -400.0f, 100.0f, 100.0f))
+					.Alignment(glm::vec2(1.0f, 1.0f))
+					[
+						SNew(SImage)
+						.Image(FAppStyle::get().get_brush("Icons.heart2"))
+					]
+					+ SConstraintCanvas::Slot()
+					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+					.Offset(FMargin(-300.0f, -400.0f, 100.0f, 100.0f))
+					.Alignment(glm::vec2(1.0f, 1.0f))
+					[
+						SNew(SImage)
+						.Image(FAppStyle::get().get_brush("Icons.solar-system"))
 					]
                 ]
             ];
