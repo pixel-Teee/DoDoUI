@@ -78,4 +78,19 @@ namespace DoDo {
 		/*texture used for rendering*/
 		FSlateVulkanTexture* m_font_texture;
 	};
+
+	class FSlateTextureAtlasVulkan : public FSlateTextureAtlas
+	{
+	public:
+		FSlateTextureAtlasVulkan(uint32_t width, uint32_t height, uint32_t stride_bytes, ESlateTextureAtlasPaddingStyle padding_style);
+		~FSlateTextureAtlasVulkan();
+
+		virtual void conditional_update_texture() override;
+		
+		FSlateVulkanTexture* get_atlas_texture() const { return m_atlas_texture; }
+	private:
+		void init_atlas_texture();
+	private:
+		FSlateVulkanTexture* m_atlas_texture;
+	};
 }

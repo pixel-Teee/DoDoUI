@@ -277,4 +277,31 @@ namespace DoDo {
 			m_b_needs_update = false;
 		}
 	}
+	FSlateTextureAtlasVulkan::FSlateTextureAtlasVulkan(uint32_t width, uint32_t height, uint32_t stride_bytes, ESlateTextureAtlasPaddingStyle padding_style)
+		: FSlateTextureAtlas(width, height, stride_bytes)
+		, m_atlas_texture(nullptr)
+	{
+		init_atlas_texture();
+	}
+	FSlateTextureAtlasVulkan::~FSlateTextureAtlasVulkan()
+	{
+		if (m_atlas_texture)
+		{
+			delete m_atlas_texture;
+		}
+	}
+	void FSlateTextureAtlasVulkan::conditional_update_texture()
+	{
+		if (m_b_needs_update)
+		{
+			m_atlas_texture->update_texture(m_atlas_data);
+			m_b_needs_update = false;
+		}
+	}
+	void FSlateTextureAtlasVulkan::init_atlas_texture()
+	{
+		m_atlas_texture = new FSlateVulkanTexture(m_atlas_width, m_atlas_height);
+
+		m_atlas_texture->init(VK_FORMAT_R8G8B8A8_UNORM, nullptr, true);
+	}
 }

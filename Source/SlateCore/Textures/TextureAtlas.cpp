@@ -278,4 +278,13 @@ namespace DoDo
 			}
 		}
 	}
+	FSlateFlushableAtlasCache::FSlateFlushableAtlasCache(const FAtlasFlushParams* in_flush_params)
+		: m_flush_params(in_flush_params)
+	{
+		//note:what is life time of FAtlasFlushParams?
+
+		m_current_max_gray_scale_atlas_pages_before_flush_request = m_flush_params->m_initial_max_atlas_pages_before_flush_request;
+		m_current_max_color_atlas_pages_before_flush_request = m_flush_params->m_initial_max_atlas_pages_before_flush_request;
+		m_current_max_non_atlased_textures_before_flush_request = m_flush_params->m_initial_max_non_atlas_pages_before_flush_request;
+	}
 }

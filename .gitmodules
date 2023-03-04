@@ -10,3 +10,6 @@
 [submodule "ThirdParty/FreeType"]
 	path = ThirdParty/FreeType
 	url = https://github.com/pixel-Teee/freetype.git
+[submodule "ThirdParty/nanosvg"]
+	path = ThirdParty/nanosvg
+	url = https://github.com/pixel-Teee/nanosvg.git

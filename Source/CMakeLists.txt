@@ -34,6 +34,7 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "../ThirdParty/glm/glm/*.cpp"
 "../ThirdParty/stbimage/*.h"
 "../ThirdParty/stbimage/*.cpp"
+"../ThirdParty/nanosvg/src/*.h"
 )
 
 file(GLOB_RECURSE Renderer_Source
@@ -96,7 +97,7 @@ else()
 	target_include_directories(DoDoUI PRIVATE "." ${ANDROID_NDK}/sources/android/native_app_glue "../ThirdParty/glm")
 endif()
 
-target_include_directories(DoDoUI PRIVATE ../ThirdParty/vma ../ThirdParty/stbimage)
+target_include_directories(DoDoUI PRIVATE ../ThirdParty/vma ../ThirdParty/stbimage "../ThirdParty/nanosvg")
 
 # pch
 target_precompile_headers(DoDoUI PRIVATE "PreCompileHeader.h")

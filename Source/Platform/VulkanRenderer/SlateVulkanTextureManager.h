@@ -8,11 +8,41 @@
 
 #include "SlateVulkanTextures.h"//m_non_atlased_textures depends on it
 
+#include "SlateCore/Rendering/SlateVectorGraphicsCache.h"//FSlateVectorGraphicsCache depends on it
+
 namespace DoDo {
 
 	class ISlateStyle;
 	struct FSlateBrush;
 	class FSlateShaderResourceProxy;
+	class FSlateVulkanTextureAtlasFactory : public ISlateTextureAtlasFactory
+	{
+	public:
+		virtual std::unique_ptr<FSlateTextureAtlas> create_texture_atlas(int32_t atlas_size, int32_t atlas_stride, ESlateTextureAtlasPaddingStyle padding_style, bool b_updates_after_initialization) const
+		{
+			return create_texture_atlas_internal(atlas_size, atlas_stride, padding_style, b_updates_after_initialization);
+		}
+
+		virtual std::unique_ptr<FSlateShaderResource> create_non_atlased_texture(const uint32_t in_width, const uint32_t in_height, const std::vector<uint8_t>& in_raw_data) const
+		{
+			//keep track of non-atlased textures so we can free their resources later
+			std::unique_ptr<FSlateVulkanTexture> texture = std::make_unique<FSlateVulkanTexture>(in_width, in_height);
+
+			texture->init(VK_FORMAT_R8G8B8A8_SRGB, (void*)in_raw_data.data(), true);
+
+			return texture;
+		}
+
+		virtual void release_texture_atlases(const std::vector<std::unique_ptr<FSlateTextureAtlas>>& in_texture_atlases, const std::vector<std::unique_ptr<FSlateShaderResource>>& in_non_atlased_textures, const bool b_wait_for_release) const
+		{
+			//nothing to do
+		}
+
+		static std::unique_ptr<FSlateTextureAtlas> create_texture_atlas_internal(int32_t atlas_size, int32_t atlas_stride, ESlateTextureAtlasPaddingStyle padding_style, bool b_updates_after_initialization)
+		{
+			return std::make_unique<FSlateTextureAtlasVulkan>(atlas_size, atlas_size, atlas_stride, padding_style);
+		}
+	};
 	/*
 	* stores a mapping of texture names to their loaded vulkan resource
 	* resources are loaded from disk and created on demand when needed
@@ -54,9 +84,20 @@ namespace DoDo {
 
 		void update_cache();
 	private:
+
+		/*
+		* gets a vector graphics resource (may generate it internally)
+		* 
+		* @param InBrush the brush to with texture to get
+		* @param LocalSize the unscaled local size of the final image
+		* @param DrawScale any scaling applied to the final image
+		*/
+		FSlateShaderResourceProxy* get_vector_resource(const FSlateBrush& brush, glm::vec2 local_size, float draw_scale);
 		
 		/*static non atlased textures*/
 		std::vector<std::unique_ptr<FSlateVulkanTexture>> m_non_atlased_textures;
 
+		/*cache for vector graphic atlases*/
+		std::unique_ptr<FSlateVectorGraphicsCache> m_vector_graphics_cache;
 	};
 }

@@ -50,6 +50,8 @@
 
 #include "Slate/Widgets/Input/SSlider.h"//SSlider depends on it
 
+#include "SlateCore/Widgets/Images/SImage.h"//SImage depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -322,64 +324,72 @@ namespace DoDo
 				.Padding(100.0f)
 				[
                     SNew(SConstraintCanvas)
+					//+ SConstraintCanvas::Slot()
+					//.Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
+					//.Offset(FMargin(0.0f, 0.0f, 147.0f, 253.0f))//position and size
+					//.Alignment(glm::vec2(0.5f, 0.5f))
+					//.AutoSize(false)
+					//[
+					//    SNew(SBorder)
+					//    .BorderBackgroundColor(glm::vec4(0.3f, 0.7f, 0.8f, 1.0f))
+					//	.OnMouseMove_Static(test_bind)
+					//    //.BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+					//]
+					//+ SConstraintCanvas::Slot()
+					//.Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
+					//.Offset(FMargin(0.0f, 0.0f, 280.0f, 480.0f))//position and size
+					//.Alignment(glm::vec2(0.5f, 0.5f))//control where to place the anchor
+					//.AutoSize(false)
+					//[
+					//	SNew(SBorder)
+					//	.BorderBackgroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))
+					//    .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+					//    .OnMouseMove_Static(test_bind)
+					//]
+					//+ SConstraintCanvas::Slot()
+					//.Anchors(FAnchors(0.3f, 0.3f, 0.3f, 0.3f))//middle
+					//.Offset(FMargin(0.0f, 0.0f, 480.0f, 280.0f))//position and size
+					//.Alignment(glm::vec2(0.5f, 0.5f))//control where to place the anchor
+					//.AutoSize(false)
+					//[
+					//	SNew(SComplexGradient)
+					//	.GradientColors(colors2)
+					//]
+					//+ SConstraintCanvas::Slot()
+					//.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+					//.Offset(FMargin(-50.0f, -100.0f, 240.0f, 100.0f))
+					//.Alignment(glm::vec2(1.0f, 1.0f))
+					//[
+					//     SNew(SButton)
+					//    .ButtonColorAndOpacity(glm::vec4(0.7f, 0.3f, 0.9f, 1.0f))
+					//    .Text(s_current_application, &Application::calculate_frame_per_second)
+					//    //.OnPressed(border2, &SBorder::set_color)
+					//]
+					//+ SConstraintCanvas::Slot()
+					//.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+					//.Offset(FMargin(-200.0f, -200.0f, 700.0f, 700.0f))
+					//.Alignment(glm::vec2(1.0f, 1.0f))
+					//[
+					//    SNew(SComplexGradient)
+					//    .GradientColors(colors)
+					//	//.OnPressed(border2, &SBorder::set_color)
+					//]
+					//+ SConstraintCanvas::Slot()
+					//.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+					//.Offset(FMargin(-300.0f, -100.0f, 100.0f, 100.0f))
+					//.Alignment(glm::vec2(1.0f, 1.0f))
+					//[
+					//	SNew(SBorder)
+					//	.BorderBackgroundColor(glm::vec4(0.4f, 0.7f, 0.8f, 1.0f))
+					//]
 					+ SConstraintCanvas::Slot()
-			        .Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
-			        .Offset(FMargin(0.0f, 0.0f, 147.0f, 253.0f))//position and size
-			        .Alignment(glm::vec2(0.5f, 0.5f))
-			        .AutoSize(false)
-                    [
-                        SNew(SBorder)
-                        .BorderBackgroundColor(glm::vec4(0.3f, 0.7f, 0.8f, 1.0f))
-						.OnMouseMove_Static(test_bind)
-                        //.BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-                    ]
-		            + SConstraintCanvas::Slot()
-			        .Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
-			        .Offset(FMargin(0.0f, 0.0f, 280.0f, 480.0f))//position and size
-			        .Alignment(glm::vec2(0.5f, 0.5f))//control where to place the anchor
-			        .AutoSize(false)
-			        [
-			        	SNew(SBorder)
-			        	.BorderBackgroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))
-                        .BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-                        .OnMouseMove_Static(test_bind)
-			        ]
-					+ SConstraintCanvas::Slot()
-					.Anchors(FAnchors(0.3f, 0.3f, 0.3f, 0.3f))//middle
-					.Offset(FMargin(0.0f, 0.0f, 480.0f, 280.0f))//position and size
-					.Alignment(glm::vec2(0.5f, 0.5f))//control where to place the anchor
-					.AutoSize(false)
-					[
-						SNew(SComplexGradient)
-						.GradientColors(colors2)
-					]
-                    + SConstraintCanvas::Slot()
 					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
-                    .Offset(FMargin(-50.0f, -100.0f, 240.0f, 100.0f))
-                    .Alignment(glm::vec2(1.0f, 1.0f))
-                    [
-                         SNew(SButton)
-                        .ButtonColorAndOpacity(glm::vec4(0.7f, 0.3f, 0.9f, 1.0f))
-                        .Text(s_current_application, &Application::calculate_frame_per_second)
-                        //.OnPressed(border2, &SBorder::set_color)
-                    ]
-                    + SConstraintCanvas::Slot()
-                    .Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
-                    .Offset(FMargin(-200.0f, -200.0f, 700.0f, 700.0f))
-                    .Alignment(glm::vec2(1.0f, 1.0f))
-                    [
-                        SNew(SComplexGradient)
-                        .GradientColors(colors)
-						//.OnPressed(border2, &SBorder::set_color)
-                    ]
-                    + SConstraintCanvas::Slot()
-                    .Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
-                    .Offset(FMargin(-300.0f, -100.0f, 100.0f, 100.0f))
-                    .Alignment(glm::vec2(1.0f, 1.0f))
-                    [
-						SNew(SBorder)
-						.BorderBackgroundColor(glm::vec4(0.4f, 0.7f, 0.8f, 1.0f))
-                    ]
+					.Offset(FMargin(-400.0f, -200.0f, 100.0f, 100.0f))
+					.Alignment(glm::vec2(1.0f, 1.0f))
+					[
+						SNew(SImage)
+						.Image(FAppStyle::get().get_brush("Icons.ArrowLeft"))
+					]
                 ]
             ];
 

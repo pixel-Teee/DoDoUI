@@ -27,7 +27,7 @@ namespace DoDo {
 	FSlateVulkanTextureManager::FSlateVulkanTextureManager()
 	{
 		//std::vector<const FSlateBrush*> resources;
-
+		m_vector_graphics_cache = std::make_unique<FSlateVectorGraphicsCache>(std::make_shared<FSlateVulkanTextureAtlasFactory>());
 	
 		//todo:create 
 	}
@@ -170,13 +170,13 @@ namespace DoDo {
 
 		return false;
 	}
-	FSlateShaderResourceProxy* FSlateVulkanTextureManager::get_shader_resource(const FSlateBrush& in_brush, glm::vec2 local_size, float draw_scale)
+	FSlateShaderResourceProxy* FSlateVulkanTextureManager::get_shader_resource(const FSlateBrush& in_brush, glm::vec2 local_size, float draw_scale)//note:this function will be called by set brush
 	{
 		FSlateShaderResourceProxy* texture = nullptr;
 
 		if (in_brush.get_image_type() == ESlateBrushImageType::Vector)
 		{
-			//todo:
+			texture = get_vector_resource(in_brush, local_size, draw_scale);
 		}
 		else//todo:implement dynamic resource
 		{
@@ -351,7 +351,12 @@ namespace DoDo {
 
 	void FSlateVulkanTextureManager::update_cache()
 	{
+		m_vector_graphics_cache->update_cache();
+	}
 
+	FSlateShaderResourceProxy* FSlateVulkanTextureManager::get_vector_resource(const FSlateBrush& brush, glm::vec2 local_size, float draw_scale)
+	{
+		return m_vector_graphics_cache->get_shader_resource(brush, local_size, draw_scale);
 	}
 
 }

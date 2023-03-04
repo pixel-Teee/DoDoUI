@@ -101,6 +101,7 @@ namespace DoDo
 	class ISlateFontTexture
 	{
 	public:
+
 		virtual ~ISlateFontTexture() {}
 
 		/*
@@ -120,12 +121,14 @@ namespace DoDo
 	class FSlateFontAtlas : public ISlateFontTexture, public FSlateTextureAtlas
 	{
 	public:
+
 		FSlateFontAtlas(uint32_t in_width, uint32_t in_height, const bool in_is_gray_scale);
 
 		virtual ~FSlateFontAtlas();
 
 		//------ISlateFontTexture interface------
 		virtual bool is_gray_scale() const override final;
+		virtual FSlateShaderResource* get_atlas_texture() const override { return get_slate_texture(); }
 		//------ISlateFontTexture interface------
 
 		/*

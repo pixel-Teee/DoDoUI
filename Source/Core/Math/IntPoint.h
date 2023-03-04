@@ -2,6 +2,8 @@
 
 #include "Core/String/DoDoString.h"
 
+#include "Core/Templates/TypeHash.h"
+
 #include <cmath>
 
 namespace DoDo
@@ -490,6 +492,11 @@ namespace DoDo
 	inline int32_t FIntPoint::Num()
 	{
 		return 2;
+	}
+
+	inline uint32_t Get_Type_Hash(const FIntPoint& in_point)
+	{
+		return Hash_Combine(Get_Type_Hash(in_point.x), Get_Type_Hash(in_point.y));
 	}
 	/*------FIntPoint inline functions------*/
 }

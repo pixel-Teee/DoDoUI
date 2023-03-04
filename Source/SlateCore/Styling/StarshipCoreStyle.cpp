@@ -134,6 +134,12 @@ namespace DoDo {
 			);
 		}
 
+		//common icons
+		{
+			//chrome icon or not (we are testing this)
+			style->set("Icons.ArrowLeft", new FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/arrow-left", ".svg"), Icon16x16));
+		}
+
 		set_up_button_styles(style);
 		set_up_docking_styles(style);
 

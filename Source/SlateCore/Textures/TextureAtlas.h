@@ -59,6 +59,7 @@ namespace DoDo
 	class FSlateTextureAtlas
 	{
 	public:
+
 		FSlateTextureAtlas(uint32_t in_width, uint32_t in_height, uint32_t in_bytes_per_pixel)
 			: m_atlas_data()
 			, m_atlas_used_slots(nullptr)
@@ -91,6 +92,12 @@ namespace DoDo
 		 * @param Data Raw texture data
 		 */
 		const FAtlasedTextureSlot* add_texture(uint32_t texture_width, uint32_t texture_height, const std::vector<uint8_t>& data);
+
+		/*@return the width of the atlas*/
+		uint32_t get_width() const { return m_atlas_width; }
+
+		/*@return the height of the atlas*/
+		uint32_t get_height() const { return m_atlas_height; }
 
 		/*marks the texture as dirty and needing its rendering resources updated*/
 		void mark_texture_dirty();
@@ -142,6 +149,8 @@ namespace DoDo
 		 */
 		virtual void conditional_update_texture() = 0;
 
+		virtual FSlateShaderResource* get_atlas_texture() const = 0;
+
 		/*
 		* copies texture data into the atlas at a given slot
 		* 
@@ -185,9 +194,42 @@ namespace DoDo
 
 		virtual std::unique_ptr<FSlateTextureAtlas> create_texture_atlas(int32_t atlas_size, int32_t atlas_stride, ESlateTextureAtlasPaddingStyle padding_style, bool b_updates_after_initialization) const = 0;
 
-		virtual std::unique_ptr<FSlateTextureAtlas> create_non_atlased_texture(const uint32_t in_width, const uint32_t in_height, const std::vector<uint8_t>& in_raw_data) const = 0;
+		virtual std::unique_ptr<FSlateShaderResource> create_non_atlased_texture(const uint32_t in_width, const uint32_t in_height, const std::vector<uint8_t>& in_raw_data) const = 0;
 
 		virtual void release_texture_atlases(const std::vector<std::unique_ptr<FSlateTextureAtlas>>& in_texture_atlases, const std::vector<std::unique_ptr<FSlateShaderResource>>& in_non_atlased_textures, const bool b_wait_for_release) const = 0;
+	};
+
+	struct FAtlasFlushParams
+	{
+		int32_t m_initial_max_atlas_pages_before_flush_request = 1;
+		int32_t m_initial_max_non_atlas_pages_before_flush_request = 1;
+		int32_t m_grow_atlas_frame_window = 1;
+		int32_t m_grow_non_atlas_frame_window = 1;
+	};
+
+	/*base class for any atlas cache which has flushing logic to keep the number of in use pages small*/
+	class FSlateFlushableAtlasCache
+	{
+	public:
+		FSlateFlushableAtlasCache(const FAtlasFlushParams* in_flush_params);
+
+		virtual ~FSlateFlushableAtlasCache() {}
+
+	private:
+		/*flush params that dicate when this atlas can flush*/
+		const FAtlasFlushParams* m_flush_params;
+
+		/*number of grayscale atlas pages we can have before we request that the cache be flushed*/
+		int32_t m_current_max_gray_scale_atlas_pages_before_flush_request;
+
+		/*number of color atlas pages we can have before we request that the cache be flushed*/
+		int32_t m_current_max_color_atlas_pages_before_flush_request;
+
+		/*number of non-atlased textures we can have before we request that the cache be flushed*/
+		int32_t m_current_max_non_atlased_textures_before_flush_request;
+
+		/*the frame counter the last time the font cache was asked to be flushed*/
+		uint64_t m_frame_counter_last_flush_request;
 	};
 
 	/*interface to allow the slate atlas visualizer to query atlas page information for an atlas provider*/
