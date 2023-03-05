@@ -29,6 +29,8 @@ namespace DoDo
 
 	struct FPointerEvent;
 
+	class STextBlock;//for test
+
 	class Application : public FGenericApplicationMessageHandler//slate application
 	{
 	public:
@@ -121,6 +123,9 @@ namespace DoDo
 		 * allocates the virtual user
 		 */
 		std::shared_ptr<FSlateUser> register_new_user(int32_t user_index);
+
+		/*transforms a pointer event to account for non-standard viewport resolutions*/
+		FPointerEvent transform_pointer_event(const FPointerEvent& pointer_event, const std::shared_ptr<SWindow>& window) const;
 
 		/*advances time for the application*/
 		void tick_time();
@@ -280,6 +285,13 @@ namespace DoDo
 		 */
 		bool route_pointer_move_event(const FWidgetPath& widgets_under_pointer, const FPointerEvent& pointer_event, bool b_is_synthetic);
 
+		/*
+		* gets whether or not a particular widget has mouse capture by a user
+		* 
+		* @return true if the widget has mouse capture, otherwise false
+		*/
+		virtual bool does_widget_have_mouse_capture_by_user(const std::shared_ptr<const SWidget> widget, int32_t user_index, std::optional<int32_t> pointer_index) const;
+
 	protected:
 		//holds the slate renderer used to render this application
 		std::shared_ptr<Renderer> m_renderer;
@@ -332,6 +344,10 @@ namespace DoDo
 		int64_t m_last_frame_count = 0;
 
 		double m_last_time = 0.0f;
+
+		void test_slider_value_changed(float new_value);
+
+		std::shared_ptr<STextBlock> m_text_block;
 		//------calculate frame per second------
 	};
 }

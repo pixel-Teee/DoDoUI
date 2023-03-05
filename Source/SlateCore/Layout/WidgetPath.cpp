@@ -13,6 +13,13 @@ namespace DoDo
 	{
 	}
 
+	FWidgetPath::FWidgetPath(std::shared_ptr<SWindow> in_top_level_window, const FArrangedChildren& in_widget_path)
+		: m_widgets(in_widget_path)
+		, m_top_level_window(in_top_level_window)
+		, m_virtual_pointer_positions()
+	{
+	}
+
 	FWidgetPath::FWidgetPath(std::vector<FWidgetAndPointer>& in_widgets_and_pointers)
 	: m_widgets(FArrangedChildren::hittest2_from_array(in_widgets_and_pointers))
 	, m_top_level_window(in_widgets_and_pointers.size() > 0 ? std::reinterpret_pointer_cast<SWindow>(in_widgets_and_pointers[0].m_widget) : std::shared_ptr<SWindow>(nullptr))
@@ -23,6 +30,36 @@ namespace DoDo
 		{
 			m_virtual_pointer_positions.push_back(widget_and_pointer.get_pointer_position());
 		}
+	}
+
+	FWidgetPath FWidgetPath::get_path_down_to(std::shared_ptr<const SWidget> marker_widget) const
+	{
+		FArrangedChildren clipped_path(EVisibility::visible);
+
+		bool b_copied_marker = false;
+		for (int32_t widget_index = 0; !b_copied_marker && widget_index < m_widgets.num(); ++widget_index)//note:from top to down
+		{
+			clipped_path.add_widget(m_widgets[widget_index]);
+			b_copied_marker = (m_widgets[widget_index].m_widget == marker_widget);
+		}
+
+		if (b_copied_marker)
+		{
+			//we found the marker widget and copied the path down to (and including) it
+			return FWidgetPath(m_top_level_window, clipped_path);
+		}
+		else
+		{
+			//the marker widget was not in the widget path, we failed
+			return FWidgetPath(nullptr, FArrangedChildren(EVisibility::visible));
+		}
+	}
+
+	std::shared_ptr<SWindow> FWidgetPath::get_window() const
+	{
+		std::shared_ptr<SWindow> first_widget_window = std::reinterpret_pointer_cast<SWindow>(m_widgets[0].m_widget);
+
+		return first_widget_window;
 	}
 
 	bool FWidgetPath::is_valid() const

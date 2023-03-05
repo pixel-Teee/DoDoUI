@@ -22,6 +22,8 @@ namespace DoDo
 	public:
 		virtual ~FSlateUser();
 
+		bool has_capture(uint32_t pointer_index) const;
+
 		int32_t get_user_index() const { return m_user_index; }
 
 		glm::vec2 get_cursor_position() const;
@@ -39,6 +41,18 @@ namespace DoDo
 		void set_cursor_position(int32_t pos_x, int32_t pos_y);
 
 		void set_pointer_position(uint32_t pointer_index, int32_t pos_x, int32_t pos_y);
+
+		bool does_widget_have_capture(std::shared_ptr<const SWidget> widget, uint32_t pointer_index) const;
+
+		bool does_widget_have_any_capture(std::shared_ptr<const SWidget> widget) const;
+
+		bool set_cursor_captor(std::shared_ptr<const SWidget> widget, const FWidgetPath& event_path);
+
+		bool set_pointer_captor(uint32_t pointer_index, std::shared_ptr<const SWidget> widget, const FWidgetPath& event_path);
+
+		void release_capture(uint32_t pointer_index);
+
+		FWeakWidgetPath get_last_widgets_under_pointer(uint32_t pointer_index) const;
 
 		static std::shared_ptr<FSlateUser> Create(int32_t in_user_index, std::shared_ptr<ICursor> in_cursor);
 
@@ -64,5 +78,8 @@ namespace DoDo
 		//note:what it is?
 		/*weak paths to widgets that are currently capturing a particular pointer*/
 		std::map<uint32_t, FWeakWidgetPath> m_pointer_captor_paths_by_index;
+
+		/*weak paths to the last widget each pointer was under last time an event was processed*/
+		std::map<uint32_t, FWeakWidgetPath> m_widgets_under_pointer_last_event_by_index;
 	};
 }

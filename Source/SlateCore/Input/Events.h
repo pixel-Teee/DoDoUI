@@ -133,6 +133,7 @@ namespace DoDo
 		: public FInputEvent
 	{
 	public:
+		FPointerEvent() {}
 		/*
 		 * Events are immutable once constructed
 		 */
@@ -189,6 +190,9 @@ namespace DoDo
 		/*returns the position of the cursor in screen space*/
 		const glm::vec2 get_screen_space_position() const { return m_screen_space_position; }
 
+		/*returns the position of the cursor in screen space last time we handled an input event*/
+		const glm::vec2 get_last_screen_space_position() const { return m_last_screen_space_position; }
+
 		template<typename PointerEventType>
 		static PointerEventType make_translated_event(const PointerEventType& in_pointer_event, const FVirtualPointerPosition& virtual_position)
 		{
@@ -198,6 +202,15 @@ namespace DoDo
 
 			return new_event;
 		}
+
+		/*mouse button that caused this event to be raised (possibly FKey::Invalid)*/
+		FKey get_effecting_button() const { return m_effecting_button; }
+
+		/*returns the index of the user that caused the event*/
+		int32_t get_user_index() const { return m_user_index; }
+
+		/*returns the unique identifier of the pointer(e.g., finger index)*/
+		uint32_t get_pointer_index() const { return m_pointer_index; }
 	private:
 		glm::vec2 m_screen_space_position;//screen space position
 		glm::vec2 m_last_screen_space_position;

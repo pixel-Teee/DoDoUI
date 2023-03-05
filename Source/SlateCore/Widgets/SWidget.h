@@ -165,6 +165,13 @@ namespace DoDo
 				InComparePredicate>::TSlateMemberAttribute;
 		};
 
+		/*
+		* checks to see if this widget has mouse capture from the provided user
+		* 
+		* @return true if this widget has captured the mouse
+		*/
+		bool has_mouse_capture_by_user(int32_t user_index, std::optional<int32_t> pointer_index = std::optional<int32_t>()) const;
+
 	public:
 		/* @return whether or not this widget is enabled */
 		inline bool Is_Enabled() const
@@ -324,6 +331,13 @@ namespace DoDo
 		 * @return whether the event was handled along with possible requests for the system to take action
 		 */
 		virtual FReply On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event);
+
+		/*
+		* the system will use this event to notify a widget that the cursor has left it, this event is uses a custom bubble strategy
+		* 
+		* @param mouse event information about the input event
+		*/
+		virtual void On_Mouse_Leave(const FPointerEvent& mouse_event);
 
 		/* is the widget construction completed(did we called and returned from the Construct() function) */
 		bool Is_Constructed() const { return m_b_Is_Declarative_Syntax_Construction_Completed; }

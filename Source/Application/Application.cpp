@@ -312,6 +312,8 @@ namespace DoDo
         std::vector<glm::vec4> colors2 = { {0.55f, 0.77f, 0.98f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f} };
 
         std::vector<glm::vec4> colors3 = { {0.98f, 0.67f, 0.49f, 1.0f}, {0.96f, 0.87f, 0.40f, 1.0f} };
+
+        std::shared_ptr<STextBlock> temp_text_block = nullptr;
         
         SAssignNew(root_window, SWindow)
             .Title("hello")
@@ -355,16 +357,20 @@ namespace DoDo
 					//	SNew(SComplexGradient)
 					//	.GradientColors(colors2)
 					//]
-					//+ SConstraintCanvas::Slot()
-					//.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
-					//.Offset(FMargin(-50.0f, -100.0f, 240.0f, 100.0f))
-					//.Alignment(glm::vec2(1.0f, 1.0f))
-					//[
-					//     SNew(SButton)
-					//    .ButtonColorAndOpacity(glm::vec4(0.7f, 0.3f, 0.9f, 1.0f))
-					//    .Text(s_current_application, &Application::calculate_frame_per_second)
-					//    //.OnPressed(border2, &SBorder::set_color)
-					//]
+					+ SConstraintCanvas::Slot()
+					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+					.Offset(FMargin(-50.0f, -100.0f, 240.0f, 100.0f))
+					.Alignment(glm::vec2(1.0f, 1.0f))
+					[
+					     SNew(SButton)
+					    .ButtonColorAndOpacity(glm::vec4(0.7f, 0.3f, 0.9f, 1.0f))
+					    .Text(s_current_application, &Application::calculate_frame_per_second)
+                        [
+                            SNew(SImage)
+                            .Image(FAppStyle::get().get_brush("Icons.ArrowLeft"))
+                        ]
+					    //.OnPressed(border2, &SBorder::set_color)
+					]
 					//+ SConstraintCanvas::Slot()
 					//.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
 					//.Offset(FMargin(-200.0f, -200.0f, 700.0f, 700.0f))
@@ -414,8 +420,27 @@ namespace DoDo
 						SNew(SImage)
 						.Image(FAppStyle::get().get_brush("Icons.solar-system"))
 					]
+					+ SConstraintCanvas::Slot()
+					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+					.Offset(FMargin(-400.0f, -300.0f, 100.0f, 100.0f))
+					.Alignment(glm::vec2(1.0f, 1.0f))
+					[
+						SNew(SSlider)
+						.MinValue(0.0f)
+                        .MaxValue(1.0f)
+                        .OnValueChanged(s_current_application, &Application::test_slider_value_changed)
+					]
+					+ SConstraintCanvas::Slot()
+					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+					.Offset(FMargin(-400.0f, -500.0f, 100.0f, 100.0f))
+					.Alignment(glm::vec2(1.0f, 1.0f))
+					[
+						SAssignNew(temp_text_block, STextBlock)
+					]
                 ]
             ];
+
+       s_current_application->m_text_block = temp_text_block;
 
        // button2->set_on_pressed(FSimpleDelegate::CreateSP(border2, &SBorder::set_color));
         
@@ -764,6 +789,18 @@ namespace DoDo
         //broad cast to user register
 
         return new_user;
+    }
+
+    FPointerEvent Application::transform_pointer_event(const FPointerEvent& pointer_event, const std::shared_ptr<SWindow>& window) const
+    {
+        FPointerEvent transformed_pointer_event = pointer_event;
+
+        if (window)
+        {
+            //todo:implement this function
+        }
+
+        return transformed_pointer_event;
     }
 
     void Application::tick_time()
@@ -1188,14 +1225,92 @@ namespace DoDo
         return b_handled;
     }
 
+    bool Application::does_widget_have_mouse_capture_by_user(const std::shared_ptr<const SWidget> widget, int32_t user_index, std::optional<int32_t> pointer_index) const
+    {
+        if (std::shared_ptr<const FSlateUser> found_user = get_user(user_index))
+        {
+            return pointer_index.has_value() ? found_user->does_widget_have_capture(widget, pointer_index.value()) : found_user->does_widget_have_any_capture(widget);
+        }
+
+        return false;
+    }
+
     DoDoUtf8String Application::calculate_frame_per_second() const
     {
         return DoDoUtf8String(std::string("FPS:") + std::to_string(m_last_frame_count));
     }
 
+    void Application::test_slider_value_changed(float new_value)
+    {
+        TAttribute<DoDoUtf8String> text(std::to_string(new_value));
+        m_text_block->set_text(text);
+    }
+
     void Application::process_reply(const FWidgetPath& current_event_path, const FReply& the_reply, const FWidgetPath* widgets_under_mouse, const FPointerEvent* in_mouse_event, const int32_t m_user_index)
     {
+        //release mouse capture if requested or if we are starting a drag and drop
+        //make sure to only clobber widgets under cursor if we actually had a mouse capture
+        uint32_t pointer_index = in_mouse_event != nullptr ? in_mouse_event->get_pointer_index() : m_cursor_pointer_index;//note:pointer index is finger index
 
+        std::shared_ptr<FSlateUser> slate_user = get_or_create_user(m_user_index);
+        if (slate_user->has_capture(pointer_index) && (the_reply.should_release_mouse()))//todo:implement should release mouse
+        {
+            slate_user->release_capture(pointer_index);
+        }
+        //todo:check slate user have capture and release capture
+
+        //todo:clear focus if requested
+
+        //todo:cancel drag and drop
+
+        //todo:add app is active check
+        std::shared_ptr<SWidget> requested_mouse_captor = the_reply.get_mouse_captor();
+        if (requested_mouse_captor)//todo:check starting drag and drop
+        {
+            if (slate_user->set_pointer_captor(pointer_index, requested_mouse_captor, current_event_path))//pointer is finger
+            {
+                if (widgets_under_mouse)
+                {
+                    const FWeakWidgetPath last_widgets_under_cursor = slate_user->get_last_widgets_under_pointer(pointer_index);//note:weak widget path don't have geometry
+
+                    if (last_widgets_under_cursor.is_valid())//note:have at least one widget in path
+                    {
+                        //note:get last widget under cursor and check is same? if doesn't call on mouse leave
+                        for (int32_t widget_index = last_widgets_under_cursor.m_widgets.size() - 1; widget_index >= 0; --widget_index)//note:from last to first traver
+                        {
+                            std::shared_ptr<SWidget> widget_previously_under_cursor = last_widgets_under_cursor.m_widgets[widget_index].lock();
+
+                            if (widget_previously_under_cursor)
+                            {
+                                if (widget_previously_under_cursor != requested_mouse_captor)//check is capture mouse, if not, then notify on mouse level
+                                {
+                                    //it's possible for mouse event to be null if we end up here from a keyboard event, if so, we should synthesize an event
+                                    if (in_mouse_event)
+                                    {
+                                        FPointerEvent transformed_pointer_event = transform_pointer_event(*in_mouse_event, widgets_under_mouse->get_window());
+
+                                        //note that the event's pointer position is not translated
+                                        //todo:implement widget on mouse leave
+                                        widget_previously_under_cursor->On_Mouse_Leave(transformed_pointer_event);
+                                    }
+                                    else
+                                    {
+                                        const FPointerEvent& simulated_pointer = FPointerEvent();
+                                        //todo:implement widget on mouse leave
+                                        widget_previously_under_cursor->On_Mouse_Leave(simulated_pointer);
+                                    }
+                                }
+                                else
+                                {
+                                    //don't routing mouse leave
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void Application::set_cursor_pos(const glm::vec2 mouse_coordinate)
@@ -1241,6 +1356,7 @@ namespace DoDo
 	        //todo:implement last mouse move time
             FPointerEvent mouse_event(
                 get_cursor_user()->get_user_index(),//todo:implement get user index for mouse
+                m_cursor_pointer_index,
                 current_cursor_position,
                 last_cursor_position,
                 m_pressed_mouse_buttons,

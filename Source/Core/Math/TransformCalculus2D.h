@@ -250,6 +250,33 @@ namespace DoDo
 			);
 		};
 
+		float determinant() const
+		{
+			float a, b, c, d;
+			get_matrix(a, b, c, d);
+			return (a * d - b * c);
+		}
+
+		float inverse_determinant() const
+		{
+			float det = determinant();
+			return 1.0f / det;
+		}
+
+		/*
+		* inverse the transform
+		*/
+		FMatrix2x2 inverse() const
+		{
+			float a, b, c, d;
+			get_matrix(a, b, c, d);
+			float inv_det = inverse_determinant();
+			return FMatrix2x2(
+				d * inv_det, -b * inv_det,
+				-c * inv_det, a * inv_det
+			);
+		}
+
 	private:
 		float m_m[2][2];
 	};
@@ -316,6 +343,13 @@ namespace DoDo
 				DoDo::concatenate(m_m, rhs.m_m),//todo:implement
 				DoDo::transform_point(rhs.m_m, m_trans) + rhs.m_trans)//todo:implement
 			;
+		}
+
+		FTransform2D inverse() const
+		{
+			FMatrix2x2 inv_m = DoDo::inverse(m_m);
+			glm::vec2 inv_trans = DoDo::transform_point(inv_m, DoDo::inverse(get_translation()));
+			return FTransform2D(inv_m, inv_trans);
 		}
 
 		/*

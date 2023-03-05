@@ -25,13 +25,35 @@ namespace DoDo
 	public:
 		FWidgetPath();
 
+		FWidgetPath(std::shared_ptr<SWindow> in_top_level_window, const FArrangedChildren& in_widget_path);
+
 		FWidgetPath(std::vector<FWidgetAndPointer>& in_widgets_and_pointers);
 
+		/*
+		* @param MarkerWidget copy the path up to and including this widget
+		* 
+		* @return a copy of the widget path down to and including the MarkerWidget, if the MarkerWidget is not found in the path, return an invalid path
+		*/
+		FWidgetPath get_path_down_to(std::shared_ptr<const SWidget> marker_widget) const;
+			 
 		//FWidgetPath(const FWidgetPath&) = delete;
 
 		//FWidgetPath(FWidgetPath&&) = delete;
 
+		/*
+		* get the first (top-most) widget in this path, which is always a window, assumes path is valid
+		* 
+		* @return window at the top of this path
+		*/
+		std::shared_ptr<SWindow> get_window() const;
+
 		bool is_valid() const;
+
+		/*get the last (leaf-most) widget in this path, assumes path is valid*/
+		std::shared_ptr<SWidget> get_last_widget() const
+		{
+			return m_widgets[m_widgets.num() - 1].m_widget;
+		}
 
 		/*get the virtual representation of the mouse at each level in the widget path*/
 		std::optional<FVirtualPointerPosition> get_virtual_pointer_position(int32_t index) const
@@ -87,6 +109,15 @@ namespace DoDo
 		 */
 		EPathResolutionResult::Result to_widget_path(FWidgetPath& widget_path, EInterruptedPathHandling::Type interrupted_path_handling = EInterruptedPathHandling::Truncate, const FPointerEvent* pointer_event = nullptr,
 			const EVisibility visiblity_filter = EVisibility::visible) const;
+
+		/*get the last (leaf-most) widget in this path, assumes path is valid*/
+		std::weak_ptr<SWidget> get_last_widget() const
+		{
+			return m_widgets.back();
+		}
+
+		/*a valid path has at least one widget in it*/
+		bool is_valid() const { return m_widgets.size() > 0; }
 
 		std::vector<std::weak_ptr<SWidget>> m_widgets;
 

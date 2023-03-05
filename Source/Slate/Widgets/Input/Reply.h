@@ -35,6 +35,23 @@ namespace DoDo {
 		{
 			return FReply(false);
 		}
+	public:
+		/*true if this reply indicated that we should release mouse capture as a result of the evnt being handled*/
+		bool should_release_mouse() const { return m_b_release_mouse_capture; }
+
+		/*if the event replied with a request to capture the mouse, this returns the desired mouse captor, otherwise returns an invalid pointer*/
+		std::shared_ptr<SWidget> get_mouse_captor() const { return m_mouse_captor.lock(); }
+
+		/*
+		* an event should return a FReply::Handled().ReleaseMouse() to ask the system to release mouse capture
+		* note: deactivates high precision mouse movement if activated
+		*/
+		FReply& release_mouse_capture()//todo:complete this function
+		{
+			this->m_mouse_captor.reset();//clear
+			this->m_b_release_mouse_capture = true;
+			return Me();
+		}
 
 	private:
 		/*
@@ -47,5 +64,6 @@ namespace DoDo {
 		}
 
 		std::weak_ptr<SWidget> m_mouse_captor;
+		uint32_t m_b_release_mouse_capture : 1;
 	};
 }

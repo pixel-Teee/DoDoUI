@@ -13,6 +13,8 @@
 #include "SlateCore/Types/SlateAttributeMetaData.h"
 #include "SlateCore/Types/SlateMouseEventsMetaData.h"//FSlateMouseEventsMetaData depends on it
 
+#include "Application/Application.h"
+
 namespace DoDo {
 	//this function will be called at FSlateWidgetClassData construct
 	void SWidget::Private_Register_Attributes(FSlateAttributeInitializer& attribute_initializer)
@@ -113,6 +115,11 @@ namespace DoDo {
 		}
 
 		//todo:implement left part
+	}
+
+	bool SWidget::has_mouse_capture_by_user(int32_t user_index, std::optional<int32_t> pointer_index) const
+	{
+		return Application::get().does_widget_have_mouse_capture_by_user(shared_from_this(), user_index, pointer_index);
 	}
 
 	const FGeometry& SWidget::get_paint_space_geometry() const
@@ -271,6 +278,23 @@ namespace DoDo {
 		}
 
 		return FReply::un_handled();
+	}
+
+	void SWidget::On_Mouse_Leave(const FPointerEvent& mouse_event)
+	{
+		if (!m_b_is_hovered_attribute_set)
+		{
+			m_hovered_attribute.Set(*this, false);
+		}
+
+		if (std::shared_ptr<FSlateMouseEventsMetaData> data = get_meta_data<FSlateMouseEventsMetaData>())
+		{
+			if (data->m_mouse_leave_handler.is_bound())
+			{
+				//a valid handler is assigned, let it handle the event
+				data->m_mouse_leave_handler.execute(mouse_event);
+			}
+		}
 	}
 
 	void SWidget::prepass_internal(float layout_scale_multipler)

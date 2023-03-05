@@ -11,4 +11,8 @@ namespace DoDo
 	//using FPointerEventHandler = Delegate<FReply(const FGeometry&, const FPointerEvent&)>;
 
 	DECLARE_DELEGATE_RetVal_TwoParams(FReply, FPointerEventHandler, const FGeometry&, const FPointerEvent&);
+
+	DECLARE_DELEGATE_OneParam(FSimpleNoReplyPointerEventHandler, 
+	/*the mouse event that we are processing*/
+	const FPointerEvent&)
 }

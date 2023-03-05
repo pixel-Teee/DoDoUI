@@ -323,6 +323,17 @@ namespace DoDo
 			return glm::vec2(m_local_position) + normal_coordinates * get_local_size();
 		}
 
+		/*
+		* absolute coordinates could be either desktop or window space depending on what space the root of the widget hierarchy is in
+		* 
+		* @return transforms absolute coordinate into the local space of this geometry
+		*/
+		glm::vec2 absolute_to_local(glm::vec2 absolute_coordinate) const
+		{
+			//this render transform inverts is a little expensive, we might consider caching it
+			return transform_point(inverse(get_accumulated_render_transform()), absolute_coordinate);
+		}
+
 		bool has_render_transform() const { return m_b_has_render_transform; }
 
 	public:

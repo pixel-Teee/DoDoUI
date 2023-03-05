@@ -15,6 +15,8 @@ namespace DoDo
 			: m_key_name(in_name)
 		{}
 
+		friend bool operator==(const FKey& key_a, const FKey& key_b) { return key_a.m_key_name == key_b.m_key_name; }
+
 	private:
 		DoDoUtf8String m_key_name;
 

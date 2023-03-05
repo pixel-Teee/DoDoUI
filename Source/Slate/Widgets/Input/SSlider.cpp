@@ -31,6 +31,7 @@ namespace DoDo {
 		m_b_is_focusable = in_declaration._IsFocusable;
 		
 		//todo:add event
+		m_on_value_changed = in_declaration._OnValueChanged;
 
 		m_b_controller_input_captured = false;
 	}
@@ -45,6 +46,11 @@ namespace DoDo {
 		{
 			return (m_value_attribute.Get() - m_min_value) / (m_max_value - m_min_value);
 		}
+	}
+
+	float SSlider::get_value() const
+	{
+		return m_value_attribute.Get();
 	}
 
 	int32_t SSlider::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
@@ -135,15 +141,47 @@ namespace DoDo {
 	}
 	FReply SSlider::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
 	{
+		if ((mouse_event.get_effecting_button() == EKeys::LeftMouseButton))
+		{
+			//todo:implement commit value
+
+			return FReply::handled().capture_mouse(shared_from_this());//note:capture this
+		}
+		
 		return FReply::un_handled();
 	}
 	FReply SSlider::On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
 	{
+		//todo:implement release mouse capture
+		if ((mouse_event.get_effecting_button() == EKeys::LeftMouseButton) && has_mouse_capture_by_user(mouse_event.get_user_index(), mouse_event.get_pointer_index()))
+		{
+			return FReply::handled().release_mouse_capture();
+		}
 		return FReply::un_handled();
 	}
 	FReply SSlider::On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
 	{
+		if (has_mouse_capture_by_user(mouse_event.get_user_index(), mouse_event.get_pointer_index()))
+		{
+			commit_value(position_to_value(my_geometry, mouse_event.get_last_screen_space_position()));
+
+			return FReply::handled();
+		}
+
 		return FReply::un_handled();
+	}
+	void SSlider::commit_value(float new_value)
+	{
+		const float old_value = get_value();
+
+		if (!m_value_attribute.Is_Bound())
+		{
+			m_value_attribute.Set(new_value);
+		}
+
+		//todo:invalidate 
+
+		m_on_value_changed.execute_if_bound(new_value);
 	}
 	const FSlateBrush* SSlider::get_bar_image() const
 	{
@@ -174,5 +212,49 @@ namespace DoDo {
 		{
 			return &m_style->m_normal_thumb_image;
 		}
+	}
+	float SSlider::position_to_value(const FGeometry& my_geometry, const glm::vec2& absolute_position)
+	{
+		const glm::vec2 local_position = my_geometry.absolute_to_local(absolute_position);
+
+		float relative_value;
+		float denominator;
+
+		//only need x as we rotate the thumb image when rendering vertically
+		const float indentation = get_thumb_image()->m_image_size.x * (m_indent_handle.Get() ? 2.0f : 1.0f);
+		const float half_indentation = 0.5f * indentation;
+
+		if (m_orientation == Orient_Horizontal)
+		{
+			denominator = my_geometry.m_size.x - indentation;
+			relative_value = (denominator != 0.0f) ? (local_position.x - half_indentation) / denominator : 0.0f;
+		}
+		else
+		{
+			denominator = my_geometry.m_size.y - indentation;
+			//inverse the calculation as top is 0 and bottom is 1
+			relative_value = (denominator != 0.0f) ? ((my_geometry.m_size.y - local_position.y) - half_indentation) / denominator : 0.0f;
+		}
+
+		relative_value = std::clamp(relative_value, 0.0f, 1.0f) * (m_max_value - m_min_value) + m_min_value;
+
+		if (m_b_mouse_uses_step)
+		{
+			float direction = m_value_attribute.Get() - relative_value;
+			if (direction > m_step_size.Get() / 2.0f)
+			{
+				return std::clamp(m_value_attribute.Get() - m_step_size.Get(), m_min_value, m_max_value);
+			}
+			else if (direction < m_step_size.Get() / -2.0f)
+			{
+				return std::clamp(m_value_attribute.Get() + m_step_size.Get(), m_min_value, m_max_value);
+			}
+			else
+			{
+				return m_value_attribute.Get();
+			}
+		}
+
+		return relative_value;
 	}
 }

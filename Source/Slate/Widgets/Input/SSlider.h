@@ -14,6 +14,8 @@
 
 #include "SlateCore/Styling/ISlateStyle.h"//ISlateStyle depends on it
 
+#include "Slate/Framework/SlateDelegates.h"//FOnFloatValueChanged depends on it
+
 namespace DoDo {
 	/*
 	* a slate slider control is a linear scale and draggable handle
@@ -77,6 +79,8 @@ namespace DoDo {
 			SLATE_ARGUMENT(bool, IsFocusable)
 
 			//todo:add event
+			/*called when the value is changed by the slider*/
+			SLATE_EVENT(FOnFloatValueChanged, OnValueChanged)
 		SLATE_END_ARGS()
 
 		SSlider();
@@ -93,6 +97,9 @@ namespace DoDo {
 		 */
 		float get_normalized_value() const;
 
+		/*get the value attribute*/
+		float get_value() const;
+
 	public:
 		//SWidget overrides
 
@@ -107,9 +114,25 @@ namespace DoDo {
 
 	protected:
 
+		/*
+		* commits the specified slider value
+		* 
+		* @param new value the value to commit
+		*/
+		virtual void commit_value(float new_value);
+
 		const FSlateBrush* get_bar_image() const;
 
 		const FSlateBrush* get_thumb_image() const;
+
+		/*
+		* calculates the new value based on the given absolute coordinates
+		* 
+		* @param MyGeometry the slider's geometry
+		* @param AbsoultePosition the absolute position of the slider
+		* @return the new value
+		*/
+		float position_to_value(const FGeometry& my_geometry, const glm::vec2& absolute_position);
 		
 	protected:
 		//todo:implement FSliderStyle
@@ -161,6 +184,7 @@ namespace DoDo {
 		bool m_b_is_focusable;
 
 	private:
-
+		//holds a delegate that is executed when the slider's value changed
+		FOnFloatValueChanged m_on_value_changed;
 	};
 }

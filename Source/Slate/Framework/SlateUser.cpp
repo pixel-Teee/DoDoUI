@@ -10,6 +10,18 @@ namespace DoDo
 	{
 	}
 
+	bool FSlateUser::has_capture(uint32_t pointer_index) const
+	{
+		auto it = m_pointer_captor_paths_by_index.find(pointer_index);
+
+		if (it != m_pointer_captor_paths_by_index.end())
+		{
+			const FWeakWidgetPath* captor_path = &(it->second);
+			return captor_path && captor_path->is_valid();//is valid will check have widgets one least
+		}
+		return false;
+	}
+
 	glm::vec2 FSlateUser::get_cursor_position() const
 	{
 		return get_pointer_position(Application::m_cursor_pointer_index);
@@ -77,6 +89,95 @@ namespace DoDo
 		}
 
 		update_pointer_position(pointer_index, glm::vec2(pos_x, pos_y));//todo:store the cursor position
+	}
+
+	bool FSlateUser::does_widget_have_capture(std::shared_ptr<const SWidget> widget, uint32_t pointer_index) const
+	{
+		auto it = m_pointer_captor_paths_by_index.find(pointer_index);
+
+		const FWeakWidgetPath* captor = nullptr;
+
+		if (it != m_pointer_captor_paths_by_index.end())
+		{
+			captor = &(it->second);
+		}
+
+		return captor && captor->get_last_widget().lock() == widget;//get the weak widget path last widget
+	}
+
+	bool FSlateUser::does_widget_have_any_capture(std::shared_ptr<const SWidget> widget) const
+	{
+		for (const auto& index_path_pair : m_pointer_captor_paths_by_index)
+		{
+			if (index_path_pair.second.get_last_widget().lock() == widget)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool FSlateUser::set_cursor_captor(std::shared_ptr<const SWidget> widget, const FWidgetPath& event_path)
+	{
+		return set_pointer_captor(Application::m_cursor_pointer_index, widget, event_path);
+	}
+
+	bool FSlateUser::set_pointer_captor(uint32_t pointer_index, std::shared_ptr<const SWidget> widget, const FWidgetPath& event_path)
+	{
+		//todo:implement release capture
+
+		FWidgetPath new_captor_path = event_path.get_path_down_to(widget);
+
+		if (!new_captor_path.is_valid() || new_captor_path.get_last_widget() != widget)
+		{
+			//the target widget wasn't in the given event path, so try searching for it from the root of the event path
+			new_captor_path = event_path.get_path_down_to(std::reinterpret_pointer_cast<SWidget>(event_path.get_window()));
+			//todo:implement extend path to
+		}
+
+		if (new_captor_path.is_valid() && new_captor_path.get_last_widget() == widget)
+		{
+			m_pointer_captor_paths_by_index.insert({ pointer_index, new_captor_path });
+
+			return true;
+		}
+
+		return false;
+	}
+
+	void FSlateUser::release_capture(uint32_t pointer_index)
+	{
+		auto it = m_pointer_captor_paths_by_index.find(pointer_index);
+		
+		const FWeakWidgetPath* captor_path = &(it->second);
+
+		if (captor_path)
+		{
+			m_widgets_under_pointer_last_event_by_index.insert({ pointer_index, *captor_path });//note:what it is?, will remove at drag exit
+
+			if (std::shared_ptr<SWidget> captor_width = captor_path->get_last_widget().lock())
+			{
+				//todo:implement on mouse capture lost
+			}
+
+			captor_path = nullptr;
+
+			m_pointer_captor_paths_by_index.erase(pointer_index);
+
+			//todo:implement request cursor query
+		}
+	}
+
+	FWeakWidgetPath FSlateUser::get_last_widgets_under_pointer(uint32_t pointer_index) const
+	{
+		auto it = m_widgets_under_pointer_last_event_by_index.find(pointer_index);
+
+		if (it != m_widgets_under_pointer_last_event_by_index.end())
+		{
+			return it->second;
+		}
+
+		return FWeakWidgetPath();//null
 	}
 
 	std::shared_ptr<FSlateUser> FSlateUser::Create(int32_t in_user_index, std::shared_ptr<ICursor> in_cursor)
