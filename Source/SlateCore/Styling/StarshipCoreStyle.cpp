@@ -151,6 +151,12 @@ namespace DoDo {
 			style->set("Icons.solar-system", new FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/solar-system", ".svg"), Icon100x100));
 		}
 
+		//SColorWheel defaults
+		{
+			style->set("ColorWheel.HueValueCircle", new FSlateImageBrush(style->root_to_content_dir("Common/ColorWheel", ".png"), glm::vec2(192.0f, 192.0f)));
+			style->set("ColorWheel.Selector", new FSlateImageBrush(style->root_to_content_dir("Common/Circle", ".png"), glm::vec2(8.0f, 8.0f)));
+		}
+
 		set_up_button_styles(style);
 		set_up_docking_styles(style);
 

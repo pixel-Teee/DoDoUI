@@ -52,6 +52,8 @@
 
 #include "SlateCore/Widgets/Images/SImage.h"//SImage depends on it
 
+#include "Slate/Widgets/Colors/SColorWheel.h"//SColorWheel depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -436,6 +438,13 @@ namespace DoDo
 					.Alignment(glm::vec2(1.0f, 1.0f))
 					[
 						SAssignNew(temp_text_block, STextBlock)
+					]
+					+ SConstraintCanvas::Slot()
+					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+					.Offset(FMargin(-400.0f, -100.0f, 100.0f, 100.0f))
+					.Alignment(glm::vec2(1.0f, 1.0f))
+					[
+						SNew(SColorWheel)
 					]
                 ]
             ];
