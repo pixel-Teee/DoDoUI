@@ -14,4 +14,7 @@ namespace DoDo
 
 	/*notification for float value changed*/
 	DECLARE_DELEGATE_OneParam(FOnFloatValueChanged, float)
+
+	/*notification for FLinearColor value changed*/
+	DECLARE_DELEGATE_OneParam(FOnLinearColorValueChanged, glm::vec4)
 }

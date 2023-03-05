@@ -207,6 +207,39 @@ namespace DoDo {
 			const FAtlasedTextureSlot* new_slot = nullptr;
 
 			//todo:implement there
+			FSlateTextureAtlasVulkan* atlas = nullptr;
+			//get the last atlas and find a slot for the texture
+			for (int32_t atlas_index = 0; atlas_index < m_precached_texture_atlases.size(); ++atlas_index)
+			{
+				atlas = m_precached_texture_atlases[atlas_index].get();
+
+				new_slot = atlas->add_texture(width, height, info.m_texture_data->get_raw_bytes());
+				if (new_slot)
+				{
+					break;
+				}
+			}
+
+			//no new slot was found in any atlas so we have to make another one
+			if (!new_slot)
+			{
+				//a new slot in the atlas could not be found, make a new atlas add the texture to it
+				std::unique_ptr<FSlateTextureAtlasVulkan> new_atlas = FSlateVulkanTextureAtlasFactory::create_texture_atlas_internal(atlas_size, atlas_stride, ESlateTextureAtlasPaddingStyle::DilateBorder, true);
+
+				new_slot = new_atlas->add_texture(width, height, info.m_texture_data->get_raw_bytes());
+
+				atlas = new_atlas.get();
+
+				m_precached_texture_atlases.emplace_back(std::move(new_atlas));//will update the texture
+			}
+
+			//create a proxy representing this texture in the atlas
+			new_proxy = new FSlateShaderResourceProxy;
+			new_proxy->m_resource = atlas->get_atlas_texture();
+			//compute the sub-uvs for the location of this texture in the atlas, accounting for padding
+			new_proxy->m_start_uv = glm::vec2((float)(new_slot->m_x + padding) / atlas->get_width(), (float)(new_slot->m_y + padding) / atlas->get_height());
+			new_proxy->m_size_uv = glm::vec2((float)(new_slot->m_width - padding * 2.0f) / atlas->get_width(), (float)(new_slot->m_height - padding * 2.0f) / atlas->get_height());
+			new_proxy->m_actual_size = FIntPoint(width, height);
 		}
 		else
 		{
@@ -351,6 +384,10 @@ namespace DoDo {
 
 	void FSlateVulkanTextureManager::update_cache()
 	{
+		for (std::unique_ptr<FSlateTextureAtlasVulkan>& atlas : m_precached_texture_atlases)
+		{
+			atlas->conditional_update_texture();
+		}
 		m_vector_graphics_cache->update_cache();
 	}
 

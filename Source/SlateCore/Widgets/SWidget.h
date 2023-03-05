@@ -166,6 +166,13 @@ namespace DoDo
 		};
 
 		/*
+		* checks to see if this widget is the current mouse captor
+		* 
+		* @return true if this widget has captured the mouse
+		*/
+		bool has_mouse_capture() const;
+
+		/*
 		* checks to see if this widget has mouse capture from the provided user
 		* 
 		* @return true if this widget has captured the mouse

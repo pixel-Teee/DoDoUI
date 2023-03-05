@@ -30,6 +30,7 @@ namespace DoDo
 	struct FPointerEvent;
 
 	class STextBlock;//for test
+	class SBorder;//for test
 
 	class Application : public FGenericApplicationMessageHandler//slate application
 	{
@@ -285,6 +286,8 @@ namespace DoDo
 		 */
 		bool route_pointer_move_event(const FWidgetPath& widgets_under_pointer, const FPointerEvent& pointer_event, bool b_is_synthetic);
 
+		virtual bool does_widget_have_mouse_capture(const std::shared_ptr<const SWidget> widget) const;
+
 		/*
 		* gets whether or not a particular widget has mouse capture by a user
 		* 
@@ -348,6 +351,10 @@ namespace DoDo
 		void test_slider_value_changed(float new_value);
 
 		std::shared_ptr<STextBlock> m_text_block;
+
+		std::shared_ptr<SBorder> m_border;
+
+		void test_color_wheel_value_changed(glm::vec4 new_color);
 		//------calculate frame per second------
 	};
 }

@@ -38,7 +38,7 @@ namespace DoDo {
 			//nothing to do
 		}
 
-		static std::unique_ptr<FSlateTextureAtlas> create_texture_atlas_internal(int32_t atlas_size, int32_t atlas_stride, ESlateTextureAtlasPaddingStyle padding_style, bool b_updates_after_initialization)
+		static std::unique_ptr<FSlateTextureAtlasVulkan> create_texture_atlas_internal(int32_t atlas_size, int32_t atlas_stride, ESlateTextureAtlasPaddingStyle padding_style, bool b_updates_after_initialization)
 		{
 			return std::make_unique<FSlateTextureAtlasVulkan>(atlas_size, atlas_size, atlas_stride, padding_style);
 		}
@@ -96,6 +96,9 @@ namespace DoDo {
 		
 		/*static non atlased textures*/
 		std::vector<std::unique_ptr<FSlateVulkanTexture>> m_non_atlased_textures;
+
+		/*static texture atlases*/
+		std::vector<std::unique_ptr<FSlateTextureAtlasVulkan>> m_precached_texture_atlases;
 
 		/*cache for vector graphic atlases*/
 		std::unique_ptr<FSlateVectorGraphicsCache> m_vector_graphics_cache;

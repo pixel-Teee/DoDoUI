@@ -117,6 +117,11 @@ namespace DoDo {
 		//todo:implement left part
 	}
 
+	bool SWidget::has_mouse_capture() const
+	{
+		return Application::get().does_widget_have_mouse_capture(shared_from_this());
+	}
+
 	bool SWidget::has_mouse_capture_by_user(int32_t user_index, std::optional<int32_t> pointer_index) const
 	{
 		return Application::get().does_widget_have_mouse_capture_by_user(shared_from_this(), user_index, pointer_index);

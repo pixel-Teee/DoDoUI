@@ -322,7 +322,7 @@ namespace DoDo
             .ClientSize(glm::vec2(1280.0f, 720.0f))
             .ScreenPosition(glm::vec2(200.0f, 200.0f))
             [
-                SNew(SBorder)
+                SAssignNew(s_current_application->m_border, SBorder)
 				.BorderBackgroundColor(glm::vec4(1.0f, 0.8f, 0.4f, 1.0f))
                 //.BorderImage(FCoreStyle::get().get_brush("Checkboard"))
 				.Padding(100.0f)
@@ -445,6 +445,7 @@ namespace DoDo
 					.Alignment(glm::vec2(1.0f, 1.0f))
 					[
 						SNew(SColorWheel)
+                        .OnValueChanged(s_current_application, &Application::test_color_wheel_value_changed)
 					]
                 ]
             ];
@@ -1234,6 +1235,18 @@ namespace DoDo
         return b_handled;
     }
 
+    bool Application::does_widget_have_mouse_capture(const std::shared_ptr<const SWidget> widget) const
+    {
+        for (const std::shared_ptr<FSlateUser>& user : m_users)
+        {
+            if (user && user->does_widget_have_any_capture(widget))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     bool Application::does_widget_have_mouse_capture_by_user(const std::shared_ptr<const SWidget> widget, int32_t user_index, std::optional<int32_t> pointer_index) const
     {
         if (std::shared_ptr<const FSlateUser> found_user = get_user(user_index))
@@ -1253,6 +1266,11 @@ namespace DoDo
     {
         TAttribute<DoDoUtf8String> text(std::to_string(new_value));
         m_text_block->set_text(text);
+    }
+
+    void Application::test_color_wheel_value_changed(glm::vec4 new_color)
+    {
+        m_border->set_border_back_ground_color(new_color);
     }
 
     void Application::process_reply(const FWidgetPath& current_event_path, const FReply& the_reply, const FWidgetPath* widgets_under_mouse, const FPointerEvent* in_mouse_event, const int32_t m_user_index)
