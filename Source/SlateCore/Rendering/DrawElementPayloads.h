@@ -106,6 +106,20 @@ namespace DoDo
 		}
 	};
 
+	struct FSlateRoundedBoxPayload : public FSlateBoxPayload
+	{
+		glm::vec4 m_outline_color;
+		glm::vec4 m_radius;
+		float m_outline_weight;
+
+		void set_radius(glm::vec4 in_radius) { m_radius = in_radius; }
+		glm::vec4 get_radius() const { return m_radius; }
+
+		void set_outline(const glm::vec4& in_outline_color, float in_outline_weight) { m_outline_color = in_outline_color; m_outline_weight = in_outline_weight; }
+		glm::vec4 get_outline_color() const { return m_outline_color; }
+		float get_outline_weight() const { return m_outline_weight; }
+	};
+
 	struct FSlateTextPayload : public FSlateDataPayload, public FSlateTintableElement
 	{
 		//the font to use when rendering

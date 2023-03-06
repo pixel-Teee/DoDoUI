@@ -128,7 +128,8 @@ namespace DoDo
 		//todo:implement EElementType
 		//EElementType element_type = (in_brush->m_draw_as == ESlateBrushDrawType::Border) ? EElementType::ET_Border : (in_brush->m_draw_as == ESlateBrushDrawType::RoundedBox) ? EElementType::ET_RoundedBox : EElementType::ET_Box;
 
-		EElementType element_type = EElementType::ET_Box;
+		EElementType element_type = (in_brush->m_draw_as == ESlateBrushDrawType::Border) ? EElementType::ET_Border : (in_brush->m_draw_as == ESlateBrushDrawType::RoundedBox) ? EElementType::ET_RoundedBox :
+			EElementType::ET_Box;//note 
 
 		//todo:create a FSlateDrawElement
 
@@ -141,6 +142,7 @@ namespace DoDo
 		if(element_type == EElementType::ET_RoundedBox)
 		{
 			//crate rounded box pay load
+			FSlateRoundedBoxPayload* r_box_pay_load = &element_list.create_pay_load<FSlateRoundedBoxPayload>(element);
 		}
 		else
 		{
