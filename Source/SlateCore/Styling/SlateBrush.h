@@ -102,6 +102,64 @@ namespace DoDo
 		};
 	}
 
+	/*
+	* enumerates rounding options
+	*/
+	namespace ESlateBrushRoundingType
+	{
+		enum Type
+		{
+			/*use the specified radius*/
+			FixedRadius,
+
+			/*the rounding radius should be half the height such that it always looks perfectly round*/
+			HalfHeightRadius
+		};
+	}
+
+	/*possible options for rounded box brush image*/
+	struct FSlateBrushOutlineSettings
+	{
+		FSlateBrushOutlineSettings()
+			: m_corner_radii(0.0f)
+			, m_color(glm::vec4(1.0f))
+			, m_width(0.0f)
+			, m_rounding_type(ESlateBrushRoundingType::HalfHeightRadius)
+			, m_b_use_brush_transparency(false)
+		{}
+
+		FSlateBrushOutlineSettings(float in_uniform_radius)
+			: m_corner_radii(glm::vec4(in_uniform_radius))
+			, m_color(glm::vec4(1.0f))
+			, m_width(0.0f)
+			, m_rounding_type(ESlateBrushRoundingType::FixedRadius)
+			, m_b_use_brush_transparency(false)
+		{}
+
+		FSlateBrushOutlineSettings(const glm::vec4& in_color, float in_width)
+			: m_corner_radii(0.0f)
+			, m_color(in_color)
+			, m_width(in_width)
+			, m_rounding_type(ESlateBrushRoundingType::HalfHeightRadius)
+			, m_b_use_brush_transparency(false)
+		{}
+
+		/*radius in slate unit applied to the outline at each corner, x = top left, y = top right, z = bottom right, w = bottom left*/
+		glm::vec4 m_corner_radii;
+
+		/*tinting applied to the border outline*/
+		glm::vec4 m_color;
+
+		/*line with in slate units applied to the border outline*/
+		float m_width;
+
+		/*the rounding type*/
+		TEnumAsByte<enum ESlateBrushRoundingType::Type> m_rounding_type;
+
+		/*true if we should use the owning brush's transparency as our own*/
+		bool m_b_use_brush_transparency;
+	};
+
 
 	/*
 	 * an brush which contains information about how to draw a slate element
@@ -122,7 +180,7 @@ namespace DoDo
 
 		/*how to draw the outline, currently only used for rounded box type brushes*/
 		//todo:implement FSlateBrushOutlineSettings
-
+		FSlateBrushOutlineSettings m_outline_settings;
 	public:
 
 		/*

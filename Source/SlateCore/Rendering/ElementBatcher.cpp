@@ -13,10 +13,10 @@
 
 namespace DoDo
 {
-	FSlateRenderBatch& FSlateBatchData::add_render_batch(int32_t in_layer, FSlateShaderResource* shader_resource, ESlateDrawPrimitive in_primitive_type,
+	FSlateRenderBatch& FSlateBatchData::add_render_batch(int32_t in_layer, const FShaderParams& in_shader_params, FSlateShaderResource* shader_resource, ESlateDrawPrimitive in_primitive_type,
 		ESlateDrawEffect in_draw_effects)
 	{
-		return m_render_batches.emplace_back(in_layer, shader_resource, in_primitive_type, in_draw_effects, &m_uncached_source_batch_vertices, &m_uncached_source_batch_indices, m_uncached_source_batch_vertices.size(), m_uncached_source_batch_indices.size());
+		return m_render_batches.emplace_back(in_layer, in_shader_params, shader_resource, in_primitive_type, in_draw_effects, &m_uncached_source_batch_vertices, &m_uncached_source_batch_indices, m_uncached_source_batch_vertices.size(), m_uncached_source_batch_indices.size());
 	}
 
 	void FSlateBatchData::reset_data()
@@ -155,11 +155,11 @@ namespace DoDo
 		}
 	}
 
-	FSlateRenderBatch& FSlateElementBatcher::create_render_batch(int32_t layer, FSlateShaderResource* shader_resource, ESlateDrawPrimitive primitive_type,
+	FSlateRenderBatch& FSlateElementBatcher::create_render_batch(int32_t layer, const FShaderParams& shader_params, FSlateShaderResource* shader_resource, ESlateDrawPrimitive primitive_type,
 		ESlateDrawEffect draw_effects, const FSlateDrawElement& draw_element)
 	{
 		//render batch store the vertex and index data
-		FSlateRenderBatch& new_batch = m_batch_data->add_render_batch(layer, shader_resource, primitive_type, draw_effects);
+		FSlateRenderBatch& new_batch = m_batch_data->add_render_batch(layer, shader_params, shader_resource, primitive_type, draw_effects);
 
 		return new_batch;
 	}
@@ -233,17 +233,30 @@ namespace DoDo
 			half_texel = glm::vec2(0.0f, 0.0f);
 		}
 	
+
+		//todo:add shader parameters for extra rounded box parameters
+		ESlateShader shader_type = ESlateShader::Default;
+		FShaderParams shader_params;
 		glm::vec4 secondary_color(0.0f, 0.0f, 0.0f, 0.0f);
+		if (draw_element.get_element_type() == EElementType::ET_RoundedBox)
+		{
+			shader_type = ESlateShader::RoundedBox;
+
+			const FSlateRoundedBoxPayload& rounded_pay_load = draw_element.get_data_pay_load<FSlateRoundedBoxPayload>();
+
+			shader_params.m_pixel_params = glm::vec4(0.0f, rounded_pay_load.get_outline_weight(), local_size.x, local_size.y);//radius weight
+
+			shader_params.m_pixel_params2 = rounded_pay_load.get_radius();
+
+			secondary_color = rounded_pay_load.m_outline_color;
+		}	
 
 		//todo:implement FSlateRenderBatch
-		FSlateRenderBatch& render_batch = create_render_batch(layer, resource, ESlateDrawPrimitive::TriangleList, in_draw_effects, draw_element);
+		FSlateRenderBatch& render_batch = create_render_batch(layer, shader_params, resource, ESlateDrawPrimitive::TriangleList, in_draw_effects, draw_element);
 
 		glm::vec2 tiling(0.0f, 0.0f);
 
 		//todo:implement batch flags
-
-
-		//todo:add shader parameters for extra rounded box parameters
 
 		//the start index of these vertices in the index buffer
 		const uint32_t index_start = 0;
@@ -512,7 +525,7 @@ namespace DoDo
 
 						font_tint = b_is_gray_scale ? in_tint : glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);//white
 
-						render_batch = &create_render_batch(in_layer, font_shader_resource, ESlateDrawPrimitive::TriangleList, in_draw_effects, draw_element);
+						render_batch = &create_render_batch(in_layer, FShaderParams(), font_shader_resource, ESlateDrawPrimitive::TriangleList, in_draw_effects, draw_element);
 
 						//reserve memory for the glyphs, this isn't perfect as the text could contain spaces and we might not render the rest of the text in this batch but its
 						//better than resizing constantly
@@ -607,10 +620,20 @@ namespace DoDo
 		const float draw_scale = draw_element.get_scale();
 
 		//todo:implement FShaderParams
+		FShaderParams shader_params;
+
+		ESlateShader shader_type = ESlateShader::Default;
+		if (in_pay_load.m_corner_radius != glm::vec4(0.0f))
+		{
+			shader_type = ESlateShader::RoundedBox;
+			shader_params.m_pixel_params = glm::vec4(0.0f, 0.0f, local_size.x, local_size.y);
+			shader_params.m_pixel_params2 = in_pay_load.m_corner_radius;
+		}
 
 		FSlateRenderBatch& render_batch =
 			create_render_batch(
 				layer,
+				shader_params,
 				nullptr,
 				ESlateDrawPrimitive::TriangleList,
 				in_draw_effects,

@@ -51,6 +51,12 @@ namespace DoDo
 
 		//todo:create white texture
 		m_white_texture = in_texture_manager->create_color_texture("DefaultWhite", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))->m_resource;
+
+		m_constant_buffers.resize(1000);
+		for (size_t i = 0; i < m_constant_buffers.size(); ++i)
+		{
+			m_constant_buffers[i].create(allocator);//create buffer, todo:destroy buffer
+		}
 	}
 
 	FSlateVulkanRenderingPolicy::~FSlateVulkanRenderingPolicy()
@@ -68,6 +74,11 @@ namespace DoDo
 
 		m_vertex_buffer.destroy_buffer(allocator);
 		m_index_buffer.destroy_buffer(allocator);
+
+		for (size_t i = 0; i < m_constant_buffers.size(); ++i)
+		{
+			m_constant_buffers[i].destroy_buffer(allocator);
+		}
 	}
 
 	void FSlateVulkanRenderingPolicy::reset_offset()
@@ -101,6 +112,23 @@ namespace DoDo
 
 			const FSlateShaderResource* shader_resource = render_batch.get_shader_resource();//todo:shader resource is image view
 
+			const ESlateDrawEffect draw_effects = render_batch.get_draw_effects();
+
+			const FShaderParams& shader_params = render_batch.get_shader_params();
+
+			m_constant_buffers[descriptor_set_offset].get_buffer_data().m_shader_params = shader_params.m_pixel_params;
+			m_constant_buffers[descriptor_set_offset].get_buffer_data().m_shader_params2 = shader_params.m_pixel_params2;
+			m_constant_buffers[descriptor_set_offset].update_buffer();//update to the gpu buffer
+
+			VkDescriptorBufferInfo buffer_info = {};
+			buffer_info.buffer = m_constant_buffers[descriptor_set_offset].get_resource().m_buffer;//todo:create buffer
+			buffer_info.offset = 0;
+			buffer_info.range = VK_WHOLE_SIZE;
+
+			VkWriteDescriptorSet buffer = write_descriptor_buffer(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_descriptor_sets[descriptor_set_offset], &buffer_info, 0);
+
+			//vkUpdateDescriptorSets(device, 1, &buffer, 0, nullptr);
+
 			//todo:get render batch information to bind
 			if (shader_resource != nullptr)
 			{			
@@ -113,7 +141,9 @@ namespace DoDo
 
 				VkWriteDescriptorSet texture1 = write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_descriptor_sets[descriptor_set_offset], &imageBufferInfo, 1);
 
-				vkUpdateDescriptorSets(device, 1, &texture1, 0, nullptr);
+				VkWriteDescriptorSet write_descriptor_sets[2] = { buffer, texture1 };
+
+				vkUpdateDescriptorSets(device, 2, write_descriptor_sets, 0, nullptr);
 				//------update descriptor set------
 
 				//texture descriptor
@@ -128,7 +158,9 @@ namespace DoDo
 
 				VkWriteDescriptorSet texture1 = write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_descriptor_sets[999], &imageBufferInfo, 1);
 
-				vkUpdateDescriptorSets(device, 1, &texture1, 0, nullptr);
+				VkWriteDescriptorSet write_descriptor_sets[2] = { buffer, texture1 };
+
+				vkUpdateDescriptorSets(device, 2, write_descriptor_sets, 0, nullptr);
 				//todo:add default texture
 				vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &m_descriptor_sets[999], 0, nullptr);
 			}

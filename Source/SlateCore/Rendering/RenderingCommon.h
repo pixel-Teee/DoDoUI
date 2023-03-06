@@ -17,6 +17,31 @@ namespace DoDo
 	//};
 
 	class FSlateDrawElement;//forward declare
+
+	/*
+	* shader types, note: mirrored in the shader file
+	* if you add a type here, you must also implement the proper shader type (TSlateElementPS), see slate shaders.h
+	*/
+	enum class ESlateShader : uint8_t
+	{
+		/*the default shader type, simple texture lookup*/
+		Default = 0,
+		/*border shader*/
+		Border = 1,
+		/*grayscale font shader, uses an alpha only texture*/
+		GrayScaleFont = 2,
+		/*grayscale font shader, uses an color texture*/
+		ColorFont = 3,
+		/*line segment shader, for drawing anti-aliased lines*/
+		LineSegment = 4,
+		/*for completely customized materials, makes no assumptions on use*/
+		Custom = 5,
+		/*for post processing passes*/
+		PostProcess = 6,
+		/*rounded box shader*/
+		RoundedBox = 7
+	};
+
 	/*
 	 * draw primitive types
 	 */
@@ -180,7 +205,39 @@ namespace DoDo
 		DisabledEffect = 1 << 5
 	};
 
+	/*
+	* shader parameters for slate
+	*/
+	struct FShaderParams
+	{
+		/*pixel shader parameters*/
+		glm::vec4 m_pixel_params;
+		glm::vec4 m_pixel_params2;
+		glm::vec4 m_pixel_params3;
 
+		FShaderParams()
+			: m_pixel_params(0.0f)
+			, m_pixel_params2(0.0f)
+			, m_pixel_params3(0.0f)
+		{}
+
+		FShaderParams(const glm::vec4& in_pixel_params, const glm::vec4& in_pixel_params2 = glm::vec4(0.0f), const glm::vec4& in_pixel_params3 = glm::vec4(0.0f))
+			: m_pixel_params(in_pixel_params)
+			, m_pixel_params2(in_pixel_params2)
+			, m_pixel_params3(in_pixel_params3)
+		{}
+
+		bool operator==(const FShaderParams& other) const
+		{
+			return m_pixel_params == other.m_pixel_params && m_pixel_params2 == other.m_pixel_params2 && m_pixel_params3 == other.m_pixel_params3;
+		}
+
+		static FShaderParams make_pixel_shader_params(const glm::vec4& pixel_shader_params, const glm::vec4& in_pixel_shader_params2 = glm::vec4(0.0f),
+			const glm::vec4& in_pixel_shader_param3 = glm::vec4(0.0f))
+		{
+			return FShaderParams(pixel_shader_params, in_pixel_shader_params2, in_pixel_shader_param3);
+		}
+	};
 
 	ENUM_CLASS_FLAGS(ESlateDrawEffect)
 

@@ -143,6 +143,26 @@ namespace DoDo
 		{
 			//crate rounded box pay load
 			FSlateRoundedBoxPayload* r_box_pay_load = &element_list.create_pay_load<FSlateRoundedBoxPayload>(element);
+
+			glm::vec4 corner_radii = in_brush->m_outline_settings.m_corner_radii;
+
+			if (in_brush->m_outline_settings.m_rounding_type == ESlateBrushRoundingType::HalfHeightRadius)
+			{
+				const float uniform_radius = paint_geometry.get_local_Size().y / 2.0f;
+				corner_radii = glm::vec4(uniform_radius, uniform_radius, uniform_radius, uniform_radius);
+			}
+			r_box_pay_load->set_radius(corner_radii);
+
+			if (in_brush->m_outline_settings.m_b_use_brush_transparency)
+			{
+				glm::vec4 color = in_brush->m_outline_settings.m_color;//todo:copy with new opacity
+				r_box_pay_load->set_outline(color, in_brush->m_outline_settings.m_width);
+			}
+			else
+			{
+				r_box_pay_load->set_outline(in_brush->m_outline_settings.m_color, in_brush->m_outline_settings.m_width);
+			}
+			box_payload = r_box_pay_load;
 		}
 		else
 		{

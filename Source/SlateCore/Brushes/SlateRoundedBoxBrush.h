@@ -17,7 +17,9 @@ namespace DoDo {
 						in_color,
 						nullptr,
 						false)
-		{}
+		{
+			//m_outline_settings = FSlateBrushOutlineSettings(in_radius);
+		}
 
 		/*
 		* creates and initializes a new instance with the specified color and rounds based on height
@@ -40,6 +42,7 @@ namespace DoDo {
 				false)
 		{
 			//set outline settings
+			m_outline_settings = FSlateBrushOutlineSettings(in_outline_color, in_outline_width);
 		}
 
 

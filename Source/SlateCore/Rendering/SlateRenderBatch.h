@@ -13,6 +13,7 @@ namespace DoDo
 		friend class FSlateRenderingPolicy;
 		FSlateRenderBatch(
 			int32_t in_layer,
+			const FShaderParams& in_shader_params,
 			const FSlateShaderResource* in_resource,
 			ESlateDrawPrimitive in_primitive_type,
 			ESlateDrawEffect in_draw_effects,
@@ -72,6 +73,12 @@ namespace DoDo
 		int32_t get_layer() const { return m_layer_id; }
 
 		const FSlateShaderResource* get_shader_resource() const { return m_shader_resource; }
+
+		ESlateDrawEffect get_draw_effects() const { return m_draw_effects; }
+
+		const FShaderParams& get_shader_params() const { return m_shader_params; }
+
+		FShaderParams m_shader_params;
 
 		/*shader resource to use with this batch*/
 		const FSlateShaderResource* m_shader_resource;

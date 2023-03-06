@@ -10,6 +10,8 @@
 
 #include "include/vk_mem_alloc.h"//vma
 
+#include "SlateVulkanConstantBuffer.h"//FSlateVulkanConstantBuffer depends on it
+
 namespace DoDo
 {
 	class FSlateVulkanTextureManager;
@@ -40,6 +42,16 @@ namespace DoDo
 		//template<typename T>
 		//void upload_mesh_internal(VmaAllocator& allocator, const T& array);
 
+		struct alignas(16) FPerElementConstants
+		{
+			glm::vec4 m_shader_params;			//16 bytes
+			glm::vec4 m_shader_params2;			//16 bytes
+			uint32_t m_shader_type;				//4 bytes
+			uint32_t m_ignore_texture_alpha;	//4 bytes
+			uint32_t m_disable_effect;			//4 bytes
+			uint32_t m_unued[1];				//4 bytes
+		};
+
 		uint32_t m_last_vertex_buffer_offset;
 
 		uint32_t m_last_index_buffer_offset;
@@ -55,6 +67,8 @@ namespace DoDo
 		FSlateShaderResource* m_white_texture;//don't have life time
 
 		std::vector<VkDescriptorSet> m_descriptor_sets;
+
+		std::vector<FSlateVulkanConstantBuffer<FPerElementConstants>> m_constant_buffers;
 
 		std::shared_ptr<FSlateVulkanTextureManager> m_texture_manager;
 	};
