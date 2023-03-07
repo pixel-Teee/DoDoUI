@@ -93,6 +93,24 @@ vec4 get_rounded_box_element_color()
 	return OutColor;
 }
 
+vec4 get_gray_scale_font_element_color()
+{
+	vec4 out_color = color;
+
+	out_color.a *= texture(element_texture, texcoords.xy).r;
+
+	return out_color;
+}
+
+vec4 get_color_font_element_color()
+{
+	vec4 out_color = color;
+
+	out_color *= texture(element_texture, texcoords.xy);
+
+	return out_color;
+}
+
 void main()
 {
 	//todo:interms of shader type to get color
@@ -103,6 +121,14 @@ void main()
 	else if(shader_param.shader_type == RoundedBox)
 	{
 		out_color = get_rounded_box_element_color();
+	}
+	else if(shader_param.shader_type == GrayScaleFont)
+	{
+		out_color = get_gray_scale_font_element_color();
+	}
+	else if(shader_param.shader_type == ColorFont)
+	{
+		out_color = get_color_font_element_color();
 	}
 	//todo:gamma correct
 

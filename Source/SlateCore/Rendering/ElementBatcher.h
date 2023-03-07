@@ -28,6 +28,7 @@ namespace DoDo
 			const FShaderParams& in_shader_params,
 			FSlateShaderResource* shader_resource,
 			ESlateDrawPrimitive in_primitive_type,
+			ESlateShader in_shader_type,
 			ESlateDrawEffect in_draw_effects
 		);
 
@@ -128,6 +129,7 @@ namespace DoDo
 			const FShaderParams& shader_params,
 			FSlateShaderResource* shader_resource,
 			ESlateDrawPrimitive primitive_type,//triangle or line
+			ESlateShader in_shader_type,
 			ESlateDrawEffect draw_effects,
 			const FSlateDrawElement& draw_element
 		);

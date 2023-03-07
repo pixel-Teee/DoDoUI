@@ -16,6 +16,7 @@ namespace DoDo
 			const FShaderParams& in_shader_params,
 			const FSlateShaderResource* in_resource,
 			ESlateDrawPrimitive in_primitive_type,
+			ESlateShader in_shader_type,
 			ESlateDrawEffect in_draw_effects,
 			FSlateVertexArray* in_source_vertex_array,
 			FSlateIndexArray* in_source_index_array,
@@ -76,6 +77,8 @@ namespace DoDo
 
 		ESlateDrawEffect get_draw_effects() const { return m_draw_effects; }
 
+		ESlateShader get_shader_type() const { return m_shader_type; }
+
 		const FShaderParams& get_shader_params() const { return m_shader_params; }
 
 		FShaderParams m_shader_params;
@@ -101,6 +104,8 @@ namespace DoDo
 		int32_t m_index_offset;//this is number
 
 		int32_t m_next_batch_index;//next batch
+
+		ESlateShader m_shader_type;
 
 		ESlateDrawPrimitive m_draw_primitive_type;
 
