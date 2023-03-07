@@ -188,10 +188,13 @@ namespace DoDo
 		{}
 
 		/*returns the position of the cursor in screen space*/
-		const glm::vec2 get_screen_space_position() const { return m_screen_space_position; }
+		const glm::vec2& get_screen_space_position() const { return m_screen_space_position; }
 
 		/*returns the position of the cursor in screen space last time we handled an input event*/
-		const glm::vec2 get_last_screen_space_position() const { return m_last_screen_space_position; }
+		const glm::vec2& get_last_screen_space_position() const { return m_last_screen_space_position; }
+
+		/*returns the distance the mouse traveled since the last event was handled*/
+		const glm::vec2& get_cursor_delta() const { return m_cursor_delta; }
 
 		template<typename PointerEventType>
 		static PointerEventType make_translated_event(const PointerEventType& in_pointer_event, const FVirtualPointerPosition& virtual_position)

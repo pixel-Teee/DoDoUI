@@ -168,6 +168,27 @@ namespace DoDo
 		}
 	}
 
+	void FSlateUser::notify_pointer_move_begin(const FPointerEvent& pointer_event)
+	{
+		auto it = m_pointer_positions_by_index.find(pointer_event.get_pointer_index());
+
+		if (it == m_pointer_positions_by_index.end())
+		{
+			auto it2 = m_pointer_positions_by_index.insert({ pointer_event.get_pointer_index(), glm::vec2(0.0f, 0.0f) });
+			it2.first->second = pointer_event.get_screen_space_position();
+		}
+		else
+		{
+			it->second = pointer_event.get_screen_space_position();
+		}
+	}
+
+	void FSlateUser::notify_pointer_move_complete(const FPointerEvent& pointer_event, const FWidgetPath& widgets_under_pointer)
+	{
+		m_previous_pointer_position_by_index.insert({ pointer_event.get_pointer_index(), pointer_event.get_screen_space_position() });
+		m_widgets_under_pointer_last_event_by_index.insert({ pointer_event.get_pointer_index(), FWeakWidgetPath(widgets_under_pointer) });
+	}
+
 	FWeakWidgetPath FSlateUser::get_last_widgets_under_pointer(uint32_t pointer_index) const
 	{
 		auto it = m_widgets_under_pointer_last_event_by_index.find(pointer_index);
@@ -223,9 +244,11 @@ namespace DoDo
 		}
 
 		it = m_previous_pointer_position_by_index.find(pointer_index);
-		if(it != m_previous_pointer_position_by_index.end())
+		if (it != m_previous_pointer_position_by_index.end())
 		{
 			it->second = position;
 		}
+
+		//todo:fix me
 	}
 }

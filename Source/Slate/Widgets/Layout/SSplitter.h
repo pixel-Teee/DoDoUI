@@ -13,6 +13,18 @@
 #include "SlateCore/Styling/SlateTypes.h"//FSplitterStyle depends on it
 
 namespace DoDo {
+	namespace ESplitterResizeMode
+	{
+		enum Type
+		{
+			/*resize the selected slot, if space is needed, then resize the next resizable slot*/
+			FixedPosition,
+			/*resize the selected slot, if space is needed, then resize the last resizable slot*/
+			FixedSize,
+			/*resize the selected slot by redistributing the available space with the following resizable slots*/
+			Fill
+		};
+	}
 	struct FSplitterStyle;
 	/*
 	* SSplitter divides its allotted area into N segments, where N is the number of children it has
@@ -74,6 +86,10 @@ namespace DoDo {
 			}
 
 		public:
+			/*a slot can be resize if bIsResizable and the SizeRule is a FractionOfParent or the OnSlotResized delegate is set*/
+			bool can_be_resized() const;
+
+		public:
 			TAttribute<ESizeRule> m_sizing_rule;
 
 			TAttribute<float> m_size_value;
@@ -106,6 +122,7 @@ namespace DoDo {
 		SLATE_BEGIN_ARGS(SSplitter)
 			: _Style(&FCoreStyle::get().get_widget_style<FSplitterStyle>("Splitter"))
 			, _Orientation(Orient_Horizontal)
+			, _ResizeMode(ESplitterResizeMode::FixedPosition)
 			, _PhysicalSplitterHandleSize(5.0f)
 			, _HitDetectionSplitterHandleSize(5.0f)
 			, _MinimumSlotHeight(20.0f)
@@ -116,6 +133,8 @@ namespace DoDo {
 			SLATE_STYLE_ARGUMENT(FSplitterStyle, Style)
 
 			SLATE_ARGUMENT(EOrientation, Orientation)
+
+			SLATE_ARGUMENT(ESplitterResizeMode::Type, ResizeMode)
 
 			SLATE_ARGUMENT(float, PhysicalSplitterHandleSize)
 
@@ -144,6 +163,13 @@ namespace DoDo {
 
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements,
 			int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
+
+		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+
+		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+
+		virtual FReply On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+
 	private:
 		std::vector<FLayoutGeometry> arrange_children_for_layout(const FGeometry& allotted_geometry) const;
 	protected:
@@ -160,13 +186,58 @@ namespace DoDo {
 		FChildren* Get_Children() override;
 
 	protected:
+		/*
+		* given the index of the dragged handle and the children, find a child above/left_of of the dragged handle that cane be resized
+		* 
+		* @return INDEX_NONE if no such child can be found
+		*/
+		static int32_t find_resizeable_slot_before_handle(int32_t dragged_handle, const TPanelChildren<FSlot>& children);
+
+		/*
+		* given the index of the dragged handle and the children, find a child below/right_of the dragged handle that can be resized
+		* 
+		* @return children.num() if no such child can be found
+		*/
+		static int32_t find_resizeable_slot_after_handle(int32_t dragged_handle, const TPanelChildren<FSlot>& children);
+
+		static void find_all_resizeable_slots_after_handle(int32_t dragged_handle, const TPanelChildren<FSlot>& children, std::vector<int32_t>& out_slot_indices);
+
+		/*
+		* resizes the children based on user input, the template parameter orientation to the splitter being horizontal or vertical
+		* 
+		* @param DraggedHandle the index of the handle that the user is dragging
+		* @param LocalMousePos the position of the mouse in this widgets local space
+		* @param Children a reference to this splitter's children array, we will modify the children's layout values
+		* @param ChildGeometries the arranged children, we need their sizes and positions so that we can perform a resizing
+		*/
+		void handle_resizing_by_mouse_position(EOrientation orientation, const float physical_splitter_handle_size, const ESplitterResizeMode::Type resize_mode, int32_t dragged_handle, const glm::vec2& local_mouse_pos,
+			TPanelChildren<FSlot>& children, const std::vector<FLayoutGeometry>& child_geometries);
+
+		void handle_resizing_delta(EOrientation orientation, const float physical_splitter_handle_size, const ESplitterResizeMode::Type resize_mode, int32_t dragged_handle, float delta, TPanelChildren<FSlot>& children,
+			const std::vector<FLayoutGeometry>& child_geometries);
+
+		/*
+		* given a mouse position within the splitter, figure out which resize handle we are hovering (if any)
+		* 
+		* @param LocalMousePos the mouse position within this splitter
+		* @param ChildGeometries the arranged children and their geometries, we need to test the mouse against them
+		* 
+		* @return the index of the handle being hovered, or index_none if we are not hovering a handle
+		*/
+		template<EOrientation SplitterOrientation>
+		static int32_t get_handle_being_resized_from_mouse_position(float physical_splitter_handle_size,
+			float hit_detection_splitter_handle_size, glm::vec2 local_mouse_pos, const std::vector<FLayoutGeometry>& child_geometries);
+
 		TPanelChildren<FSlot> m_children;//handles
 
 		int32_t m_hovered_handle_index;
 
 		TSlateAttribute<int32_t, EInvalidateWidgetReason::Paint> m_highlighted_handle_index;//handle just one splitter
 
+		bool m_b_is_resizing;//note:when button down, this will true
+
 		EOrientation m_orientation;
+		ESplitterResizeMode::Type m_resize_mode;
 
 		/*the user is not allowed to make any of the splitter's children smaller than this*/
 		float m_min_splitter_child_length;

@@ -52,6 +52,10 @@ namespace DoDo
 
 		void release_capture(uint32_t pointer_index);
 
+		void notify_pointer_move_begin(const FPointerEvent& pointer_event);
+
+		void notify_pointer_move_complete(const FPointerEvent& pointer_event, const FWidgetPath& widgets_under_pointer);
+
 		FWeakWidgetPath get_last_widgets_under_pointer(uint32_t pointer_index) const;
 
 		static std::shared_ptr<FSlateUser> Create(int32_t in_user_index, std::shared_ptr<ICursor> in_cursor);

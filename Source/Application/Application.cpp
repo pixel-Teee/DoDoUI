@@ -447,6 +447,30 @@ namespace DoDo
 						SNew(SColorWheel)
                         .OnValueChanged(s_current_application, &Application::test_color_wheel_value_changed)
 					]
+                    + SConstraintCanvas::Slot()
+					.Anchors(FAnchors(0.0f, 0.0f, 0.0f, 0.0f))
+					.Offset(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
+					.Alignment(glm::vec2(0.0f, 0.0f))
+					[
+						SNew(SSplitter)
+						+ SSplitter::Slot()
+                        .MinSize(20.0f)
+                        .Resizable(true)
+                        [
+							SNew(SBorder)
+							.BorderBackgroundColor(glm::vec4(0.2f, 0.8f, 0.4f, 1.0f))
+                            [
+								SNew(SImage)
+								.Image(FAppStyle::get().get_brush("Icons.heart2"))
+                            ]
+                        ]
+                        + SSplitter::Slot()
+                        .Resizable(true)
+                        [
+							SNew(SBorder)
+							.BorderBackgroundColor(glm::vec4(0.4f, 0.8f, 0.9f, 1.0f))
+                        ]
+					]
                 ]
             ];
 
@@ -1209,6 +1233,8 @@ namespace DoDo
             return temp_reply;
         });
 
+        //slate_user->notify_pointer_released(pointer_event, local_widgets_under_pointer, reply.is_event_handled());//todo:modify add drag and drop
+
         return reply;
     }
 
@@ -1216,6 +1242,10 @@ namespace DoDo
                                                const FPointerEvent& pointer_event, bool b_is_synthetic)
     {
         bool b_handled = false;
+
+        std::shared_ptr<FSlateUser> slate_user = get_or_create_user(pointer_event);
+        slate_user->notify_pointer_move_begin(pointer_event);
+
         //bubble the mouse move event
         FReply reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(widgets_under_pointer), pointer_event,
          [=](const FArrangedWidget& cur_widget, const FPointerEvent& event)
@@ -1231,6 +1261,8 @@ namespace DoDo
         });
 
         b_handled = reply.is_event_handled();
+
+        slate_user->notify_pointer_move_complete(pointer_event, widgets_under_pointer);
 
         return b_handled;
     }

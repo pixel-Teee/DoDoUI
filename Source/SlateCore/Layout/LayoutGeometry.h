@@ -21,9 +21,29 @@ namespace DoDo
 			return m_local_to_parent;
 		}
 
+		glm::vec2 get_size_in_parent_space() const
+		{
+			return DoDo::transform_vector(m_local_to_parent, m_local_size);
+		}
+
 		glm::vec2 get_size_in_local_space() const
 		{
 			return m_local_size;
+		}
+
+		glm::vec2 get_offset_in_parent_space() const
+		{
+			return m_local_to_parent.get_translation();
+		}
+
+		FSlateRect get_rect_in_local_space() const
+		{
+			return FSlateRect(glm::vec2(0.0f), glm::vec2(m_local_size));
+		}
+
+		FSlateRect get_rect_in_parent_space() const
+		{
+			return transform_rect(m_local_to_parent, get_rect_in_local_space());
 		}
 
 	private:

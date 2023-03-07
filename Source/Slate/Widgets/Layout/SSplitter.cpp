@@ -62,12 +62,13 @@ namespace DoDo {
 
 	void SSplitter::Construct(const FArguments& in_args)
 	{
+		m_resize_mode = in_args._ResizeMode;
 		m_physical_splitter_handle_size = in_args._PhysicalSplitterHandleSize;
 		m_hit_detection_splitter_handle_size = in_args._HitDetectionSplitterHandleSize;
 		m_orientation = in_args._Orientation;
 		m_hovered_handle_index = -1;
 		m_highlighted_handle_index.Assign(*this, in_args._HighlightedHandleIndex);
-
+		m_b_is_resizing = false;
 		m_style = in_args._Style;
 		m_min_splitter_child_length = in_args._MinimumSlotHeight;
 		//todo:implement add slots
@@ -176,6 +177,99 @@ namespace DoDo {
 		}
 
 		return max_layer_id;
+	}
+
+	FReply SSplitter::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		if (mouse_event.get_effecting_button() == EKeys::LeftMouseButton && m_hovered_handle_index != -1)
+		{
+			m_b_is_resizing = true;
+			return FReply::handled().capture_mouse(shared_from_this());
+		}
+		else
+		{
+			return FReply::un_handled();
+		}
+	}
+
+	FReply SSplitter::On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		if (mouse_event.get_effecting_button() == EKeys::LeftMouseButton && m_b_is_resizing == true)
+		{
+			//todo:add on splitter finished resizing
+
+			m_b_is_resizing = false;
+
+			return FReply::handled().release_mouse_capture();
+		}
+
+		return FReply::un_handled();
+	}
+
+	template<EOrientation SplitterOrientation>
+	static int32_t SSplitter::get_handle_being_resized_from_mouse_position(float physical_splitter_handle_size,
+		float hit_detection_splitter_handle_size, glm::vec2 local_mouse_pos, const std::vector<FLayoutGeometry>& child_geometries)
+	{
+		const int32_t axis_index = (SplitterOrientation == Orient_Horizontal) ? 0 : 1;
+		const float half_hit_detection_splitter_handle_size = (hit_detection_splitter_handle_size / 2.0f);
+		const float half_physical_splitter_handle_size = (physical_splitter_handle_size / 2.0f);
+
+		//search for the two widgets between which the cursor currently resides
+		for (int32_t child_index = 1; child_index < child_geometries.size(); ++child_index)
+		{
+			FSlateRect prev_child_rect = child_geometries[child_index - 1].get_rect_in_parent_space();
+			glm::vec2 next_child_offset = child_geometries[child_index].get_offset_in_parent_space();
+			float prev_bound = prev_child_rect.get_top_left()[axis_index] + prev_child_rect.get_size()[axis_index] - half_hit_detection_splitter_handle_size + half_physical_splitter_handle_size;
+			float next_bound = next_child_offset[axis_index] + half_hit_detection_splitter_handle_size - half_physical_splitter_handle_size;
+
+			if (local_mouse_pos[axis_index] > prev_bound && local_mouse_pos[axis_index] < next_bound)
+			{
+				return child_index - 1;
+			}
+		}
+
+		return -1;
+	}
+
+	FReply SSplitter::On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		const glm::vec2 local_mouse_position = my_geometry.absolute_to_local(mouse_event.get_screen_space_position());
+
+		std::vector<FLayoutGeometry> layout_children = arrange_children_for_layout(my_geometry);
+
+		if (m_b_is_resizing)
+		{
+			if (!(mouse_event.get_cursor_delta() == glm::vec2(0.0f)))//note:check zero
+			{
+				handle_resizing_by_mouse_position(m_orientation, m_physical_splitter_handle_size, m_resize_mode, m_hovered_handle_index, local_mouse_position, m_children, layout_children);
+			}
+
+			return FReply::handled();
+		}
+		else
+		{
+			//hit test which handle we are hovering over
+			int32_t previous_hovered_handle_index = m_hovered_handle_index;
+
+			m_hovered_handle_index = (m_orientation == Orient_Horizontal)
+				? get_handle_being_resized_from_mouse_position<Orient_Horizontal>(m_physical_splitter_handle_size, m_hit_detection_splitter_handle_size, local_mouse_position, layout_children)
+				: get_handle_being_resized_from_mouse_position<Orient_Vertical>(m_physical_splitter_handle_size, m_hit_detection_splitter_handle_size, local_mouse_position, layout_children);
+
+			if (m_hovered_handle_index != -1)
+			{
+				if (find_resizeable_slot_before_handle(m_hovered_handle_index, m_children) <= -1 || find_resizeable_slot_after_handle(m_hovered_handle_index, m_children) >= m_children.num())
+				{
+					m_hovered_handle_index = -1;
+				}
+			}
+
+			if (m_hovered_handle_index != previous_hovered_handle_index)
+			{
+				//todo:add event
+			}
+
+			return FReply::un_handled();
+		}
 	}
 
 	std::vector<FLayoutGeometry> SSplitter::arrange_children_for_layout(const FGeometry& allotted_geometry) const
@@ -340,5 +434,221 @@ namespace DoDo {
 	FChildren* SSplitter::Get_Children()
 	{
 		return &m_children;
+	}
+	int32_t SSplitter::find_resizeable_slot_before_handle(int32_t dragged_handle, const TPanelChildren<FSlot>& children)
+	{
+		//resizing collapsed r autosizing slots does not make sense (their size is predetermined)
+		//search out from the dragged handle to find the first non-collapsed, non-autosizing slot we can resize
+		int32_t slot_before_drag_handle = dragged_handle;
+		while (slot_before_drag_handle >= 0
+			&& (children[slot_before_drag_handle].get_widget()->get_visibility() == EVisibility::Collapsed || !children[slot_before_drag_handle].can_be_resized()))
+		{
+			--slot_before_drag_handle;
+		}
+
+		return slot_before_drag_handle;
+	}
+	int32_t SSplitter::find_resizeable_slot_after_handle(int32_t dragged_handle, const TPanelChildren<FSlot>& children)
+	{
+		const int32_t num_children = children.num();
+
+		//but the slots list does contain collapsed children! make sure that we are not resizing a collapsed slot
+		//we also cannot resize auto-sizing slots
+		int32_t slot_after_drag_handle = dragged_handle + 1;
+		while (slot_after_drag_handle < num_children
+			&& (children[slot_after_drag_handle].get_widget()->get_visibility() == EVisibility::Collapsed || !children[slot_after_drag_handle].can_be_resized()))
+		{
+			++slot_after_drag_handle;
+		}
+
+		return slot_after_drag_handle;
+	}
+	void SSplitter::find_all_resizeable_slots_after_handle(int32_t dragged_handle, const TPanelChildren<FSlot>& children, std::vector<int32_t>& out_slot_indices)
+	{
+		const int32_t num_children = children.num();
+
+		for (int32_t slot_index = dragged_handle + 1; slot_index < num_children; ++slot_index)
+		{
+			if (children[slot_index].get_widget()->get_visibility() == EVisibility::Collapsed || !children[slot_index].can_be_resized())
+			{
+				continue;
+			}
+
+			out_slot_indices.push_back(slot_index);
+		}
+	}
+	void SSplitter::handle_resizing_by_mouse_position(EOrientation orientation, const float physical_splitter_handle_size, const ESplitterResizeMode::Type resize_mode, int32_t dragged_handle, const glm::vec2& local_mouse_pos, TPanelChildren<FSlot>& children, const std::vector<FLayoutGeometry>& child_geometries)
+	{
+		const int32_t axis_index = (orientation == Orient_Horizontal) ? 0 : 1;
+
+		const float handle_pos = child_geometries[dragged_handle + 1].get_local_to_parent_transform().get_translation()[axis_index] - physical_splitter_handle_size / 2.0f;//move handle pos
+
+		float delta = local_mouse_pos[axis_index] - handle_pos;
+
+		handle_resizing_delta(orientation, physical_splitter_handle_size, resize_mode, dragged_handle, delta, children, child_geometries);
+	}
+	void SSplitter::handle_resizing_delta(EOrientation orientation, const float physical_splitter_handle_size, const ESplitterResizeMode::Type resize_mode, int32_t dragged_handle, float delta, TPanelChildren<FSlot>& children, const std::vector<FLayoutGeometry>& child_geometries)
+	{
+		const int32_t num_children = children.num();
+		const int32_t axis_index = (orientation == Orient_Horizontal) ? 0 : 1;
+
+		//note:
+		//-prev vs. next refers to the widgets in the order they are laid out (left->right, top->bottom)
+		//-new vs. old refers to the old values for width/height vs. the post-resize values
+
+		std::vector<int32_t> slots_after_drag_handle_indices;
+		//slots_after_drag_handle_indices.resize(num_children);
+
+		if (resize_mode == ESplitterResizeMode::FixedPosition)
+		{
+			int32_t slot_after_drag_handle = find_resizeable_slot_after_handle(dragged_handle, children);
+
+			if (children.is_valid_index(slot_after_drag_handle))
+			{
+				slots_after_drag_handle_indices.push_back(slot_after_drag_handle);
+			}
+		}
+		else if (resize_mode == ESplitterResizeMode::Fill || resize_mode == ESplitterResizeMode::FixedSize)
+		{
+			find_all_resizeable_slots_after_handle(dragged_handle, children, /*Out*/ slots_after_drag_handle_indices);
+		}
+
+		const int32_t num_slots_after_drag_handle = slots_after_drag_handle_indices.size();
+
+		if (num_slots_after_drag_handle > 0)
+		{
+			struct FSlotInfo
+			{
+				FSlot* slot;
+				const FLayoutGeometry* geometry;
+				float new_size;
+			};
+
+			std::vector<FSlotInfo> slots_after_drag_handle;
+			//slots_after_drag_handle.resize(num_slots_after_drag_handle);
+
+			for (int32_t slot_index = 0; slot_index < num_slots_after_drag_handle; ++slot_index)//note:to get the children information and populate the array
+			{
+				FSlotInfo slot_info;
+
+				slot_info.slot = &children[slots_after_drag_handle_indices[slot_index]];
+				slot_info.geometry = &child_geometries[slots_after_drag_handle_indices[slot_index]];
+				slot_info.new_size = clamp_child(*slot_info.slot, slot_info.geometry->get_size_in_local_space()[axis_index]);
+
+				slots_after_drag_handle.push_back(slot_info);
+			}
+
+			//get references the prev and next children and their layout settings so that we can modify them
+			const int32_t slot_before_drag_handle = find_resizeable_slot_before_handle(dragged_handle, children);
+
+			FSlot& prev_child = children[slot_before_drag_handle];
+
+			const FLayoutGeometry& prev_child_geom = child_geometries[slot_before_drag_handle];
+
+			//compute the new sizes of the children
+			const float prev_child_length = prev_child_geom.get_size_in_parent_space()[axis_index];
+			float new_prev_child_length = clamp_child(prev_child, prev_child_length + delta);
+			delta = new_prev_child_length - prev_child_length;
+
+			//distribute the delta across the affected slots after the drag handle
+			float unused_delta = delta;
+
+			for (int32_t distribution_count = 0; distribution_count < num_slots_after_drag_handle && unused_delta != 0; ++distribution_count)
+			{
+				float divided_delta = resize_mode != ESplitterResizeMode::FixedSize ? unused_delta / num_slots_after_drag_handle : unused_delta;
+
+				//reset the unused delta to keep track of any leftover space to distribute later through stretching
+				unused_delta = 0;
+
+				int32_t slot_index = 0;
+				//resize only the last handle in the case of fixed size
+				if (resize_mode == ESplitterResizeMode::FixedSize)
+				{
+					slot_index = num_slots_after_drag_handle - 1;
+				}
+
+				for (/*slot index*/; slot_index < num_slots_after_drag_handle; ++slot_index)
+				{
+					FSlotInfo& slot_info = slots_after_drag_handle[slot_index];
+					float current_size = slot_info.new_size;
+					slot_info.new_size = clamp_child(*slot_info.slot, current_size - divided_delta);
+
+					//if one of the slots couldn't be fully adjusted by the delta due to min/max constraints then
+					//the leftover delta needs to be evenly distribute to all of the other slots
+					unused_delta += slot_info.new_size - (current_size - divided_delta);
+				}
+			}
+
+			delta = delta - unused_delta;
+
+			//prev child length needs to be updated, it's value has to take into account the next child's min/max restrictions
+			new_prev_child_length = clamp_child(prev_child, prev_child_length + delta);
+
+			//cells being resized are both stretch values -> redistribute the stretch coefficients proportionately
+			//to match the new child sizes on the screen
+			{
+				float total_stretch_length = 0.0f;
+				float total_stretch_coefficients = 0.0f;
+
+				if (prev_child.m_sizing_rule.Get() == ESizeRule::FractionOfParent)
+				{
+					total_stretch_length = new_prev_child_length;
+					total_stretch_coefficients = prev_child.m_size_value.Get();
+				}
+
+				for (int32_t slot_index = 0; slot_index < num_slots_after_drag_handle; ++slot_index)
+				{
+					const FSlotInfo& slot_info = slots_after_drag_handle[slot_index];
+
+					if (slot_info.slot->m_sizing_rule.Get() == ESizeRule::FractionOfParent)
+					{
+						total_stretch_length += slot_info.new_size;
+						total_stretch_coefficients += slot_info.slot->m_size_value.Get();
+					}
+				}
+
+				auto set_size = [](FSlot& slot, float total_stretch_coefficients, float new_length, float total_length)
+				{
+					if (slot.m_sizing_rule.Get() == ESizeRule::FractionOfParent)
+					{
+						float new_fill_size = total_length > 0.0f ? (total_stretch_coefficients * (new_length / total_length)) : total_stretch_coefficients;
+
+						if (slot.m_on_slot_resized_handler.is_bound())
+						{
+							slot.m_on_slot_resized_handler.execute(new_fill_size);
+						}
+						else
+						{
+							slot.m_size_value = new_fill_size;
+						}
+					}
+					else
+					{
+						slot.m_on_slot_resized_handler.execute_if_bound(new_length);
+					}
+				};
+
+				set_size(prev_child, total_stretch_coefficients, new_prev_child_length, total_stretch_length);
+
+				for (int32_t slot_index = 0; slot_index < num_slots_after_drag_handle; ++slot_index)
+				{
+					const FSlotInfo& slot_info = slots_after_drag_handle[slot_index];
+					set_size(*(slot_info.slot), total_stretch_coefficients, slot_info.new_size, total_stretch_length);
+				}
+			}
+		}
+	}
+	bool SSplitter::FSlot::can_be_resized() const
+	{
+		const ESizeRule current_sizing_rule = m_sizing_rule.Get();
+
+		if (current_sizing_rule == SSplitter::ESizeRule::FractionOfParent)
+		{
+			return !m_b_is_resizable.has_value() || m_b_is_resizable.value();
+		}
+		else
+		{
+			return m_b_is_resizable.has_value() && m_b_is_resizable.value() && m_on_slot_resized_handler.is_bound();
+		}
 	}
 }

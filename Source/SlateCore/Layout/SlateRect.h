@@ -46,7 +46,31 @@ namespace DoDo
 			return glm::vec2(right, bottom);
 		}
 
+		glm::vec2 get_size() const
+		{
+			return glm::vec2(right - left, bottom - top);
+		}
+
 	private:
 
 	};
+
+	template<typename TransformType>
+	FSlateRect transform_rect(const TransformType& transform, const FSlateRect& rect)
+	{
+		glm::vec2 top_left_transformed = transform_point(transform, glm::vec2(rect.left, rect.top));
+		glm::vec2 bottom_right_transformed = transform_point(transform, glm::vec2(rect.right, rect.bottom));
+
+		if (top_left_transformed.x > bottom_right_transformed.x)
+		{
+			std::swap(top_left_transformed.x, bottom_right_transformed.x);
+		}
+
+		if (top_left_transformed.y > bottom_right_transformed.y)
+		{
+			std::swap(top_left_transformed.y, bottom_right_transformed.y);
+		}
+
+		return FSlateRect(top_left_transformed, bottom_right_transformed);
+	}
 }
