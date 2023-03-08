@@ -70,6 +70,16 @@ namespace DoDo {
 		}
 
 		/*a tab can be removed from a stack when a user drags it away or when the user closes it*/
+		enum ELayoutModification
+		{
+			/*tab was dragged out of the node*/
+			TabRemoval_DraggedOut,
+			/*tab is being closed*/
+			TabRemoval_Closed,
+			/*tab is being put in a sidebar*/
+			TabRemoval_Sidebar,
+			TabRemoval_None
+		};
 
 		/*should this node auto-size or be a percentage of its parent size, this setting is usually determined by users*/
 		virtual SSplitter::ESizeRule get_size_rule() const { return SSplitter::FractionOfParent; }
@@ -82,7 +92,7 @@ namespace DoDo {
 	protected:
 
 		/*
-		 * weak reference to the parent noe, it is nullptr until the node
+		 * weak reference to the parent node, it is nullptr until the node
 		 * is inherited into the hierarchy, also null for root nodes (aka SDockingArea)
 		 */
 		std::weak_ptr<SDockingSplitter> m_parent_node_ptr;

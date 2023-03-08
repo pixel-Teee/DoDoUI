@@ -449,7 +449,7 @@ namespace DoDo
 					]
                     + SConstraintCanvas::Slot()
 					.Anchors(FAnchors(0.0f, 0.0f, 0.0f, 0.0f))
-					.Offset(FMargin(100.0f, 100.0f, 800.0f, 800.0f))
+					.Offset(FMargin(100.0f, 100.0f, 400.0f, 200.0f))
 					.Alignment(glm::vec2(0.0f, 0.0f))
 					[
                         SNew(SSplitter)
