@@ -1430,6 +1430,33 @@ namespace DoDo
         return result;
     }
 
+    bool Application::On_Mouse_Move(double x, double y)
+    {
+        bool result = true;
+
+        const glm::vec2 current_cursor_position = glm::vec2(x, y);
+        const glm::vec2 last_cursor_position = get_last_cursor_pos();//todo:implement get cursor pos
+
+        //if(current_cursor_position != last_cursor_position)
+        //{
+            //todo:implement last mouse move time
+        FPointerEvent mouse_event(
+            get_cursor_user()->get_user_index(),//todo:implement get user index for mouse
+            m_cursor_pointer_index,
+            current_cursor_position,
+            last_cursor_position,
+            m_pressed_mouse_buttons,
+            EKeys::Invalid,
+            0,
+            s_platform_application->get_modifier_keys()
+        );
+
+        result = process_mouse_move_event(mouse_event);
+        //}
+
+        return result;
+    }
+
     bool Application::On_Mouse_Down(const std::shared_ptr<Window>& window, const EMouseButtons::Type button)
     {
 	    return Application::On_Mouse_Down(window, button, get_cursor_pos());

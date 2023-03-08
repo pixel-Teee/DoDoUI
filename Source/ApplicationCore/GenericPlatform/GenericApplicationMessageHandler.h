@@ -61,6 +61,11 @@ namespace DoDo
 			return false;
 		}
 
+		virtual bool On_Mouse_Move(double x, double y)
+		{
+			return false;
+		}
+
 		virtual std::shared_ptr<Window> get_hittest_window()
 		{
 			return nullptr;

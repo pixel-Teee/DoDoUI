@@ -36,10 +36,10 @@ namespace DoDo {
 		application->m_current_under_cursor_window = window;//note:handle this in the defer message
 
 		//todo:set cursor position
-		application->get_message_handler()->set_cursor_pos(glm::vec2(x_pos, y_pos));//todo:first to update cursor storage position information
+		//application->get_message_handler()->set_cursor_pos(glm::vec2(x_pos, y_pos));//todo:first to update cursor storage position information
 		//todo:implement slate user
 
-		application->get_message_handler()->On_Mouse_Move();//todo:call this function
+		application->get_message_handler()->On_Mouse_Move(x_pos, y_pos);//todo:call this function
 	}
 
 	static void mouse_button_call_back(GLFWwindow* native_window, int32_t button, int32_t action, int32_t mods)
@@ -52,8 +52,12 @@ namespace DoDo {
 		//application->get_message_handler()->set_hittest_window(window);
 		application->m_current_under_cursor_window = window;
 
+		double x_pos, y_pos;
+		glfwGetCursorPos(native_window, &x_pos, &y_pos);
+
 		if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 		{
+			application->get_message_handler()->set_cursor_pos(glm::vec2(x_pos, y_pos));//todo:first to update cursor storage position information
 			application->get_message_handler()->On_Mouse_Down(window, EMouseButtons::Left);
 		}
 

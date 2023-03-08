@@ -30,6 +30,10 @@ namespace DoDo
 	glm::vec2 FSlateUser::get_pointer_position(uint32_t pointer_index) const
 	{
 		//from ICursor to get position
+		//if(m_cursor && pointer_index == Application::m_cursor_pointer_index)
+		//{
+		//	return m_cursor->get_position();
+		//}
 
 		//const glm::vec2* found_position =
 
@@ -185,7 +189,19 @@ namespace DoDo
 
 	void FSlateUser::notify_pointer_move_complete(const FPointerEvent& pointer_event, const FWidgetPath& widgets_under_pointer)
 	{
-		m_previous_pointer_position_by_index.insert({ pointer_event.get_pointer_index(), pointer_event.get_screen_space_position() });
+		//m_previous_pointer_position_by_index.insert({ pointer_event.get_pointer_index(), pointer_event.get_screen_space_position() });
+
+		auto it = m_previous_pointer_position_by_index.find(pointer_event.get_pointer_index());
+
+		if(it != m_previous_pointer_position_by_index.end())
+		{
+			it->second = pointer_event.get_screen_space_position();
+		}
+		else
+		{
+			m_previous_pointer_position_by_index.insert({ pointer_event.get_pointer_index(), pointer_event.get_screen_space_position() });
+		}
+
 		m_widgets_under_pointer_last_event_by_index.insert({ pointer_event.get_pointer_index(), FWeakWidgetPath(widgets_under_pointer) });
 	}
 

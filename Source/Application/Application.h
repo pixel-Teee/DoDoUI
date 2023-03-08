@@ -232,6 +232,8 @@ namespace DoDo
 
 		virtual bool On_Mouse_Move() override;
 
+		virtual bool On_Mouse_Move(double x, double y) override;
+
 		virtual bool On_Mouse_Down(const std::shared_ptr<Window>& window, const EMouseButtons::Type button) override;
 
 		virtual bool On_Mouse_Down(const std::shared_ptr<Window>& window, const EMouseButtons::Type button, const glm::vec2 cursor_pos) override;

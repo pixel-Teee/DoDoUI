@@ -31,6 +31,8 @@ namespace DoDo
 	glm::vec2 FWindowsCursor::get_position() const
 	{
 		//from cursor to get position
-		return glm::vec2(0.0f, 0.0f);
+		//return glfwGetCursorPos();
+		//todo:need pass window
+		return glm::vec2(0.0f);
 	}
 }
