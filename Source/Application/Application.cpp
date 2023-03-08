@@ -449,26 +449,48 @@ namespace DoDo
 					]
                     + SConstraintCanvas::Slot()
 					.Anchors(FAnchors(0.0f, 0.0f, 0.0f, 0.0f))
-					.Offset(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
+					.Offset(FMargin(100.0f, 100.0f, 800.0f, 800.0f))
 					.Alignment(glm::vec2(0.0f, 0.0f))
 					[
-						SNew(SSplitter)
-						+ SSplitter::Slot()
-                        .MinSize(20.0f)
-                        .Resizable(true)
+                        SNew(SSplitter)
+                        .Orientation(EOrientation::Orient_Horizontal)
+                        + SSplitter::Slot()
                         [
-							SNew(SBorder)
-							.BorderBackgroundColor(glm::vec4(0.2f, 0.8f, 0.4f, 1.0f))
+                            SNew(SSplitter)
+                            .Orientation(EOrientation::Orient_Vertical)
+                            + SSplitter::Slot()
+                            .MinSize(20.0f)
+                            .Resizable(true)
                             [
-								SNew(SImage)
-								.Image(FAppStyle::get().get_brush("Icons.heart2"))
+                                SNew(SBorder)
+                                .BorderBackgroundColor(glm::vec4(0.2f, 0.8f, 0.4f, 1.0f))
+                                [
+                                    SNew(SImage)
+                                    .Image(FAppStyle::get().get_brush("Icons.heart2"))
+                                ]
+                            ]
+							+ SSplitter::Slot()
+                            .Resizable(true)
+                            [
+                                SNew(SBorder)
+                                .BorderBackgroundColor(glm::vec4(0.4f, 0.8f, 0.9f, 1.0f))
+                            ]
+							+ SSplitter::Slot()
+                            .Resizable(true)
+                            [
+                                SNew(SBorder)
+                                .BorderBackgroundColor(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f))
                             ]
                         ]
-                        + SSplitter::Slot()
-                        .Resizable(true)
+						+ SSplitter::Slot()
                         [
-							SNew(SBorder)
-							.BorderBackgroundColor(glm::vec4(0.4f, 0.8f, 0.9f, 1.0f))
+                            SNew(SBorder)
+                            .BorderBackgroundColor(glm::vec4(0.8f, 0.7f, 0.3f, 1.0f))
+                            [
+                                SNew(SSlider)
+                                .MinValue(0.0f)
+                                .MaxValue(1.0f)
+                            ]
                         ]
 					]
                 ]

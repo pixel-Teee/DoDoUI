@@ -5,6 +5,8 @@
 
 #include "SlateCore/Layout/ArrangedWidget.h"//FWidgetAndPointer
 
+#include <map>
+
 namespace DoDo
 {
 	//struct FWidgetAndPointer;
@@ -94,6 +96,8 @@ namespace DoDo
 		 */
 		struct FWidgetData
 		{
+			FWidgetData(){}
+
 			FWidgetData(const std::weak_ptr<SWidget>& in_widget, const FIntPoint& in_upper_left_cell, const FIntPoint& in_lower_right_cell,
 				int64_t in_primary_sort, int32_t in_user_index)
 					: m_weak_widget(in_widget)
@@ -130,7 +134,7 @@ namespace DoDo
 				, m_widget_index(in_index)
 			{}
 
-			bool is_valid() const { return m_grid != nullptr && (m_widget_index >= 0 && m_widget_index < m_grid->m_widget_array.size()); }
+			bool is_valid() const { return m_grid != nullptr && (m_widget_index >= 0 && m_widget_index < m_grid->m_widget_array.size() && m_grid->m_widget_array.find(m_widget_index) != m_grid->m_widget_array.end()); }
 
 			const FWidgetData& get_widget_data() const;
 
@@ -225,7 +229,8 @@ namespace DoDo
 
 		/*stable indexed sparse array of all the widget data we track*/
 		//todo:implement TSpareArray
-		std::vector<FWidgetData> m_widget_array;
+		//std::vector<FWidgetData> m_widget_array;
+		std::map<int32_t, FWidgetData> m_widget_array;
 
 		/*the cells that make up the space partition*/
 		std::vector<FCell> m_cells;

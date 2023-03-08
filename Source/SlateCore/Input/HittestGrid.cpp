@@ -189,7 +189,11 @@ namespace DoDo
 
 	const FHittestGrid::FWidgetData& FHittestGrid::FWidgetIndex::get_widget_data() const
 	{
-		return m_grid->m_widget_array[m_widget_index];
+		//return m_grid->m_widget_array[m_widget_index];
+		auto it = m_grid->m_widget_array.find(m_widget_index);
+
+		//note:fix me, will be empty
+		return it->second;
 	}
 
 	void FHittestGrid::get_collapsed_widgets(FCollapsedWidgetsArray& out, const int32_t x, const int32_t y) const
@@ -387,9 +391,28 @@ namespace DoDo
 			//int32_t& widget_index = ret.second;
 			int32_t& widget_index = it->second;
 
-			m_widget_array.emplace_back(const_cast<SWidget*>(in_widget)->shared_from_this(), upper_left_cell, lower_right_cell, primary_sort, m_current_user_index);
+			//find a first free index, to construct a element in this map
+			int32_t free_index = -1;
+			for(int32_t i = 0; i < m_widget_array.size(); ++i)
+			{
+				if(m_widget_array.find(i) == m_widget_array.end())
+				{
+					free_index = i;
+					break;
+				}
+			}
 
-			widget_index = m_widget_array.size() - 1;
+			if (free_index == -1) free_index = m_widget_array.size();
+
+			widget_index = free_index;
+
+			//m_widget_array.insert(std::make_pair<int32_t, FWidgetData>(free_index, FWidgetData(const_cast<SWidget*>(in_widget)->shared_from_this(), upper_left_cell, lower_right_cell, primary_sort, m_current_user_index)));
+
+			m_widget_array[free_index] = FWidgetData(const_cast<SWidget*>(in_widget)->shared_from_this(), upper_left_cell, lower_right_cell, primary_sort, m_current_user_index);
+
+			//m_widget_array.emplace_back(const_cast<SWidget*>(in_widget)->shared_from_this(), upper_left_cell, lower_right_cell, primary_sort, m_current_user_index);
+			//
+			//widget_index = m_widget_array.size() - 1;
 
 			for(int32_t x_index = upper_left_cell.x; x_index <= lower_right_cell.x; ++x_index)
 			{
@@ -431,7 +454,9 @@ namespace DoDo
 			}
 
 			//m_widget_array.remove_at
-			m_widget_array.erase(m_widget_array.begin() + widget_index);//delete this
+			m_widget_array.erase(widget_index);//delete this
+
+			m_widget_map.erase(it);
 		}
 
 		//remove_grid(in_widget);

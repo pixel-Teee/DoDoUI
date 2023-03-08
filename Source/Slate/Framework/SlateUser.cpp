@@ -193,7 +193,7 @@ namespace DoDo
 
 		auto it = m_previous_pointer_position_by_index.find(pointer_event.get_pointer_index());
 
-		if(it != m_previous_pointer_position_by_index.end())
+		if (it != m_previous_pointer_position_by_index.end())
 		{
 			it->second = pointer_event.get_screen_space_position();
 		}
@@ -202,7 +202,17 @@ namespace DoDo
 			m_previous_pointer_position_by_index.insert({ pointer_event.get_pointer_index(), pointer_event.get_screen_space_position() });
 		}
 
-		m_widgets_under_pointer_last_event_by_index.insert({ pointer_event.get_pointer_index(), FWeakWidgetPath(widgets_under_pointer) });
+		auto it2 = m_widgets_under_pointer_last_event_by_index.find(pointer_event.get_pointer_index());
+
+		if (it2 != m_widgets_under_pointer_last_event_by_index.end())
+		{
+			it2->second = FWeakWidgetPath(widgets_under_pointer);
+		}
+		else
+		{
+			m_widgets_under_pointer_last_event_by_index.insert({ pointer_event.get_pointer_index(), FWeakWidgetPath(widgets_under_pointer) });
+		}
+
 	}
 
 	FWeakWidgetPath FSlateUser::get_last_widgets_under_pointer(uint32_t pointer_index) const
