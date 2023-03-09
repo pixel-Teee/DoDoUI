@@ -26,6 +26,8 @@
 
 #include "SlateCore/Styling/CoreStyle.h"//FCoreStyle depends on it
 
+#include "SlateCore/Brushes/SlateNoResource.h"//FSlateNoResource depends on it
+
 namespace DoDo {
 	using namespace CoreStyleConstants;
 
@@ -250,6 +252,20 @@ namespace DoDo {
 		//FDockTabStyle minor_tab_style = 
 		//	FDockTabStyle()
 		//	.set_close_button_style()
+
+		const FButtonStyle& button = style->get_widget_style<FButtonStyle>("Button");
+
+		//todo:fix me, use close small
+		const FButtonStyle& close_button = FButtonStyle()
+			.set_normal(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/solar-system", ".svg"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)))
+			.set_pressed(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/solar-system", ".svg"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)))
+			.set_hovered(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/solar-system", ".svg"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+				
+
+		FDockTabStyle minor_tab_style =
+			FDockTabStyle()
+			.set_close_button_style(close_button)
+			.set_normal_brush(FSlateNoResource());//todo:add more things
 	}
 
 }
