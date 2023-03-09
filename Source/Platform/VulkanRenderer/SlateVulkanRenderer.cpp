@@ -268,6 +268,8 @@ namespace DoDo {
 		//}
 		const std::shared_ptr<FSlateFontCache> font_cache = m_slate_font_services->get_font_cache();
 
+		uint32_t texture_descriptor_offset = 0;
+
 		for(size_t list_index = 0; list_index < window_element_lists.size(); ++list_index)
 		{
 			FSlateWindowElementList& element_list = *window_element_lists[list_index];
@@ -364,7 +366,7 @@ namespace DoDo {
 				vkCmdSetScissor(cmd, 0, 1, &scissor);
 
 				//todo:draw
-				m_rendering_policy->draw_elements(device,  cmd, *(VkPipelineLayout*)(m_pipeline_state_object->get_pipeline_layout()),m_sampler,m_view_matrix * view_port.m_projection_matrix, batch_data.get_first_render_batch_index(), batch_data.get_render_batches(), batch_data.get_total_vertex_offset(), batch_data.get_total_index_offset());
+				m_rendering_policy->draw_elements(device,  cmd, *(VkPipelineLayout*)(m_pipeline_state_object->get_pipeline_layout()),m_sampler,m_view_matrix * view_port.m_projection_matrix, batch_data.get_first_render_batch_index(), batch_data.get_render_batches(), batch_data.get_total_vertex_offset(), batch_data.get_total_index_offset(), texture_descriptor_offset);
 
 				vkCmdEndRenderPass(cmd);
 

@@ -87,7 +87,7 @@ namespace DoDo
 	}
 
 	void FSlateVulkanRenderingPolicy::draw_elements(VkDevice device, VkCommandBuffer cmd_buffer, VkPipelineLayout pipeline_layout, VkSampler sampler, const glm::mat4x4& view_projection_matrix, int32_t first_batch_index,
-	                                                const std::vector<FSlateRenderBatch>& render_batches, uint32_t total_vertex_offset, uint32_t total_index_offset)
+	                                                const std::vector<FSlateRenderBatch>& render_batches, uint32_t total_vertex_offset, uint32_t total_index_offset, uint32_t& texture_descriptor_offset)
 	{
 		//todo:check vertex buffer and index buffer valid
 		if(m_vertex_buffer.m_buffer.m_buffer == VK_NULL_HANDLE ||
@@ -102,7 +102,7 @@ namespace DoDo
 
 		//set view projection
 
-		uint32_t descriptor_set_offset = 0;
+		//uint32_t descriptor_set_offset = 0;
 		int32_t next_render_batch_index = first_batch_index;
 		while (next_render_batch_index != -1)//magic number
 		{
@@ -116,17 +116,17 @@ namespace DoDo
 
 			const FShaderParams& shader_params = render_batch.get_shader_params();
 
-			m_constant_buffers[descriptor_set_offset].get_buffer_data().m_shader_params = shader_params.m_pixel_params;
-			m_constant_buffers[descriptor_set_offset].get_buffer_data().m_shader_params2 = shader_params.m_pixel_params2;
-			m_constant_buffers[descriptor_set_offset].get_buffer_data().m_shader_type = (uint8_t)render_batch.get_shader_type();
-			m_constant_buffers[descriptor_set_offset].update_buffer();//update to the gpu buffer
+			m_constant_buffers[texture_descriptor_offset].get_buffer_data().m_shader_params = shader_params.m_pixel_params;
+			m_constant_buffers[texture_descriptor_offset].get_buffer_data().m_shader_params2 = shader_params.m_pixel_params2;
+			m_constant_buffers[texture_descriptor_offset].get_buffer_data().m_shader_type = (uint8_t)render_batch.get_shader_type();
+			m_constant_buffers[texture_descriptor_offset].update_buffer();//update to the gpu buffer
 
 			VkDescriptorBufferInfo buffer_info = {};
-			buffer_info.buffer = m_constant_buffers[descriptor_set_offset].get_resource().m_buffer;//todo:create buffer
+			buffer_info.buffer = m_constant_buffers[texture_descriptor_offset].get_resource().m_buffer;//todo:create buffer
 			buffer_info.offset = 0;
 			buffer_info.range = VK_WHOLE_SIZE;
 
-			VkWriteDescriptorSet buffer = write_descriptor_buffer(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_descriptor_sets[descriptor_set_offset], &buffer_info, 0);
+			VkWriteDescriptorSet buffer = write_descriptor_buffer(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_descriptor_sets[texture_descriptor_offset], &buffer_info, 0);
 
 			//vkUpdateDescriptorSets(device, 1, &buffer, 0, nullptr);
 
@@ -140,7 +140,7 @@ namespace DoDo
 				imageBufferInfo.imageView = ((FSlateVulkanTexture*)shader_resource)->get_typed_resource();//get the image view
 				imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-				VkWriteDescriptorSet texture1 = write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_descriptor_sets[descriptor_set_offset], &imageBufferInfo, 1);
+				VkWriteDescriptorSet texture1 = write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_descriptor_sets[texture_descriptor_offset], &imageBufferInfo, 1);
 
 				VkWriteDescriptorSet write_descriptor_sets[2] = { buffer, texture1 };
 
@@ -148,7 +148,7 @@ namespace DoDo
 				//------update descriptor set------
 
 				//texture descriptor
-				vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &m_descriptor_sets[descriptor_set_offset], 0, nullptr);
+				vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &m_descriptor_sets[texture_descriptor_offset], 0, nullptr);
 			}
 			else
 			{
@@ -157,13 +157,13 @@ namespace DoDo
 				imageBufferInfo.imageView = ((FSlateVulkanTexture*)m_white_texture)->get_typed_resource();//get the image view
 				imageBufferInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-				VkWriteDescriptorSet texture1 = write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_descriptor_sets[descriptor_set_offset], &imageBufferInfo, 1);
+				VkWriteDescriptorSet texture1 = write_descriptor_image(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_descriptor_sets[texture_descriptor_offset], &imageBufferInfo, 1);
 
 				VkWriteDescriptorSet write_descriptor_sets[2] = { buffer, texture1 };
 
 				vkUpdateDescriptorSets(device, 2, write_descriptor_sets, 0, nullptr);
 				//todo:add default texture
-				vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &m_descriptor_sets[descriptor_set_offset], 0, nullptr);
+				vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &m_descriptor_sets[texture_descriptor_offset], 0, nullptr);
 			}
 
 			const uint32_t offset = render_batch.m_vertex_offset * sizeof(FSlateVertex) + total_vertex_offset;
@@ -180,7 +180,7 @@ namespace DoDo
 			//note:this index buffer offset is number
 			vkCmdDrawIndexed(cmd_buffer, render_batch.m_num_indices, 1, render_batch.m_index_offset + total_index_offset / sizeof(uint16_t), 0, 0);
 
-			++descriptor_set_offset;
+			++texture_descriptor_offset;
 		}
 	}
 
