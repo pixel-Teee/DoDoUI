@@ -66,6 +66,11 @@ namespace DoDo
 			return false;
 		}
 
+		virtual bool On_Size_Changed(const std::shared_ptr<Window>& window, const int32_t width, const int32_t height, bool b_was_minimized = false)
+		{
+			return false;
+		}
+
 		virtual std::shared_ptr<Window> get_hittest_window()
 		{
 			return nullptr;

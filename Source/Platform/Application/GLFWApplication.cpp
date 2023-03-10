@@ -67,6 +67,24 @@ namespace DoDo {
 		}
 	}
 
+	static void window_size_callback(GLFWwindow* native_window, int32_t width, int32_t height) //todo:may be need to call set frame buffer size change
+	{
+		GLFWApplication* application = (GLFWApplication*)glfwGetWindowUserPointer(native_window);
+
+		//find window
+		const std::shared_ptr<WindowsWindow> window = find_window_by_glfw_window(application->get_native_windows(), native_window);
+
+		//todo:add minimized and full screen detected
+
+		const bool b_is_full_screen = false;
+
+		//todo:when in fullscreen windows, rendering size should be determined by the application, do not adjust based on WM_SIZE messages
+		if(!b_is_full_screen)
+		{
+			const bool result = application->get_message_handler()->On_Size_Changed(window, width, height, false);
+		}
+	}
+
 	GLFWApplication::GLFWApplication()
 		: GenericApplication(std::make_shared<FWindowsCursor>())
 	{
@@ -101,6 +119,8 @@ namespace DoDo {
 		glfwSetCursorPosCallback(native_window_handle, cursor_position_call_back);//register message call back
 
 		glfwSetMouseButtonCallback(native_window_handle, mouse_button_call_back);//register mouse button call back
+
+		glfwSetFramebufferSizeCallback(native_window_handle, window_size_callback);//register window resize call back
 	}
 
 	int32_t GLFWApplication::process_message()

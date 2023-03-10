@@ -222,6 +222,7 @@ namespace DoDo {
 
 	FSlateVulkanRenderer::~FSlateVulkanRenderer()
 	{
+		
 	}
 
 	FSlateDrawBuffer& FSlateVulkanRenderer::get_draw_buffer()
@@ -245,6 +246,18 @@ namespace DoDo {
 		glm::vec2 window_size = in_window->get_size_in_screen();
 
 		private_create_view_port(in_window, window_size);
+	}
+
+	bool FSlateVulkanRenderer::request_resize(const std::shared_ptr<SWindow>& in_window, uint32_t new_size_x,
+		uint32_t new_size_y)
+	{
+		//todo:add full screen check
+		const bool b_full_screen = false;
+
+		//private_resize_viewport(in_window, new_size_x, new_size_y, b_full_screen);
+		private_resize_view_port(in_window, new_size_x, new_size_y, b_full_screen);
+
+		return true;
 	}
 
 	void FSlateVulkanRenderer::draw_windows(FSlateDrawBuffer& in_window_draw_buffer)
@@ -506,6 +519,11 @@ namespace DoDo {
 
 		m_fragment_shader_module->Destroy(&device);
 
+		for (auto it = m_window_to_viewport_map.begin(); it != m_window_to_viewport_map.end(); ++it) //clear every viewport swap chain objects
+		{
+			it->second.m_deletion_queue.flush();//every viewport have it's deletion queue
+		}
+
 		m_deletion_queue.flush();
 
 		//debug utils messenger need to destroy before vulkan instance
@@ -628,13 +646,18 @@ namespace DoDo {
 		FSlateVulkanViewport viewport;
 		viewport.m_vulkan_surface = surface;
 
+		viewport.m_deletion_queue.push_function([=]()
+		{
+			vkDestroySurfaceKHR(m_vulkan_instance, surface, nullptr);
+		});
+
 		//get logic device native handle
 		VkDevice* device = (VkDevice*)(m_logic_device->get_native_handle());
 
-		viewport.m_vulkan_swap_chain = std::static_pointer_cast<VulkanSwapChain>(SwapChain::Create(&m_physical_device, device, &surface, *native_window, m_deletion_queue));
+		viewport.m_vulkan_swap_chain = std::static_pointer_cast<VulkanSwapChain>(SwapChain::Create(&m_physical_device, device, &surface, *native_window, viewport.m_deletion_queue));
 
 		//create framebuffer, frame buffer connect the render pass and image
-		viewport.m_vulkan_framebuffer = viewport.m_vulkan_swap_chain->create_frame_buffer(*device, m_render_pass, m_deletion_queue);
+		viewport.m_vulkan_framebuffer = viewport.m_vulkan_swap_chain->create_frame_buffer(*device, m_render_pass, viewport.m_deletion_queue);
 
 		create_sync_objects(viewport);
 
@@ -651,6 +674,43 @@ namespace DoDo {
 		viewport.m_projection_matrix = create_projection_matrix_vulkan(window_size.x, window_size.y);
 
 		m_window_to_viewport_map.insert({in_window.get(), viewport});
+	}
+
+	void FSlateVulkanRenderer::private_resize_view_port(const std::shared_ptr<SWindow> in_window, uint32_t width,
+		uint32_t height, bool b_full_screen)
+	{
+		auto it = m_window_to_viewport_map.find(in_window.get());
+
+		FSlateVulkanViewport* viewport = &(it->second);
+
+		std::shared_ptr<Window> native_window = in_window->get_native_window();
+
+		if(viewport && (width != viewport->m_view_port_info.width || height != viewport->m_view_port_info.height || b_full_screen != viewport->m_b_full_screen))
+		{
+			VkDevice* device = (VkDevice*)m_logic_device->get_native_handle();
+
+			vkDeviceWaitIdle(*device);
+
+			//destroy viewport related objects
+			it->second.m_deletion_queue.flush();
+
+			//create new surface
+			create_surface(*native_window, it->second.m_vulkan_surface);
+
+			it->second.m_deletion_queue.push_function([=]()
+			{
+				vkDestroySurfaceKHR(m_vulkan_instance, it->second.m_vulkan_surface, nullptr);
+			});
+
+			it->second.m_vulkan_swap_chain = std::static_pointer_cast<VulkanSwapChain>(SwapChain::Create(&m_physical_device, device, &it->second.m_vulkan_surface, *native_window, it->second.m_deletion_queue));
+
+			it->second.m_vulkan_framebuffer = it->second.m_vulkan_swap_chain->create_frame_buffer(*device, m_render_pass, it->second.m_deletion_queue);
+
+			it->second.m_view_port_info.width = width;
+			it->second.m_view_port_info.height = height;
+
+			it->second.m_projection_matrix = create_projection_matrix_vulkan(width, height);
+		}
 	}
 
 	void FSlateVulkanRenderer::pick_physical_device()
@@ -738,10 +798,12 @@ namespace DoDo {
 		}
 #endif
 
-		m_deletion_queue.push_function([=]()
-		{
-			vkDestroySurfaceKHR(m_vulkan_instance, surface, nullptr);
-		});
+		//m_deletion_queue.push_function([=]()
+		//{
+		//	vkDestroySurfaceKHR(m_vulkan_instance, surface, nullptr);
+		//});
+
+		//this delete is managed by every viewport
 
 	}
 

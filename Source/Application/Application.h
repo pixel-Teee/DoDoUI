@@ -242,6 +242,8 @@ namespace DoDo
 
 		virtual bool On_Mouse_Up(const EMouseButtons::Type button, const glm::vec2 cursor_pos) override;
 
+		virtual bool On_Size_Changed(const std::shared_ptr<Window>& window, const int32_t width, const int32_t height, bool b_was_minimized = false);
+
 		//------------------------FGenericApplicationMessageHandler Interface------------------------
 	public:
 		const static uint32_t m_cursor_pointer_index;

@@ -1525,6 +1525,28 @@ namespace DoDo
         return process_mouse_button_up_event(mouse_event);
     }
 
+    bool Application::On_Size_Changed(const std::shared_ptr<Window>& native_window, const int32_t width, const int32_t height,
+	    bool b_was_minimized)
+    {
+        std::shared_ptr<SWindow> window = FSlateWindowHelper::find_window_by_platform_window(m_windows, native_window);
+
+        if(window)
+        {
+            window->set_cached_size(glm::vec2(width, height));//note:store the new size
+
+            m_renderer->request_resize(window, width, height);//note:recreate viewport
+
+            if(!b_was_minimized)
+            {
+                Private_Draw_Windows(window);//note:immediately draw windows
+            }
+
+            //todo:implement flush commands
+
+        }
+        return true;
+    }
+
     std::shared_ptr<SWindow> Application::get_first_window() {
         //todo:fix me
         return m_windows[0];//return first window

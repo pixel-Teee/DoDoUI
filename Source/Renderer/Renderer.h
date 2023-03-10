@@ -62,6 +62,15 @@ namespace DoDo
 		virtual void create_view_port(const std::shared_ptr<SWindow> in_window) = 0;
 
 		/*
+		 * requests that a rendering viewport be resized
+		 *
+		 * @param Window the window to resize
+		 * @param Width the new window of the window
+		 * @param Height the new height of the window
+		 */
+		virtual bool request_resize(const std::shared_ptr<SWindow>& in_window, uint32_t new_size_x, uint32_t new_size_y) = 0;
+
+		/*
 		* loads all the resources used by the specified slate style
 		*/
 		virtual void load_style_resources(const ISlateStyle& style) {}

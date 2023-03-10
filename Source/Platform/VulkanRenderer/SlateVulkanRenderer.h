@@ -83,6 +83,8 @@ namespace DoDo {
 
 		bool m_b_full_screen;
 
+		DeletionQueue m_deletion_queue;//note:when resize, need to destroy viewport, so every viewport need this queue to delete something, independent to renderer's global deletion queue
+
 		FSlateVulkanViewport()
 			: m_b_full_screen(false)
 		{
@@ -120,6 +122,8 @@ namespace DoDo {
 
 		void create_view_port(const std::shared_ptr<SWindow> in_window) override;
 
+		bool request_resize(const std::shared_ptr<SWindow>& in_window, uint32_t new_size_x, uint32_t new_size_y) override;
+
 		void draw_windows(FSlateDrawBuffer& in_window_draw_buffer) override;
 
 		virtual FSlateResourceHandle get_resource_handle(const FSlateBrush& brush, glm::vec2 local_size, float draw_scale) override;
@@ -138,6 +142,8 @@ namespace DoDo {
 		AllocatedBuffer create_buffer(size_t allocated_size, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
 	private:
 		void private_create_view_port(std::shared_ptr<SWindow> in_window, glm::vec2& window_size);
+
+		void private_resize_view_port(const std::shared_ptr<SWindow> in_window, uint32_t width, uint32_t height, bool b_full_screen);
 
 		void pick_physical_device();
 
