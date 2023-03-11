@@ -39,6 +39,10 @@ namespace DoDo {
 		//application->get_message_handler()->set_cursor_pos(glm::vec2(x_pos, y_pos));//todo:first to update cursor storage position information
 		//todo:implement slate user
 
+		//WM_SETCURSOR
+		//todo:add os window border and regular window check
+		application->get_message_handler()->On_Cursor_Set();//note:this function will generate a update cursor request
+
 		application->get_message_handler()->On_Mouse_Move(x_pos, y_pos);//todo:call this function
 	}
 

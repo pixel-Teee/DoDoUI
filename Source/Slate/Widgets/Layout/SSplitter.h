@@ -170,6 +170,8 @@ namespace DoDo {
 
 		virtual FReply On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
 
+		virtual FCursorReply On_Cursor_Query(const FGeometry& my_geometry, const FPointerEvent& cursor_event) const override;
+			 
 	private:
 		std::vector<FLayoutGeometry> arrange_children_for_layout(const FGeometry& allotted_geometry) const;
 	protected:

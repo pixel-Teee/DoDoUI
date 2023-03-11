@@ -51,6 +51,11 @@ namespace DoDo
 			return glm::vec2(right - left, bottom - top);
 		}
 
+		bool operator!=(const FSlateRect& other) const
+		{
+			return left != other.left || top != other.top || right != other.right || bottom != other.bottom;
+		}
+
 	private:
 
 	};

@@ -12,6 +12,7 @@
 #include "SlateCore/Types/PaintArgs.h"//FPaintArgs depends on it
 #include "SlateCore/Types/SlateAttributeMetaData.h"
 #include "SlateCore/Types/SlateMouseEventsMetaData.h"//FSlateMouseEventsMetaData depends on it
+#include "SlateCore/Types/SlateCursorMetaData.h"//FSlateCursorMetaData depends on it
 
 #include "Application/Application.h"
 
@@ -130,6 +131,16 @@ namespace DoDo {
 	const FGeometry& SWidget::get_paint_space_geometry() const
 	{
 		return m_persistent_state.m_allotted_geometry;
+	}
+
+	std::optional<EMouseCursor::Type> SWidget::get_cursor() const
+	{
+		if (std::shared_ptr<FSlateCursorMetaData> data = get_meta_data<FSlateCursorMetaData>())
+		{
+			return data->m_cursor.Get();
+		}
+
+		return std::optional<EMouseCursor::Type>();
 	}
 
 	namespace Private
@@ -257,6 +268,13 @@ namespace DoDo {
 		}
 
 		return FReply::un_handled();
+	}
+
+	FCursorReply SWidget::On_Cursor_Query(const FGeometry& my_geometry, const FPointerEvent& cursor_event) const
+	{
+		std::optional<EMouseCursor::Type> the_cursor = get_cursor();
+
+		return (the_cursor.has_value()) ? FCursorReply::Cursor(the_cursor.value()) : FCursorReply::un_handled();//note:construct a FCursorReply
 	}
 
 	void SWidget::slate_prepass(float in_layout_scale_multiplier)

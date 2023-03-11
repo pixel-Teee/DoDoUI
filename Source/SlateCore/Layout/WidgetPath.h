@@ -101,6 +101,14 @@ namespace DoDo
 		};
 
 		/*
+		* make a non-weak widget path out of this weak widget path, do this by computing all the relevant geometries and converting the weak pointers to TSharedPtr
+		* 
+		* @param InterruptedPathHandling should interrupted paths result in a truncated path or an invalid path
+		*/
+		FWidgetPath to_widget_path(EInterruptedPathHandling::Type interrupted_path_handling = EInterruptedPathHandling::Truncate, const FPointerEvent* pointer_event = nullptr,
+			const EVisibility visibility_filter = EVisibility::visible) const;
+
+		/*
 		 * make a non-weak widget path out of this weak widget path, do this by computing all the relevant geometries and coverting the weak pointers to TSharedPtr
 		 *
 		 * @param WidgetPath the non-weak is returned via this

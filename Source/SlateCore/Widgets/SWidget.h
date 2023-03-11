@@ -15,11 +15,13 @@
 
 #include <optional>//std::optional depends on it
 
-#include "Slate/Widgets/Input/Reply.h"
+#include "SlateCore/Input/Reply.h"
 #include "SlateCore/FastUpdate/WidgetProxy.h"
 #include "SlateCore/Layout/FlowDirection.h"
 #include "SlateCore/Types/ISlateMetaData.h"
 #include "SlateCore/Types/WidgetMouseEventsDelegate.h"//FPointerEventHandler depends on it
+
+#include "SlateCore/Input/CursorReply.h"//FCursorReply depends on it
 
 namespace DoDo
 {
@@ -69,7 +71,7 @@ namespace DoDo
 		/* be used by FSlotBase to detach this widget from parent widget*/
 		bool conditionally_detach_parent_widget(SWidget* in_expected_parent);
 
-	protected:
+	public:
 		/*
 		 * the system calls this method, it performs a breadth-first traversal of every visible widget and asks
 		 * each widget to cache how bit it needs to be in order to present all of its content
@@ -248,6 +250,10 @@ namespace DoDo
 		 * the widget having been ticked/painted, or it may be out of date, or a frame behind
 		 */
 		const FGeometry& get_paint_space_geometry() const;
+
+	protected:
+		/*the cursor to show when the mouse is hovering over this widget*/
+		std::optional<EMouseCursor::Type> get_cursor() const;//note:from the meta data to get cursor type
 	public:
 		/*
 		 * get the metadata of the type provided
@@ -323,6 +329,13 @@ namespace DoDo
 		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event);//todo:add comment
 
 		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event);//todo:add comment
+
+		/*
+		* the system asks each widget under the mouse to provide a cursor, this event is bubbled
+		* 
+		* @return FCursorReply::UnHandled() if the event is not handled, return FCursorReply::Cursor() otherwise
+		*/
+		virtual FCursorReply On_Cursor_Query(const FGeometry& my_geometry, const FPointerEvent& cursor_event) const;
 
 		/*
 		 * descends to leaf-most widgets in the hierarchy and gathers desired sizes on the way up

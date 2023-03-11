@@ -814,6 +814,18 @@ namespace DoDo
         }
     }
 
+    void Application::for_each_user(std::function<void(FSlateUser&)> in_prediacte, bool b_include_virtual_users)
+    {
+        for (const std::shared_ptr<FSlateUser>& user : m_users)
+        {
+            //ignore virtual users unless told not do
+            if (user)//todo:check FSlateUser is virtual user
+            {
+                in_prediacte(*user);
+            }
+        }
+    }
+
     std::shared_ptr<FSlateUser> Application::get_or_create_user(int32_t user_index)
     {
         if(std::shared_ptr<FSlateUser> found_user = get_user(user_index))
@@ -882,6 +894,14 @@ namespace DoDo
         s_platform_application->Tick(delta_time);
 
         //todo:process deferred events
+
+        //note:update cursor and tooltip
+        auto predicate = [this](FSlateUser& user) {
+            user.update_cursor();
+
+            //user.update_tool_tip();
+        };
+        for_each_user(predicate);
     }
 
     void Application::Tick_And_Draw_Widgets(float delta_time)
@@ -1055,6 +1075,13 @@ namespace DoDo
         {
             return FWidgetPath();
         }
+    }
+
+    std::vector<std::shared_ptr<SWindow>> Application::get_interactive_top_level_windows()
+    {
+        //todo:add modal window handle
+
+        return m_windows;
     }
 
     bool Application::process_mouse_move_event(const FPointerEvent& mouse_event, bool b_is_synthetic)
@@ -1391,6 +1418,9 @@ namespace DoDo
                     }
                 }
             }
+
+            //when the cursor capture state changes we need to refresh cursor state
+            slate_user->request_cursor_query();//note:this will be trigger by query_cursor() function
         }
     }
 
@@ -1545,6 +1575,23 @@ namespace DoDo
 
         }
         return true;
+    }
+
+    bool Application::On_Cursor_Set()
+    {
+        get_cursor_user()->request_cursor_query();//mark to update cursor
+
+        return true;
+    }
+
+    FModifierKeyState Application::get_modifier_keys() const
+    {
+        return s_platform_application->get_modifier_keys();
+    }
+
+    const std::set<FKey>& Application::get_pressed_mouse_buttons() const
+    {
+        return m_pressed_mouse_buttons;
     }
 
     std::shared_ptr<SWindow> Application::get_first_window() {

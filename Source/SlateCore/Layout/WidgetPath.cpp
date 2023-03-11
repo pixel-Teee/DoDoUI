@@ -4,6 +4,8 @@
 
 #include <memory>
 
+#include "SlateCore/Widgets/SWindow.h"
+
 namespace DoDo
 {
 	FWidgetPath::FWidgetPath()
@@ -57,9 +59,15 @@ namespace DoDo
 
 	std::shared_ptr<SWindow> FWidgetPath::get_window() const
 	{
-		std::shared_ptr<SWindow> first_widget_window = std::reinterpret_pointer_cast<SWindow>(m_widgets[0].m_widget);
-
-		return first_widget_window;
+		if (m_widgets.num() > 0)
+		{
+			std::shared_ptr<SWindow> first_widget_window = std::reinterpret_pointer_cast<SWindow>(m_widgets[0].m_widget);
+			return first_widget_window;
+		}
+		else
+		{
+			return nullptr;
+		}
 	}
 
 	bool FWidgetPath::is_valid() const
@@ -74,6 +82,13 @@ namespace DoDo
 		{
 			m_widgets.push_back(std::weak_ptr<SWidget>(in_widget_path.m_widgets[widget_index].m_widget));
 		}
+	}
+
+	FWidgetPath FWeakWidgetPath::to_widget_path(EInterruptedPathHandling::Type interrupted_path_handling, const FPointerEvent* pointer_event, const EVisibility visibility_filter) const
+	{
+		FWidgetPath widget_path;
+		to_widget_path(widget_path, interrupted_path_handling, pointer_event, visibility_filter);
+		return widget_path;
 	}
 
 	FWeakWidgetPath::EPathResolutionResult::Result FWeakWidgetPath::to_widget_path(FWidgetPath& widget_path,
@@ -104,10 +119,73 @@ namespace DoDo
 
 		//todo:implement fast path widget logic
 
-		std::vector<FWidgetAndPointer> path_with_geometries;
-
 		//todo:implement slow path widget logic
+		{
+			std::vector<FWidgetAndPointer> path_with_geometries;
 
-		return EPathResolutionResult::Truncated;
+			//the path can get interrupted if some subtree of widgets disappeared, but we still maintain weak references to it
+			bool b_path_un_interrupted = false;
+
+			//for each widget in the path compute the geometry, we are able to do this starting the top-level window because it knows its own geometry
+			if (top_level_window_ptr)
+			{
+				b_path_un_interrupted = true;
+
+				FGeometry parent_geometry = top_level_window_ptr->get_window_geometry_in_window();
+
+				path_with_geometries.push_back(FWidgetAndPointer(FArrangedWidget(top_level_window_ptr, parent_geometry)));
+
+				FArrangedChildren arranged_children(visiblity_filter, true);
+
+				std::optional<FVirtualPointerPosition> virtual_pointer_pos;
+
+				//for every widget in the vertical size
+				for (int32_t widget_index = 0; b_path_un_interrupted && widget_index < widget_ptrs.size() - 1; ++widget_index)
+				{
+					std::shared_ptr<SWidget> cur_widget = widget_ptrs[widget_index];
+
+					bool b_found_child = false;
+					if (cur_widget)
+					{
+						//arrange the widget's children to find their geometries
+						arranged_children.empty();
+
+						const bool b_update_visibility_attributes = true;
+						cur_widget->Arrange_Children(parent_geometry, arranged_children, b_update_visibility_attributes);
+
+						//find the next widget in the path among the arranged children
+						for (int32_t search_index = 0; !b_found_child && search_index < arranged_children.num(); ++search_index)
+						{
+							FArrangedWidget& arranged_widget = arranged_children[search_index];
+
+							if (arranged_widget.m_widget == widget_ptrs[widget_index + 1])
+							{
+								if (pointer_event && !virtual_pointer_pos.has_value())
+								{
+									//todo:implement translate mouse coordinate for custom hit test child
+								}
+
+								b_found_child = true;
+
+								//remember the widget, the associated geometry, and the pointer position in a transformed space
+								path_with_geometries.push_back(FWidgetAndPointer(arranged_children[search_index], virtual_pointer_pos));
+
+								//the next child in the vertical slice will be arranged with respect to its parent's geometry
+								parent_geometry = arranged_children[search_index].m_geometry;
+							}
+						}
+					}
+
+					b_path_un_interrupted = b_found_child;
+					if (!b_found_child && interrupted_path_handling == EInterruptedPathHandling::ReturnInvalid)
+					{
+						return EPathResolutionResult::Truncated;
+					}
+				}
+			}
+
+			widget_path = FWidgetPath(path_with_geometries);
+			return b_path_un_interrupted ? EPathResolutionResult::Live : EPathResolutionResult::Truncated;
+		}
 	}
 }

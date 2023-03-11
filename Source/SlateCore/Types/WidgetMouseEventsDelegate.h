@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Delegates/Delegate.h"
-#include "Slate/Widgets/Input/Reply.h"
+#include "SlateCore/Input/Reply.h"
 #include "SlateCore/Input/Events.h"
 #include "SlateCore/Layout/Geometry.h"
 

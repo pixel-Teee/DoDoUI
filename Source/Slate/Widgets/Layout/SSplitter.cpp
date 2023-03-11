@@ -272,6 +272,33 @@ namespace DoDo {
 		}
 	}
 
+	FCursorReply SSplitter::On_Cursor_Query(const FGeometry& my_geometry, const FPointerEvent& cursor_event) const
+	{
+		if (m_b_is_resizing)
+		{
+			return m_orientation == Orient_Horizontal ? FCursorReply::Cursor(EMouseCursor::ResizeLeftRight)
+				: FCursorReply::Cursor(EMouseCursor::ResizeUpDown);
+		}
+
+		const glm::vec2 local_mouse_position = my_geometry.absolute_to_local(cursor_event.get_screen_space_position());
+
+		std::vector<FLayoutGeometry> layout_children = arrange_children_for_layout(my_geometry);
+
+		//hit test which handle we are hovering over
+		const int32_t current_hovered_handle_index = (m_orientation == Orient_Horizontal) ?
+			get_handle_being_resized_from_mouse_position<Orient_Horizontal>(m_physical_splitter_handle_size, m_hit_detection_splitter_handle_size, local_mouse_position, layout_children)
+			: get_handle_being_resized_from_mouse_position<Orient_Vertical>(m_physical_splitter_handle_size, m_hit_detection_splitter_handle_size, local_mouse_position, layout_children);
+		
+		if (current_hovered_handle_index != -1 && m_children[current_hovered_handle_index].can_be_resized())
+		{
+			return m_orientation == Orient_Horizontal ? FCursorReply::Cursor(EMouseCursor::ResizeLeftRight) : FCursorReply::Cursor(EMouseCursor::ResizeUpDown);
+		}
+		else
+		{
+			return FCursorReply::un_handled();
+		}
+	}
+
 	std::vector<FLayoutGeometry> SSplitter::arrange_children_for_layout(const FGeometry& allotted_geometry) const
 	{
 		std::vector<FLayoutGeometry> result_geometries;

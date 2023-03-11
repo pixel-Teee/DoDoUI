@@ -13,6 +13,7 @@
 
 namespace DoDo
 {
+	class FCursorReply;
 	/*
 	 * slate's representation of an individual input-providing user
 	 * as new input sources are connected, new slate users are created
@@ -21,6 +22,10 @@ namespace DoDo
 	{
 	public:
 		virtual ~FSlateUser();
+
+		bool has_any_capture() const;
+
+		bool has_cursor_capture() const;
 
 		bool has_capture(uint32_t pointer_index) const;
 
@@ -52,6 +57,16 @@ namespace DoDo
 
 		void release_capture(uint32_t pointer_index);
 
+		void update_cursor();
+
+		void request_cursor_query() { m_b_query_cursor_requested = true; }
+
+		void process_cursor_reply(const FCursorReply& cursor_reply);
+
+		void process_cursor_reply(const std::shared_ptr<SWindow>& slate_window, const FCursorReply& cursor_reply);//note:use for glfw
+
+		void query_cursor();
+
 		void notify_pointer_move_begin(const FPointerEvent& pointer_event);
 
 		void notify_pointer_move_complete(const FPointerEvent& pointer_event, const FWidgetPath& widgets_under_pointer);
@@ -64,7 +79,8 @@ namespace DoDo
 
 		//todo:implement this function
 		FWidgetPath get_captor_path(uint32_t pointer_index, FWeakWidgetPath::EInterruptedPathHandling::Type interrupted_path_handling = FWeakWidgetPath::EInterruptedPathHandling::Truncate, const FPointerEvent* pointer_event = nullptr);
-
+		FWidgetPath get_cursor_captor_path(FWeakWidgetPath::EInterruptedPathHandling::Type interrupted_path_handling = FWeakWidgetPath::EInterruptedPathHandling::Truncate,
+			const FPointerEvent* pointer_event = nullptr);
 	private:
 		
 		void update_pointer_position(uint32_t pointer_index, const glm::vec2& position);
@@ -74,6 +90,13 @@ namespace DoDo
 		/*the cursor this user is in control of, guaranteed to be valid for all real users, absence implies this is a virtual user*/
 		//todo:implement ICursor
 		std::shared_ptr<ICursor> m_cursor;
+
+		/*the cursor widget and window to render that cursor for the current software cursor*/
+		std::weak_ptr<SWindow> m_cursor_window_ptr;
+		std::weak_ptr<SWidget> m_cursor_widget_ptr;
+
+		/*the os or actions taken by the user may require we refresh the current state of the cursor*/
+		bool m_b_query_cursor_requested = false;
 
 		/*current position of all pointers controlled by this user*/
 		std::map<uint32_t, glm::vec2> m_pointer_positions_by_index;
@@ -85,5 +108,11 @@ namespace DoDo
 
 		/*weak paths to the last widget each pointer was under last time an event was processed*/
 		std::map<uint32_t, FWeakWidgetPath> m_widgets_under_pointer_last_event_by_index;
+
+		/*path to widget that currently holds the cursor lock, invalid path if no cursor lock*/
+		FWeakWidgetPath m_locking_widget_path;
+
+		/*desktop space rect that bounds the cursor*/
+		FSlateRect m_last_computed_lock_bounds;
 	};
 }

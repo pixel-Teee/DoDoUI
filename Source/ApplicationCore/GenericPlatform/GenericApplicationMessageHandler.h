@@ -75,5 +75,10 @@ namespace DoDo
 		{
 			return nullptr;
 		}
+
+		virtual bool On_Cursor_Set()
+		{
+			return false;
+		}
 	};
 }

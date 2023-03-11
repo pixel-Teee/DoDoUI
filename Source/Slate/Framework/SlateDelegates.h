@@ -2,7 +2,7 @@
 
 #include "Core/Delegates/DelegateCombinations.h"
 
-#include "Slate/Widgets/Input/Reply.h"
+#include "SlateCore/Input/Reply.h"
 
 namespace DoDo
 {

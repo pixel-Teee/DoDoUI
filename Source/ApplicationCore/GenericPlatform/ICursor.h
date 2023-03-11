@@ -61,6 +61,7 @@ namespace DoDo
 		};
 	}
 
+	class Window;
 	class ICursor
 	{
 	public:
@@ -70,5 +71,7 @@ namespace DoDo
 		virtual void set_position(const int32_t x, const int32_t y) = 0;
 
 		virtual void set_type(const EMouseCursor::Type in_new_cursor) = 0;
+
+		virtual void set_type(const std::shared_ptr<Window> window, const EMouseCursor::Type in_new_cursor) = 0;
 	};
 }

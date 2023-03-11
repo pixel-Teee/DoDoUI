@@ -2,9 +2,10 @@
 
 #include "ApplicationCore/GenericPlatform/ICursor.h"
 
+class GLFWcursor;
 namespace DoDo
 {
-	class GLFWcursor;
+	class Window;
 	class FWindowsCursor : public ICursor
 	{
 	public:
@@ -16,14 +17,17 @@ namespace DoDo
 
 		virtual void set_type(const EMouseCursor::Type in_new_cursor) override;
 
+		virtual void set_type(const std::shared_ptr<Window> window, const EMouseCursor::Type in_new_cursor) override;
+
 		glm::vec2 get_position() const override;
 
 	private:
 		EMouseCursor::Type m_current_type;
 
 		//GLFWcursor* m_cursor;
+		GLFWcursor* m_cursor_override_handles[EMouseCursor::TotalCursorCount];
 
 		/*cursors*/
-		std::vector<GLFWcursor*> m_cursors[15];//todo:implement EMouseCursor
+		GLFWcursor* m_cursor_handles[EMouseCursor::TotalCursorCount];//todo:implement EMouseCursor
 	};
 }

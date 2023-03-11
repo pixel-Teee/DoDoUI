@@ -23,7 +23,7 @@ namespace DoDo
 			: m_visibility_filter(in_visibility_filter)
 			, m_b_allow_3d_widgets(b_in_allow_3d_widgets)
 		{
-			
+
 		}
 
 		static FArrangedChildren hittest2_from_array(std::vector<FWidgetAndPointer>& in_widgets) //todo:move?
@@ -31,7 +31,7 @@ namespace DoDo
 			FArrangedChildren temp(EVisibility::All);
 			//temp.m_array.resize(in_widgets.size());
 			//todo:optimize this
-			for(const FWidgetAndPointer& widget_and_pinter : in_widgets)
+			for (const FWidgetAndPointer& widget_and_pinter : in_widgets)
 			{
 				temp.m_array.push_back(widget_and_pinter);
 			}
@@ -54,7 +54,7 @@ namespace DoDo
 		 */
 		void add_widget(EVisibility visiblity_override, const FArrangedWidget& in_widget_geometry)
 		{
-			if(Accepts(visiblity_override))
+			if (Accepts(visiblity_override))
 			{
 				m_array.push_back(in_widget_geometry);
 			}
@@ -86,6 +86,16 @@ namespace DoDo
 		FArrangedWidget& operator[](int32_t index)
 		{
 			return m_array[index];
+		}
+
+		const FArrangedWidget& last() const
+		{
+			return m_array.back();
+		}
+
+		void empty()
+		{
+			return m_array.clear();
 		}
 	};
 

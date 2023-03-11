@@ -13,7 +13,9 @@
 
 #include "Slate/Framework/SlateUser.h"//FSlateUser depends on it
 
-#include "Slate/Widgets/Input/Reply.h"//FReply depends on it
+#include "SlateCore/Input/Reply.h"//FReply depends on it
+
+#include <functional>//std::function<void(FSlateUser&)> depends on it
 
 namespace DoDo
 {
@@ -90,6 +92,11 @@ namespace DoDo
 
 		virtual glm::vec2 get_last_cursor_pos() const override;
 
+		std::shared_ptr<ICursor> get_platform_cursor()
+		{
+			return s_platform_application->m_cursor;
+		}
+
 		//void Run();
 		void Tick();
 
@@ -105,6 +112,9 @@ namespace DoDo
 		FSlateTickEvent& on_post_tick() { return m_post_tick_event; }
 
 		void destroy_renderer();
+
+		/*allows you do some operations for every registered user*/
+		void for_each_user(std::function<void(FSlateUser&)> in_prediacte, bool b_include_virtual_users = false);
 
 		/*
 		 * locates the slate user object corresponding to the index, creating a new one if it doesn't exist
@@ -168,6 +178,9 @@ namespace DoDo
 
 		virtual FWidgetPath locate_widget_in_window(glm::vec2 screen_space_mouse_coordinate, const std::shared_ptr<SWindow>& window, bool b_ignore_enabled_status,
 			int32_t user_index) const;
+
+		/* @return an array of top-level windows that can be interacted with e.g. when a modal window is up, only return the modal window*/
+		std::vector<std::shared_ptr<SWindow>> get_interactive_top_level_windows();
 	public:
 		/*
 		 * called by the native application in response to a mouse move, routs the event to slate widgets
@@ -244,7 +257,18 @@ namespace DoDo
 
 		virtual bool On_Size_Changed(const std::shared_ptr<Window>& window, const int32_t width, const int32_t height, bool b_was_minimized = false);
 
+		virtual bool On_Cursor_Set() override;
+
 		//------------------------FGenericApplicationMessageHandler Interface------------------------
+
+		/*
+		* returns the current modifier keys state
+		* 
+		* @return state of modifier keys
+		*/
+		FModifierKeyState get_modifier_keys() const;
+
+		const std::set<FKey>& get_pressed_mouse_buttons() const;
 	public:
 		const static uint32_t m_cursor_pointer_index;
 

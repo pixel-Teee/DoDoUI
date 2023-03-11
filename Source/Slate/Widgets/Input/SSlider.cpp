@@ -6,7 +6,7 @@
 
 #include "SlateCore/Rendering/DrawElements.h"
 
-#include "Slate/Widgets/Input/Reply.h"//FReply depends on it
+#include "SlateCore/Input/Reply.h"//FReply depends on it
 
 namespace DoDo {
 	SSlider::SSlider()

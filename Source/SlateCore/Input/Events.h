@@ -187,6 +187,23 @@ namespace DoDo
 			, m_pointer_index(in_pointer_index)
 		{}
 
+		FPointerEvent(
+			uint32_t in_user_index,
+			uint32_t in_pointer_index,
+			const glm::vec2& in_screen_space_position,
+			const glm::vec2& in_last_screen_space_position,
+			const glm::vec2& in_delta,
+			const std::set<FKey>& in_pressed_buttons,
+			const FModifierKeyState& in_modifier_keys
+		)
+			: FInputEvent(in_modifier_keys, in_user_index, false)
+			, m_screen_space_position(in_screen_space_position)
+			, m_last_screen_space_position(in_last_screen_space_position)
+			, m_cursor_delta(in_delta)
+			, m_pressed_buttons(&in_pressed_buttons) //note:this is owned by the platform application
+			, m_pointer_index(in_pointer_index)
+		{} //todo:add more state
+
 		/*returns the position of the cursor in screen space*/
 		const glm::vec2& get_screen_space_position() const { return m_screen_space_position; }
 
