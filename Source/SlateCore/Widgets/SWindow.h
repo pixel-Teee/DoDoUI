@@ -109,6 +109,9 @@ namespace DoDo
 		*/
 		glm::vec2 get_initial_desired_position_in_screen() const;
 
+		/*@return the desired size in desktop pixels*/
+		glm::vec2 get_desired_size_desktop_pixels() const;
+
 		/*
 		 * @return the size of the window in screen space
 		 */
@@ -132,7 +135,11 @@ namespace DoDo
 
 		/*sets the actual screen position of the window, this should only be called by the os*/
 		//note:called by the os
+
 		void set_cached_size(glm::vec2 new_size);
+
+		/*relocate the window to a screenspace position specified by new position*/
+		void move_window_to(glm::vec2 new_position);
 
 		/*relocate the window to a screenspace position specified by new position and resize it to new size*/
 		void reshape_window(glm::vec2 new_position, glm::vec2 new_size);

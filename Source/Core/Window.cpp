@@ -27,4 +27,8 @@ namespace DoDo {
 	{
 		return true;
 	}
+	void Window::move_window_to(int32_t x, int32_t y)
+	{
+		//empty
+	}
 }

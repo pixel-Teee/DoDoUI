@@ -122,4 +122,14 @@ namespace DoDo {
 
         //todo:create make window region object
     }
+
+    /*native windows should implement move window to by relocating the client area of the platform-specific window to (x, y)*/
+    void WindowsWindow::move_window_to(int32_t x, int32_t y)
+    {
+        //slate gives the window position as relative to the client area of a window, so we may need to compensate for the os border
+        
+        //todo:check has os window border
+
+        glfwSetWindowPos(m_p_window, x, y);
+    }
 }

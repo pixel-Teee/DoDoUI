@@ -17,6 +17,8 @@
 
 #include <functional>//std::function<void(FSlateUser&)> depends on it
 
+#include "SlateCore/Types/SlateEnums.h"//EOrientation depends on it
+
 namespace DoDo
 {
 	class RendererInstance;
@@ -88,6 +90,13 @@ namespace DoDo
 			return slate_user;
 		}
 
+		/*
+		* gets the size of the cursor
+		* 
+		* @return cursor size
+		*/
+		virtual glm::vec2 get_cursor_size() const;
+
 		virtual glm::vec2 get_cursor_pos() const override;
 
 		virtual glm::vec2 get_last_cursor_pos() const override;
@@ -96,6 +105,31 @@ namespace DoDo
 		{
 			return s_platform_application->m_cursor;
 		}
+
+		/*
+		* calculates the popup window position from the passed in window position and size
+		* adjusts position for popup windows which are outside of the work area of the monitor where they reside
+		* 
+		* @param InAnchor the current(suggested) window position and size of an area which may not be covered by the popup
+		* @param InSize the size of the window
+		* @param InProposedPlacement the location on screen where the popup should go if allowed, if zero this will be determined from Orientation and Anchor
+		* @param Orientation the direction of the popup
+		*			if vertical it will attempt to open below the anchor but will open above if there is no room
+		*			if horizontal it will attempt to open below the anchor but will open above if there is no room
+		* 
+		* @return the adjusted position
+		*/
+		virtual glm::vec2 calculate_popup_window_position(const FSlateRect& in_anchor, const glm::vec2& in_size, bool b_auto_adjust_for_dpi_scale = true,
+			const glm::vec2& in_proposed_placement = glm::vec2(0.0f), const EOrientation orientation = Orient_Vertical) const;
+
+		/*
+		* calculates the tooltip window position
+		* 
+		* @param InAnchorRect the current(suggested) window position and size of an area which may not be covered by the popup
+		* @param InSize the size of the tooltip window
+		* @return the suggested position
+		*/
+		virtual glm::vec2 calculate_tooltip_window_position(const FSlateRect& in_anchor_rect, const glm::vec2& in_size, bool b_auto_adjust_for_dpi_scale) const;
 
 		//void Run();
 		void Tick();

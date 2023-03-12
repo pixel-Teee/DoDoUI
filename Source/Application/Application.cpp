@@ -56,6 +56,8 @@
 
 #include "Slate/Widgets/Docking/SDockTab.h"//SDockTab depends on it
 
+#include "SlateCore/Layout/LayoutUtils.h"//calculate_popup_window_position depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -574,64 +576,64 @@ namespace DoDo
 		
 		get().add_window(root_window2);
 
-		//std::shared_ptr<SWindow> root_window4;
-		//
-		//SAssignNew(root_window4, SWindow)
-		//    .Title("hello4")
-		//    .ClientSize(glm::vec2(800.0f, 600.0f))
-		//    .ScreenPosition(glm::vec2(100.0f, 100.0f))
-		//    [
-		//        SNew(SBorder)
-		//        .BorderBackgroundColor(glm::vec4(0.85f, 0.83f, 0.95f, 1.0f))//control background color
-		//		.Padding(100.0f)
-		//		[
-		//			SNew(SSplitter)
-		//            + SSplitter::Slot()
-		//			.SizeRule(SSplitter::FractionOfParent)
-		//			.MinSize(20.0f)
-		//			.Value(0.2f)
-		//            [
-        //                SNew(SComplexGradient)
-        //                .GradientColors(colors3)
-		//            ]
-		//			+ SSplitter::Slot()
-		//            .SizeRule(SSplitter::FractionOfParent)
-		//            .MinSize(20.0f)
-		//            .Value(0.2f)
-		//            [
-		//                SNew(SComplexGradient)
-		//                .GradientColors(colors2)
-		//            ]
-		//            + SSplitter::Slot()
-		//            .SizeRule(SSplitter::FractionOfParent)
-		//            .MinSize(20.0f)
-		//            .Value(0.7f)
-		//            [
-        //                SNew(SComplexGradient)
-        //                .GradientColors(colors)
-        //                .Orientation(EOrientation::Orient_Horizontal)
-		//            ]
-		//            + SSplitter::Slot()
-		//            .SizeRule(SSplitter::FractionOfParent)
-		//            .MinSize(20.0f)
-		//            .Value(0.7f)
-		//            [
-        //                SNew(SComplexGradient)
-        //                .GradientColors(colors2)
-        //                .Orientation(EOrientation::Orient_Vertical)
-		//            ]
-        //            + SSplitter::Slot()
-        //            .SizeRule(SSplitter::FractionOfParent)
-        //            .MinSize(20.0f)
-        //            .Value(0.7f)
-        //            [
-        //                SNew(SButton)
-        //                .ForegroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))
-        //            ]
-		//        ]
-		//    ];
-		//
-		//get().add_window(root_window4);
+		std::shared_ptr<SWindow> root_window4;
+		
+		SAssignNew(root_window4, SWindow)
+		    .Title("hello4")
+		    .ClientSize(glm::vec2(800.0f, 600.0f))
+		    .ScreenPosition(glm::vec2(100.0f, 100.0f))
+		    [
+		        SNew(SBorder)
+		        .BorderBackgroundColor(glm::vec4(0.85f, 0.83f, 0.95f, 1.0f))//control background color
+				.Padding(100.0f)
+				[
+					SNew(SSplitter)
+		            + SSplitter::Slot()
+					.SizeRule(SSplitter::FractionOfParent)
+					.MinSize(20.0f)
+					.Value(0.2f)
+		            [
+                        SNew(SComplexGradient)
+                        .GradientColors(colors3)
+		            ]
+					+ SSplitter::Slot()
+		            .SizeRule(SSplitter::FractionOfParent)
+		            .MinSize(20.0f)
+		            .Value(0.2f)
+		            [
+		                SNew(SComplexGradient)
+		                .GradientColors(colors2)
+		            ]
+		            + SSplitter::Slot()
+		            .SizeRule(SSplitter::FractionOfParent)
+		            .MinSize(20.0f)
+		            .Value(0.7f)
+		            [
+                        SNew(SComplexGradient)
+                        .GradientColors(colors)
+                        .Orientation(EOrientation::Orient_Horizontal)
+		            ]
+		            + SSplitter::Slot()
+		            .SizeRule(SSplitter::FractionOfParent)
+		            .MinSize(20.0f)
+		            .Value(0.7f)
+		            [
+                        SNew(SComplexGradient)
+                        .GradientColors(colors2)
+                        .Orientation(EOrientation::Orient_Vertical)
+		            ]
+                    + SSplitter::Slot()
+                    .SizeRule(SSplitter::FractionOfParent)
+                    .MinSize(20.0f)
+                    .Value(0.7f)
+                    [
+                        SNew(SButton)
+                        .ForegroundColor(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f))
+                    ]
+		        ]
+		    ];
+		
+		get().add_window(root_window4);
 
         return root_window;
 
@@ -776,7 +778,23 @@ namespace DoDo
         //std::unique_ptr<DoDo::UIRenderer> p_Renderer = DoDo::UIRenderer::Create();    
 	}
 
-	glm::vec2 Application::get_cursor_pos() const
+    glm::vec2 Application::get_cursor_size() const
+    {
+        if (s_platform_application->m_cursor)
+        {
+            int32_t x = 0;
+            int32_t y = 0;
+
+            //todo:from platform application to get cursor size
+            s_platform_application->m_cursor->get_size(x, y);
+
+            return glm::vec2(x, y);
+        }
+
+        return glm::vec2(1.0f, 1.0f);
+    }
+
+    glm::vec2 Application::get_cursor_pos() const
 	{
         return get_cursor_user()->get_cursor_position();
 	}
@@ -786,7 +804,73 @@ namespace DoDo
         return get_cursor_user()->get_previous_cursor_position();
 	}
 
-	void Application::Tick()
+    glm::vec2 Application::calculate_popup_window_position(const FSlateRect& in_anchor, const glm::vec2& in_size, bool b_auto_adjust_for_dpi_scale, const glm::vec2& in_proposed_placement, const EOrientation orientation) const
+    {
+        glm::vec2 calculated_pop_up_window_position(0.0f, 0.0f);
+
+        float dpi_scale = 1.0f;
+
+        if (b_auto_adjust_for_dpi_scale)
+        {
+            dpi_scale = FPlatformApplicationMisc::get_dpi_scale_factor_at_point(in_anchor.left, in_anchor.top);
+
+            glm::vec2 adjusted_size = in_size * dpi_scale;
+
+            FPlatformRect anchor_rect;
+            anchor_rect.left = in_anchor.left;
+            anchor_rect.top = in_anchor.top;
+            anchor_rect.right = in_anchor.right;
+            anchor_rect.bottom = in_anchor.bottom;
+
+            EPopUpOrientation::Type pop_up_orientation = EPopUpOrientation::Horizontal;
+
+            if (orientation == EOrientation::Orient_Vertical)
+            {
+                pop_up_orientation = EPopUpOrientation::Vertical;
+            }
+
+            {
+                //calculate the rectangle around our work area
+                //user our own rect, this window as probably doesn't have a size or position yet
+                //use a size of 1 to get the closest monitor to the start point
+                FPlatformRect work_area_finder_rect(anchor_rect);
+
+                work_area_finder_rect.right = anchor_rect.left + 1;
+                work_area_finder_rect.bottom = anchor_rect.top + 1;
+                const FPlatformRect platform_work_area = s_platform_application->get_work_area(work_area_finder_rect);
+
+                const FSlateRect work_area_rect(
+                    platform_work_area.left,
+                    platform_work_area.top,
+                    platform_work_area.right,
+                    platform_work_area.bottom
+                );
+
+                glm::vec2 proposed_placement = in_proposed_placement;
+
+                if (proposed_placement == glm::vec2(0.0f))
+                {
+                    //assumes natural left-to-right, top-to-bottom flow, position popup below and to the right
+                    proposed_placement = glm::vec2(
+                        orientation == Orient_Horizontal ? anchor_rect.right : anchor_rect.left,
+                        orientation == Orient_Vertical ? anchor_rect.top : anchor_rect.bottom
+                    );
+                }
+
+                return compute_pop_up_fit_in_rect(in_anchor, FSlateRect(proposed_placement, proposed_placement + adjusted_size), orientation, work_area_rect) / dpi_scale;
+            }
+        }
+    }
+
+    glm::vec2 Application::calculate_tooltip_window_position(const FSlateRect& in_anchor_rect, const glm::vec2& in_size, bool b_auto_adjust_for_dpi_scale) const
+    {
+        //first use the calculate popup window position and if cursor is not inside it, proceed with it to avoid behaviour change
+        glm::vec2 pop_up_position = calculate_popup_window_position(in_anchor_rect, in_size, b_auto_adjust_for_dpi_scale);
+
+        return pop_up_position;
+    }
+
+    void Application::Tick()
     {
         const float delta_time = get_delta_time();
         //todo:implement TickPlatform

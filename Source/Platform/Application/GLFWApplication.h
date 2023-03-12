@@ -29,12 +29,16 @@ namespace DoDo {
 
 		virtual FModifierKeyState get_modifier_keys() const;
 
+		virtual FPlatformRect get_work_area(const FPlatformRect& current_window) const override;
+
 		static std::shared_ptr<GLFWApplication> create_windows_application();
 
 		const std::vector<std::shared_ptr<WindowsWindow>> get_native_windows() const;
 
 		std::shared_ptr<WindowsWindow> m_current_under_cursor_window;//note:to handle this in the defer message 
 	private:
+
+		FPlatformRect get_work_area_from_os(const FPlatformRect& current_window) const;
 
 		std::vector<std::shared_ptr<WindowsWindow>> m_windows;
 	};

@@ -72,6 +72,32 @@ namespace DoDo {
 		uint16_t m_b_are_caps_locked : 1;
 	};
 
+	struct FPlatformRect
+	{
+		int32_t left;
+		int32_t top;
+		int32_t right;
+		int32_t bottom;
+
+		FPlatformRect() : left(0.0f), top(0.0f), right(0.0f), bottom(0.0f) {}
+
+		FPlatformRect(int32_t in_left, int32_t in_top, int32_t in_right, int32_t in_bottom) : left(in_left), top(in_top), right(in_right), bottom(in_bottom) { }
+
+		bool operator==(const FPlatformRect& other) const
+		{
+			return left == other.left && top == other.top && right == other.right && bottom == other.bottom;
+		}
+	};
+
+	namespace EPopUpOrientation
+	{
+		enum Type
+		{
+			Horizontal,
+			Vertical
+		};
+	}
+
 	class Window;
 	struct FGenericWindowDefinition;
 
@@ -104,6 +130,18 @@ namespace DoDo {
 		virtual std::shared_ptr<Window> get_window_under_cursor() { return std::shared_ptr<Window>(nullptr); }
 
 		virtual FModifierKeyState get_modifier_keys() const { return FModifierKeyState(); }
+
+		virtual FPlatformRect get_work_area(const FPlatformRect& current_window) const
+		{
+			FPlatformRect out_rect;
+
+			out_rect.left = 0;
+			out_rect.top = 0;
+			out_rect.right = 0;
+			out_rect.bottom = 0;
+
+			return out_rect;
+		}
 	public:
 		const std::shared_ptr<ICursor> m_cursor;//note:slate application will from there to get the ICursor
 	protected:

@@ -418,4 +418,73 @@ namespace DoDo
 		int32_t index;
 		EFlowDirection layout_flow;
 	};
+
+	/*
+	* some advanced widgets contain no layout information, and do not require slots
+	* those widgets may wish to store a specialized type of child widget
+	* in those cases, using TSlotlessChildren is convenient
+	* 
+	* TSlotlessChildren should not be used for general-purpose widgets
+	*/
+	template<typename ChildType>
+	class TSlotlessChildren : public FChildren
+	{
+	private:
+		std::vector<std::shared_ptr<ChildType>> m_children;
+
+		virtual int32_t num_slot() const override
+		{
+			return 0;
+		}
+
+		virtual const FSlotBase& get_slot_at(int32_t child_index) const override
+		{
+			static FSlotBase null_slot;
+
+			return null_slot;
+		}
+
+	public:
+		TSlotlessChildren(SWidget* in_owner, bool in_b_changes_invalidate_prepass = true)
+			: FChildren(in_owner)
+			, m_b_changes_invalidate_prepass(in_b_changes_invalidate_prepass)
+		{}
+
+		virtual int32_t num() const override
+		{
+			return m_children.size();
+		}
+
+		virtual std::shared_ptr<SWidget> get_child_at(int32_t index) override
+		{
+			return std::static_pointer_cast<SWidget>(m_children[index]);
+		}
+
+		virtual std::shared_ptr<const SWidget> get_child_at(int32_t index) const override
+		{
+			return std::static_pointer_cast<const SWidget>(m_children[index]);
+		}
+
+		int32_t add(const std::shared_ptr<ChildType>& child)
+		{
+			if (m_b_changes_invalidate_prepass)
+			{
+				get_owner().Invalidate(EInvalidateWidgetReason::Child_Order);
+			}
+
+			m_children.push_back(child);
+
+			int32_t index = m_children.size() - 1;
+
+			if (child != nullptr) //todo:check null widget
+			{
+				child->assign_parent_widget(get_owner().shared_from_this());
+			}	
+
+			return index;
+		}
+
+	private:
+		bool m_b_changes_invalidate_prepass;
+	};
 }

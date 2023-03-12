@@ -64,6 +64,13 @@ namespace DoDo
 		}
 	}
 
+	void FWindowsCursor::get_size(int32_t& x, int32_t& y) const
+	{
+		//todo:this is wrong
+		x = 16;
+		y = 16;
+	}
+
 	void FWindowsCursor::set_position(const int32_t x, const int32_t y)
 	{
 		//todo:implement this function

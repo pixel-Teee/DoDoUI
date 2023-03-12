@@ -14,6 +14,7 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "SlateCore/Brushes/*.cpp"
 "SlateCore/Textures/*.h"
 "SlateCore/Textures/*.cpp"
+"SlateCore/Input/*.inl"
 "SlateCore/*.h"
 "SlateCore/*.cpp"
 "Slate/Widgets/*.h"

@@ -13,6 +13,8 @@ namespace DoDo
 
 		virtual ~FWindowsCursor();
 
+		virtual void get_size(int32_t& x, int32_t& y) const override;
+
 		virtual void set_position(const int32_t x, const int32_t y) override;
 
 		virtual void set_type(const EMouseCursor::Type in_new_cursor) override;

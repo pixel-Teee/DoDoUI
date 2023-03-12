@@ -27,6 +27,8 @@ namespace DoDo {
 		 * @param height the height of the window region(in pixels)
 		 */
 		void adjust_window_region(int32_t width, int32_t height);
+
+		virtual void move_window_to(int32_t x, int32_t y) override;
 	private:
 		//windows window owner this lifetime
 		/*the window's handle*/

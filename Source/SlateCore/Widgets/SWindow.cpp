@@ -147,6 +147,11 @@ namespace DoDo {
 		return m_initial_desired_screen_position;
 	}
 
+	glm::vec2 SWindow::get_desired_size_desktop_pixels() const
+	{
+		return this->get_desired_size();
+	}
+
 	glm::vec2 SWindow::get_size_in_screen() const
 	{
 		return m_size;//window size
@@ -195,6 +200,21 @@ namespace DoDo {
 			m_size = new_size;
 
 			//todo:implement invalidate root child order
+		}
+	}
+
+	void SWindow::move_window_to(glm::vec2 new_position)
+	{
+		if (m_native_window)
+		{
+			glm::vec2 speculative_screen_position(new_position.x, new_position.y);
+			set_cached_screen_position(speculative_screen_position);//note:update window position information
+
+			m_native_window->move_window_to(new_position.x, new_position.y);
+		}
+		else
+		{
+			m_initial_desired_screen_position = new_position;
 		}
 	}
 

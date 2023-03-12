@@ -159,6 +159,11 @@ namespace DoDo {
 		);//todo:fix me
 	}
 
+	FPlatformRect GLFWApplication::get_work_area(const FPlatformRect& current_window) const
+	{
+		return get_work_area_from_os(current_window);
+	}
+
 	std::shared_ptr<GLFWApplication> GLFWApplication::create_windows_application()
 	{
 		window_application = std::make_shared<GLFWApplication>();
@@ -168,5 +173,37 @@ namespace DoDo {
 	const std::vector<std::shared_ptr<WindowsWindow>> GLFWApplication::get_native_windows() const
 	{
 		return m_windows;//todo:may be const?
+	}
+	FPlatformRect GLFWApplication::get_work_area_from_os(const FPlatformRect& current_window) const
+	{
+		int32_t count = 0;
+		GLFWmonitor** monitors = glfwGetMonitors(&count);
+
+		int32_t x = 0;
+		int32_t y = 0;
+		int32_t w = 0;
+		int32_t h = 0;
+
+		for (int32_t i = 0; i < count; ++i)
+		{
+			int32_t xpos, ypos, width, height;
+
+			glfwGetMonitorWorkarea(monitors[i], &xpos, &ypos, &width, &height);
+
+			if (xpos <= current_window.left && xpos + width > current_window.left &&
+				ypos <= current_window.top && ypos + height > current_window.bottom)
+			{
+				x = xpos, y = ypos, w = width, h = height;
+				break;
+			}
+		}
+
+		FPlatformRect work_area;
+		work_area.left = x;
+		work_area.top = y;
+		work_area.right = x + w;
+		work_area.bottom = y + h;
+
+		return work_area;
 	}
 }

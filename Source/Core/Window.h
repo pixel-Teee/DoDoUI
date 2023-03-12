@@ -18,6 +18,9 @@ namespace DoDo {
 		/*@return true if native window exists underneath the coordinates*/
 		virtual bool is_point_in_window(int32_t x, int32_t y) const;
 
+		/*native windows should implement move window to by relocating the platform-specific window to (x, y)*/
+		virtual void move_window_to(int32_t x, int32_t y);
+
 	protected:
 		std::shared_ptr<FGenericWindowDefinition> m_definition;
 	};
