@@ -28,6 +28,10 @@
 
 #include "SlateCore/Brushes/SlateNoResource.h"//FSlateNoResource depends on it
 
+#include "SlateCore/Brushes/SlateBoxBrush.h"//FSlateBoxBrush depends on it
+
+#include "SlateCore/Brushes/SlateColorBrush.h"//FSlateColorBrush depends on it
+
 namespace DoDo {
 	using namespace CoreStyleConstants;
 
@@ -253,19 +257,43 @@ namespace DoDo {
 		//	FDockTabStyle()
 		//	.set_close_button_style()
 
+		const FTextBlockStyle& normal_text = style->get_widget_style<FTextBlockStyle>("NormalText");
+
 		const FButtonStyle& button = style->get_widget_style<FButtonStyle>("Button");
 
 		//todo:fix me, use close small
-		const FButtonStyle& close_button = FButtonStyle()
-			.set_normal(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/solar-system", ".svg"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)))
-			.set_pressed(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/solar-system", ".svg"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)))
-			.set_hovered(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/solar-system", ".svg"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+		const FButtonStyle close_button = FButtonStyle()
+			.set_normal(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/close-small", ".svg"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)))
+			.set_pressed(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/close-small", ".svg"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)))
+			.set_hovered(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/close-small", ".svg"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
 				
 
 		FDockTabStyle minor_tab_style =
 			FDockTabStyle()
 			.set_close_button_style(close_button)
-			.set_normal_brush(FSlateNoResource());//todo:add more things
+			.set_normal_brush(FSlateNoResource())
+			.set_hovered_brush(FSlateBoxBrush(style->root_to_content_dir("Starship/Docking/DockTab_Foreground", ".png"), 4.0f / 20.0f))
+			.set_foreground_brush(FSlateBoxBrush(style->root_to_content_dir("Starship/Docking/DockTab_Foreground", ".png"), 4.0f / 20.0f))
+			.set_color_overlay_tab_brush(FSlateNoResource())
+			.set_color_overlay_icon_brush(FSlateNoResource())
+			.set_content_area_brush(FSlateColorBrush(glm::vec4(1.0f)))
+			.set_tab_well_brush(FSlateColorBrush(glm::vec4(1.0f)))
+			.set_flash_color(glm::vec4(1.0f))//todo:add tab flash color
+
+			.set_tab_padding(FMargin(4.0f, 3.0f, 10.0f, 4.0f))
+			.set_overlap_width(-2.0f) //negative overlap width to add space between tabs
+
+			.set_normal_foreground_color(glm::vec4(1.0f))
+			.set_active_foreground_color(glm::vec4(1.0f))
+			.set_foreground_foreground_color(glm::vec4(1.0f))
+			.set_hovered_foreground_color(glm::vec4(1.0f))
+			.set_tab_text_style(normal_text);
+
+		//panel tab
+		style->set("Docking.Tab", minor_tab_style);
+
+		//todo:add more tab
+		style->set("Docking.MajorTab", minor_tab_style);
 	}
 
 }

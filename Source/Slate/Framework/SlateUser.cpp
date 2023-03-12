@@ -248,10 +248,11 @@ namespace DoDo
 		{
 			//todo:add can draw cursor handle
 
-			std::shared_ptr<Window> window = slate_window->get_native_window();
-
-			if(slate_window)
+			if (slate_window)
+			{
+				std::shared_ptr<Window> window = slate_window->get_native_window();
 				m_cursor->set_type(window, cursor_reply.get_cursor_type());
+			}
 		}
 		else
 		{

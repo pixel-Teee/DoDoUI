@@ -85,6 +85,24 @@ public:
 	}
 
 	/*
+	 * static: creates a shared pointer-based member function delegate
+	 *
+	 * shared pointer delegates keep a weak reference to your object
+	 * you can user execute if bound to call them
+	 */
+	template<typename UserClass, typename... VarTypes>
+	inline static TDelegate<RetValType(ParamTypes...), UserPolicy> CreateSP(UserClass* in_user_object, typename TMemFunPtrType<false, UserClass, RetValType(ParamTypes..., VarTypes...)>::Type in_func, VarTypes... vars)
+	{
+		return CreateSP(std::static_pointer_cast<const UserClass>(in_user_object->shared_from_this()), in_func, vars...);
+	}
+
+	template<typename UserClass, typename... VarTypes>
+	inline static TDelegate<RetValType(ParamTypes...), UserPolicy> CreateSP(UserClass* in_user_object, typename TMemFunPtrType<true, UserClass, RetValType(ParamTypes..., VarTypes...)>::Type in_func, VarTypes... vars)
+	{
+		return CreateSP(std::static_pointer_cast<const UserClass>(in_user_object->shared_from_this()), in_func, vars...);
+	}
+
+	/*
 	* static: creates a raw c++ pointer global function delegate
 	*/
 	template<typename... VarTypes>//var types parameter is data pay load

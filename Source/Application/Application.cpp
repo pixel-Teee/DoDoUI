@@ -54,6 +54,8 @@
 
 #include "Slate/Widgets/Colors/SColorWheel.h"//SColorWheel depends on it
 
+#include "Slate/Widgets/Docking/SDockTab.h"//SDockTab depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -322,12 +324,13 @@ namespace DoDo
             .ClientSize(glm::vec2(1280.0f, 720.0f))
             .ScreenPosition(glm::vec2(200.0f, 200.0f))
             [
-                SAssignNew(s_current_application->m_border, SBorder)
+                //SNew(SDockTab)
+				SAssignNew(s_current_application->m_border, SBorder)
 				.BorderBackgroundColor(glm::vec4(1.0f, 0.8f, 0.4f, 1.0f))
-                //.BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+				//.BorderImage(FCoreStyle::get().get_brush("Checkboard"))
 				.Padding(100.0f)
 				[
-                    SNew(SConstraintCanvas)
+				    SNew(SConstraintCanvas)
 					//+ SConstraintCanvas::Slot()
 					//.Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
 					//.Offset(FMargin(0.0f, 0.0f, 147.0f, 253.0f))//position and size
@@ -367,10 +370,10 @@ namespace DoDo
 					     SNew(SButton)
 					    .ButtonColorAndOpacity(glm::vec4(0.7f, 0.3f, 0.9f, 1.0f))
 					    .Text(s_current_application, &Application::calculate_frame_per_second)
-                        [
-                            SNew(SImage)
-                            .Image(FAppStyle::get().get_brush("Icons.ArrowLeft"))
-                        ]
+				        [
+				            SNew(SImage)
+				            .Image(FAppStyle::get().get_brush("Icons.ArrowLeft"))
+				        ]
 					    //.OnPressed(border2, &SBorder::set_color)
 					]
 					//+ SConstraintCanvas::Slot()
@@ -398,14 +401,14 @@ namespace DoDo
 						SNew(SImage)
 						.Image(FAppStyle::get().get_brush("Icons.ArrowLeft"))
 					]
-		            + SConstraintCanvas::Slot()
-		        	.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
-		        	.Offset(FMargin(-600.0f, -400.0f, 100.0f, 100.0f))
-		        	.Alignment(glm::vec2(1.0f, 1.0f))
-                    [
+				    + SConstraintCanvas::Slot()
+					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
+					.Offset(FMargin(-600.0f, -400.0f, 100.0f, 100.0f))
+					.Alignment(glm::vec2(1.0f, 1.0f))
+				    [
 						SNew(SImage)
 						.Image(FAppStyle::get().get_brush("Icons.C++"))
-                    ]
+				    ]
 					+ SConstraintCanvas::Slot()
 					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
 					.Offset(FMargin(-400.0f, -400.0f, 100.0f, 100.0f))
@@ -429,8 +432,8 @@ namespace DoDo
 					[
 						SNew(SSlider)
 						.MinValue(0.0f)
-                        .MaxValue(1.0f)
-                        .OnValueChanged(s_current_application, &Application::test_slider_value_changed)
+				        .MaxValue(1.0f)
+				        .OnValueChanged(s_current_application, &Application::test_slider_value_changed)
 					]
 					+ SConstraintCanvas::Slot()
 					.Anchors(FAnchors(1.0f, 1.0f, 1.0f, 1.0f))
@@ -445,55 +448,55 @@ namespace DoDo
 					.Alignment(glm::vec2(1.0f, 1.0f))
 					[
 						SNew(SColorWheel)
-                        .OnValueChanged(s_current_application, &Application::test_color_wheel_value_changed)
+				        .OnValueChanged(s_current_application, &Application::test_color_wheel_value_changed)
 					]
-                    + SConstraintCanvas::Slot()
+				    + SConstraintCanvas::Slot()
 					.Anchors(FAnchors(0.0f, 0.0f, 0.0f, 0.0f))
 					.Offset(FMargin(100.0f, 100.0f, 400.0f, 200.0f))
 					.Alignment(glm::vec2(0.0f, 0.0f))
 					[
-                        SNew(SSplitter)
-                        .Orientation(EOrientation::Orient_Horizontal)
-                        + SSplitter::Slot()
-                        [
-                            SNew(SSplitter)
-                            .Orientation(EOrientation::Orient_Vertical)
-                            + SSplitter::Slot()
-                            .MinSize(20.0f)
-                            .Resizable(true)
-                            [
-                                SNew(SBorder)
-                                .BorderBackgroundColor(glm::vec4(0.2f, 0.8f, 0.4f, 1.0f))
-                                [
-                                    SNew(SImage)
-                                    .Image(FAppStyle::get().get_brush("Icons.heart2"))
-                                ]
-                            ]
+				        SNew(SSplitter)
+				        .Orientation(EOrientation::Orient_Horizontal)
+				        + SSplitter::Slot()
+				        [
+				            SNew(SSplitter)
+				            .Orientation(EOrientation::Orient_Vertical)
+				            + SSplitter::Slot()
+				            .MinSize(20.0f)
+				            .Resizable(true)
+				            [
+				                SNew(SBorder)
+				                .BorderBackgroundColor(glm::vec4(0.2f, 0.8f, 0.4f, 1.0f))
+				                [
+				                    SNew(SImage)
+				                    .Image(FAppStyle::get().get_brush("Icons.heart2"))
+				                ]
+				            ]
 							+ SSplitter::Slot()
-                            .Resizable(true)
-                            [
-                                SNew(SBorder)
-                                .BorderBackgroundColor(glm::vec4(0.4f, 0.8f, 0.9f, 1.0f))
-                            ]
+				            .Resizable(true)
+				            [
+				                SNew(SBorder)
+				                .BorderBackgroundColor(glm::vec4(0.4f, 0.8f, 0.9f, 1.0f))
+				            ]
 							+ SSplitter::Slot()
-                            .Resizable(true)
-                            [
-                                SNew(SBorder)
-                                .BorderBackgroundColor(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f))
-                            ]
-                        ]
+				            .Resizable(true)
+				            [
+				                SNew(SBorder)
+				                .BorderBackgroundColor(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f))
+				            ]
+				        ]
 						+ SSplitter::Slot()
-                        [
-                            SNew(SBorder)
-                            .BorderBackgroundColor(glm::vec4(0.8f, 0.7f, 0.3f, 1.0f))
-                            [
-                                SNew(SSlider)
-                                .MinValue(0.0f)
-                                .MaxValue(1.0f)
-                            ]
-                        ]
+				        [
+				            SNew(SBorder)
+				            .BorderBackgroundColor(glm::vec4(0.8f, 0.7f, 0.3f, 1.0f))
+				            [
+				                SNew(SSlider)
+				                .MinValue(0.0f)
+				                .MaxValue(1.0f)
+				            ]
+				        ]
 					]
-                ]
+				]
             ];
 
        s_current_application->m_text_block = temp_text_block;
@@ -562,9 +565,8 @@ namespace DoDo
 		            .fill_width(0.7f)
 		            .max_width(600.0f)
 		            [
-		                SNew(SSlider)
-		                .MinValue(0.0f)
-		                .MaxValue(1.0f)
+		                SNew(SDockTab)
+                        .Label("Label")
 		            ]
 				]
 		

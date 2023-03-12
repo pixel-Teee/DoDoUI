@@ -7,6 +7,7 @@
 #include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"
 
 namespace DoDo {
+	struct FSlateBrush;
 	/*
 	* implements a widget that displays an image with a desired width and height
 	*/

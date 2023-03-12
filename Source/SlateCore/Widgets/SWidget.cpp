@@ -169,7 +169,8 @@ namespace DoDo {
 	}
 
 	SWidget::SWidget()
-		: m_b_is_hovered_attribute_set(false)
+		: b_can_have_children(true)
+		, m_b_is_hovered_attribute_set(false)
 		, m_hovered_attribute(*this, false)
 		, m_b_has_registered_slate_attribute(false)
 		, m_b_enabled_attributes_update(true)

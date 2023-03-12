@@ -25,6 +25,10 @@ namespace DoDo {
 
 	struct FDockTabStyle;
 
+	class SDockingTabWell;
+	class STextBlock;
+	class SImage;
+
 	//class FTabManager;
 	class SDockTab : public SBorder
 	{
@@ -97,18 +101,36 @@ namespace DoDo {
 		/*Construct the widget from the declaration*/
 		void Construct(const FArguments& in_args);
 
+		/*@return true if this tab appears active, false otherwise*/
+		bool is_fore_ground() const;
+
 		/*is this an MajorTab? A tool panel tab?*/
 		ETabRole get_tab_role() const;
 
 		/*similar to get tab role() but returns the correct role for ui style and user input purposes*/
 		ETabRole get_visual_tab_role() const;
 
+		/*@return returns the color of this tab's icon*/
+		glm::vec4 get_icon_color() const;
+
+		/*gets the tab icon*/
+		const FSlateBrush* get_tab_icon() const;
+
 	protected:
 		/*@return the style currently applied to the dock tab*/
 		const FDockTabStyle& get_current_style() const;
 
+		/*@return the image brush that best represents this tab's in its current state*/
+		const FSlateBrush* get_image_brush() const;
+
+		/*@return the image brush for the tab's flasher overlay*/
+		const FSlateBrush* get_flash_overlay_image_brush() const;
+
 		/*@return the padding for the tab widget*/
 		FMargin get_tab_padding() const;
+
+		/*the label on the tab*/
+		DoDoUtf8String get_tab_label() const;
 	protected:
 		/*the tab manager that created this tab*/
 		std::weak_ptr<FTabManager> m_my_tab_manager;
@@ -127,6 +149,7 @@ namespace DoDo {
 
 		/*the tab's parent tab well, null if it is a floating tab*/
 		//todo:implement SDockingTabWell
+		std::weak_ptr<SDockingTabWell> m_parent_ptr;
 
 		/*the label on the tab*/
 		TAttribute<DoDoUtf8String> m_tab_label;
@@ -155,6 +178,13 @@ namespace DoDo {
 		//todo:implement STextBlock
 
 		//todo:implement SImage
+
+		/*widget used to show the label on the tab*/
+		std::shared_ptr<STextBlock> m_label_widget;
+		std::shared_ptr<STextBlock> m_label_suffix;
+
+		/*widget used to show the icon on the tab*/
+		std::shared_ptr<SImage> m_icon_widget;
 
 		//todo:implement last activation time
 	};

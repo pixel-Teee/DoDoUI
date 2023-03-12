@@ -8,6 +8,22 @@
 
 namespace DoDo
 {
+	struct FTextBlockStyle : public FSlateWidgetStyle
+	{
+		FTextBlockStyle();
+
+		virtual ~FTextBlockStyle() {}
+
+		virtual void get_resources(std::vector<const FSlateBrush*>& out_brushes) const override;
+
+		static const DoDoUtf8String TypeName;
+
+		virtual const DoDoUtf8String get_type_name() const override { return TypeName; }
+
+		FSlateFontInfo m_font;
+		FTextBlockStyle& set_font(const FSlateFontInfo& in_font) { m_font = in_font; return *this; }
+	};
+
 	/*represents the appearance of an SButton*/
 	struct FButtonStyle : public FSlateWidgetStyle
 	{
@@ -188,6 +204,8 @@ namespace DoDo
 		FDockTabStyle& set_tab_well_brush(const FSlateBrush& in_tab_well_brush) { m_tab_well_brush = in_tab_well_brush; return *this; }
 
 		//todo:implement tab text style
+		FTextBlockStyle m_tab_text_style;
+		FDockTabStyle& set_tab_text_style(const FTextBlockStyle& in_tab_text_style) { m_tab_text_style = in_tab_text_style; return *this; }
 
 		/*padding used around this tab*/
 		FMargin m_tab_padding;
@@ -225,20 +243,5 @@ namespace DoDo
 		float m_icon_border_padding;
 		FDockTabStyle& set_icon_border_padding(const float in_icon_border_padding) { m_icon_border_padding = in_icon_border_padding; return *this; }
 	};
-	
-	struct FTextBlockStyle : public FSlateWidgetStyle
-	{
-		FTextBlockStyle();
 
-		virtual ~FTextBlockStyle() {}
-
-		virtual void get_resources(std::vector<const FSlateBrush*>& out_brushes) const override;
-
-		static const DoDoUtf8String TypeName;
-
-		virtual const DoDoUtf8String get_type_name() const override { return TypeName; }
-
-		FSlateFontInfo m_font;
-		FTextBlockStyle& set_font(const FSlateFontInfo& in_font) { m_font = in_font; return *this; }
-	};
 }
