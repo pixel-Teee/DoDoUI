@@ -13,6 +13,14 @@ namespace DoDo
 		/*visible and hit-testable(can interact with cursor), default value*/
 		static const EVisibility visible;
 
+		/*not visible and takes up no space in the layout (obviously not hit-testable)*/
+		static const EVisibility Hidden;
+
+		/*visible but not hit-testable (cannot interact with cursor) and children in the hierarchy (if any) are also not hit-testable*/
+		static const EVisibility HitTestInvisible;
+
+		/*visible but not hit-testable (cannot interact with cursor) and doesn't affect hit-testing on children (if any)*/
+		static const EVisibility SelfHitTestInvisible;
 
 		/*any visibility will do*/
 		static const EVisibility All;

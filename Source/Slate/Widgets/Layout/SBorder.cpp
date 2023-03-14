@@ -83,6 +83,14 @@ namespace DoDo
 	//	}
 	//}
 
+	void SBorder::set_content(std::shared_ptr<SWidget> in_content)
+	{
+		m_child_slot
+		[
+			in_content
+		];
+	}
+
 	int32_t SBorder::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry,
 	                          const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
 	                          const FWidgetStyle& in_widget_style, bool b_parent_enabled) const

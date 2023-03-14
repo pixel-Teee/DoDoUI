@@ -13,4 +13,8 @@ namespace DoDo
 	{
 		return m_my_tab_manager.lock();
 	}
+	std::shared_ptr<SWindow> SDockingArea::get_parent_window() const
+	{
+		return m_parent_window_ptr.expired() ? m_parent_window_ptr.lock() : std::shared_ptr<SWindow>();
+	}
 }

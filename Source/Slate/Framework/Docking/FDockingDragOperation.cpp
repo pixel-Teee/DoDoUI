@@ -38,12 +38,12 @@ namespace DoDo {
 		//note:we from this drag operation to get tab, then dock to dock_node parameter
 
 		//if this tab related SWidget is dock_node's parent, then return false
-		if(is_parent_widget_of(m_tab_beging_dragged->get_content(), dock_node))
+		if(is_parent_widget_of(m_tab_being_dragged->get_content(), dock_node))
 		{
 			return false;
 		}
 
-		if(m_tab_beging_dragged->get_tab_role() == ETabRole::NomadTab)
+		if(m_tab_being_dragged->get_tab_role() == ETabRole::NomadTab)
 		{
 			if(is_docking_via_tab_well == FDockingDragOperation::DockingViaTabWell)
 			{
@@ -57,7 +57,7 @@ namespace DoDo {
 				return true;
 			}
 		}
-		else if(m_tab_beging_dragged->get_tab_role() == ETabRole::MajorTab)
+		else if(m_tab_being_dragged->get_tab_role() == ETabRole::MajorTab)
 		{
 			//major tabs can only be stacked, they should not
 			//be allowed to split areas, they are also confined to their tab manager of origin

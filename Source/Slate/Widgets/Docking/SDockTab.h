@@ -119,6 +119,11 @@ namespace DoDo {
 		/*@return the content associated with this tab*/
 		std::shared_ptr<SWidget> get_content();
 
+		/*gets the dock area that this resides in*/
+		std::shared_ptr<SDockingArea> get_dock_area() const;
+
+		/*get the window in which this tab's tabmanager has placed in*/
+		std::shared_ptr<SWindow> get_parent_window() const;
 	protected:
 		/*@return the style currently applied to the dock tab*/
 		const FDockTabStyle& get_current_style() const;

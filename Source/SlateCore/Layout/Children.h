@@ -484,6 +484,9 @@ namespace DoDo
 			return index;
 		}
 
+		const std::shared_ptr<ChildType>& operator[](int32_t index) const { return m_children[index]; }
+		std::shared_ptr<ChildType>& operator[](int32_t index) { return m_children[index]; }
+
 	private:
 		bool m_b_changes_invalidate_prepass;
 	};

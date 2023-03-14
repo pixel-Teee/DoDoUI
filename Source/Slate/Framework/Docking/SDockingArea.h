@@ -44,8 +44,14 @@ namespace DoDo
 
 		std::shared_ptr<FTabManager> get_tab_manager() const;
 
+		/*returns the window that this dock area resides in directly and also manages*/
+		std::shared_ptr<SWindow> get_parent_window() const;
+
 	private:
 		/*the tab manager that controls this dock area*/
 		std::weak_ptr<FTabManager> m_my_tab_manager;
+
+		/*the window this dock area is embedded within, if bIsManagingParentWindow is true, the dock area will also destroy the window when the last tab goes away*/
+		std::weak_ptr<SWindow> m_parent_window_ptr;
 	};
 }

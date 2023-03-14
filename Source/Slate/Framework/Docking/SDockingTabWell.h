@@ -30,6 +30,12 @@ namespace DoDo {
 
 		void Construct(const FArguments& in_args);
 
+		/*gets the currently active tab (or the currently dragged tab), or a null pointer if no tab is active*/
+		std::shared_ptr<SDockTab> get_foreground_tab() const;
+
+		/*gets the parent dockable tab stack this tab well belong to*/
+		std::shared_ptr<SDockingArea> get_dock_area();
+
 		//SWidget interface
 		virtual void On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
 		//SWidget interface
@@ -42,5 +48,8 @@ namespace DoDo {
 
 		/*the tab being dragged through the tab well, if there is one*/
 		std::shared_ptr<SDockTab> m_tab_being_dragged_ptr;
+
+		/*the index of the tab that is in the foreground right now, index_none if either none are active or a tab is being dragged throgh*/
+		int32_t m_foreground_tab_index;
 	};
 }

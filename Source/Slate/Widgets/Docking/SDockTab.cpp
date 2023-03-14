@@ -14,6 +14,10 @@
 
 #include "SlateCore/Widgets/Images/SImage.h"
 
+#include "Slate/Framework/Docking/SDockingTabWell.h"
+
+#include "Slate/Framework/Docking/SDockingArea.h"
+
 namespace DoDo
 {
 	void SDockTab::Construct(const FArguments& in_args)
@@ -158,6 +162,18 @@ namespace DoDo
 	std::shared_ptr<SWidget> SDockTab::get_content()
 	{
 		return m_content;
+	}
+
+	std::shared_ptr<SDockingArea> SDockTab::get_dock_area() const
+	{
+		return m_parent_ptr.expired() ? m_parent_ptr.lock()->get_dock_area() : std::shared_ptr<SDockingArea>();
+	}
+
+	std::shared_ptr<SWindow> SDockTab::get_parent_window() const
+	{
+		std::shared_ptr<SDockingArea> docking_area_ptr = this->get_dock_area();
+
+		return docking_area_ptr ? docking_area_ptr->get_parent_window() : std::shared_ptr<SWindow>();
 	}
 
 	const FDockTabStyle& SDockTab::get_current_style() const

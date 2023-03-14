@@ -102,6 +102,7 @@ namespace DoDo
 		 *
 		 * @param InContent the widget to use as content for the border
 		 */
+		virtual void set_content(std::shared_ptr<SWidget> in_content);
 	public:
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
 

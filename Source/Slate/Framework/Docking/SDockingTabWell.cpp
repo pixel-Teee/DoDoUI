@@ -15,6 +15,22 @@ namespace DoDo {
 	{
 	}
 
+	std::shared_ptr<SDockTab> SDockingTabWell::get_foreground_tab() const
+	{
+		if (m_tab_being_dragged_ptr)
+		{
+			return m_tab_being_dragged_ptr;
+		}
+
+		//get the active tab
+		return (m_tabs.num() > 0 && m_foreground_tab_index > -1) ? m_tabs[m_foreground_tab_index] : std::shared_ptr<SDockTab>();
+	}
+
+	std::shared_ptr<SDockingArea> SDockingTabWell::get_dock_area()
+	{
+		return m_parent_tab_stack_ptr.expired() ? m_parent_tab_stack_ptr.lock()->get_dock_area() : std::shared_ptr<SDockingArea>();
+	}
+
 	void SDockingTabWell::On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
 	{
 		std::shared_ptr<FDockingDragOperation> drag_drop_operation = drag_drop_event.get_operation_as<FDockingDragOperation>();
@@ -39,7 +55,7 @@ namespace DoDo {
 				//todo:implement tab grab offset fraction
 
 				//the user should see the contents of the tab that we're dragging
-
+				m_parent_tab_stack_ptr.lock()->set_node_content(drag_drop_operation->get_tab_being_dragged()->get_content(), FDockingStackOptionalContent());
 			}
 		}
 	}

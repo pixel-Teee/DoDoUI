@@ -149,7 +149,7 @@ namespace DoDo
 		class FStack : public FLayoutNode
 		{
 			friend class FTabManager;
-
+			friend class SDockingTabStack;
 		protected:
 
 
