@@ -8,7 +8,7 @@ std::shared_ptr<OperationType> FDragDropEvent::get_operation_as() const
 {
 	if (m_content && m_content->is_of_type<OperationType>())
 	{
-		return std::static_pointer_cast<OperationType>();
+		return std::static_pointer_cast<OperationType>(m_content);
 	}
 	else
 	{

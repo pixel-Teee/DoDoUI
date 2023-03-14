@@ -154,6 +154,12 @@ namespace DoDo
 	{
 		return m_tab_icon.Get();
 	}
+
+	std::shared_ptr<SWidget> SDockTab::get_content()
+	{
+		return m_content;
+	}
+
 	const FDockTabStyle& SDockTab::get_current_style() const
 	{
 		if (get_visual_tab_role() == ETabRole::MajorTab)

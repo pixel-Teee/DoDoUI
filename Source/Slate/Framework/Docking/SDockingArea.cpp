@@ -8,4 +8,9 @@ namespace DoDo
 	{
 
 	}
+
+	std::shared_ptr<FTabManager> SDockingArea::get_tab_manager() const
+	{
+		return m_my_tab_manager.lock();
+	}
 }

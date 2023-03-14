@@ -31,4 +31,9 @@ namespace DoDo {
 		//whatever node we added in, we are now its parent
 		in_child->set_parent_node(std::static_pointer_cast<SDockingSplitter>(shared_from_this()));
 	}
+
+	const std::vector<std::shared_ptr<SDockingNode>>& SDockingSplitter::get_child_nodes() const
+	{
+		return m_children;
+	}
 }

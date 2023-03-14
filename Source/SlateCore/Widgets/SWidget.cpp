@@ -271,6 +271,11 @@ namespace DoDo {
 		return FReply::un_handled();
 	}
 
+	void SWidget::On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
+	{
+		//noting
+	}
+
 	FCursorReply SWidget::On_Cursor_Query(const FGeometry& my_geometry, const FPointerEvent& cursor_event) const
 	{
 		std::optional<EMouseCursor::Type> the_cursor = get_cursor();

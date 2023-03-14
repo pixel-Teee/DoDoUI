@@ -38,6 +38,7 @@ namespace DoDo
 	class FWidgetStyle;
 	class FArrangedChildren;
 	struct FPointerEvent;
+	class FDragDropEvent;
 	class SWidget : public FSlateControlledConstruction, public std::enable_shared_from_this<SWidget>
 	{
 		friend class SWindow;
@@ -64,6 +65,8 @@ namespace DoDo
 
 		/* return the desired size that was computed the last time CachedDesiredSize() was called */
 		glm::vec2 get_desired_size() const;
+
+		std::shared_ptr<SWidget> get_parent_widget() const { return m_parent_widget_ptr.lock(); }
 
 		std::shared_ptr<SWidget> advanced_get_paint_parent_widget() const { return m_persistent_state.m_paint_parent.lock(); }//todo:may be to check
 
@@ -329,6 +332,24 @@ namespace DoDo
 		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event);//todo:add comment
 
 		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event);//todo:add comment
+
+		/*
+		 *	called during drag and drop when the drag enters a widget
+		 *
+		 *	enter/leave events in slate are meant as lightweight notifications
+		 *	so we do not want to capture mouse or set focus in response to these
+		 *	however, OnDragEnter must also support external APIs (e.g. OLE Drag/Drop)
+		 *	those requires that we let them know whether we can handle the content being dragged OnDragEnter
+		 *
+		 *	the concession is to return a can_handled/cannot_handle
+		 *	boolean rather than a full FReply
+		 *
+		 *	@param MyGeometry the geometry of the widget receiving the event
+		 *	@param DragDropEvent the drag and drop event
+		 *
+		 *	@return a reply that indicated whether the contents of the DragDropEvent can potentially be processed by this widget
+		 */
+		virtual void On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event);
 
 		/*
 		* the system asks each widget under the mouse to provide a cursor, this event is bubbled

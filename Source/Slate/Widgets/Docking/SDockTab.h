@@ -116,6 +116,9 @@ namespace DoDo {
 		/*gets the tab icon*/
 		const FSlateBrush* get_tab_icon() const;
 
+		/*@return the content associated with this tab*/
+		std::shared_ptr<SWidget> get_content();
+
 	protected:
 		/*@return the style currently applied to the dock tab*/
 		const FDockTabStyle& get_current_style() const;

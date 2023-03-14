@@ -35,6 +35,9 @@ namespace DoDo {
 		*/
 		void add_child_node(const std::shared_ptr<SDockingNode>& in_child, int32_t in_location = -1);
 
+		/*gets an array of all child dock nodes*/
+		const std::vector<std::shared_ptr<SDockingNode>>& get_child_nodes() const;
+
 	protected:
 		//todo:implement these functions
 

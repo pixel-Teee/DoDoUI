@@ -41,5 +41,11 @@ namespace DoDo
 		SLATE_END_ARGS()
 
 		void Construct(const FArguments& in_args, const std::shared_ptr<FTabManager>& in_tab_manager, const std::shared_ptr<FTabManager::FArea>& persistent_node);
+
+		std::shared_ptr<FTabManager> get_tab_manager() const;
+
+	private:
+		/*the tab manager that controls this dock area*/
+		std::weak_ptr<FTabManager> m_my_tab_manager;
 	};
 }

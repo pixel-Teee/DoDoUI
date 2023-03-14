@@ -7,6 +7,7 @@
 namespace DoDo {
 
 	class SDockingSplitter;
+	class SDockingArea;
 	/*
 	* a node in the docking/tabbing hierarchy
 	* any SDockingNode can be either a stack of tabs or a splitter
@@ -80,6 +81,9 @@ namespace DoDo {
 			TabRemoval_Sidebar,
 			TabRemoval_None
 		};
+
+		/*gets the dock area that this resides in*/
+		virtual std::shared_ptr<SDockingArea> get_dock_area();
 
 		/*should this node auto-size or be a percentage of its parent size, this setting is usually determined by users*/
 		virtual SSplitter::ESizeRule get_size_rule() const { return SSplitter::FractionOfParent; }

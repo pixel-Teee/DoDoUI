@@ -9,6 +9,7 @@
 #include "Slate/Widgets/Docking/SDockTab.h"
 
 namespace DoDo {
+	class FDragDropEvent;
 	class SDockingTabStack;
 	//class SDockTab;
 	/*
@@ -23,16 +24,23 @@ namespace DoDo {
 			{}
 
 		SLATE_ATTRIBUTE(std::shared_ptr<SDockingTabStack>, ParentStackNode)
-			SLATE_END_ARGS()
+		SLATE_END_ARGS()
 
 		SDockingTabWell();
 
 		void Construct(const FArguments& in_args);
+
+		//SWidget interface
+		virtual void On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
+		//SWidget interface
 	private:
 		/*the tabs in this tabwell*/
 		TSlotlessChildren<SDockTab> m_tabs;
 
 		/*a pointer to the dock node that owns this tabwell*/
 		std::weak_ptr<SDockingTabStack> m_parent_tab_stack_ptr;
+
+		/*the tab being dragged through the tab well, if there is one*/
+		std::shared_ptr<SDockTab> m_tab_being_dragged_ptr;
 	};
 }
