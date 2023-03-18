@@ -176,6 +176,11 @@ namespace DoDo
 		return docking_area_ptr ? docking_area_ptr->get_parent_window() : std::shared_ptr<SWindow>();
 	}
 
+	float SDockTab::get_overlap_width() const
+	{
+		return get_current_style().m_overlap_width;
+	}
+
 	const FDockTabStyle& SDockTab::get_current_style() const
 	{
 		if (get_visual_tab_role() == ETabRole::MajorTab)

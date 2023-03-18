@@ -6,6 +6,10 @@
 
 #include "SlateCore/Widgets/SNullWidget.h"
 
+#include "SlateCore/Widgets/SBoxPanel.h"//SHorizontalBox and FSlot depend on it
+
+#include "SlateCore/Widgets/SOverlay.h"//SOverlay depends on it
+
 namespace DoDo {
 	struct FDockingStackOptionalContent
 	{
@@ -30,6 +34,8 @@ namespace DoDo {
 	*/
 	class SBorder;
 	class SDockingTabWell;
+	//class SHorizontalBox;
+	//class SHorizontalBox::FSlot;
 	class SDockingTabStack : public SDockingArea
 	{
 	public:
@@ -40,6 +46,16 @@ namespace DoDo {
 	private:
 		/*data that persists across sessions and when the widget associated with this node is removed*/
 		std::vector<FTabManager::FTab> m_tabs;
+
+		/*the borders that hold any potential inline content areas*/
+		SHorizontalBox::FSlot* m_inline_content_area_left;
+		SHorizontalBox::FSlot* m_inline_content_area_right;
+
+		SVerticalBox::FSlot* m_title_bar_slot;
+
+		SOverlay::FOverlaySlot* m_back_ground_content_area;
+		
+		//todo:add SVerticalBox
 
 		std::shared_ptr<SWidget> m_title_bar_content;
 

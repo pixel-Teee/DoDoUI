@@ -124,6 +124,9 @@ namespace DoDo {
 
 		/*get the window in which this tab's tabmanager has placed in*/
 		std::shared_ptr<SWindow> get_parent_window() const;
+
+		/*the width that this tab will overlap with side-by-side tabs*/
+		float get_overlap_width() const;
 	protected:
 		/*@return the style currently applied to the dock tab*/
 		const FDockTabStyle& get_current_style() const;

@@ -186,4 +186,33 @@ namespace DoDo
 		}
 	}
 
+	void SVerticalBox::Private_Register_Attributes(FSlateAttributeInitializer&)
+	{
+		//todo:implement this function
+	}
+
+	SVerticalBox::FSlot& SVerticalBox::get_slot(int32_t slot_index)
+	{
+		FSlotBase& base_slot = static_cast<FSlotBase&>(m_children[slot_index]);
+		return static_cast<SVerticalBox::FSlot&>(base_slot);
+	}
+
+	const SVerticalBox::FSlot& SVerticalBox::get_slot(int32_t slot_index) const
+	{
+		const FSlotBase& base_slot = static_cast<const FSlotBase&>(m_children[slot_index]);
+		return static_cast<const SVerticalBox::FSlot&>(base_slot);
+	}
+
+	void SVerticalBox::Construct(const FArguments& in_args)
+	{
+		m_children.reserve(in_args._Slots.size());
+
+		for (const FSlot::FSlotArguments& arg : in_args._Slots)
+		{
+			const FSlotBase::FSlotArguments& child_slot_argument = static_cast<const FSlotBase::FSlotArguments&>(arg);
+			const SBoxPanel::FSlot::FSlotArguments& box_slot_argument = static_cast<const SBoxPanel::FSlot::FSlotArguments&>(child_slot_argument);
+			m_children.add_slot(std::move(const_cast<SBoxPanel::FSlot::FSlotArguments&>(box_slot_argument)));
+		}
+	}
+
 }

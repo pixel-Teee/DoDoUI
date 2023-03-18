@@ -80,6 +80,18 @@ namespace DoDo {
 				m_size_value.Assign(*this, std::move(in_size_param.m_value));
 			}
 
+			/*the widget's desired size will be used as the space required*/
+			void set_size_to_auto()
+			{
+				set_size_param(FAuto());
+			}
+
+			/*the available space will be distributed proportionately*/
+			void set_size_to_stretch(TAttribute<float> stretch_coefficient)
+			{
+				set_size_param(FStretch(std::move(stretch_coefficient)));
+			}
+
 			/*set the max size in SlateUnit this slot can be*/
 			void set_max_size(TAttribute<float> in_max_size)
 			{
@@ -187,6 +199,92 @@ namespace DoDo {
 		 *
 		 * @param InArgs the declaration data for this widget
 		 */
+		void Construct(const FArguments& in_args);
+	};
+
+
+	/*a vertical box panel, see SBoxPanel for more info*/
+	class SVerticalBox : public SBoxPanel
+	{
+		SLATE_DECLARE_WIDGET(SVerticalBox, SBoxPanel)
+	public:
+		class FSlot : public SBoxPanel::TSlot<FSlot>
+		{
+		public:
+			SLATE_SLOT_BEGIN_ARGS(FSlot, SBoxPanel::TSlot<FSlot>)
+
+			/*the widget's desired size will be used as the space required*/
+			FSlotArguments& auto_height()
+			{
+				_SizeParam = FAuto();
+				return Me();
+			}
+
+			/*the available space will distributed proportionately*/
+			FSlotArguments& fill_height(TAttribute<float> in_stretch_coefficient)
+			{
+				_SizeParam = FStretch(std::move(in_stretch_coefficient));
+				return Me();
+			}
+
+			/*set the max size in slate unit this slot can be*/
+			FSlotArguments& max_height(TAttribute<float> in_max_height)
+			{
+				_MaxSize = std::move(in_max_height);
+				return Me();
+			}
+
+			SLATE_SLOT_END_ARGS()
+
+			/*the widget's desired size will be used as the space required*/
+			void set_auto_height()
+			{
+				set_size_to_auto();
+			}
+
+			/*the available space will be distributed proportionately*/
+			void set_fill_height(TAttribute<float> in_stretch_coefficient)
+			{
+				set_size_to_stretch(std::move(in_stretch_coefficient));
+			}
+
+			/*set the max size in slate unit this slot can be*/
+			void set_max_height(TAttribute<float> in_max_height)
+			{
+				set_max_size(std::move(in_max_height));
+			}
+
+			void Construct(const FChildren& slot_owner, FSlotArguments&& in_args)
+			{
+				SBoxPanel::TSlot<FSlot>::Construct(slot_owner, std::move(in_args));
+			}
+		};
+
+		static FSlot::FSlotArguments Slot()
+		{
+			return FSlot::FSlotArguments(std::make_unique<FSlot>());
+		}
+
+		SLATE_BEGIN_ARGS(SVerticalBox)
+		{}//todo:add visibility
+
+			SLATE_SLOT_ARGUMENT(SVerticalBox::FSlot, Slots)
+		SLATE_END_ARGS()
+
+		FSlot& get_slot(int32_t slot_index);
+		const FSlot& get_slot(int32_t slot_index) const;
+		
+		SVerticalBox()
+			: SBoxPanel(Orient_Vertical)
+		{
+			//todo:add set can tick
+		}
+
+		/*
+		* construct this widget
+		* 
+		* @param InArgs the declaration data for this widget
+		*/
 		void Construct(const FArguments& in_args);
 	};
 }

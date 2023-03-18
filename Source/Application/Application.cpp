@@ -56,6 +56,8 @@
 
 #include "Slate/Widgets/Docking/SDockTab.h"//SDockTab depends on it
 
+#include "Slate/Framework/Docking/SDockingTabStack.h"//SDockTabStack depends on it
+
 #include "SlateCore/Layout/LayoutUtils.h"//calculate_popup_window_position depends on it
 
 namespace DoDo

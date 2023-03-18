@@ -6,7 +6,23 @@
 
 #include "SDockingTabStack.h"
 
+#include "SlateCore/Layout/ArrangedChildren.h"
+
+#include "SlateCore/Types/PaintArgs.h"
+
+#include "SlateCore/Rendering/DrawElements.h"
+
 namespace DoDo {
+	const glm::vec2 FDockingConstants::max_minor_tab_size(160.0f, 25.0f);
+	const glm::vec2 FDockingConstants::max_major_tab_size(210.0f, 50.0f);
+
+	const glm::vec2 FDockingConstants::get_max_tab_size_for(ETabRole tab_role)
+	{
+		return (tab_role == ETabRole::MajorTab)
+			? max_major_tab_size
+			: max_minor_tab_size;
+	}
+
 	SDockingTabWell::SDockingTabWell()
 		: m_tabs(this)
 	{
@@ -29,6 +45,144 @@ namespace DoDo {
 	std::shared_ptr<SDockingArea> SDockingTabWell::get_dock_area()
 	{
 		return m_parent_tab_stack_ptr.expired() ? m_parent_tab_stack_ptr.lock()->get_dock_area() : std::shared_ptr<SDockingArea>();
+	}
+
+	glm::vec2 SDockingTabWell::Compute_Child_Size(const FGeometry& allotted_geometry) const
+	{
+		const int32_t num_children = m_tabs.num();
+
+		/*assume all tabs overlap the same amount*/
+		const float overlap_width = (num_children > 0)
+			? m_tabs[0]->get_overlap_width()
+			: 0.0f;
+
+		//all children shall be the same size, evenly divide the allocated area
+		//if we are dragging a tab, don't forget to take it into account when dividing
+		const glm::vec2 child_size = m_tab_being_dragged_ptr ?
+			glm::vec2((allotted_geometry.get_local_size().x - overlap_width) / (num_children + 1) + overlap_width, allotted_geometry.get_local_size().y)
+			: glm::vec2((allotted_geometry.get_local_size().x - overlap_width) / num_children + overlap_width, allotted_geometry.get_local_size().y);
+		
+		//major vs .minor tabs have different tabs sizes
+		std::shared_ptr<SDockTab> first_tab = (num_children > 0) ? m_tabs[0] : m_tab_being_dragged_ptr;
+
+		//if there are no tabs in this tabwell, assume minor tabs
+		glm::vec2 max_tab_size(0.0f, 0.0f);
+		if (first_tab)
+		{
+			const ETabRole role_to_use = first_tab->get_visual_tab_role();
+			max_tab_size = FDockingConstants::get_max_tab_size_for(role_to_use);
+		}
+		else
+		{
+			max_tab_size = FDockingConstants::max_minor_tab_size;
+		}
+
+		//don't let the tabs get too big, or they'll look ugly
+		return glm::vec2(
+			glm::min(child_size.x, max_tab_size.y),
+			glm::min(child_size.y, max_tab_size.y)
+		);
+	}
+
+	void SDockingTabWell::On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const
+	{
+		//the specialized tab well is dedicated to arranging tabs
+		//tabs have uniform sizing (all tabs the same size)
+		//tabwell also ignores widget visibility, as it is not really
+		//relevant
+
+		//the tab that is being dragged by the user, if any
+		std::shared_ptr<SDockTab> tab_being_dragged = m_tab_being_dragged_ptr;
+
+		const int32_t num_children = m_tabs.num();
+
+		//tabs have a uniform size
+		const glm::vec2 child_size = Compute_Child_Size(allotted_geometry);
+
+
+	}
+
+	int32_t SDockingTabWell::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
+	{
+		//when we are dragging a tab, it must be painted on top of the other tabs, so we cannot
+		//just reuse the panel's default on paint
+
+		//the tabwell has no visualization of its own, it just visualizes its child tabs
+		FArrangedChildren arranged_children(EVisibility::visible);
+		this->Arrange_Children(allotted_geometry, arranged_children);
+
+		//because we paint multiple children, we must track the maximum layer id that they produced in case one of our parents
+		//wants to an overlay for all of its contents
+		int32_t max_layer_id = layer_id;
+
+		std::shared_ptr<SDockTab> foreground_tab = get_foreground_tab();
+
+		FArrangedWidget* foreground_tab_geometry = nullptr;
+
+		//draw all inactive tabs first, from last, to first, so that the inactive tabs
+		//that come later, are drawn behind tabs that come before it
+		for (int32_t child_index = arranged_children.num() - 1; child_index >= 0; --child_index)
+		{
+			FArrangedWidget& cur_widget = arranged_children[child_index];
+			if (cur_widget.m_widget == foreground_tab)
+			{
+				foreground_tab_geometry = &cur_widget;
+			}
+			else
+			{
+				bool b_should_draw_separator = false;
+				if (m_separator_brush && m_separator_brush->m_draw_as != ESlateBrushDrawType::NoDrawType
+					&& (child_index + 1) >= 0 && (child_index + 1) < arranged_children.num()) //todo:implement is valid index
+				{
+					const FArrangedWidget& prev_widget = arranged_children[child_index + 1];
+					b_should_draw_separator = !cur_widget.m_widget->is_hovered() && !prev_widget.m_widget->is_hovered() &&
+						prev_widget.m_widget != foreground_tab;
+				}
+
+				//note:how to understand it?
+				FSlateRect child_clip_rect = my_culling_rect.intersection_with(cur_widget.m_geometry.get_layout_bounding_rect());
+				const int32_t cur_widgets_max_layer_id = cur_widget.m_widget->paint(args.with_new_parent(this), cur_widget.m_geometry, child_clip_rect, out_draw_elements,
+					max_layer_id, in_widget_style, should_be_enabled(b_parent_enabled));
+
+				if (b_should_draw_separator)
+				{
+					const float separator_height = cur_widget.m_geometry.get_local_size().y * 0.65f;
+
+					//center the separator
+					float offset = (cur_widget.m_geometry.get_local_size().y - separator_height) / 2.0f;
+					FPaintGeometry geometry = cur_widget.m_geometry.to_paint_geometry(glm::vec2(cur_widget.m_geometry.get_local_size().x + 1.0f, offset),
+						glm::vec2(1.0f, separator_height));
+
+					//this code rounds the position of the widget so we don't end up on half a pixel and end up with
+					//a larger size separator than we want
+					FSlateRenderTransform new_transform = geometry.get_accumulated_render_transform();
+					new_transform.set_translation(new_transform.get_translation());//todo:implement round to vector
+					geometry.set_render_transform(new_transform);
+
+					FSlateDrawElement::MakeBox(out_draw_elements,
+						max_layer_id,
+						geometry,
+						m_separator_brush,
+						ESlateDrawEffect::None,
+						m_separator_brush->get_tint());//todo:fix me
+				}
+
+				max_layer_id = std::max(max_layer_id, cur_widgets_max_layer_id);
+			}
+		}
+
+		//draw active tab in front
+		if (foreground_tab != std::shared_ptr<SDockTab>())
+		{
+			FSlateRect child_clip_rect = my_culling_rect.intersection_with(foreground_tab_geometry->m_geometry.get_layout_bounding_rect());
+			const int32_t cur_widgets_max_layer_id = foreground_tab_geometry->m_widget->paint(args.with_new_parent(this),
+				foreground_tab_geometry->m_geometry, child_clip_rect, out_draw_elements,
+				max_layer_id, in_widget_style, should_be_enabled(b_parent_enabled));
+
+			max_layer_id = std::max(max_layer_id, cur_widgets_max_layer_id);
+		}
+
+		return max_layer_id;
 	}
 
 	void SDockingTabWell::On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
@@ -58,5 +212,38 @@ namespace DoDo {
 				m_parent_tab_stack_ptr.lock()->set_node_content(drag_drop_operation->get_tab_being_dragged()->get_content(), FDockingStackOptionalContent());
 			}
 		}
+	}
+	glm::vec2 SDockingTabWell::Compute_Desired_Size(float) const
+	{
+		glm::vec2 desired_size_result(0.0f, 0.0f);
+
+		std::shared_ptr<SDockTab> tab_being_dragged = m_tab_being_dragged_ptr;
+
+		for (int32_t tab_index = 0; tab_index < m_tabs.num(); ++tab_index)
+		{
+			//currently not respecting visibility because tabs cannot be invisible
+			const std::shared_ptr<SDockTab>& some_tab = m_tabs[tab_index];
+
+			//tab being dragged is computed later
+			if (some_tab != tab_being_dragged)
+			{
+				const glm::vec2 some_tab_desired_size = some_tab->get_desired_size();
+				desired_size_result.x += some_tab_desired_size.x;
+				desired_size_result.y = std::max(some_tab_desired_size.y, desired_size_result.y);
+			}
+		}
+
+		if (tab_being_dragged)
+		{
+			const glm::vec2 some_tab_desired_size = m_tab_being_dragged_ptr->get_desired_size();
+			desired_size_result.x += some_tab_desired_size.x;
+			desired_size_result.y += std::max(some_tab_desired_size.y, desired_size_result.y);
+		}
+
+		return desired_size_result;
+	}
+	FChildren* SDockingTabWell::Get_Children()
+	{
+		return &m_tabs;
 	}
 }

@@ -56,6 +56,47 @@ namespace DoDo
 			return left != other.left || top != other.top || right != other.right || bottom != other.bottom;
 		}
 
+		/*
+		* returns the rectangle that is the intersection of this rectangle and other
+		* 
+		* @param Other the other rectangle
+		* 
+		* @return rectangle over intersection
+		*/
+		FSlateRect intersection_with(const FSlateRect& other) const
+		{
+			bool b_overlapping;
+			return intersection_with(other, b_overlapping);
+		}
+
+		/*
+		* returns the rectangle that is the intersection of this rectangle and other, as well as if they were overlapping at all
+		* 
+		* @param other the other rectangle
+		* 
+		* @param OutOverlapping [Out] was there any overlap with the other rectangle
+		* 
+		* @return rectangle over intersection
+		*/
+		FSlateRect intersection_with(const FSlateRect& other, bool& out_overlapping) const
+		{
+			FSlateRect intersected(std::max(this->left, other.left),
+				std::max(this->top, other.top),
+				std::min(this->right, other.right),
+				std::min(this->bottom, other.bottom));
+
+			if ((intersected.bottom < intersected.top) || (intersected.right < intersected.left))
+			{
+				out_overlapping = false;
+				//the intersection has 0 area and should not be rendered at all
+				return FSlateRect(0, 0, 0, 0);
+			}
+			else
+			{
+				out_overlapping = true;
+				return intersected;
+			}
+		}
 	private:
 
 	};
