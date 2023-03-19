@@ -418,5 +418,9 @@ namespace DoDo
 
 		void test_color_wheel_value_changed(glm::vec4 new_color);
 		//------calculate frame per second------
+
+		//------test create sdock------
+		void test_create_sdock();
+		//------test create sdock------
 	};
 }

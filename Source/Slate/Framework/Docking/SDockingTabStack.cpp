@@ -78,7 +78,7 @@ namespace DoDo {
 			.VAlign(VAlign_Center)
 		];
 
-		/*
+		
 		m_child_slot
 		[
 			SNew(SVerticalBox)
@@ -108,11 +108,12 @@ namespace DoDo {
 			[
 				//tab content area
 				//SAssignNew
-
+				SNew(SImage)
+				.ColorAndOpacity(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
 				//todo:implement overlay manager
 			]
 		];
-		*/
+		
 	}
 	void SDockingTabStack::set_node_content(const std::shared_ptr<SWidget>& in_content, const FDockingStackOptionalContent& optional_content)
 	{
@@ -125,5 +126,11 @@ namespace DoDo {
 				//todo:implement parent window title bar
 			}
 		}
+	}
+	void SDockingTabStack::add_tab_widget(const std::shared_ptr<SDockTab>& in_tab, int32_t at_location, bool b_keep_inactive)
+	{
+		m_tab_well->add_tab(in_tab, at_location, b_keep_inactive);
+
+		//todo:hide cross
 	}
 }

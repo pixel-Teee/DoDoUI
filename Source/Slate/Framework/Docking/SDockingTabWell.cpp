@@ -44,7 +44,54 @@ namespace DoDo {
 
 	std::shared_ptr<SDockingArea> SDockingTabWell::get_dock_area()
 	{
-		return m_parent_tab_stack_ptr.expired() ? m_parent_tab_stack_ptr.lock()->get_dock_area() : std::shared_ptr<SDockingArea>();
+		return m_parent_tab_stack_ptr.lock() ? m_parent_tab_stack_ptr.lock()->get_dock_area() : std::shared_ptr<SDockingArea>();
+	}
+
+	void SDockingTabWell::add_tab(const std::shared_ptr<SDockTab>& in_tab, int32_t at_index, bool b_keep_inactive)
+	{
+		in_tab->set_parent(std::static_pointer_cast<SDockingTabWell>(shared_from_this()));
+
+		//add the tab and implicitly activate it
+		if (at_index == -1)
+		{
+			this->m_tabs.add(in_tab);
+			if (!b_keep_inactive)
+			{
+				bring_tab_to_front(m_tabs.num() - 1);
+			}
+		}
+		else
+		{
+			at_index = std::clamp(at_index, 0, m_tabs.num());
+			this->m_tabs.insert(in_tab, at_index);
+
+			if (!b_keep_inactive)
+			{
+				bring_tab_to_front(at_index);
+			}
+		}
+
+		//todo:implement this
+	}
+
+	void SDockingTabWell::bring_tab_to_front(int32_t tab_index_to_active)
+	{
+		const bool b_active_index_changing = tab_index_to_active != m_foreground_tab_index;
+
+		if (b_active_index_changing)
+		{
+			const int32_t last_foreground_tab_index = std::min(m_foreground_tab_index, m_tabs.num() - 1);
+
+			//for positive indexes, don't go out of bounds on the array
+			m_foreground_tab_index = std::min(tab_index_to_active, m_tabs.num() - 1);
+
+			std::shared_ptr<SDockingArea> my_dock_area = get_dock_area();
+
+			if (m_tabs.num() > 0 && my_dock_area)
+			{
+				//todo:implement this
+			}
+		}
 	}
 
 	glm::vec2 SDockingTabWell::Compute_Child_Size(const FGeometry& allotted_geometry) const

@@ -18,6 +18,10 @@
 
 #include "Slate/Framework/Docking/SDockingArea.h"
 
+#include "Slate/Widgets/Layout/SSpacer.h"
+
+#include "SlateCore/Widgets/SNullWidget.h"
+
 namespace DoDo
 {
 	void SDockTab::Construct(const FArguments& in_args)
@@ -125,6 +129,18 @@ namespace DoDo
 
 		//todo:implement SOverlay
 	}
+	SDockTab::SDockTab()
+		: m_content(SNew(SSpacer))
+		, m_tab_well_content_left(SNullWidget::NullWidget)
+		, m_tab_well_content_right(SNullWidget::NullWidget)
+		, m_title_bar_content_right(SNullWidget::NullWidget)
+		, m_layout_identifier("")
+		, m_tab_role(ETabRole::PanelTab)
+		, m_parent_ptr()
+		, m_tab_label("DockTab")
+		, m_tab_color_scale()//todo:add more initialize
+	{
+	}
 	bool SDockTab::is_fore_ground() const
 	{
 		//return m_parent_ptr.expired() ? (m_parent_ptr.lock()->get_foreground_tab() == shared_from_this()) : true;
@@ -179,6 +195,12 @@ namespace DoDo
 	float SDockTab::get_overlap_width() const
 	{
 		return get_current_style().m_overlap_width;
+	}
+
+	void SDockTab::set_parent(std::shared_ptr<SDockingTabWell> parent)
+	{
+		m_parent_ptr = parent;
+		//todo:implement on parent set
 	}
 
 	const FDockTabStyle& SDockTab::get_current_style() const

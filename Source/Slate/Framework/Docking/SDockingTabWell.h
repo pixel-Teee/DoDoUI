@@ -44,6 +44,19 @@ namespace DoDo {
 		/*gets the parent dockable tab stack this tab well belong to*/
 		std::shared_ptr<SDockingArea> get_dock_area();
 
+		/*
+		* add a new tab (InTab) to the TabWell at location (AtIndex)
+		* 
+		* @param InTab TheTab to add
+		* @param AtIndex add at the index or at the end if INDEX_NONE(default)
+		*/
+		void add_tab(const std::shared_ptr<SDockTab>& in_tab, int32_t at_index = -1, bool b_keep_inactive = false);
+
+		/*
+		* activate the tab specified by tab to activate index
+		*/
+		void bring_tab_to_front(int32_t tab_index_to_active);
+
 		glm::vec2 Compute_Child_Size(const FGeometry& allotted_geometry) const;
 
 		//SWidget interface

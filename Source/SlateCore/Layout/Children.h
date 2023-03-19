@@ -455,6 +455,16 @@ namespace DoDo
 			return m_children.size();
 		}
 
+		void insert(const std::shared_ptr<ChildType>& child, int32_t index)
+		{
+			m_children.insert(m_children.begin() + index, child);
+
+			if (child != SNullWidget::NullWidget)
+			{
+				child->assign_parent_widget(get_owner().shared_from_this());
+			}
+		}
+
 		virtual std::shared_ptr<SWidget> get_child_at(int32_t index) override
 		{
 			return std::static_pointer_cast<SWidget>(m_children[index]);

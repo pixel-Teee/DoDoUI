@@ -101,6 +101,9 @@ namespace DoDo {
 		/*Construct the widget from the declaration*/
 		void Construct(const FArguments& in_args);
 
+		/*protected constructor, widgets may only be constructed via a FArguments (i.e.: SNew(SDockTab))*/
+		SDockTab();
+
 		/*@return true if this tab appears active, false otherwise*/
 		bool is_fore_ground() const;
 
@@ -127,6 +130,9 @@ namespace DoDo {
 
 		/*the width that this tab will overlap with side-by-side tabs*/
 		float get_overlap_width() const;
+
+		/*sets the tab's tab well parent, or resets it if nothing is passed in*/
+		void set_parent(std::shared_ptr<SDockingTabWell> parent = std::shared_ptr<SDockingTabWell>());
 	protected:
 		/*@return the style currently applied to the dock tab*/
 		const FDockTabStyle& get_current_style() const;

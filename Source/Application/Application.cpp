@@ -307,6 +307,8 @@ namespace DoDo
 
     std::shared_ptr<SWindow> Application::test_create_widget()
     {
+        s_current_application->test_create_sdock();
+
         std::shared_ptr<SWindow> root_window;
         
         //std::shared_ptr<SBorder> border;
@@ -1440,6 +1442,36 @@ namespace DoDo
     void Application::test_color_wheel_value_changed(glm::vec4 new_color)
     {
         m_border->set_border_back_ground_color(new_color);
+    }
+
+    static std::shared_ptr<SDockTab> spawn_star_ship_widgets(const FSpawnTabArgs& spawn_tab_args)
+    {
+        return SNew(SDockTab)
+            .ContentPadding(0)
+            .ForegroundColor(glm::vec4(0.6f, 0.3f, 0.2f, 1.0f))
+            [
+                SNew(SImage)
+                .ColorAndOpacity(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f))
+            ];
+    }
+
+    void Application::test_create_sdock()
+    {
+        std::shared_ptr<FTabManager::FLayout> layout = FTabManager::new_layout("StarshipStyleGallery")
+        ->add_area
+        (
+            FTabManager::new_area(1280, 720)
+            ->split //note:put new node in FArea nodes array
+            (
+                FTabManager::new_stack()
+                ->add_tab("starship widgets", ETabState::OpenedTab) //note:first parameter is tab type
+                ->set_foreground_tab(DoDoUtf8String("starship widgets"))
+            )
+        );
+
+        FGlobalTabmanager::get()->register_nomad_tab_spawner("starship widgets", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets));//todo:implement this function
+
+        FGlobalTabmanager::get()->restore_from(layout, std::shared_ptr<SWindow>());
     }
 
     void Application::process_reply(const FWidgetPath& current_event_path, const FReply& the_reply, const FWidgetPath* widgets_under_mouse, const FPointerEvent* in_mouse_event, const int32_t m_user_index)

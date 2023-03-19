@@ -43,6 +43,8 @@ namespace DoDo {
 
 		/*set the content that the DockNode is presenting*/
 		void set_node_content(const std::shared_ptr<SWidget>& in_content, const FDockingStackOptionalContent& optional_content);
+
+		void add_tab_widget(const std::shared_ptr<SDockTab>& in_tab, int32_t at_location = -1, bool b_keep_inactive = false);
 	private:
 		/*data that persists across sessions and when the widget associated with this node is removed*/
 		std::vector<FTabManager::FTab> m_tabs;

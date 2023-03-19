@@ -29,6 +29,11 @@ namespace DoDo
 	}
 	//------as function------
 
+	FTabManager::FTabManager(const std::shared_ptr<SDockTab>& in_owner_tab, const std::shared_ptr<FTabManager::FTabSpawner>& in_nomad_tab_spawner)
+		: m_nomed_tab_spawner(in_nomad_tab_spawner) //todo:add owner tab ptr
+	{
+	}
+
 	std::shared_ptr<SDockingArea> FTabManager::restore_area(const std::shared_ptr<FArea>& area_to_restore, const std::shared_ptr<SWindow>& in_parent_window, const bool b_embed_title_area_content, const EOutputCanBeNullptr out_put_can_be_nullptr)
 	{
 		//sidebar tabs for this area
@@ -105,7 +110,7 @@ namespace DoDo
 			{
 				if ((some_tab.m_tab_state == ETabState::OpenedTab || some_tab.m_tab_state == ETabState::SidebarTab) && is_valid_tab_for_spawning(some_tab))
 				{
-					const std::shared_ptr<SDockTab> new_tab_widget;//todo:implement SpanwTab
+					const std::shared_ptr<SDockTab> new_tab_widget = spawn_tab(some_tab.m_tab_id, parent_window, b_can_out_put_be_nullptr);//todo:implement SpanwTab
 
 					if (new_tab_widget)
 					{
@@ -124,6 +129,7 @@ namespace DoDo
 						if (some_tab.m_tab_state == ETabState::OpenedTab)
 						{
 							//todo:implement add tab widget
+							new_stack_widget->add_tab_widget(new_tab_widget);
 						}
 						else
 						{
@@ -266,6 +272,45 @@ namespace DoDo
 		}
 	}
 
+	std::shared_ptr<SDockTab> FTabManager::spawn_tab(const FTabId& tab_id, const std::shared_ptr<SWindow>& parent_window, const bool b_can_output_be_nullptr)
+	{
+		std::shared_ptr<SDockTab> new_tab_widget;
+
+		//whether or not the spawner override the ability for the tab to even spawn, this is not a failure case
+		bool b_spawning_allowed_by_spawner = true;
+
+		//do we know how to spawn such a tab?
+		std::shared_ptr<FTabSpawnerEntry> spawner = find_tab_spawner_for(tab_id.m_tab_type);
+
+		if (spawner)
+		{
+			if (spawner->m_can_spawn_tab.is_bound())
+			{
+				b_spawning_allowed_by_spawner = spawner->m_can_spawn_tab.execute(FSpawnTabArgs(parent_window, tab_id));
+			}
+
+			//todo:add more logic
+			if (b_spawning_allowed_by_spawner && (spawner->m_spawned_tab_ptr.lock() == nullptr))//todo:add on find tab to reuse
+			{
+				new_tab_widget = spawner->m_on_spawn_tab.execute(FSpawnTabArgs(parent_window, tab_id));
+
+				//todo:set layout identifier and provide default local and icon
+
+				//the spawner tracks that last tab it spawned
+				spawner->m_spawned_tab_ptr = new_tab_widget;
+			}
+			else
+			{
+				//if we got here, somehow there is two entries spawning the same tab, this is now allowed so just ignore it
+				b_spawning_allowed_by_spawner = false;
+			}
+		}
+
+		//todo:add more logic
+
+		return new_tab_widget;
+	}
+
 	bool FTabManager::has_valid_open_tabs(const std::shared_ptr<FTabManager::FLayoutNode>& some_node) const
 	{
 		//search for valid and open tabs, search state is open tab
@@ -338,6 +383,26 @@ namespace DoDo
 		//todo:implement finish restore
 
 		return primary_dock_area;
+	}
+
+	std::shared_ptr<FTabSpawnerEntry> FTabManager::find_tab_spawner_for(const DoDoUtf8String& tab_id)
+	{
+		//look for a spawner in this tab manager
+		auto it = m_tab_spawner.find(tab_id);
+
+		if (it != m_tab_spawner.end())
+		{
+			return it->second;
+		}
+		else
+		{
+			//to find nomad tab spawner
+			auto it2 = m_nomed_tab_spawner->find(tab_id);
+			
+			return it2->second;
+		}
+
+		return std::shared_ptr<FTabSpawnerEntry>();
 	}
 
 	bool FTabManager::can_restore_splitter_content(std::vector<std::shared_ptr<SDockingNode>>& docking_nodes, const std::shared_ptr<FSplitter>& splitter_node, const std::shared_ptr<SWindow>& parent_window, FSidebarTabLists& out_side_bar_tabs, const EOutputCanBeNullptr out_put_can_be_nullptr)
@@ -413,7 +478,7 @@ namespace DoDo
 			nomed_spawner = &(it->second);
 		}
 
-		return !nomed_spawner;//todo:implement is sole tab instance spawned
+		return (!nomed_spawner || !(nomed_spawner->get()->is_sole_tab_instance_spawned()));//todo:implement is sole tab instance spawned
 	}
 
 	bool FTabManager::is_allowed_tab(const FTabId& tab_id) const
@@ -504,5 +569,22 @@ namespace DoDo
 				set_tabs_on(as_splitter->m_child_nodes[child_index], new_tab_state, original_tab_state);//change state
 			}
 		}
+	}
+	const std::shared_ptr<FGlobalTabmanager>& FGlobalTabmanager::get()
+	{
+		static const std::shared_ptr<FGlobalTabmanager> instance = FGlobalTabmanager::New();
+
+		return instance;
+	}
+	FTabSpawnerEntry& FGlobalTabmanager::register_nomad_tab_spawner(const DoDoUtf8String& tab_id, const FOnSpawnTab& on_spawn_tab, const FCanSpawnTab& can_spawn_tab)
+	{
+		//todo:remove tab id if it was previously loaded, this allows re-loading the Editor UI layout without restarting the whole Editor
+
+		//re(create) and return NewSpawnerEntry
+		std::shared_ptr<FTabSpawnerEntry> new_spawner_entry = std::make_shared<FTabSpawnerEntry>(tab_id, on_spawn_tab, can_spawn_tab);
+
+		m_nomed_tab_spawner->insert({ tab_id, new_spawner_entry });
+
+		return *new_spawner_entry;
 	}
 }
