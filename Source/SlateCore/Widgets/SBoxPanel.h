@@ -35,7 +35,7 @@ namespace DoDo {
 				: TBasicLayoutWidgetSlot<SlotType>(HAlign_Fill,VAlign_Fill)
 				, m_size_rule(FSizeParam::SizeRule_Stretch)
 				, m_size_value(*this, 1.0f)
-				, m_max_size(*this, 1.0f)
+				, m_max_size(*this, 0.0f)//note:0.0f is no max size, will check in the on arrange function
 			{}
 
 		public:

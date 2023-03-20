@@ -41,6 +41,8 @@ namespace DoDo {
 		//  |																			  | <-- cotent area overlay
 		//  +-----------------------------------------------------------------------------+
 
+		const FButtonStyle* const unhide_tabwell_button_style = &FCoreStyle::get().get_widget_style<FButtonStyle>("Docking.UnhideTabwellButton");
+
 		//create inline title bar content
 		m_title_bar_content = 
 		SNew(SOverlay)
@@ -108,6 +110,7 @@ namespace DoDo {
 					[
 						SNew(SImage)
 						.Image(this, &SDockingTabStack::get_tab_well_brush)
+						//.Image(FAppStyle::get().get_brush("Icons.solar-system"))
 					]
 				]
 			]
@@ -120,7 +123,8 @@ namespace DoDo {
 				+ SOverlay::Slot()
 				[
 					//content goes here
-					SAssignNew(m_content_slot, SBorder)
+					SAssignNew(m_content_slot, SBorder) //note:this is content of this SDockTab
+					//.BorderImage(FAppStyle::get().get_brush("Icons.solar-system"))
 					[
 						SNew(STextBlock)
 						.Text("empty tab!")
@@ -132,13 +136,15 @@ namespace DoDo {
 				. HAlign(HAlign_Left)
 				. VAlign(VAlign_Top)
 				[
-					//SNew(SButton)
-					//[
-					//	//button should be big enough to show its own image
-					//	SNew(SSpacer)
-					//	.Size(200.0f)//todo:fix me
-					//]
-					SNew(SImage)
+					SNew(SButton)
+					.ButtonStyle(unhide_tabwell_button_style)
+					[
+						//button should be big enough to show its own image
+						SNew(SSpacer)
+						.Size(unhide_tabwell_button_style->m_normal.m_image_size)//todo:fix me
+					]
+					//SNew(SImage)
+					//.Image(FAppStyle::get().get_brush("Icons.solar-system"))//todo:fix me
 				]
 			]
 		];
@@ -146,7 +152,7 @@ namespace DoDo {
 	}
 	void SDockingTabStack::set_node_content(const std::shared_ptr<SWidget>& in_content, const FDockingStackOptionalContent& optional_content)
 	{
-		m_content_slot->set_content(in_content);
+		m_content_slot->set_content(in_content);//note:this function is important, will use SDockTab's content to populate this
 
 		if(m_tab_well->get_foreground_tab())
 		{

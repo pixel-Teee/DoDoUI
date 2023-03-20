@@ -41,6 +41,8 @@ namespace DoDo {
 		/*gets the currently active tab (or the currently dragged tab), or a null pointer if no tab is active*/
 		std::shared_ptr<SDockTab> get_foreground_tab() const;
 
+		void refresh_parent_cotent();
+
 		/*gets the parent dockable tab stack this tab well belong to*/
 		std::shared_ptr<SDockingArea> get_dock_area();
 

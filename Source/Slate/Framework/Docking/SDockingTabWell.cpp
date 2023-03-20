@@ -29,6 +29,13 @@ namespace DoDo {
 	}
 	void SDockingTabWell::Construct(const FArguments& in_args)
 	{
+		m_foreground_tab_index = -1;
+		m_tab_being_dragged_ptr = nullptr;
+
+		m_separator_brush = nullptr;//no separator between tabs
+
+		//we need a valid parent here, tab panels must exist in a SDockingNode
+		m_parent_tab_stack_ptr = in_args._ParentStackNode.Get();
 	}
 
 	std::shared_ptr<SDockTab> SDockingTabWell::get_foreground_tab() const
@@ -40,6 +47,32 @@ namespace DoDo {
 
 		//get the active tab
 		return (m_tabs.num() > 0 && m_foreground_tab_index > -1) ? m_tabs[m_foreground_tab_index] : std::shared_ptr<SDockTab>();
+	}
+
+	void SDockingTabWell::refresh_parent_cotent()
+	{
+		if (m_tabs.num() > 0 && m_foreground_tab_index != -1)
+		{
+			const std::shared_ptr<SDockTab>& foreground_tab = m_tabs[m_foreground_tab_index];
+
+			//todo:call global tab manager set active tab
+
+			std::shared_ptr<SWindow> parent_window_ptr = foreground_tab->get_parent_window();
+
+			if (parent_window_ptr) //todo:add global tab manager get root window check
+			{
+				//todo:set title
+			}
+
+			std::shared_ptr<SDockingTabStack> parent_tab_stack = m_parent_tab_stack_ptr.lock();
+
+			FDockingStackOptionalContent optional_content{};
+			//optional_content.m_content_left = foreground_tab->get_left_content();
+			//optional_content.m_content_right = foreground_tab->get_right_content();
+			
+			//note:this function is important
+			parent_tab_stack->set_node_content(foreground_tab->get_content(), optional_content);
+		}
 	}
 
 	std::shared_ptr<SDockingArea> SDockingTabWell::get_dock_area()
@@ -92,6 +125,10 @@ namespace DoDo {
 				//todo:implement this
 			}
 		}
+
+		//always force a refresh, even if we don't think the active index changed
+		//note:this function will set the content of this tab
+		refresh_parent_cotent();
 	}
 
 	glm::vec2 SDockingTabWell::Compute_Child_Size(const FGeometry& allotted_geometry) const

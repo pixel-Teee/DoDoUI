@@ -60,6 +60,8 @@
 
 #include "SlateCore/Layout/LayoutUtils.h"//calculate_popup_window_position depends on it
 
+#include "SlateCore/Styling/UMGCoreStyle.h"//FUMGCoreStyle depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -756,6 +758,8 @@ namespace DoDo
             FStarshipCoreStyle::reset_to_default();//create a ISlateStyle
             FAppStyle::set_app_style(FStarshipCoreStyle::get_core_style());
         }
+
+        FUMGCoreStyle::reset_to_default();
     }
 
 	void Application::Initialize_Renderer(std::shared_ptr<Renderer> in_renderer)
@@ -1448,12 +1452,12 @@ namespace DoDo
     static std::shared_ptr<SDockTab> spawn_star_ship_widgets(const FSpawnTabArgs& spawn_tab_args)
     {
         return SNew(SDockTab)
-            .ContentPadding(0)
-            .ForegroundColor(glm::vec4(0.6f, 0.3f, 0.2f, 1.0f))
-            [
-                SNew(SImage)
-                .ColorAndOpacity(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f))
-            ];
+               //.ContentPadding(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
+               .ForegroundColor(glm::vec4(0.6f, 0.3f, 0.2f, 1.0f))
+               [
+                   SNew(SImage)
+                   .Image(FAppStyle::get().get_brush("Icons.C++"))
+               ];
     }
 
     void Application::test_create_sdock()
@@ -1466,11 +1470,19 @@ namespace DoDo
             (
                 FTabManager::new_stack()
                 ->add_tab("starship widgets", ETabState::OpenedTab) //note:first parameter is tab type
+                ->add_tab("test widget", ETabState::OpenedTab)
                 ->set_foreground_tab(DoDoUtf8String("starship widgets"))
             )
+			//->split
+			//(
+			//    FTabManager::new_stack()
+			//    ->add_tab("test widget", ETabState::OpenedTab)
+			//    ->set_foreground_tab(DoDoUtf8String("test widget"))
+			//)
         );
 
         FGlobalTabmanager::get()->register_nomad_tab_spawner("starship widgets", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets));//todo:implement this function
+        FGlobalTabmanager::get()->register_nomad_tab_spawner("test widget", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets));
 
         FGlobalTabmanager::get()->restore_from(layout, std::shared_ptr<SWindow>());
     }

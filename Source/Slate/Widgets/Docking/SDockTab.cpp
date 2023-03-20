@@ -118,10 +118,17 @@ namespace DoDo
 						]
 					]
 					+ SHorizontalBox::Slot()
+					. auto_width() //note:use desired size
+					. HAlign(HAlign_Right)
+					. VAlign(VAlign_Center)
 					[
 						SNew(SButton)//todo:add SSpacer and close button
 						.ButtonStyle(close_button_style)
 						.ContentPadding(FMargin(0.0f, 1.5f, 0.0f, 0.0f))//todo:add SSpacer
+						[
+							SNew(SSpacer)
+							.Size(close_button_style->m_normal.m_image_size)
+						]
 					]
 				]
 			]

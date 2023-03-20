@@ -7,6 +7,14 @@
 namespace DoDo {
 	void SDockingSplitter::Construct(const FArguments& in_args, const std::shared_ptr<FTabManager::FSplitter>& persistent_node)
 	{
+		//in docksplitter mode we just act as a thin shell around a splitter widget
+		this->m_child_slot
+		[
+			SAssignNew(m_splitter, SSplitter)
+			.Orientation(persistent_node->get_orientation())
+		];
+
+		this->set_size_coefficient(persistent_node->get_size_coefficient());
 	}
 	void SDockingSplitter::add_child_node(const std::shared_ptr<SDockingNode>& in_child, int32_t in_location)
 	{

@@ -289,6 +289,13 @@ namespace DoDo {
 			.set_hovered_foreground_color(glm::vec4(1.0f))
 			.set_tab_text_style(normal_text);
 
+		style->set("Docking.UnhideTabwellButton", FButtonStyle(button)
+			.set_normal(FSlateImageBrush(style->root_to_content_dir("Docking/ShowTabwellButton_Normal", ".png"), glm::vec2(100.0f, 100.0f)))
+			.set_pressed(FSlateImageBrush(style->root_to_content_dir("Docking/ShowTabwellButton_Pressed", ".png"), glm::vec2(100.0f, 100.0f)))
+			.set_hovered(FSlateImageBrush(style->root_to_content_dir("Docking/ShowTabwellButton_Hovered", ".png"), glm::vec2(100.0f, 100.0f)))
+			.set_normal_padding(0)
+			.set_pressed_padding(0));
+
 		//panel tab
 		style->set("Docking.Tab", minor_tab_style);
 

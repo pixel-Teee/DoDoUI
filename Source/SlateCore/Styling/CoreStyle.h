@@ -40,6 +40,8 @@ namespace DoDo {
 	{
 		const glm::vec2 Icon16x16(16.0f, 16.0f);
 
+		const glm::vec2 Icon32x32(32.0f, 32.0f);
+
 		const glm::vec2 Icon100x100(100.0f, 100.0f);
 
 		//common margins
