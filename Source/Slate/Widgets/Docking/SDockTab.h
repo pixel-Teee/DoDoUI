@@ -119,6 +119,9 @@ namespace DoDo {
 		/*gets the tab icon*/
 		const FSlateBrush* get_tab_icon() const;
 
+		/*depending on the tabs we put into the tab well, we want a different background brush*/
+		const FSlateBrush* get_tab_well_brush() const;
+
 		/*@return the content associated with this tab*/
 		std::shared_ptr<SWidget> get_content();
 

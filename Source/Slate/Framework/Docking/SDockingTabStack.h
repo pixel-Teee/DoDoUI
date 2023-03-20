@@ -45,6 +45,12 @@ namespace DoDo {
 		void set_node_content(const std::shared_ptr<SWidget>& in_content, const FDockingStackOptionalContent& optional_content);
 
 		void add_tab_widget(const std::shared_ptr<SDockTab>& in_tab, int32_t at_location = -1, bool b_keep_inactive = false);
+
+		/*depending on the tabs we put into the tab well, we want a different background brush*/
+		const FSlateBrush* get_tab_well_brush() const;
+
+		/*overridden from SDockingNode*/
+		virtual void set_parent_node(std::shared_ptr<SDockingSplitter> in_parent) override;
 	private:
 		/*data that persists across sessions and when the widget associated with this node is removed*/
 		std::vector<FTabManager::FTab> m_tabs;

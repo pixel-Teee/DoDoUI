@@ -266,6 +266,8 @@ namespace DoDo
 			{
 				return std::static_pointer_cast<FSplitter>(shared_from_this());
 			}
+
+			EOrientation get_orientation() const { return m_orientation; }
 		protected:
 			EOrientation m_orientation;//have orientation
 			std::vector<std::shared_ptr<FLayoutNode>> m_child_nodes;

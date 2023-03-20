@@ -146,7 +146,41 @@ namespace DoDo {
 		//tabs have a uniform size
 		const glm::vec2 child_size = Compute_Child_Size(allotted_geometry);
 
+		const float dragged_child_center = child_size.x / 2.0f;//todo:add child being dragged offset
 
+		//arrange all the tabs left to right
+		float x_offset = 0.0f;
+		for (int32_t tab_index = 0; tab_index < num_children; ++tab_index)
+		{
+			const std::shared_ptr<SDockTab> cur_tab = m_tabs[tab_index];
+
+			const float child_width_with_overlap = child_size.x - cur_tab->get_overlap_width();
+
+			//this tab being dragged is arranged later, it should not be arranged twice
+			if (cur_tab == tab_being_dragged)
+			{
+				continue;
+			}
+
+			//is this spot reserved from the tab that is being dragged?
+			if (tab_being_dragged && x_offset <= dragged_child_center && dragged_child_center < (x_offset + child_width_with_overlap))
+			{
+				//if so, leave some room to signify that this is where the dragged tab would end up
+				x_offset += child_width_with_overlap;
+			}
+
+			arranged_children.add_widget(allotted_geometry.make_child(cur_tab, glm::vec2(x_offset, 0.0f), child_size));
+
+			x_offset += child_width_with_overlap;
+		}
+
+		//arrange the tab currently being dragged by the user, if any
+		
+		//todo:implement child being dragged offset
+		if (tab_being_dragged)
+		{
+			arranged_children.add_widget(allotted_geometry.make_child(tab_being_dragged, glm::vec2(0.0f, 0.0f), child_size));
+		}
 	}
 
 	int32_t SDockingTabWell::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const

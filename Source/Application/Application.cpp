@@ -309,6 +309,7 @@ namespace DoDo
     {
         s_current_application->test_create_sdock();
 
+
         std::shared_ptr<SWindow> root_window;
         
         //std::shared_ptr<SBorder> border;
@@ -316,7 +317,7 @@ namespace DoDo
         //std::shared_ptr<SBorder> border2;
         //
         //std::shared_ptr<SButton> button2;
-
+        /*
         std::vector<glm::vec4> colors = { {0.51f, 0.99f, 0.73f, 1.0f}, {1.0f, 0.98f, 0.49f, 1.0f}};
 
         std::vector<glm::vec4> colors2 = { {0.55f, 0.77f, 0.98f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f} };
@@ -508,13 +509,13 @@ namespace DoDo
        s_current_application->m_text_block = temp_text_block;
 
        // button2->set_on_pressed(FSimpleDelegate::CreateSP(border2, &SBorder::set_color));
-        
+        */
 #ifdef Andorid
         get().add_window(root_window, false);
 #else
-        get().add_window(root_window, true);
+        //get().add_window(root_window, true);
 #endif
-
+        /*
 		std::shared_ptr<SWindow> root_window2;
 		
 		SAssignNew(root_window2, SWindow)
@@ -638,7 +639,7 @@ namespace DoDo
 		    ];
 		
 		get().add_window(root_window4);
-
+        */
         return root_window;
 
 		//std::shared_ptr<SWindow> root_window2;

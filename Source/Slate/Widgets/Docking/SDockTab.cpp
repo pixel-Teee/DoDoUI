@@ -175,6 +175,11 @@ namespace DoDo
 		return m_tab_icon.Get();
 	}
 
+	const FSlateBrush* SDockTab::get_tab_well_brush() const
+	{
+		return &get_current_style().m_tab_well_brush;
+	}
+
 	std::shared_ptr<SWidget> SDockTab::get_content()
 	{
 		return m_content;

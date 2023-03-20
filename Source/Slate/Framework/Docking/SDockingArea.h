@@ -47,6 +47,8 @@ namespace DoDo
 		/*returns the window that this dock area resides in directly and also manages*/
 		std::shared_ptr<SWindow> get_parent_window() const;
 
+		void set_parent_window(const std::shared_ptr<SWindow>& new_parent_window);
+
 	private:
 		/*the tab manager that controls this dock area*/
 		std::weak_ptr<FTabManager> m_my_tab_manager;

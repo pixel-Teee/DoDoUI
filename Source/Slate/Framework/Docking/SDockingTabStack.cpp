@@ -10,6 +10,10 @@
 
 #include "SlateCore/Widgets/Images/SImage.h"
 
+#include "Slate/Widgets/Text/STextBlock.h"
+
+#include "Slate/Widgets/Input/SButton.h"
+
 namespace DoDo {
 	void SDockingTabStack::Construct(const FArguments& in_args, const std::shared_ptr<FTabManager::FStack>& persistent_node)
 	{
@@ -40,13 +44,13 @@ namespace DoDo {
 		//create inline title bar content
 		m_title_bar_content = 
 		SNew(SOverlay)
-		+ SOverlay::Slot().Expose(m_back_ground_content_area)
+		//+ SOverlay::Slot().Expose(m_back_ground_content_area)
 		+ SOverlay::Slot()
 		[
 			SNew(SHorizontalBox)//todo:add visibility
-			+ SHorizontalBox::Slot() 
-			.auto_width()
-			.Expose(m_inline_content_area_left)
+			//+ SHorizontalBox::Slot() 
+			//.auto_width()
+			//.Expose(m_inline_content_area_left)
 
 			+ SHorizontalBox::Slot()
 			.fill_width(1.0f)
@@ -71,11 +75,11 @@ namespace DoDo {
 				]
 			]
 
-			+ SHorizontalBox::Slot()
-			.auto_width()
-			.Expose(m_inline_content_area_right)
-			.Padding(5.0f, 0.0f, 0.0f, 0.0f)
-			.VAlign(VAlign_Center)
+			//+ SHorizontalBox::Slot()
+			//.auto_width()
+			//.Expose(m_inline_content_area_right)
+			//.Padding(5.0f, 0.0f, 0.0f, 0.0f)
+			//.VAlign(VAlign_Center)
 		];
 
 		
@@ -88,10 +92,13 @@ namespace DoDo {
 			[
 				//tab well area
 				SNew(SBorder)
+				//.DesiredSizeScale(this, &SDockingTabStack::get_tab_well_scale)
+				//.BorderImage(this, &SDockingTabStack::get_tab_stack_border_image)
 				.VAlign(VAlign_Bottom)
 				.Padding(0.0f)
 				[
 					SNew(SVerticalBox)
+
 					+ SVerticalBox::Slot()
 					.Expose(m_title_bar_slot)
 					.auto_height()
@@ -100,6 +107,7 @@ namespace DoDo {
 					.auto_height()
 					[
 						SNew(SImage)
+						.Image(this, &SDockingTabStack::get_tab_well_brush)
 					]
 				]
 			]
@@ -107,10 +115,31 @@ namespace DoDo {
 			.fill_height(1.0f)
 			[
 				//tab content area
-				//SAssignNew
-				SNew(SImage)
-				.ColorAndOpacity(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
-				//todo:implement overlay manager
+				SNew(SOverlay)
+
+				+ SOverlay::Slot()
+				[
+					//content goes here
+					SAssignNew(m_content_slot, SBorder)
+					[
+						SNew(STextBlock)
+						.Text("empty tab!")
+					]
+				]
+
+				+ SOverlay::Slot()
+				. Padding(0.0f)
+				. HAlign(HAlign_Left)
+				. VAlign(VAlign_Top)
+				[
+					//SNew(SButton)
+					//[
+					//	//button should be big enough to show its own image
+					//	SNew(SSpacer)
+					//	.Size(200.0f)//todo:fix me
+					//]
+					SNew(SImage)
+				]
 			]
 		];
 		
@@ -132,5 +161,22 @@ namespace DoDo {
 		m_tab_well->add_tab(in_tab, at_location, b_keep_inactive);
 
 		//todo:hide cross
+	}
+	const FSlateBrush* SDockingTabStack::get_tab_well_brush() const
+	{
+		std::shared_ptr<SDockTab> foreground_tab = m_tab_well->get_foreground_tab();
+
+		//todo:fix me, use FStyleDefaults::get no brush
+		return foreground_tab ? foreground_tab->get_tab_well_brush() : nullptr;
+	}
+	void SDockingTabStack::set_parent_node(std::shared_ptr<SDockingSplitter> in_parent)
+	{
+		SDockingNode::set_parent_node(in_parent);
+
+		//ok, if this docking area has a parent window, we'll assume the window was created with no title bar, and we'll
+		//place the title bar widgets into our content instead!
+		const std::shared_ptr<SDockingArea>& dock_area = get_dock_area();
+
+		m_title_bar_slot->attach_widget(m_title_bar_content);
 	}
 }

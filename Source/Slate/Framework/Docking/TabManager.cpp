@@ -452,10 +452,11 @@ namespace DoDo
 			const bool b_embed_title_area_content = false;
 			std::shared_ptr<SDockingNode> this_child_node_widget = restore_area_helper(this_child_node, parent_window, b_embed_title_area_content, out_sidebar_tabs);
 
-			if (this_child_node_widget)
+			if (this_child_node_widget != nullptr)
 			{
-				const std::shared_ptr<SDockingNode> this_child_node_widget = std::static_pointer_cast<SDockingNode>(this_child_node_widget);
+				const std::shared_ptr<SDockingNode> child_node_widget = std::static_pointer_cast<SDockingNode>(this_child_node_widget);
 				//todo:implement add child node
+				splitter_widget->add_child_node(child_node_widget, -1);
 			}
 		}
 	}
