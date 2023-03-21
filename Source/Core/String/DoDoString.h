@@ -32,6 +32,10 @@ namespace DoDo {
 
 		size_t get_count() const;
 
+		DoDoUtf8String utf8_at(size_t index);
+
+		DoDoUtf8String& utf8_sub_str(size_t pos, size_t buffer_count);
+
 		//return c style string
 		const char* c_str() const;
 
@@ -52,7 +56,7 @@ namespace DoDo {
 
 		bool operator<(const DoDoUtf8String& rhs) const;
 
-		const char& operator[](int32_t index) const
+		const char& operator[](int32_t index) const //todo:fix me
 		{
 			return m_buffer[index];
 		}
@@ -62,6 +66,10 @@ namespace DoDo {
 			return m_buffer[index];
 		}
 	private:
+		bool m_need_update_lengths_cache = false;
+
+		std::vector<uint32_t> m_bytes_counts;
+
 		int32_t calculate_length(char* m_buffer);
 
 		int32_t calculate_lengths(char* m_buffer, std::vector<uint32_t>& out_character_byte_counts);

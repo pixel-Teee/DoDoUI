@@ -153,6 +153,43 @@ namespace DoDo {
 	{
 		return m_count;
 	}
+	DoDoUtf8String DoDoUtf8String::utf8_at(size_t index)
+	{
+		//to find index 
+		if (!m_need_update_lengths_cache)
+		{
+			calculate_lengths(m_buffer, m_bytes_counts);
+			m_need_update_lengths_cache = true;
+		}
+
+		return utf8_sub_str(index, m_bytes_counts[index]);//index character
+	}
+	DoDoUtf8String& DoDoUtf8String::utf8_sub_str(size_t pos, size_t buffer_count)
+	{
+		if (!m_need_update_lengths_cache)
+		{
+			calculate_lengths(m_buffer, m_bytes_counts);
+			m_need_update_lengths_cache = true;
+		}
+
+		size_t prefix_sum = 0;
+		if (pos > 0)
+		{
+			for (size_t i = 0; i < m_bytes_counts[pos - 1]; ++i) //note:prefix sum
+			{
+				prefix_sum += m_bytes_counts[i];
+			}
+		}
+
+		std::string str;//todo:optimize me
+
+		for (size_t i = prefix_sum; i < prefix_sum + buffer_count; ++i)
+		{
+			str.push_back(m_buffer[i]);
+		}
+
+		return DoDoUtf8String(str);//note:construct a substr copy
+	}
 	DoDoUtf8String& DoDoUtf8String::operator=(const DoDoUtf8String& rhs)
 	{
 		if (m_buffer != nullptr)
