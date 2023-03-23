@@ -4,6 +4,15 @@
 
 namespace DoDo
 {
+	const FLinearColor FLinearColor::White(1.0f, 1.0f, 1.0f);
+	const FLinearColor FLinearColor::Gray(0.5f, 0.5f, 0.5f);
+	const FLinearColor FLinearColor::Black(0.0f, 0.0f, 0.0f);
+	const FLinearColor FLinearColor::Transparent(0.0f, 0.0f, 0.0f, 0.0f);
+	const FLinearColor FLinearColor::Red(1.0f, 0.0f, 0.0f);
+	const FLinearColor FLinearColor::Green(0.0f, 1.0f, 0.0f);
+	const FLinearColor FLinearColor::Blue(0.0f, 0.0f, 1.0f);
+	const FLinearColor FLinearColor::Yellow(1.0f, 1.0f, 0.0f);
+
 	const FColor FColor::White(255, 255, 255);
 	const FColor FColor::Black(0, 0, 0);
 	const FColor FColor::Transparent(0, 0, 0, 0);

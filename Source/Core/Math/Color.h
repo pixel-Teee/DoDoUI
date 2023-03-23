@@ -47,6 +47,26 @@ namespace DoDo
 		 * to get direct conversion use ReinterpretAsLinear
 		 */
 		FLinearColor(const FColor& color);
+
+		FLinearColor operator*(const FLinearColor& color_b) const
+		{
+			return FLinearColor(
+				this->R * color_b.R,
+				this->G * color_b.G,
+				this->B * color_b.B,
+				this->A * color_b.A
+			);
+		}
+
+		//common colors
+		static const FLinearColor White;
+		static const FLinearColor Gray;
+		static const FLinearColor Black;
+		static const FLinearColor Transparent;
+		static const FLinearColor Red;
+		static const FLinearColor Green;
+		static const FLinearColor Blue;
+		static const FLinearColor Yellow;
 	};
 
 	//FColor
@@ -73,6 +93,18 @@ namespace DoDo
 		constexpr FColor(uint8_t in_r, uint8_t in_g, uint8_t in_b, uint8_t in_a = 255) // 255
 			: R(in_r), G(in_g), B(in_b), A(in_a)
 		{}
+
+		/*
+		* reinterprets the color as a linear color
+		* this is the correct dequantizer for QuantizeRound
+		* this matches the GPU spec conversion for U8<->float
+		* 
+		* @return the linear color representation
+		*/
+		FLinearColor reinterpret_as_linear() const
+		{
+			return FLinearColor(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0F);
+		}
 
 		/*some pre-initialized colors, useful for debug code*/
 		static const FColor White;
