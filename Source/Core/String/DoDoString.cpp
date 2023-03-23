@@ -164,7 +164,7 @@ namespace DoDo {
 
 		return utf8_sub_str(index, m_bytes_counts[index]);//index character
 	}
-	DoDoUtf8String& DoDoUtf8String::utf8_sub_str(size_t pos, size_t buffer_count)
+	DoDoUtf8String DoDoUtf8String::utf8_sub_str(size_t pos, size_t buffer_count)
 	{
 		if (!m_need_update_lengths_cache)
 		{

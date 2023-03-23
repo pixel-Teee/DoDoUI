@@ -507,6 +507,7 @@ namespace DoDo
 		if(as_stack)
 		{
 			//todo:index of by predicate
+			return true;
 		}
 		else
 		{

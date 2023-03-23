@@ -34,7 +34,7 @@ namespace DoDo {
 
 		DoDoUtf8String utf8_at(size_t index);
 
-		DoDoUtf8String& utf8_sub_str(size_t pos, size_t buffer_count);
+		DoDoUtf8String utf8_sub_str(size_t pos, size_t buffer_count);
 
 		//return c style string
 		const char* c_str() const;

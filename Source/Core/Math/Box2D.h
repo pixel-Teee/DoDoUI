@@ -2,13 +2,10 @@
 
 #include "glm/vec2.hpp"
 
+#include "Core/Misc/CoreMiscDefines.h"//EForceInit enumerates
+
 namespace DoDo
 {
-	enum EForceInit
-	{
-		ForceInit,
-		ForceInitToZero
-	};
 
 	/*
 	 * implements a rectangular 2d box
