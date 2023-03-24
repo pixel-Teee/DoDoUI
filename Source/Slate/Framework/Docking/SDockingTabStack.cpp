@@ -130,22 +130,26 @@ namespace DoDo {
 						.Text("empty tab!")
 					]
 				]
-
-				+ SOverlay::Slot()
-				. Padding(0.0f)
-				. HAlign(HAlign_Left)
-				. VAlign(VAlign_Top)
-				[
-					SNew(SButton)
-					.ButtonStyle(unhide_tabwell_button_style)
-					[
-						//button should be big enough to show its own image
-						SNew(SSpacer)
-						.Size(unhide_tabwell_button_style->m_normal.m_image_size)//todo:fix me
-					]
-					//SNew(SImage)
-					//.Image(FAppStyle::get().get_brush("Icons.solar-system"))//todo:fix me
-				]
+				//+ SOverlay::Slot()
+				//[
+				//	SNew(STextBlock)
+				//	.Text("empty tab!")
+				//]
+				//+ SOverlay::Slot()
+				//. Padding(0.0f)
+				//. HAlign(HAlign_Left)
+				//. VAlign(VAlign_Top)
+				//[
+				//	SNew(SButton)
+				//	.ButtonStyle(unhide_tabwell_button_style)
+				//	[
+				//		//button should be big enough to show its own image
+				//		SNew(SSpacer)
+				//		.Size(unhide_tabwell_button_style->m_normal.m_image_size)//todo:fix me
+				//	]
+				//	//SNew(SImage)
+				//	//.Image(FAppStyle::get().get_brush("Icons.solar-system"))//todo:fix me
+				//]
 			]
 		];
 		

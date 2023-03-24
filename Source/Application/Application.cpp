@@ -1453,10 +1453,14 @@ namespace DoDo
     {
         return SNew(SDockTab)
                //.ContentPadding(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
-               .ForegroundColor(FLinearColor(0.6f, 0.3f, 0.2f, 1.0f))
+               .ForegroundColor(FLinearColor(0.6f, 0.3f, 0.2f, 0.2f))
                [
-                   SNew(SImage)
-                   .Image(FAppStyle::get().get_brush("Icons.C++"))
+                   SNew(SBorder)
+                   .ColorAndOpacity(FLinearColor(1.0f, 0.8f, 0.7f, 1.0f))
+					[
+                        SNew(SImage)
+                        .Image(FAppStyle::get().get_brush("Icons.solar-system"))
+                    ]
                ];
     }
 
