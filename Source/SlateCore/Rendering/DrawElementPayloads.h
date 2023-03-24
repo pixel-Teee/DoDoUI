@@ -13,7 +13,7 @@ namespace DoDo
 	struct FSlateGradientStop
 	{
 		glm::vec2 m_position;
-		glm::vec4 m_color;
+		FLinearColor m_color;
 
 		/*
 		 * construct a gradient stop from a position and a color
@@ -23,7 +23,7 @@ namespace DoDo
 		 *
 		 * @param InColor	 - the color to lerp towards at this stop
 		 */
-		FSlateGradientStop(const glm::vec2& in_position, const glm::vec4& in_color)
+		FSlateGradientStop(const glm::vec2& in_position, const FLinearColor& in_color)
 			: m_position(in_position)
 			, m_color(in_color)
 		{}
@@ -41,11 +41,11 @@ namespace DoDo
 
 	struct FSlateTintableElement
 	{
-		glm::vec4 tint;//tint
+		FLinearColor tint;//tint
 
-		void set_tint(const glm::vec4& in_tint) { tint = in_tint; }
+		void set_tint(const FLinearColor& in_tint) { tint = in_tint; }
 
-		glm::vec4 get_tint() const { return tint; }
+		FLinearColor get_tint() const { return tint; }
 	};
 
 	struct FSlateBoxPayload : public FSlateDataPayload, public FSlateTintableElement
@@ -108,15 +108,15 @@ namespace DoDo
 
 	struct FSlateRoundedBoxPayload : public FSlateBoxPayload
 	{
-		glm::vec4 m_outline_color;
+		FLinearColor m_outline_color;
 		glm::vec4 m_radius;
 		float m_outline_weight;
 
 		void set_radius(glm::vec4 in_radius) { m_radius = in_radius; }
 		glm::vec4 get_radius() const { return m_radius; }
 
-		void set_outline(const glm::vec4& in_outline_color, float in_outline_weight) { m_outline_color = in_outline_color; m_outline_weight = in_outline_weight; }
-		glm::vec4 get_outline_color() const { return m_outline_color; }
+		void set_outline(const FLinearColor& in_outline_color, float in_outline_weight) { m_outline_color = in_outline_color; m_outline_weight = in_outline_weight; }
+		FLinearColor get_outline_color() const { return m_outline_color; }
 		float get_outline_weight() const { return m_outline_weight; }
 	};
 

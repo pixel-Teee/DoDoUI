@@ -51,7 +51,7 @@ namespace DoDo {
 			const ESlateDrawEffect draw_effects = b_is_enabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect;
 
 			//todo:fix me
-			const glm::vec4 final_color_and_opacity(m_color_and_opacity_attribute.Get());
+			const FLinearColor final_color_and_opacity(in_widget_style.get_color_and_opacity_tint() * m_color_and_opacity_attribute.Get().get_color(in_widget_style) * image_brush->get_tint(in_widget_style));
 
 			if (m_b_flip_for_right_to_left_flow_direction && g_slate_flow_direction == EFlowDirection::RightToLeft)
 			{

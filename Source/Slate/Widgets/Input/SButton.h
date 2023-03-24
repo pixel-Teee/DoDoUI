@@ -27,8 +27,8 @@ namespace DoDo
 		, _Text()
 		, _DesiredSizeScale(glm::vec2(1.0f, 1.0f))
 		, _ContentScale(glm::vec2(1.0f, 1.0f))
-		, _ButtonColorAndOpacity(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//white
-		, _ForegroundColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+		, _ButtonColorAndOpacity(FLinearColor::White)//white
+		, _ForegroundColor(FSlateColor::use_style())//note:how to understand it?
 		{
 			
 		}
@@ -60,9 +60,9 @@ namespace DoDo
 
 		SLATE_ATTRIBUTE(glm::vec2, ContentScale)
 
-		SLATE_ATTRIBUTE(glm::vec4, ButtonColorAndOpacity)//note:this control's content color
+		SLATE_ATTRIBUTE(FSlateColor, ButtonColorAndOpacity)//note:this control's content color
 
-		SLATE_ATTRIBUTE(glm::vec4, ForegroundColor)
+		SLATE_ATTRIBUTE(FSlateColor, ForegroundColor)
 
 		SLATE_END_ARGS()
 
@@ -172,7 +172,7 @@ namespace DoDo
 		//todo:implement
 
 		/*optional foreground color that will be inherited by all of this widget's contents*/
-		TSlateAttribute<glm::vec4> m_border_foreground_color_attribute;
+		TSlateAttribute<FSlateColor> m_border_foreground_color_attribute;
 
 		/*padding specified by the user, it will be combind with the button's internal padding*/
 		TSlateAttribute<FMargin> m_content_padding_attribute;//control content's padding

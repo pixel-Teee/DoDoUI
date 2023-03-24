@@ -28,12 +28,107 @@ namespace DoDo
 	const FColor FColor::Silver(189, 195, 199);//yin se
 	const FColor FColor::Emerald(46, 204, 113);//fei cui
 
+	// fast Linear to SRGB uint8 conversion
+	// https://gist.github.com/rygorous/2203834
+	//
+	// round-trips exactly
+	// quantization bucket boundaries vary by max of 0.11%
+	// biggest difference at i = 1
+	// thresholds[i] = 0.000456
+	// c_linear_float_srgb_thresholds[i] = 0.000455
+
+	typedef union
+	{
+		uint32_t u;
+		float f;
+	} stbir__FP32;
+
+	static const uint32_t stb_fp32_to_srgb8_tab4[104] = {
+		0x0073000d, 0x007a000d, 0x0080000d, 0x0087000d, 0x008d000d, 0x0094000d, 0x009a000d, 0x00a1000d,
+		0x00a7001a, 0x00b4001a, 0x00c1001a, 0x00ce001a, 0x00da001a, 0x00e7001a, 0x00f4001a, 0x0101001a,
+		0x010e0033, 0x01280033, 0x01410033, 0x015b0033, 0x01750033, 0x018f0033, 0x01a80033, 0x01c20033,
+		0x01dc0067, 0x020f0067, 0x02430067, 0x02760067, 0x02aa0067, 0x02dd0067, 0x03110067, 0x03440067,
+		0x037800ce, 0x03df00ce, 0x044600ce, 0x04ad00ce, 0x051400ce, 0x057b00c5, 0x05dd00bc, 0x063b00b5,
+		0x06970158, 0x07420142, 0x07e30130, 0x087b0120, 0x090b0112, 0x09940106, 0x0a1700fc, 0x0a9500f2,
+		0x0b0f01cb, 0x0bf401ae, 0x0ccb0195, 0x0d950180, 0x0e56016e, 0x0f0d015e, 0x0fbc0150, 0x10630143,
+		0x11070264, 0x1238023e, 0x1357021d, 0x14660201, 0x156601e9, 0x165a01d3, 0x174401c0, 0x182401af,
+		0x18fe0331, 0x1a9602fe, 0x1c1502d2, 0x1d7e02ad, 0x1ed4028d, 0x201a0270, 0x21520256, 0x227d0240,
+		0x239f0443, 0x25c003fe, 0x27bf03c4, 0x29a10392, 0x2b6a0367, 0x2d1d0341, 0x2ebe031f, 0x304d0300,
+		0x31d105b0, 0x34a80555, 0x37520507, 0x39d504c5, 0x3c37048b, 0x3e7c0458, 0x40a8042a, 0x42bd0401,
+		0x44c20798, 0x488e071e, 0x4c1c06b6, 0x4f76065d, 0x52a50610, 0x55ac05cc, 0x5892058f, 0x5b590559,
+		0x5e0c0a23, 0x631c0980, 0x67db08f6, 0x6c55087f, 0x70940818, 0x74a007bd, 0x787d076c, 0x7c330723,
+	};
+
+	static uint8_t stbir__linear_to_srgb_uchar_fast(float in)
+	{
+		static const stbir__FP32 almostone = { 0x3f7fffff }; // 1-eps
+		static const stbir__FP32 minval = { (127 - 13) << 23 };
+		uint32_t tab, bias, scale, t;
+		stbir__FP32 f;
+
+		// Clamp to [2^(-13), 1-eps]; these two values map to 0 and 1, respectively.
+		// The tests are carefully written so that NaNs map to 0, same as in the reference
+		// implementation.
+		if (!(in > minval.f)) // written this way to catch NaNs
+			in = minval.f;
+		if (in > almostone.f)
+			in = almostone.f;
+
+		// Do the table lookup and unpack bias, scale
+		f.f = in;
+		tab = stb_fp32_to_srgb8_tab4[(f.u - minval.u) >> 20];
+		bias = (tab >> 16) << 9;
+		scale = tab & 0xffff;
+
+		// Grab next-highest mantissa bits and perform linear interpolation
+		t = (f.u >> 12) & 0xff;
+		return (uint8_t)((bias + scale * t) >> 16);
+	}
+
+	static inline uint8_t clamp_u8(int32_t value)
+	{
+		return (uint8_t)std::clamp(value, 0, 255);
+	}
+
 	FLinearColor::FLinearColor(const FColor& color)
 	{
 		R = srgb_to_linear_table[color.R];
 		G = srgb_to_linear_table[color.G];
 		B = srgb_to_linear_table[color.B];
 		A = float(color.A) * (1.0f / 255.0f);
+	}
+
+	/*quantizes the linear color and returns the result as a FColor with optional srgb conversion and quality as goal*/
+	FColor FLinearColor::to_fcolor_srgb() const
+	{
+		return FColor(
+			stbir__linear_to_srgb_uchar_fast(R),
+			stbir__linear_to_srgb_uchar_fast(G),
+			stbir__linear_to_srgb_uchar_fast(B),
+			clamp_u8((int32_t)(0.5f + A * 255.0f))
+		);
+	}
+
+	FColor FLinearColor::quantize_round() const
+	{
+		return FColor(
+			clamp_u8((int)(0.5f + R * 255.f)),
+			clamp_u8((int)(0.5f + G * 255.f)),
+			clamp_u8((int)(0.5f + B * 255.f)),
+			clamp_u8((int)(0.5f + A * 255.f))
+		);
+	}
+
+	FColor FLinearColor::to_fcolor(const bool b_srgb) const
+	{
+		if(b_srgb)
+		{
+			return to_fcolor_srgb();
+		}
+		else
+		{
+			return quantize_round();
+		}
 	}
 
 	/**

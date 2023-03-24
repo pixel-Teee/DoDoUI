@@ -58,6 +58,42 @@ namespace DoDo
 			);
 		}
 
+		FLinearColor& operator*=(const FLinearColor& color_b)
+		{
+			R *= color_b.R;
+			G *= color_b.G;
+			B *= color_b.B;
+			A *= color_b.A;
+
+			return *this;
+		}
+
+		FLinearColor copy_with_new_opacity(float new_opacity) const
+		{
+			FLinearColor new_copy = *this;
+			new_copy.A = new_opacity;
+			return new_copy;
+		}
+
+		/*comparison operators*/
+		bool operator==(const FLinearColor& color_b) const
+		{
+			return this->R == color_b.R && this->G == color_b.G && this->B == color_b.B && this->A == color_b.A;
+		}
+
+		/*
+		 * quantizes the linear color and returns the result as a FColor with optional sRGB conversion
+		 *
+		 * clamps in [0, 1] range before conversion
+		 *
+		 * to fcolor(false) is quantize round
+		 */
+		FColor to_fcolor_srgb() const;
+
+		FColor FLinearColor::quantize_round() const;
+
+		FColor to_fcolor(const bool b_srgb) const;
+
 		//common colors
 		static const FLinearColor White;
 		static const FLinearColor Gray;

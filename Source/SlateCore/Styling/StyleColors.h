@@ -12,6 +12,15 @@ namespace DoDo {
 		Foreground,
 		ForegroundHover,
 		Panel,
+		Primary,
+		Input,
+		Recessed,
+		PrimaryHover,
+		PrimaryPress,
+		DropDown,
+		Background,
+		Secondary,
+		Hover,
 
 		max
 	};
@@ -63,5 +72,8 @@ namespace DoDo {
 		static const FSlateColor PrimaryPress;
 		static const FSlateColor DropDown;
 		static const FSlateColor Panel;
+		static const FSlateColor Background;
+		static const FSlateColor Secondary;
+		static const FSlateColor Hover;
 	};
 }

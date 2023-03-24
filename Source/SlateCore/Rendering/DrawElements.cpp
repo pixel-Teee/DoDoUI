@@ -50,7 +50,7 @@ namespace DoDo
 		const FPaintGeometry& paint_geometry,
 		const FSlateBrush* in_brush,
 		ESlateDrawEffect in_draw_effects,
-		const glm::vec4& in_tint)
+		const FLinearColor& in_tint)
 	{
 		//todo:implement this function
 
@@ -64,7 +64,7 @@ namespace DoDo
 
 	void FSlateDrawElement::make_text(FSlateWindowElementList& element_list, uint32_t in_layer,
 		const FPaintGeometry& paint_geometry, const DoDoUtf8String& in_text, const FSlateFontInfo& in_font_info,
-		ESlateDrawEffect in_draw_effects, const glm::vec4& in_tint)
+		ESlateDrawEffect in_draw_effects, const FLinearColor& in_tint)
 	{
 		paint_geometry.commit_transforms_if_using_legacy_constructor();
 
@@ -75,7 +75,7 @@ namespace DoDo
 		}
 
 		//don't do anything if there the font would be completely transparent
-		if(in_tint.a == 0) //todo:implement outline settings
+		if(in_tint.A == 0) //todo:implement outline settings
 		{
 			return;
 		}
@@ -123,7 +123,7 @@ namespace DoDo
 
 	FSlateDrawElement& FSlateDrawElement::MakeBoxInternal(FSlateWindowElementList& element_list, uint32_t in_layer,
 	                                                      const FPaintGeometry& paint_geometry, const FSlateBrush* in_brush, ESlateDrawEffect in_draw_effect,
-	                                                      const glm::vec4& in_tint)
+	                                                      const FLinearColor& in_tint)
 	{
 		//todo:implement EElementType
 		//EElementType element_type = (in_brush->m_draw_as == ESlateBrushDrawType::Border) ? EElementType::ET_Border : (in_brush->m_draw_as == ESlateBrushDrawType::RoundedBox) ? EElementType::ET_RoundedBox : EElementType::ET_Box;
@@ -155,12 +155,13 @@ namespace DoDo
 
 			if (in_brush->m_outline_settings.m_b_use_brush_transparency)
 			{
-				glm::vec4 color = in_brush->m_outline_settings.m_color;//todo:copy with new opacity
+				//glm::vec4 color = in_brush->m_outline_settings.m_color;//todo:copy with new opacity
+				FLinearColor color = in_brush->m_outline_settings.m_color.get_specified_color().copy_with_new_opacity(in_tint.A);
 				r_box_pay_load->set_outline(color, in_brush->m_outline_settings.m_width);
 			}
 			else
 			{
-				r_box_pay_load->set_outline(in_brush->m_outline_settings.m_color, in_brush->m_outline_settings.m_width);
+				r_box_pay_load->set_outline(in_brush->m_outline_settings.m_color.get_specified_color(), in_brush->m_outline_settings.m_width);
 			}
 			box_payload = r_box_pay_load;
 		}

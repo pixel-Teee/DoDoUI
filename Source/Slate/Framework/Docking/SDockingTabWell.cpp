@@ -282,7 +282,7 @@ namespace DoDo {
 						geometry,
 						m_separator_brush,
 						ESlateDrawEffect::None,
-						m_separator_brush->get_tint());//todo:fix me
+						m_separator_brush->get_tint(in_widget_style));//todo:fix me
 				}
 
 				max_layer_id = std::max(max_layer_id, cur_widgets_max_layer_id);

@@ -39,9 +39,9 @@ namespace DoDo {
 		//todo:add checker board exist check
 
 		//SButton defaults
-		FSlateRoundedBoxBrush button_normal = { glm::vec4(1.0f), 4.0f, glm::vec4(1.0f), input_focus_thickness, Icon32x32 };
-		FSlateRoundedBoxBrush button_hovered = { glm::vec4(1.0f), 4.0f, glm::vec4(1.0f), input_focus_thickness, Icon32x32 };
-		FSlateRoundedBoxBrush button_pressed = { glm::vec4(1.0f), 4.0f, glm::vec4(1.0f), input_focus_thickness, Icon32x32 };
+		FSlateRoundedBoxBrush button_normal = { FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)), 4.0f, FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)), input_focus_thickness, Icon32x32 };
+		FSlateRoundedBoxBrush button_hovered = { FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)), 4.0f, FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)), input_focus_thickness, Icon32x32 };
+		FSlateRoundedBoxBrush button_pressed = { FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)), 4.0f, FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)), input_focus_thickness, Icon32x32 };
 
 		static const FButtonStyle Button = FButtonStyle()
 					.set_normal(button_normal)

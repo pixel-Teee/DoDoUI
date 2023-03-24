@@ -51,7 +51,7 @@ namespace DoDo
 		];
 	}
 
-	void SBorder::set_border_back_ground_color(TAttribute<glm::vec4> in_color_and_opacity)
+	void SBorder::set_border_back_ground_color(TAttribute<FSlateColor> in_color_and_opacity)
 	{
 		m_border_back_ground_color_attribute.Assign(*this, std::move(in_color_and_opacity));
 	}
@@ -123,7 +123,7 @@ namespace DoDo
 					allotted_geometry.to_paint_geometry(),
 					brush_resource,
 					draw_effects,
-					get_border_back_ground_color()//todo:to implement FSlateBrush's function get tint function
+					brush_resource->get_tint(in_widget_style) * in_widget_style.get_color_and_opacity_tint() * m_border_back_ground_color_attribute.Get().get_color(in_widget_style)//todo:to implement FSlateBrush's function get tint function
 				);
 
 			}
@@ -135,10 +135,13 @@ namespace DoDo
 					allotted_geometry.to_paint_geometry(),
 					brush_resource,
 					draw_effects,
-					get_border_back_ground_color()//todo:to implement FSlateBrush's function get tint function
+					brush_resource->get_tint(in_widget_style) * in_widget_style.get_color_and_opacity_tint() * m_border_back_ground_color_attribute.Get().get_color(in_widget_style)//todo:to implement FSlateBrush's function get tint function
 				);
 			}
-		}	
+		}
+
+		//note:brush resource's image color * brush resource's color * border back ground color
+		//note:widget style will affect the child widgets
 
 		return SCompoundWidget::On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id,
 		                                 in_widget_style,

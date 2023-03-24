@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 
+#include "SlateColor.h"//FSlateColor depends on it
 #include "Core/Containers/EnumAsBytes.h"//FSlateBrush depends on it
 #include "Core/Math/Box2D.h"
 #include "SlateCore/Layout/Margin.h"//FMargin
@@ -122,7 +123,7 @@ namespace DoDo
 	{
 		FSlateBrushOutlineSettings()
 			: m_corner_radii(0.0f)
-			, m_color(glm::vec4(1.0f))
+			, m_color(FLinearColor::Transparent)
 			, m_width(0.0f)
 			, m_rounding_type(ESlateBrushRoundingType::HalfHeightRadius)
 			, m_b_use_brush_transparency(false)
@@ -130,13 +131,13 @@ namespace DoDo
 
 		FSlateBrushOutlineSettings(float in_uniform_radius)
 			: m_corner_radii(glm::vec4(in_uniform_radius))
-			, m_color(glm::vec4(1.0f))
+			, m_color(FLinearColor::Transparent)
 			, m_width(0.0f)
 			, m_rounding_type(ESlateBrushRoundingType::FixedRadius)
 			, m_b_use_brush_transparency(false)
 		{}
 
-		FSlateBrushOutlineSettings(const glm::vec4& in_color, float in_width)
+		FSlateBrushOutlineSettings(const FSlateColor& in_color, float in_width)
 			: m_corner_radii(0.0f)
 			, m_color(in_color)
 			, m_width(in_width)
@@ -148,7 +149,7 @@ namespace DoDo
 		glm::vec4 m_corner_radii;
 
 		/*tinting applied to the border outline*/
-		glm::vec4 m_color;
+		FSlateColor m_color;
 
 		/*line with in slate units applied to the border outline*/
 		float m_width;
@@ -176,7 +177,7 @@ namespace DoDo
 		FMargin m_margin;
 
 		/*tinting applied to the image*/
-		glm::vec4 m_tint_color;
+		FSlateColor m_tint_color;//note:this is srgb
 
 		/*how to draw the outline, currently only used for rounded box type brushes*/
 		//todo:implement FSlateBrushOutlineSettings
@@ -229,9 +230,9 @@ namespace DoDo
 		 * @param InWidgetStyle the widget style to get the tint for
 		 * @return Tint color
 		 */
-		glm::vec4 get_tint() const//todo:add widget style
+		FLinearColor get_tint(const FWidgetStyle& in_widget_style) const//todo:add widget style
 		{
-			return m_tint_color;
+			return m_tint_color.get_color(in_widget_style);//note:four choices of colors, this color, widget style's foreground color, widget style's subdued foreground color, theme color
 		}
 
 		const FSlateResourceHandle& get_rendering_resource(glm::vec2 local_size, float draw_scale) const
@@ -302,7 +303,10 @@ namespace DoDo
 		*/
 		FSlateBrush(ESlateBrushDrawType::Type in_draw_type, const DoDoUtf8String in_source_name, const FMargin& in_margin, ESlateBrushTileType::Type in_tiling, 
 		ESlateBrushImageType::Type in_image_type,
-		const glm::vec2& in_image_size, const glm::vec4& in_tint = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), void* in_object_resource = nullptr, bool b_in_dynamically_loaded = false);
+		const glm::vec2& in_image_size, const FLinearColor& in_tint = FLinearColor::White, void* in_object_resource = nullptr, bool b_in_dynamically_loaded = false);
+
+		FSlateBrush(ESlateBrushDrawType::Type in_draw_type, const DoDoUtf8String in_resource_name, const FMargin& in_margin, ESlateBrushTileType::Type in_tiling, ESlateBrushImageType::Type in_image_type, const glm::vec2& in_image_size,
+			const FSlateColor& in_tint, void* in_object_resource = nullptr, bool b_in_dynamically_loaded = false);
 	};
 }
 

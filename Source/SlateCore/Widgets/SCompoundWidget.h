@@ -6,6 +6,8 @@
 
 #include "SlateCore/Layout/Children.h"//SCompoundWidget depends on it
 
+#include "SlateCore/Styling/SlateColor.h"//FSlateColor depends on it
+
 namespace DoDo {
 	class FPaintArgs;
 	struct FGeometry;
@@ -48,9 +50,17 @@ namespace DoDo {
 		*
 		* @param InColor the color to set
 		*/
-		void set_foreground_color(TAttribute<glm::vec4> in_fore_ground_color)
+		void set_foreground_color(TAttribute<FSlateColor> in_fore_ground_color)
 		{
 			m_foreground_color_attribute.Assign(*this, std::move(in_fore_ground_color));
+		}
+
+		/*
+		 * gets the widget's color
+		 */
+		FLinearColor get_color_and_opacity() const
+		{
+			return m_color_and_opacity_attribute.Get();
 		}
 
 		//todo:implement FPaintArgs
@@ -58,6 +68,8 @@ namespace DoDo {
 			int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
 
 		virtual FChildren* Get_Children() override;
+
+		virtual FSlateColor get_foreground_color() const override;
 
 		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
 
@@ -86,9 +98,9 @@ namespace DoDo {
 
 		//the color and opacity to apply to this widget and all its descendants
 		//todo:need to use linear color
-		TSlateAttribute<glm::vec4> m_color_and_opacity_attribute;
+		TSlateAttribute<FLinearColor> m_color_and_opacity_attribute;
 
 		//optional foreground color that will be inherited by all of this widget's contents
-		TSlateAttribute<glm::vec4> m_foreground_color_attribute;
+		TSlateAttribute<FSlateColor> m_foreground_color_attribute;
 	};
 }

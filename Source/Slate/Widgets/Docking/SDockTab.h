@@ -64,9 +64,9 @@ namespace DoDo {
 			, _ShouldAutosize(false)
 			, _OnCanCloseTab()
 			, _OnPersistVisualState()
-			, _TabColorScale(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//todo:modify to transparent
-			, _ForegroundColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
-			, _IconColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+			, _TabColorScale(FLinearColor::Transparent)//todo:modify to transparent
+			, _ForegroundColor(FSlateColor::use_style())
+			, _IconColor()
 			{}
 
 			SLATE_DEFAULT_SLOT(FArguments, Content)
@@ -91,11 +91,11 @@ namespace DoDo {
 
 			//SLATE_EVENT(FSimpleDelegate, OnTabDrawerClosed)//todo:how to understand it?
 
-			SLATE_ATTRIBUTE(glm::vec4, TabColorScale)
+			SLATE_ATTRIBUTE(FLinearColor, TabColorScale)
 
-			SLATE_ATTRIBUTE(glm::vec4, ForegroundColor)//todo:modify to FSlateColor
+			SLATE_ATTRIBUTE(FSlateColor, ForegroundColor)//todo:modify to FSlateColor
 
-			SLATE_ATTRIBUTE(glm::vec4, IconColor)
+			SLATE_ATTRIBUTE(FLinearColor, IconColor)
 		SLATE_END_ARGS()
 
 		/*Construct the widget from the declaration*/
@@ -114,7 +114,7 @@ namespace DoDo {
 		ETabRole get_visual_tab_role() const;
 
 		/*@return returns the color of this tab's icon*/
-		glm::vec4 get_icon_color() const;
+		FSlateColor get_icon_color() const;
 
 		/*gets the tab icon*/
 		const FSlateBrush* get_tab_icon() const;
@@ -183,10 +183,10 @@ namespace DoDo {
 
 		//todo:add call back
 
-		TAttribute<glm::vec4> m_tab_color_scale;
+		TAttribute<FLinearColor> m_tab_color_scale;
 
 		/*color of this tab's icon*/
-		TAttribute<glm::vec4> m_icon_color;
+		TAttribute<FLinearColor> m_icon_color;
 
 		//todo:implement get animated scale
 

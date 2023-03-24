@@ -16,6 +16,8 @@
 
 #include "Application/Application.h"
 
+#include "SlateCore/Styling/SlateColor.h"//FSlateColor depends on it
+
 namespace DoDo {
 	//this function will be called at FSlateWidgetClassData construct
 	void SWidget::Private_Register_Attributes(FSlateAttributeInitializer& attribute_initializer)
@@ -168,6 +170,19 @@ namespace DoDo {
 		Private::find_or_add_mouse_events_meta_data(this)->m_mouse_move_handler = event_handler;
 	}
 
+	FSlateColor SWidget::get_foreground_color() const
+	{
+		static FSlateColor no_color = FSlateColor::use_foreground();//note:just use foreground color
+
+		return no_color;
+	}
+
+	FSlateColor SWidget::get_disabled_foreground_color() const
+	{
+		//by default just return the same as the non-disabled foreground color
+		return get_foreground_color();
+	}
+
 	SWidget::SWidget()
 		: b_can_have_children(true)
 		, m_b_is_hovered_attribute_set(false)
@@ -178,6 +193,7 @@ namespace DoDo {
 		, m_enabled_state_attribute(*this, true)
 		, m_render_transform_pivot_attribute(*this, glm::vec2(0.0f))
 		, m_render_transform_attribute(*this, glm::vec2(0.0f, 0.0f))
+		, m_render_opacity(1.0f)
 	{
 	}
 
@@ -208,6 +224,9 @@ namespace DoDo {
 		//to construct a widget chain
 		SWidget* paint_parent_ptr = const_cast<SWidget*>(args.get_paint_parent());//todo:fix me
 
+		FWidgetStyle content_widget_style = FWidgetStyle(in_widget_style)
+			.blend_opacity(m_render_opacity);//note:just blend this widget and parent widget opacity
+
 		if(paint_parent_ptr)
 		{
 			m_persistent_state.m_paint_parent = paint_parent_ptr->shared_from_this();//todo:fix me?
@@ -233,7 +252,8 @@ namespace DoDo {
 		FPaintArgs updated_args = args.with_new_parent(this);
 
 		//paint the geometry of this widget
-		int32_t new_layer_id = On_Paint(updated_args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, b_parent_enabled);
+		//content widget style will accumulate the opacity of parent widget
+		int32_t new_layer_id = On_Paint(updated_args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, content_widget_style, b_parent_enabled);
 
 		return new_layer_id;
 	}

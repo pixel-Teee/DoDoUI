@@ -290,6 +290,13 @@ namespace DoDo
 		/*see OnMouseMove event*/
 		void set_on_mouse_move(FPointerEventHandler event_handler);
 
+
+		/*@return the foreground color that this widget sets, unset options if the widget does not set a foreground color*/
+		virtual FSlateColor get_foreground_color() const;
+
+		/*@return the foreground color that this widget sets when this widget or any of its ancestors are disabled, unset options if the widget does not set a foreground color*/
+		virtual FSlateColor get_disabled_foreground_color() const;
+
 	public:
 		/*
 		 * hidden default constructor
@@ -454,6 +461,9 @@ namespace DoDo
 
 		/* pointer to this widgets parent widget. if it is null this is a root widget or it is not in the widget tree */
 		std::weak_ptr<SWidget> m_parent_widget_ptr;
+
+		/*the opacity of the widget, automatically applied during rendering*/
+		float m_render_opacity;
 
 		//todo:move this member to private control
 		//meta data associated with this widget

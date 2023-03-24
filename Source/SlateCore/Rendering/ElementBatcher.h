@@ -103,6 +103,12 @@ namespace DoDo
 		 */
 		void add_elements(FSlateWindowElementList& element_list);//this is important, is entry for generate vertex and index
 
+
+		FColor pack_vertex_color(const FLinearColor& in_linear_color) const
+		{
+			return in_linear_color.to_fcolor(m_b_srgb_vertex_color);
+		}
+
 	private:
 		void add_elements_internal(const FSlateDrawElementArray& draw_elements, const glm::vec2& view_port_size);
 
@@ -140,6 +146,9 @@ namespace DoDo
 
 		/*rendering policy we were created from*/
 		FSlateRenderingPolicy* m_rendering_policy;
+
+		/*are the vertex colors expected to be in sRGB space?*/
+		const bool m_b_srgb_vertex_color;
 	};
 
 	

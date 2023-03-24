@@ -97,7 +97,7 @@ namespace DoDo
 			const FPaintGeometry& paint_geometry,
 			const FSlateBrush* in_brush,
 			ESlateDrawEffect in_draw_effects,
-			const glm::vec4& in_tint);
+			const FLinearColor& in_tint = FLinearColor::White);
 
 		/*
 		 * creates a text element which displays a string of a rendered in a certain font on the screen
@@ -114,7 +114,7 @@ namespace DoDo
 		 */
 		//todo:implement FSlateFontInfo
 		static void make_text(FSlateWindowElementList& element_list, uint32_t in_layer, const FPaintGeometry& paint_geometry, const DoDoUtf8String& in_text,
-		const FSlateFontInfo& in_font_info, ESlateDrawEffect in_draw_effects = ESlateDrawEffect::None, const glm::vec4& in_tint = glm::vec4(1.0f));
+		const FSlateFontInfo& in_font_info, ESlateDrawEffect in_draw_effects = ESlateDrawEffect::None, const FLinearColor& in_tint = FLinearColor::White);
 
 		/*
 		 * creates a gradient element
@@ -134,7 +134,7 @@ namespace DoDo
 		void init(FSlateWindowElementList& element_list, EElementType in_element_type, uint32_t in_layer, const FPaintGeometry& paint_geometry, ESlateDrawEffect in_draw_effects);
 
 		static FSlateDrawElement& MakeBoxInternal(FSlateWindowElementList& element_list, uint32_t in_layer, const FPaintGeometry& paint_geometry, const FSlateBrush* in_brush, ESlateDrawEffect in_draw_effect,
-			const glm::vec4& in_tint);
+			const FLinearColor& in_tint);
 
 	private:
 		FSlateDataPayload* m_data_payload;

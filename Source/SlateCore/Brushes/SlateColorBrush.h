@@ -13,7 +13,13 @@ namespace DoDo {
 		* 
 		* @param InColor the linear color to use
 		*/
-		FSlateColorBrush(const glm::vec4& in_color)
+		FSlateColorBrush(const FLinearColor& in_color)
+			: FSlateBrush(ESlateBrushDrawType::Image, "", FMargin(0.0f), ESlateBrushTileType::NoTile, ESlateBrushImageType::NoImage, glm::vec2(0.0f, 0.0f), in_color)
+		{
+
+
+		}
+		FSlateColorBrush(const FSlateColor & in_color)
 			: FSlateBrush(ESlateBrushDrawType::Image, "", FMargin(0.0f), ESlateBrushTileType::NoTile, ESlateBrushImageType::NoImage, glm::vec2(0.0f, 0.0f), in_color)
 		{
 

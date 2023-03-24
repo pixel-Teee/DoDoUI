@@ -29,8 +29,8 @@ namespace DoDo {
 			, _RequiresControllerLock(true)
 			, _Locked(false)
 			, _Orientation(EOrientation::Orient_Horizontal)
-			, _SliderBarColor(glm::vec4(1.0f))
-			, _SliderHandleColor(glm::vec4(1.0f))
+			, _SliderBarColor(FLinearColor::White)
+			, _SliderHandleColor(FLinearColor::White)
 			, _Style(&FCoreStyle::get().get_widget_style<FSliderStyle>("Slider"))
 			, _StepSize(0.01f)
 			, _Value(1.0f)
@@ -55,10 +55,10 @@ namespace DoDo {
 			SLATE_ARGUMENT(EOrientation, Orientation)
 
 			/*the color to draw the slider bar in*/
-			SLATE_ATTRIBUTE(glm::vec4, SliderBarColor)
+			SLATE_ATTRIBUTE(FSlateColor, SliderBarColor)
 
 			/*the color to draw the slider handle in*/
-			SLATE_ATTRIBUTE(glm::vec4, SliderHandleColor)
+			SLATE_ATTRIBUTE(FSlateColor, SliderHandleColor)
 
 			/*the style used to draw the slider*/
 			SLATE_STYLE_ARGUMENT(FSliderStyle, Style)
@@ -149,10 +149,10 @@ namespace DoDo {
 		EOrientation m_orientation;
 
 		//holds the color of the slider bar
-		TAttribute<glm::vec4> m_slider_bar_color;
+		TAttribute<FSlateColor> m_slider_bar_color;
 
 		//holds the color of the slider handle
-		TAttribute<glm::vec4>m_slider_handle_color;
+		TAttribute<FSlateColor> m_slider_handle_color;
 
 		//holds the slider's current value
 		TAttribute<float> m_value_attribute;

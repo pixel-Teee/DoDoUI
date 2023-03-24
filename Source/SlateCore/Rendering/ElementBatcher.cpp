@@ -108,6 +108,7 @@ namespace DoDo
 	FSlateElementBatcher::FSlateElementBatcher(std::shared_ptr<FSlateRenderingPolicy> in_rendering_policy)
 		: m_batch_data(nullptr)
 		, m_rendering_policy(in_rendering_policy.get())
+		, m_b_srgb_vertex_color(false)//note:implement FSlateRenderingPolicy is vertex color in linear space function
 	{
 	}
 
@@ -172,7 +173,7 @@ namespace DoDo
 		const FSlateBoxPayload& draw_element_pay_load = draw_element.get_data_pay_load<FSlateBoxPayload>();
 
 		//todo:implement from linear color to srgb color
-		const glm::vec4 tint = draw_element_pay_load.get_tint();
+		const FColor tint = pack_vertex_color(draw_element_pay_load.get_tint());
 
 		const FSlateRenderTransform& element_render_transform = draw_element.get_render_transform();
 		const FSlateRenderTransform render_transform = draw_element.get_render_transform();
@@ -237,7 +238,7 @@ namespace DoDo
 		//todo:add shader parameters for extra rounded box parameters
 		ESlateShader shader_type = ESlateShader::Default;
 		FShaderParams shader_params;
-		glm::vec4 secondary_color(0.0f, 0.0f, 0.0f, 0.0f);
+		FColor secondary_color;
 		if (draw_element.get_element_type() == EElementType::ET_RoundedBox)
 		{
 			shader_type = ESlateShader::RoundedBox;
@@ -248,7 +249,7 @@ namespace DoDo
 
 			shader_params.m_pixel_params2 = rounded_pay_load.get_radius();
 
-			secondary_color = rounded_pay_load.m_outline_color;
+			secondary_color = pack_vertex_color(rounded_pay_load.m_outline_color);
 		}	
 
 		//todo:implement FSlateRenderBatch
@@ -423,7 +424,7 @@ namespace DoDo
 	{
 		const FSlateTextPayload& draw_element_pay_load = draw_element.get_data_pay_load<FSlateTextPayload>();
 
-		glm::vec4 base_tint = draw_element_pay_load.get_tint();
+		FLinearColor base_tint = draw_element_pay_load.get_tint();
 
 		//todo:implement FFontOutlineSettings
 
@@ -449,7 +450,7 @@ namespace DoDo
 		//todo:get resource manager
 		FSlateShaderResourceManager& resource_manager = *(m_rendering_policy->get_resource_manager());//note:texture manager
 
-		auto build_font_geometry = [&](const FFontOutlineSettings& in_outline_settings, glm::vec4& in_tint, int32_t in_layer)
+		auto build_font_geometry = [&](const FFontOutlineSettings& in_outline_settings, const FColor& in_tint, int32_t in_layer)
 		{
 			FCharacterList& character_list = font_cache.get_character_list(draw_element_pay_load.get_font_info(), font_scale, in_outline_settings);
 
@@ -460,7 +461,7 @@ namespace DoDo
 			uint32_t font_texture_index = 0;
 			FSlateShaderResource* font_atlas_texture = nullptr;
 			FSlateShaderResource* font_shader_resource = nullptr;
-			glm::vec4 font_tint = in_tint;
+			FColor font_tint = in_tint;
 
 			FSlateRenderBatch* render_batch = nullptr;
 			FSlateVertexArray* batch_vertices = nullptr;
@@ -523,7 +524,7 @@ namespace DoDo
 
 						const bool b_is_gray_scale = slate_font_texture->is_gray_scale();
 
-						font_tint = b_is_gray_scale ? in_tint : glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);//white
+						font_tint = b_is_gray_scale ? in_tint : FColor::White;//white
 
 						render_batch = &create_render_batch(in_layer, FShaderParams(), font_shader_resource, ESlateDrawPrimitive::TriangleList, b_is_gray_scale ? ESlateShader::GrayScaleFont : ESlateShader::ColorFont, in_draw_effects, draw_element);
 
@@ -601,7 +602,7 @@ namespace DoDo
 		//todo:implement outline
 
 		//no outline, draw normally
-		build_font_geometry(FFontOutlineSettings::NoOutline, base_tint, layer);
+		build_font_geometry(FFontOutlineSettings::NoOutline, pack_vertex_color(base_tint), layer);
 	}
 
 	template<ESlateVertexRounding Rounding>
@@ -737,14 +738,14 @@ namespace DoDo
 			{
 				//first stop does not have a full quad yet so do not create indices
 				//todo:fix me
-				render_batch.add_vertex(FSlateVertex::Make<Rounding>(render_transform, start_pt, local_size, draw_scale, glm::vec4(start_uv.x, start_uv.y, 0, 0), cur_stop.m_color, glm::vec4(0.0f)));
-				render_batch.add_vertex(FSlateVertex::Make<Rounding>(render_transform, end_pt, local_size, draw_scale, glm::vec4(end_uv.x, end_uv.y, 0, 0), cur_stop.m_color, glm::vec4(0.0f)));
+				render_batch.add_vertex(FSlateVertex::Make<Rounding>(render_transform, start_pt, local_size, draw_scale, glm::vec4(start_uv.x, start_uv.y, 0, 0), pack_vertex_color(cur_stop.m_color), FColor::Transparent));
+				render_batch.add_vertex(FSlateVertex::Make<Rounding>(render_transform, end_pt, local_size, draw_scale, glm::vec4(end_uv.x, end_uv.y, 0, 0), pack_vertex_color(cur_stop.m_color), FColor::Transparent));
 			}
 			else
 			{
 				//all stops after the first have indices and generate quads
-				render_batch.add_vertex(FSlateVertex::Make<Rounding>(render_transform, start_pt, local_size, draw_scale, glm::vec4(start_uv.x, start_uv.y, 0, 0), cur_stop.m_color, glm::vec4(0.0f)));
-				render_batch.add_vertex(FSlateVertex::Make<Rounding>(render_transform, end_pt, local_size, draw_scale, glm::vec4(end_uv.x, end_uv.y, 0, 0), cur_stop.m_color, glm::vec4(0.0f)));
+				render_batch.add_vertex(FSlateVertex::Make<Rounding>(render_transform, start_pt, local_size, draw_scale, glm::vec4(start_uv.x, start_uv.y, 0, 0), pack_vertex_color(cur_stop.m_color), FColor::Transparent));
+				render_batch.add_vertex(FSlateVertex::Make<Rounding>(render_transform, end_pt, local_size, draw_scale, glm::vec4(end_uv.x, end_uv.y, 0, 0), pack_vertex_color(cur_stop.m_color), FColor::Transparent));
 
 				//connect the indices to the previous vertices
 

@@ -25,7 +25,7 @@ namespace DoDo {
 		* @param InMargin the size of corners and sides in normalized texture UV space
 		* @param InColorAndOpacity color and opacity scale
 		*/
-		inline FSlateBoxBrush(const DoDoUtf8String& in_image_name, const FMargin& in_margin, const glm::vec4& in_color_and_opacity = glm::vec4(1.0f), ESlateBrushImageType::Type in_image_type = ESlateBrushImageType::FullColor)
+		inline FSlateBoxBrush(const DoDoUtf8String& in_image_name, const FMargin& in_margin, const FLinearColor& in_color_and_opacity = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f), ESlateBrushImageType::Type in_image_type = ESlateBrushImageType::FullColor)
 			: FSlateBrush(ESlateBrushDrawType::Box, in_image_name, in_margin, ESlateBrushTileType::NoTile, in_image_type, glm::vec2(0.0f), in_color_and_opacity)
 		{}
 	};

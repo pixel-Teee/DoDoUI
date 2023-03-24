@@ -17,6 +17,7 @@
 
 #include <functional>//std::function<void(FSlateUser&)> depends on it
 
+#include "SlateCore/Styling/SlateColor.h"//FSlateColor depends on it
 #include "SlateCore/Types/SlateEnums.h"//EOrientation depends on it
 
 namespace DoDo
@@ -416,7 +417,7 @@ namespace DoDo
 
 		std::shared_ptr<SBorder> m_border;
 
-		void test_color_wheel_value_changed(glm::vec4 new_color);
+		void test_color_wheel_value_changed(FSlateColor new_color);
 		//------calculate frame per second------
 
 		//------test create sdock------

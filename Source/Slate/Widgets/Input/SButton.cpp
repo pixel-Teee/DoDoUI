@@ -111,7 +111,7 @@ namespace DoDo
 				allotted_geometry.to_paint_geometry(),
 				brush_resource,
 				ESlateDrawEffect::None,
-				brush_resource->get_tint() * get_border_back_ground_color());
+				brush_resource->get_tint(in_widget_style) * in_widget_style.get_color_and_opacity_tint() * get_border_back_ground_color().get_color(in_widget_style));
 		}
 
 		return SCompoundWidget::On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, b_parent_enabled);

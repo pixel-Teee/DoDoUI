@@ -111,16 +111,16 @@ namespace DoDo {
 
 		//SBorder defaults
 		{
-			style->set("Border", new FSlateColorBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+			style->set("Border", new FSlateColorBrush(FStyleColors::Panel));
 		}
 
 		//SSlider defaults
 		{
 			FSliderStyle slider_style = FSliderStyle()
-				.set_normal_bar_image(FSlateRoundedBoxBrush(glm::vec4(1.0f), 2.0f, glm::vec4(1.0f), 1.0f))
-				.set_hovered_bar_image(FSlateRoundedBoxBrush(glm::vec4(1.0f), 2.0f, glm::vec4(1.0f), 1.0f))
-				.set_normal_thumb_image(FSlateRoundedBoxBrush(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f), glm::vec2(8.0f, 8.0f)))
-				.set_hovered_thumb_image(FSlateRoundedBoxBrush(glm::vec4(0.8f, 0.2f, 0.3f, 1.0f), glm::vec2(8.0f, 8.0f)))
+				.set_normal_bar_image(FSlateRoundedBoxBrush(FStyleColors::Input, 2.0f, FStyleColors::Input, 1.0f))
+				.set_hovered_bar_image(FSlateRoundedBoxBrush(FStyleColors::Input, 2.0f, FStyleColors::Input, 1.0f))
+				.set_normal_thumb_image(FSlateRoundedBoxBrush(FStyleColors::Foreground, glm::vec2(8.0f, 8.0f)))
+				.set_hovered_thumb_image(FSlateRoundedBoxBrush(FStyleColors::ForegroundHover, glm::vec2(8.0f, 8.0f)))
 				.set_bar_thickness(20.0f);
 
 			style->set("Slider", slider_style);
@@ -129,14 +129,14 @@ namespace DoDo {
 		//common brushes
 		
 		{
-			style->set("Checkboard", new FSlateImageBrush(style->root_to_content_dir("Checkboard", ".png"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), ESlateBrushTileType::Both));
+			style->set("Checkboard", new FSlateImageBrush(style->root_to_content_dir("Checkboard", ".png"), Icon16x16, FLinearColor::White, ESlateBrushTileType::Both));
 		}
 
 		//SSplitter
 		{
 			style->set("Splitter", FSplitterStyle()
-				.set_handle_normal_brush(FSlateColorBrush(glm::vec4(0.7f, 0.3f, 0.2f, 1.0f)))
-				.set_handle_highlight_brush(FSlateColorBrush(glm::vec4(0.9f, 0.3f, 0.2f, 1.0f)))
+				.set_handle_normal_brush(FSlateColorBrush(FStyleColors::Background))
+				.set_handle_highlight_brush(FSlateColorBrush(FStyleColors::Secondary))
 			);
 		}
 
@@ -218,10 +218,10 @@ namespace DoDo {
 			//.set_hovered(FSlateRoundedBoxBrush(FStyleColors::Primary, 4.0f, FStyleColors::Input, input_focus_thickness))
 			//.set_pressed(FSlateRoundedBoxBrush(FStyleColors::Primary, 4.0f, FStyleColors::Input, input_focus_thickness))
 			//.set_disabled(FSlateRoundedBoxBrush(FStyleColors::Primary, 4.0f, FStyleColors::Recessed, input_focus_thickness))
-			.set_normal(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))//FSlateRoundedBoxBrush
-			.set_hovered(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))
-			.set_pressed(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))
-			.set_disabled(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))
+			.set_normal(FSlateRoundedBoxBrush(FStyleColors::Primary, 4.0f, FStyleColors::Input, input_focus_thickness))//FSlateRoundedBoxBrush
+			.set_hovered(FSlateRoundedBoxBrush(FStyleColors::PrimaryHover, 4.0f, FStyleColors::Input, input_focus_thickness))
+			.set_pressed(FSlateRoundedBoxBrush(FStyleColors::PrimaryPress, 4.0f, FStyleColors::Input, input_focus_thickness))
+			.set_disabled(FSlateRoundedBoxBrush(FStyleColors::DropDown, 4.0f, FStyleColors::Recessed, input_focus_thickness))
 			//.set_normal_foreground(FStyleColors::ForegroundHover)
 			//.set_pressed_foreground(FStyleColors::ForegroundHover)
 			//.set_hovered_foreground(FStyleColors::ForegroundHover)
@@ -236,10 +236,10 @@ namespace DoDo {
 		style->set("PrimaryButton", primary_button);//register this 
 
 		const FButtonStyle Button = FButtonStyle()
-			.set_normal(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))//FSlateRoundedBoxBrush
-			.set_hovered(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))
+			.set_normal(FSlateRoundedBoxBrush(FStyleColors::Secondary, 4.0f, FStyleColors::Input, input_focus_thickness))//FSlateRoundedBoxBrush
+			.set_hovered(FSlateRoundedBoxBrush(FStyleColors::Hover, 4.0f, FStyleColors::Input, input_focus_thickness))
 			//se.set_pressed(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))t_up_button_styles(style);
-			.set_disabled(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))
+			.set_disabled(FSlateRoundedBoxBrush(FStyleColors::DropDown, 4.0f, FStyleColors::Recessed, input_focus_thickness))
 			.set_normal_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
 			.set_pressed_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
 			.set_hovered_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
@@ -263,9 +263,9 @@ namespace DoDo {
 
 		//todo:fix me, use close small
 		const FButtonStyle close_button = FButtonStyle()
-			.set_normal(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/close-small", ".svg"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)))
-			.set_pressed(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/close-small", ".svg"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)))
-			.set_hovered(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/close-small", ".svg"), Icon16x16, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+			.set_normal(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/close-small", ".svg"), Icon16x16, FStyleColors::Foreground))
+			.set_pressed(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/close-small", ".svg"), Icon16x16, FStyleColors::Foreground))
+			.set_hovered(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/close-small", ".svg"), Icon16x16, FStyleColors::ForegroundHover));
 				
 
 		FDockTabStyle minor_tab_style =
@@ -276,8 +276,8 @@ namespace DoDo {
 			.set_foreground_brush(FSlateBoxBrush(style->root_to_content_dir("Starship/Docking/DockTab_Foreground", ".png"), 4.0f / 20.0f))
 			.set_color_overlay_tab_brush(FSlateNoResource())
 			.set_color_overlay_icon_brush(FSlateNoResource())
-			.set_content_area_brush(FSlateColorBrush(glm::vec4(1.0f)))
-			.set_tab_well_brush(FSlateColorBrush(glm::vec4(1.0f)))
+			.set_content_area_brush(FSlateColorBrush(FStyleColors::Panel))
+			.set_tab_well_brush(FSlateColorBrush(FStyleColors::Background))
 			.set_flash_color(glm::vec4(1.0f))//todo:add tab flash color
 
 			.set_tab_padding(FMargin(4.0f, 3.0f, 10.0f, 4.0f))

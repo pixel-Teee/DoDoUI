@@ -159,7 +159,7 @@ namespace DoDo {
 					geometry_after_splitter.to_paint_geometry(handle_position, handle_size, 1.0f),//note:make a offset from this geometry
 					normal_handled_brush,
 					should_be_enabled(b_parent_enabled) ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect,
-					glm::vec4(1.0f, 1.0f, 0.2f, 1.0f)
+					in_widget_style.get_color_and_opacity_tint() * m_style->m_handle_highlight_brush.m_tint_color.get_specified_color()
 				);
 			}
 			else
@@ -171,7 +171,7 @@ namespace DoDo {
 					geometry_after_splitter.to_paint_geometry(handle_position, handle_size, 1.0f),
 					&m_style->m_handle_highlight_brush,//todo:modify this
 					should_be_enabled(b_parent_enabled) ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect,
-					glm::vec4(1.0f, 1.0f, 0.2f, 1.0f)
+					in_widget_style.get_color_and_opacity_tint() * normal_handled_brush->m_tint_color.get_specified_color()
 				);
 			}
 		}

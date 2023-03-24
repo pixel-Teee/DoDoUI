@@ -18,14 +18,14 @@ namespace DoDo {
 	public:
 		SLATE_BEGIN_ARGS(SImage)
 			: _Image(FCoreStyle::get().get_default_brush())
-			, _ColorAndOpacity(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+			, _ColorAndOpacity(FLinearColor::White)
 			, _FlipForRightToLeftFlowDirection(false)
 			{}
 			/*Image resource*/
 			SLATE_ATTRIBUTE(const FSlateBrush*, Image)
 
 			/*color and opacity*/
-			SLATE_ATTRIBUTE(glm::vec4, ColorAndOpacity)
+			SLATE_ATTRIBUTE(FSlateColor, ColorAndOpacity)
 
 			/*flips the image if the localization's flow direction is right to left*/
 			SLATE_ARGUMENT(bool, FlipForRightToLeftFlowDirection)
@@ -50,7 +50,7 @@ namespace DoDo {
 		TSlateAttribute<const FSlateBrush*> m_image_attribute;
 
 		/*color and opacity scale for this image attribute*/
-		TSlateAttribute<glm::vec4> m_color_and_opacity_attribute;
+		TSlateAttribute<FSlateColor> m_color_and_opacity_attribute;
 
 		/*when specified, ignore the content's desired size and report the height override as the box's desired height*/
 		TSlateAttribute<std::optional<glm::vec2>> m_desired_size_override_attribute;

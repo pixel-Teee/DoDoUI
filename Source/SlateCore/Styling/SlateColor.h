@@ -58,8 +58,62 @@ namespace DoDo {
 
 		~FSlateColor()
 		{}
+	protected:
+		//private constructor to prevent construction of invalid FSlateColors
+		FSlateColor(ESlateColorStylingMode in_color_use_rule)
+			: m_specified_color(FLinearColor(1.0f, 0.0f, 1.0f))
+			, m_color_use_rule(in_color_use_rule)
+			, m_color_table_id()
+		{
+			
+		}
 
 	public:
+		/*
+		 * @returns an FSlateColor that is the widget's foreground
+		 */
+		static FSlateColor use_foreground()
+		{
+			return FSlateColor(ESlateColorStylingMode::use_color_foreground);
+		}
+
+		/*@returns an FSlateColor that is the subdued version of the widget's foreground*/
+		static FSlateColor use_style()
+		{
+			return FSlateColor(ESlateColorStylingMode::use_color_use_style);
+		}
+
+		/*
+		 * compares this color with another for equality
+		 *
+		 * @param Other the other color
+		 *
+		 * @return true if the two colors are equal, false otherwise
+		 */
+		bool operator==(const FSlateColor& other) const
+		{
+			return m_specified_color == other.m_specified_color
+				&& m_color_use_rule == other.m_color_use_rule
+				&& (m_color_use_rule != ESlateColorStylingMode::use_color_color_table || m_color_table_id == other.m_color_table_id);
+		}
+
+		/*
+		 * gets the specified color value
+		 *
+		 * @return the specified color value
+		 *
+		 * @see get color, is color specified
+		 */
+		FLinearColor get_specified_color() const
+		{
+			if(m_color_use_rule == ESlateColorStylingMode::use_color_color_table)
+			{
+				return get_color_from_table();
+			}
+
+			return m_specified_color;
+		}
+
 		/*
 		* gets the color value represented by this slate color
 		* 
@@ -73,6 +127,7 @@ namespace DoDo {
 		{
 			switch (m_color_use_rule)
 			{
+			default:
 			case ESlateColorStylingMode::use_color_specified:
 				return m_specified_color;
 				break;
@@ -84,8 +139,6 @@ namespace DoDo {
 				break;
 			case ESlateColorStylingMode::use_color_foreground_subdued:
 				return in_widget_style.get_subdued_foreground_color();//subdued foreground color
-				break;
-			default:
 				break;
 			}
 		}

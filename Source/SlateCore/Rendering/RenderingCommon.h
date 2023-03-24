@@ -4,6 +4,8 @@
 #include "Core/Misc/EnumClassFlags.h"//ENUM_CLASS_FLAGS
 #include "SlateRenderTransform.h"
 
+#include "SlateCore/Styling/SlateColor.h"//FSlateColor depends on it
+
 //#include <vulkan/vulkan.h>
 
 namespace DoDo
@@ -70,10 +72,10 @@ namespace DoDo
 		glm::vec2 m_position;
 
 		/*vertex color*/
-		glm::vec4 m_color;
+		FColor m_color;
 
 		/*secondary vertex color, generally used for outlines*/
-		glm::vec4 m_secondary_color;
+		FColor m_secondary_color;
 
 		/*local size of the element*/
 		uint16_t m_pixel_size[2];
@@ -85,7 +87,7 @@ namespace DoDo
 	public:
 
 		template<ESlateVertexRounding Rounding>
-		static FSlateVertex Make(const FSlateRenderTransform& render_transform, const glm::vec2 in_local_position, const glm::vec4 in_tex_coord, const glm::vec2 in_tex_coord2, const glm::vec4 in_color, const glm::vec4 secondary_color = glm::vec4())
+		static FSlateVertex Make(const FSlateRenderTransform& render_transform, const glm::vec2 in_local_position, const glm::vec4 in_tex_coord, const glm::vec2 in_tex_coord2, const FColor in_color, const FColor secondary_color = FColor())
 		{
 			FSlateVertex vertex;
 			vertex.tex_coords[0] = in_tex_coord.x;
@@ -98,7 +100,7 @@ namespace DoDo
 		}
 
 		template<ESlateVertexRounding Rounding>
-		static FSlateVertex Make(const FSlateRenderTransform& render_transform, const glm::vec2 in_local_position, const glm::vec2 in_local_size, float scale, const glm::vec4 in_tex_coords, const glm::vec4 in_color, const glm::vec4 in_secondary_color)
+		static FSlateVertex Make(const FSlateRenderTransform& render_transform, const glm::vec2 in_local_position, const glm::vec2 in_local_size, float scale, const glm::vec4 in_tex_coords, const FColor& in_color, const FColor in_secondary_color)
 		{
 			FSlateVertex vertex;
 			vertex.tex_coords[0] = in_tex_coords.x;
@@ -118,7 +120,7 @@ namespace DoDo
 
 	private:
 		template<ESlateVertexRounding Rounding>
-		void init_common(const FSlateRenderTransform& render_transform, const glm::vec2 in_local_position, const glm::vec4 in_color, const glm::vec4 in_secondary_color)
+		void init_common(const FSlateRenderTransform& render_transform, const glm::vec2 in_local_position, const FColor in_color, const FColor in_secondary_color)
 		{
 			//todo:implement transform point
 			m_position = transform_point(render_transform, in_local_position);

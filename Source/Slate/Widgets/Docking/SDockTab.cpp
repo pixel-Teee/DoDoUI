@@ -161,11 +161,11 @@ namespace DoDo
 	{
 		return get_tab_role();
 	}
-	glm::vec4 SDockTab::get_icon_color() const
+	FSlateColor SDockTab::get_icon_color() const
 	{
 		if (!m_icon_color.Is_Set())
 		{
-			return glm::vec4(1.0f);
+			return FSlateColor::use_foreground();
 		}
 
 		if (this->is_fore_ground() || this->is_hovered())
@@ -174,7 +174,7 @@ namespace DoDo
 		}
 		else //dim to 30% if not active
 		{
-			return m_icon_color.Get();
+			return m_icon_color.Get().copy_with_new_opacity(0.7f);
 		}
 	}
 	const FSlateBrush* SDockTab::get_tab_icon() const

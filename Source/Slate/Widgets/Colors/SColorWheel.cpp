@@ -78,7 +78,7 @@ namespace DoDo {
 			allotted_geometry.to_paint_geometry(0.5f * selector_size, circle_size),
 			m_image,
 			draw_effects,
-			m_image->get_tint());
+			in_widget_style.get_color_and_opacity_tint() * m_image->get_tint(in_widget_style));//note:widget style will be affected by FWidgetStyle
 
 		//todo:implement calc relative position from center
 		FSlateDrawElement::MakeBox(out_draw_elements,
@@ -86,7 +86,7 @@ namespace DoDo {
 			allotted_geometry.to_paint_geometry(0.5f * (allotted_geometry.get_local_size() + calc_relative_position_from_center() * circle_size - selector_size), selector_size),
 			m_selector_image,
 			draw_effects,
-			m_selector_image->get_tint());
+			in_widget_style.get_color_and_opacity_tint() * m_selector_image->get_tint(in_widget_style));
 
 		return layer_id + 1;
 	}

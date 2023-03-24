@@ -32,9 +32,9 @@ namespace DoDo
 		, _BorderImage(FCoreStyle::get().get_brush("Border"))
 		, _ContentScale(glm::vec2(1.0f, 1.0f))
 		, _DesiredSizeScale(glm::vec2(1.0f, 1.0f))
-		, _ColorAndOpacity(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)) //todo:need to modify as FLinearColor
-		, _BorderBackgroundColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
-		, _ForegroundColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+		, _ColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)) //todo:need to modify as FLinearColor
+		, _BorderBackgroundColor(FLinearColor::White)
+		, _ForegroundColor(FSlateColor::use_foreground())
 		, _ShowEffectWhenDisabled(true)
 		, _FlipForRightToLeftFlowDirection(false)
 		{}
@@ -55,13 +55,13 @@ namespace DoDo
 		SLATE_ATTRIBUTE(glm::vec2, DesiredSizeScale)
 
 		/*color and opacity is the color and opacity of content in the border*/
-		SLATE_ATTRIBUTE(glm::vec4, ColorAndOpacity)
+		SLATE_ATTRIBUTE(FLinearColor, ColorAndOpacity)
 
 		/*border back ground color refers to the actual color and opacity of the supplied border image*/
-		SLATE_ATTRIBUTE(glm::vec4, BorderBackgroundColor)
+		SLATE_ATTRIBUTE(FSlateColor, BorderBackgroundColor)
 
 		/*the foreground color of text and some glyphs that appear as the border's content*/
-		SLATE_ATTRIBUTE(glm::vec4, ForegroundColor)
+		SLATE_ATTRIBUTE(FSlateColor, ForegroundColor)
 
 		/*whether or not to show the disabled effect when this border is disabled*/
 		SLATE_ATTRIBUTE(bool, ShowEffectWhenDisabled)
@@ -84,9 +84,9 @@ namespace DoDo
 		void Construct(const FArguments& in_args);
 
 		/*sets the color and opacity of the background image for this border*/
-		void set_border_back_ground_color(TAttribute<glm::vec4> in_color_and_opacity);
+		void set_border_back_ground_color(TAttribute<FSlateColor> in_color_and_opacity);
 
-		glm::vec4 get_border_back_ground_color() const { return m_border_back_ground_color_attribute.Get(); }
+		FSlateColor get_border_back_ground_color() const { return m_border_back_ground_color_attribute.Get(); }
 
 		void set_padding(TAttribute<FMargin> in_padding);
 
@@ -111,7 +111,7 @@ namespace DoDo
 		TSlateAttribute<const FSlateBrush*> m_border_image_attribute;
 
 		//todo:implement FSlateColor
-		TSlateAttribute<glm::vec4> m_border_back_ground_color_attribute;//control back ground color
+		TSlateAttribute<FSlateColor> m_border_back_ground_color_attribute;//control back ground color
 
 		TSlateAttribute<glm::vec2> m_desired_size_scale_attribute;
 

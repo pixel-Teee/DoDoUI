@@ -1444,7 +1444,7 @@ namespace DoDo
         m_text_block->set_text(text);
     }
 
-    void Application::test_color_wheel_value_changed(glm::vec4 new_color)
+    void Application::test_color_wheel_value_changed(FSlateColor new_color)
     {
         m_border->set_border_back_ground_color(new_color);
     }
@@ -1453,7 +1453,7 @@ namespace DoDo
     {
         return SNew(SDockTab)
                //.ContentPadding(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
-               .ForegroundColor(glm::vec4(0.6f, 0.3f, 0.2f, 1.0f))
+               .ForegroundColor(FLinearColor(0.6f, 0.3f, 0.2f, 1.0f))
                [
                    SNew(SImage)
                    .Image(FAppStyle::get().get_brush("Icons.C++"))

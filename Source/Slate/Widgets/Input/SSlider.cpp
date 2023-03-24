@@ -106,7 +106,7 @@ namespace DoDo {
 			slider_geometry.to_paint_geometry(bar_top_left, bar_size),
 			bar_image,
 			draw_effects,
-			bar_image->get_tint() * m_slider_bar_color.Get());//todo:fix me color
+			bar_image->get_tint(in_widget_style) * m_slider_bar_color.Get().get_color(in_widget_style) * in_widget_style.get_color_and_opacity_tint());//todo:fix me color
 
 		++layer_id;
 
@@ -116,7 +116,7 @@ namespace DoDo {
 			slider_geometry.to_paint_geometry(handle_top_left_point, get_thumb_image()->m_image_size),
 			thumb_image,
 			draw_effects,
-			thumb_image->get_tint() * m_slider_handle_color.Get());//todo:fix me color
+			thumb_image->get_tint(in_widget_style) * m_slider_handle_color.Get().get_color(in_widget_style) * in_widget_style.get_color_and_opacity_tint());//todo:fix me color
 
 		//todo:draw
 		return layer_id;

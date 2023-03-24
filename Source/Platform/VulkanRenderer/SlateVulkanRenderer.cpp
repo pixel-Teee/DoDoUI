@@ -1028,13 +1028,13 @@ namespace DoDo {
 		VkVertexInputAttributeDescription colorAttribute = {};
 		colorAttribute.binding = 0;
 		colorAttribute.location = 2;
-		colorAttribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-		colorAttribute.offset = offsetof(FSlateVertex, m_color);
+		colorAttribute.format = VK_FORMAT_R8G8B8A8_UNORM;
+		colorAttribute.offset = offsetof(FSlateVertex, m_color);//todo:implement as UNORM
 
 		VkVertexInputAttributeDescription color2Attribute = {};
 		color2Attribute.binding = 0;
 		color2Attribute.location = 3;
-		color2Attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+		color2Attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
 		color2Attribute.offset = offsetof(FSlateVertex, m_secondary_color);
 
 		description.attributes.push_back(texcoordAttribute);

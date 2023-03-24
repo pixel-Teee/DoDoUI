@@ -29,7 +29,7 @@ namespace DoDo
 		//todo:add color picker, alpha back ground
 		ESlateDrawEffect draw_effects = (b_parent_enabled && Is_Enabled()) ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect;
 
-		const std::vector<glm::vec4>& colors = m_gradient_colors.Get();
+		const std::vector<FLinearColor>& colors = m_gradient_colors.Get();
 		int32_t num_colors = colors.size();
 
 		if(num_colors > 0)

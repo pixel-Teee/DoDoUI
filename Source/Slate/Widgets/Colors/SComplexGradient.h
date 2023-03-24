@@ -19,7 +19,7 @@ namespace DoDo
 		}
 
 			/*the colors used in the gradient*/
-		SLATE_ATTRIBUTE(std::vector<glm::vec4>, GradientColors)
+		SLATE_ATTRIBUTE(std::vector<FLinearColor>, GradientColors)
 
 			/*whether a checker background is displayed for alpha viewing*/
 			SLATE_ARGUMENT(bool, HasAlphaBackground)
@@ -49,7 +49,7 @@ namespace DoDo
 	private:
 
 		/*the colors used in the gradient*/
-		TSlateAttribute<std::vector<glm::vec4>, EInvalidateWidgetReason::Paint> m_gradient_colors;
+		TSlateAttribute<std::vector<FLinearColor>, EInvalidateWidgetReason::Paint> m_gradient_colors;
 
 		/*optional override for desired size*/
 		TSlateAttribute<std::optional<glm::vec2>, EInvalidateWidgetReason::Layout> m_desired_size_override;

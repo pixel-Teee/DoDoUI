@@ -46,7 +46,9 @@ namespace DoDo {
 			FArrangedWidget& the_child = arranged_children[0];
 
 			//todo:implement FWidgetStyle
-			FWidgetStyle compounded_widget_style;
+			FWidgetStyle compounded_widget_style = FWidgetStyle(in_widget_style)
+				.blend_color_and_opacity_tint(get_color_and_opacity())
+				.set_foreground_color(b_should_be_enabled ? get_foreground_color() : get_disabled_foreground_color());
 
 			int32_t layer = 0;
 
@@ -65,8 +67,13 @@ namespace DoDo {
 		return &m_child_slot;
 	}
 
+	FSlateColor SCompoundWidget::get_foreground_color() const
+	{
+		return m_foreground_color_attribute.Get();
+	}
+
 	void SCompoundWidget::On_Arrange_Children(const FGeometry& allotted_geometry,
-		FArrangedChildren& arranged_children) const
+	                                          FArrangedChildren& arranged_children) const
 	{
 		if(m_child_slot.get_widget() != nullptr)//todo:remove this
 		{
@@ -78,8 +85,8 @@ namespace DoDo {
 	SCompoundWidget::SCompoundWidget()
 		: m_child_slot(this)
 		, m_content_scale_attribute(*this, glm::vec2(1.0f, 1.0f))
-		, m_color_and_opacity_attribute(*this, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//white
-		, m_foreground_color_attribute(*this, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//todo:use foreground
+		, m_color_and_opacity_attribute(*this, FLinearColor::White)//white
+		, m_foreground_color_attribute(*this, FSlateColor::use_foreground())//todo:use foreground
 	{
 	}
 
