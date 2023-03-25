@@ -30,7 +30,7 @@ namespace DoDo
 	}
 
 	FDockTabStyle::FDockTabStyle()
-		: m_icon_size(16, 16)
+		: m_icon_size(32, 32)//todo:fix me, use 16 x 16
 		, m_overlap_width(0.0f)
 		, m_normal_foreground_color(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f))
 		, m_hovered_foreground_color(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f))
@@ -97,6 +97,41 @@ namespace DoDo
 	{
 		static FSliderStyle Default;
 		return Default;
+	}
+
+	FWindowStyle::FWindowStyle()
+		: m_background_color(FLinearColor::White)
+		, m_outline_color(FLinearColor::White)
+		, m_border_color(FLinearColor::White)
+		, m_window_corner_radius(0.0f)
+		, m_broder_padding(FMargin(5.0f, 5.0f, 5.0f, 5.0f))
+	{
+	}
+
+	const DoDoUtf8String FWindowStyle::TypeName("FWindowStyle");
+
+	void FWindowStyle::get_resources(std::vector<const FSlateBrush*>& out_brushes) const
+	{
+		m_minimize_button_style.get_resources(out_brushes);
+		m_maxmize_button_style.get_resources(out_brushes);
+		m_restore_button_style.get_resources(out_brushes);
+		m_close_button_style.get_resources(out_brushes);
+
+		m_title_text_style.get_resources(out_brushes);
+
+		out_brushes.push_back(&m_active_title_brush);
+		out_brushes.push_back(&m_inactive_title_brush);
+		out_brushes.push_back(&m_flash_title_brush);
+		out_brushes.push_back(&m_border_brush);
+		out_brushes.push_back(&m_background_brush);
+		out_brushes.push_back(&m_child_background_brush);
+	}
+
+	const FWindowStyle& FWindowStyle::get_default()
+	{
+		static FWindowStyle default;
+
+		return default;
 	}
 
 	//const FSplitterStyle& FSplitterStyle::get_default()

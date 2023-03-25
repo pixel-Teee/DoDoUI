@@ -7,9 +7,13 @@
 #include "SlateCore/FastUpdate/SlateInvalidationRoot.h"//FSlateInvalidationContext
 #include "SlateCore/Input/HittestGird.h"//FHittestGrid depends on it
 
+#include "SlateCore/Widgets/SBoxPanel.h"//SVerticalBox depends on it
+
 namespace DoDo
 {
 	class Window;//native window
+	class IWindowTitleBar;
+	class SOverlay;
 	//todo:let SWindow to inherited from FSlateInvalidationRoot
 	class SWindow : public SCompoundWidget, public FSlateInvalidationRoot
 	{
@@ -69,8 +73,28 @@ namespace DoDo
 			return m_title.Get();
 		}
 
+		void set_title_bar(const std::shared_ptr<IWindowTitleBar> in_title_bar)
+		{
+			m_title_bar = in_title_bar;
+		}
+
 		/*@return the geometry of the window in window space(i.e. position and absolute position are 0)*/
 		FGeometry get_window_geometry_in_window() const;
+
+		/*
+		* sets the current window title
+		* 
+		* @param InTitle the new title of the window
+		*/
+		void set_title(const DoDoUtf8String& in_title)
+		{
+			m_title = in_title;
+			if (m_native_window)
+			{
+				//todo:implement this
+				//m_native_window->set_text()
+			}
+		}
 
 		/*paint the window and all of it's contents, not the same as Paint()*/
 		int32_t paint_window(double current_time, float delta_time, FSlateWindowElementList& out_draw_elements, const FWidgetStyle& in_widget_style, bool b_parent_enabled);//todo:implement FWidgetStyle
@@ -181,6 +205,10 @@ namespace DoDo
 		/*size of the viewport, if (0, 0) then it is equal to size*/
 		glm::vec2 m_view_port_size;
 
+		SVerticalBox::FSlot* m_content_slot;
+	private:
+		std::shared_ptr<SWidget> m_content_area_v_box;
+
 	protected:
 		/*the native window that is backing this slate window*/
 		//todo:implement FGenericWindow
@@ -189,13 +217,21 @@ namespace DoDo
 		/*each window has it's own hittest grid for accelerated widget picking*/
 		std::unique_ptr<FHittestGrid> m_hittest_grid;
 
+		/*window overlay widget*/
+		std::shared_ptr<SOverlay> m_window_overlay;
+
 		/*when not null, this window will always appear on top of the parent and be closed when the parent is closed*/
 		std::weak_ptr<SWindow> m_parent_window_ptr;
 
 		/*child windows of this window*/
 		std::vector<std::shared_ptr<SWindow>> m_child_windows;
 
+		//the window title bar
+		std::shared_ptr<IWindowTitleBar> m_title_bar;
+
 	protected:
+
+		void construct_window_internals();
 
 		//------FSlateInvalidationRoot overrides------
 		virtual int32_t paint_slow_path(const FSlateInvalidationContext& context) override;

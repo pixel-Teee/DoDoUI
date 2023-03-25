@@ -78,4 +78,65 @@ namespace DoDo
 			: FSizeParam(SizeRule_Auto, 0.0f)
 		{}
 	};
+
+	/*
+	* structure for optional floating point sizes
+	*/
+	struct FOptionalSize
+	{
+		/*
+		* creates an unspecified size
+		*/
+		FOptionalSize()
+			: m_size(m_unspecified)
+		{}
+
+		/*
+		* creates a size with the specified value
+		* 
+		* @param SpecifiedSize the size to set
+		*/
+		FOptionalSize(const float specified_size)
+			: m_size(specified_size)
+		{}
+
+		/*
+		* compare one optional size to another for equality
+		*/
+		bool operator==(const FOptionalSize& other) const
+		{
+			return (m_size == other.m_size);
+		}
+
+		/*
+		* checks whether the size is set
+		* 
+		* @return true if the size is set, false if it is unspecified
+		* 
+		* @see get
+		*/
+		bool is_set() const
+		{
+			return m_size != m_unspecified;
+		}
+
+		/*
+		* gets the value of the size
+		* 
+		* before calling this method, check with is set() whether the size is actually specified
+		* unspecified sizes a value of -1.0f will be returned
+		* 
+		* @see is set
+		*/
+		float get() const
+		{
+			return m_size;
+		}
+	private:
+		//constant for unspecified sizes
+		static const float m_unspecified;
+
+		//holds the size, if specified
+		float m_size;
+	};
 }

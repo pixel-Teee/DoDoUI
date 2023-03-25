@@ -297,6 +297,11 @@ namespace DoDo
 		/*@return the foreground color that this widget sets when this widget or any of its ancestors are disabled, unset options if the widget does not set a foreground color*/
 		virtual FSlateColor get_disabled_foreground_color() const;
 
+		/*
+		* gets the last geometry used to tick the widget
+		* this data may not exist yet if this call happens prior to the widget having been ticked/painted, or it may be out of date, or a frame behind
+		*/
+		const FGeometry& get_tick_space_geometry() const;
 	public:
 		/*
 		 * hidden default constructor
@@ -364,6 +369,8 @@ namespace DoDo
 		* @return FCursorReply::UnHandled() if the event is not handled, return FCursorReply::Cursor() otherwise
 		*/
 		virtual FCursorReply On_Cursor_Query(const FGeometry& my_geometry, const FPointerEvent& cursor_event) const;
+
+		void slate_prepass();
 
 		/*
 		 * descends to leaf-most widgets in the hierarchy and gathers desired sizes on the way up

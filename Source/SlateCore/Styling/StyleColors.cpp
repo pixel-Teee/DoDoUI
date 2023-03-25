@@ -23,4 +23,7 @@ namespace DoDo {
 	const FSlateColor FStyleColors::Secondary =			EStyleColor::Secondary;
 	const FSlateColor FStyleColors::Hover =				EStyleColor::Hover;
 
+	const FSlateColor FStyleColors::WindowBorder =		EStyleColor::WindowBorder;
+	const FSlateColor FStyleColors::InputOutline =		EStyleColor::InputOutline;
+
 }

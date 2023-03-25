@@ -17,6 +17,10 @@
 
 #include "SlateCore/Types/PaintArgs.h"
 
+#include "SlateCore/Application/SlateApplicationBase.h"//FWindowTitleBarArgs depends on it
+
+#include "SlateCore/Widgets/SOverlay.h"//SOverlay depends on it
+
 namespace DoDo {
 	//SWindow::SWindow()
 	//{
@@ -24,7 +28,16 @@ namespace DoDo {
 
 	void DoDo::SWindow::set_content(std::shared_ptr<SWidget> in_content)
 	{
-		m_child_slot.operator[](in_content);
+		//m_child_slot.operator[](in_content);
+
+		if (m_content_slot)
+		{
+			m_content_slot->operator[](in_content);
+		}
+		else
+		{
+			m_child_slot.operator[](in_content);
+		}
 
 		//todo:call Invalidate, child order
 	}
@@ -42,6 +55,7 @@ namespace DoDo {
 		, m_initial_desired_size(glm::vec2(0.0f, 0.0f))
 		, m_size(glm::vec2(0.0f, 0.0f))
 		, m_view_port_size(glm::vec2(0.0f, 0.0f))
+		, m_content_slot(nullptr)
 		, m_hittest_grid(std::make_unique<FHittestGrid>())
 	{
 	}
@@ -70,6 +84,8 @@ namespace DoDo {
 		this->m_initial_desired_size = dpi_scaled_client_size;//todo:need to interms of the dpi to scale
 
 		resize_window_size(m_initial_desired_size);
+
+		this->construct_window_internals();
 
 		this->set_content(in_args._Content.m_widget);//set content, move FArgument's widget to this function
 	}
@@ -240,6 +256,41 @@ namespace DoDo {
 		int32_t max_layer = SCompoundWidget::On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, b_parent_enabled);
 
 		return max_layer;
+	}
+
+	void SWindow::construct_window_internals()
+	{
+		//set up widget that represents the main area of the window, that is, everything inside the window's border
+
+		std::shared_ptr<SVerticalBox> main_window_area = SNew(SVerticalBox);
+
+		FWindowTitleBarArgs args(std::static_pointer_cast<SWindow>(shared_from_this()));
+
+		//todo:create window title bar
+
+		//create window
+
+		//create window content slot
+		main_window_area->add_slot()
+			.fill_height(1.0f)
+			.Expose(m_content_slot)
+			[
+				SNullWidget::NullWidget
+			];
+
+		this->m_child_slot
+		[
+			SAssignNew(m_window_overlay, SOverlay)
+			//main area
+			+ SOverlay::Slot()
+			[
+				SAssignNew(m_content_area_v_box, SVerticalBox)
+				+ SVerticalBox::Slot()
+				[
+					main_window_area
+				]
+			]
+		];
 	}
 
 	int32_t SWindow::paint_slow_path(const FSlateInvalidationContext& invalidation_context)

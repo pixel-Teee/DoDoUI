@@ -62,6 +62,8 @@
 
 #include "SlateCore/Styling/UMGCoreStyle.h"//FUMGCoreStyle depends on it
 
+#include "Slate/Framework/Application/SWindowTitleBar.h"//SWindowTitleBar depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -1433,6 +1435,15 @@ namespace DoDo
         return false;
     }
 
+    std::shared_ptr<SWidget> Application::make_window_title_bar(const FWindowTitleBarArgs& in_args, std::shared_ptr<IWindowTitleBar>& out_title_bar) const
+    {
+        std::shared_ptr<SWindowTitleBar> title_bar = SNew(SWindowTitleBar, in_args.m_window, in_args.m_center_content, in_args.m_center_content_alignment);
+
+        out_title_bar = title_bar;
+
+        return title_bar;
+    }
+
     DoDoUtf8String Application::calculate_frame_per_second() const
     {
         return DoDoUtf8String(std::string("FPS:") + std::to_string(m_last_frame_count));
@@ -1453,14 +1464,42 @@ namespace DoDo
     {
         return SNew(SDockTab)
                //.ContentPadding(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
-               .ForegroundColor(FLinearColor(0.6f, 0.3f, 0.2f, 0.2f))
+               .ForegroundColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
                [
-                   SNew(SBorder)
-                   .ColorAndOpacity(FLinearColor(1.0f, 0.8f, 0.7f, 1.0f))
-					[
-                        SNew(SImage)
-                        .Image(FAppStyle::get().get_brush("Icons.solar-system"))
-                    ]
+                   SNew(SHorizontalBox)
+                   + SHorizontalBox::Slot()
+                    .fill_width(1.0f)
+                    //.auto_width()
+                   [                 
+					  SNew(SOverlay)
+                      + SOverlay::Slot()
+                      [
+                          SNew(SImage)
+                      ]
+                      + SOverlay::Slot()
+                      [
+						  SNew(SConstraintCanvas)
+						  + SConstraintCanvas::Slot()
+						  .Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
+						  .Offset(FMargin(0.0f, 0.0f, 147.0f, 253.0f))//position and size
+						  .Alignment(glm::vec2(0.5f, 0.5f))
+						  .AutoSize(true)//todo:use fix size
+                          [
+                              SNew(SBorder)
+                              .ColorAndOpacity(FLinearColor(0.7f, 0.3f, 0.9f, 1.0f))
+                              [
+								  SNew(SButton)
+								  .ButtonColorAndOpacity(FLinearColor(0.7f, 0.3f, 0.9f, 1.0f))
+						          //.Text(s_current_application, &Application::calculate_frame_per_second)
+						          [
+							          SNew(SImage)
+							          .Image(FAppStyle::get().get_brush("Icons.ArrowLeft"))
+						          ]
+                              ]
+
+                          ]
+                      ]
+                   ]			  
                ];
     }
 
@@ -1485,8 +1524,10 @@ namespace DoDo
 			//)
         );
 
-        FGlobalTabmanager::get()->register_nomad_tab_spawner("starship widgets", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets));//todo:implement this function
-        FGlobalTabmanager::get()->register_nomad_tab_spawner("test widget", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets));
+        FGlobalTabmanager::get()->register_nomad_tab_spawner("starship widgets", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets))
+            .set_icon(FSlateIcon("CoreStyle", "Icons.heart2"));//todo:implement this function
+        FGlobalTabmanager::get()->register_nomad_tab_spawner("test widget", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets))
+           .set_icon(FSlateIcon("CoreStyle", "Icons.heart2"));//todo:this is use for SDockTab icon
 
         FGlobalTabmanager::get()->restore_from(layout, std::shared_ptr<SWindow>());
     }

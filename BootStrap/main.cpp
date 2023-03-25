@@ -1,5 +1,7 @@
 ﻿#include <Application/Application.h>
 
+#include <Slate/Framework/Docking/TabManager.h>
+
 #include <Renderer/Renderer.h>//renderer
 
 #include "Core/String/DoDoString.h"
@@ -132,6 +134,8 @@ int main()
     std::shared_ptr<DoDo::Renderer> pRenderer = DoDo::Renderer::Create();
 
     DoDo::Application::get().Initialize_Renderer(pRenderer);//initialize renderer
+
+    DoDo::FGlobalTabmanager::get()->set_application_title("my app");
 
     DoDo::Application::get().test_create_widget();
 

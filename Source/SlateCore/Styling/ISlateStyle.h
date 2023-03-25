@@ -10,6 +10,8 @@
 
 #include "SlateWidgetStyle.h"
 
+#include "SlateCore/Styling/SlateDefaults.h"//FStyleDefaults depends on it
+
 namespace DoDo {
 	class DoDoUtf8String;
 	//class FSlateBrush;
@@ -55,5 +57,17 @@ namespace DoDo {
 		* @return default slate brush value
 		*/
 		virtual FSlateBrush* get_default_brush() const = 0;
+
+		/*
+		* just like get brush, but returns default brush instead of the "missing brush" image when the resource is not found
+		* 
+		* @param PropertyName name of the property to get
+		* 
+		* @param Specifier an optional string to append to the property name
+		* 
+		* @return an FSlateBrush property
+		*/
+		virtual const FSlateBrush* get_optional_brush(const DoDoUtf8String property_name, const char* specifier = nullptr,
+			const FSlateBrush* const default_brush = FStyleDefaults::get_no_brush()) const = 0;
 	};
 }

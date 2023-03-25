@@ -9,7 +9,7 @@
 namespace DoDo {
 	void SImage::Private_Register_Attributes(FSlateAttributeInitializer& attribute_initializer)
 	{
-
+		SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "DesiredSizeOverride", m_desired_size_override_attribute, EInvalidateWidgetReason::Layout);
 	}
 
 	SImage::SImage()
@@ -25,7 +25,7 @@ namespace DoDo {
 		m_color_and_opacity_attribute.Assign(*this, in_args._ColorAndOpacity);
 		m_b_flip_for_right_to_left_flow_direction = in_args._FlipForRightToLeftFlowDirection;
 
-		//m_desired_size_override_attribute.Assign(*this, in_args._)
+		m_desired_size_override_attribute.Assign(*this, in_args._DesiredSizeOverride);
 	}
 	glm::vec2 SImage::Compute_Desired_Size(float) const
 	{

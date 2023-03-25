@@ -55,7 +55,7 @@ namespace DoDo
 		SLATE_ATTRIBUTE(glm::vec2, DesiredSizeScale)
 
 		/*color and opacity is the color and opacity of content in the border*/
-		SLATE_ATTRIBUTE(FLinearColor, ColorAndOpacity)
+		SLATE_ATTRIBUTE(FLinearColor, ColorAndOpacity)//note:this attribute affect FWidgetStyle 
 
 		/*border back ground color refers to the actual color and opacity of the supplied border image*/
 		SLATE_ATTRIBUTE(FSlateColor, BorderBackgroundColor)

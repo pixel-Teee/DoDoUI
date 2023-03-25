@@ -124,6 +124,38 @@ namespace DoDo {
 			
 		};
 
+	protected:
+		template<typename SlotType>
+		struct FScopedWidgetSlotArguments : public SlotType::FSlotArguments
+		{
+		public:
+			FScopedWidgetSlotArguments(std::unique_ptr<SlotType> in_slot, TPanelChildren<FSlot>& in_children, int32_t in_index)
+				: SlotType::FSlotArguments(std::move(in_slot))
+				, m_children(in_children)
+				, m_index(in_index)
+			{}
+
+			virtual ~FScopedWidgetSlotArguments()
+			{
+				if (this->get_slot())
+				{
+					SBoxPanel::FSlot::FSlotArguments* self_as_base_slot = static_cast<SBoxPanel::FSlot::FSlotArguments*>(static_cast<FSlotBase::FSlotArguments*>(this));
+
+					if (m_index == -1)
+					{
+						m_children.add_slot(std::move(*self_as_base_slot));
+					}
+					else
+					{
+						m_children.insert_slot(std::move(*self_as_base_slot), m_index);
+					}
+				}
+			}
+		private:
+			TPanelChildren<FSlot>& m_children;
+			int32_t m_index;
+		};
+
 	public:
 		/*begin SWidget overrides*/
 		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
@@ -270,6 +302,17 @@ namespace DoDo {
 
 			SLATE_SLOT_ARGUMENT(SVerticalBox::FSlot, Slots)
 		SLATE_END_ARGS()
+
+		using FScopedWidgetSlotArguments = SBoxPanel::FScopedWidgetSlotArguments<SVerticalBox::FSlot>;
+		FScopedWidgetSlotArguments add_slot()
+		{
+			return insert_slot(-1);
+		}
+
+		FScopedWidgetSlotArguments insert_slot(int32_t index = -1)
+		{
+			return FScopedWidgetSlotArguments(std::make_unique<FSlot>(), this->m_children, index);
+		}
 
 		FSlot& get_slot(int32_t slot_index);
 		const FSlot& get_slot(int32_t slot_index) const;

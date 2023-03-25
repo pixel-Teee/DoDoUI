@@ -10,6 +10,8 @@
 
 #include "Application/Application.h"//create new os window
 
+#include "Slate/Widgets/Docking/SDockTab.h"//SDockTab depends on it
+
 namespace DoDo
 {
 	//------as function------
@@ -181,6 +183,7 @@ namespace DoDo
 
 				//set a default title, restoring the splitter content may override this if it actives a tab
 				//todo:set title
+				new_window->set_title(FGlobalTabmanager::get()->get_application_title());
 
 				std::vector<std::shared_ptr<SDockingNode>> docking_nodes;
 				//todo:implement can restore splitter content
@@ -295,6 +298,8 @@ namespace DoDo
 				new_tab_widget = spawner->m_on_spawn_tab.execute(FSpawnTabArgs(parent_window, tab_id));
 
 				//todo:set layout identifier and provide default local and icon
+
+				new_tab_widget->provide_default_icon(spawner->get_icon().get_icon());//note:this is important
 
 				//the spawner tracks that last tab it spawned
 				spawner->m_spawned_tab_ptr = new_tab_widget;
@@ -588,5 +593,21 @@ namespace DoDo
 		m_nomed_tab_spawner->insert({ tab_id, new_spawner_entry });
 
 		return *new_spawner_entry;
+	}
+	const DoDoUtf8String& FGlobalTabmanager::get_application_title() const
+	{
+		return m_app_title;
+	}
+	void FGlobalTabmanager::set_application_title(const DoDoUtf8String& app_title)
+	{
+		m_app_title = app_title;
+
+		//todo:check
+		//for(int32_t dock_area_index = 0; dock_area_index < 
+	}
+	FTabSpawnerEntry& FTabSpawnerEntry::set_icon(const FSlateIcon& in_icon)
+	{
+		m_icon = in_icon;
+		return *this;
 	}
 }

@@ -46,7 +46,7 @@ namespace DoDo
 
 		//parent construct
 		SBorder::Construct(SBorder::FArguments()
-			.BorderImage(FCoreStyle::get().get_brush("Border")) //todo:implement default no brush
+			.BorderImage(FStyleDefaults::get_no_brush()) //todo:implement default no brush
 			.VAlign(VAlign_Bottom)
 			.Padding(0.0f)
 			.ForegroundColor(in_args._ForegroundColor)
@@ -86,35 +86,33 @@ namespace DoDo
 					+ SHorizontalBox::Slot()
 					. auto_width()
 					. VAlign(VAlign_Center)
-					. Padding(0, 0, 0, 0)
+					. Padding(0, 0, 5, 0)
 					[
 						SNew(SBorder)//todo:add icon widget
 						[
 							SAssignNew(m_icon_widget, SImage)
 							.ColorAndOpacity(this, &SDockTab::get_icon_color)
 							.Image(this, &SDockTab::get_tab_icon)
+							.DesiredSizeOverride(this, &SDockTab::get_tab_icon_size)
 						]
 					]
-				
-					+ SHorizontalBox::Slot()
+					+ SHorizontalBox::Slot()//todo:add tab label and label suffix
+					. fill_width(1.0f)
+					. Padding(0.0f, 1.0f)
+					. HAlign(HAlign_Left)
+					. VAlign(VAlign_Center)
 					[
+						//label sub hbox
 						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()//todo:add tab label and label suffix
-						. HAlign(HAlign_Left)
+						//tab label
+						+ SHorizontalBox::Slot()
+						. fill_width(1.0f)
+						. Padding(0.0f, 1.0f)
 						. VAlign(VAlign_Center)
 						[
-							//label sub hbox
-							SNew(SHorizontalBox)
-							//tab label
-							+ SHorizontalBox::Slot()
-							. fill_width(1.0f)
-							. Padding(0.0f, 1.0f)
-							. VAlign(VAlign_Center)
-							[
-								SAssignNew(m_label_widget, STextBlock)
-								.TextStyle(&get_current_style().m_tab_text_style)
-								.Text(this, &SDockTab::get_tab_label)
-							]
+							SAssignNew(m_label_widget, STextBlock)
+							.TextStyle(&get_current_style().m_tab_text_style)
+							.Text(this, &SDockTab::get_tab_label)
 						]
 					]
 					+ SHorizontalBox::Slot()
@@ -182,6 +180,11 @@ namespace DoDo
 		return m_tab_icon.Get();
 	}
 
+	std::optional<glm::vec2> SDockTab::get_tab_icon_size() const
+	{
+		return get_current_style().m_icon_size;
+	}
+
 	const FSlateBrush* SDockTab::get_tab_well_brush() const
 	{
 		return &get_current_style().m_tab_well_brush;
@@ -213,6 +216,15 @@ namespace DoDo
 	{
 		m_parent_ptr = parent;
 		//todo:implement on parent set
+	}
+
+	void SDockTab::provide_default_icon(const FSlateBrush* in_default_icon)
+	{
+		const bool user_provided_icon = m_tab_icon.Is_Bound() || (m_tab_icon.Get() && m_tab_icon.Get() != FStyleDefaults::get_no_brush());
+		if (!user_provided_icon)
+		{
+			m_tab_icon = in_default_icon;
+		}
 	}
 
 	const FDockTabStyle& SDockTab::get_current_style() const

@@ -299,6 +299,47 @@ namespace DoDo {
 		}
 	}
 
+	template<EOrientation Orientation>
+	static glm::vec2 compute_desired_size_for_splitter(const float physical_splitter_handle_size, const TPanelChildren<SSplitter::FSlot>& children)
+	{
+		glm::vec2 my_desired_size(0.0f, 0.0f);
+
+		int32_t num_no_collapsed = 0.0f;
+		for (int32_t child_index = 0.0f; child_index < children.num(); ++child_index)
+		{
+			const SSplitter::FSlot& cur_slot = children[child_index];
+			const EVisibility child_visibility = cur_slot.get_widget()->get_visibility();
+			if (child_visibility != EVisibility::Collapsed)
+			{
+				++num_no_collapsed;
+
+				glm::vec2 child_desired_size(cur_slot.get_widget()->get_desired_size());
+				if (Orientation == Orient_Horizontal)
+				{
+					my_desired_size.x += child_desired_size.x;
+					my_desired_size.y = std::max(child_desired_size.y, my_desired_size.y);
+				}
+				else
+				{
+					my_desired_size.x = std::max(child_desired_size.x, my_desired_size.x);
+					my_desired_size.y += child_desired_size.y;
+				}
+			}
+		}
+
+		float space_needed_for_handles = std::max(0, num_no_collapsed - 1) * physical_splitter_handle_size;
+		if (Orientation == Orient_Horizontal)
+		{
+			my_desired_size.x += space_needed_for_handles;
+		}
+		else
+		{
+			my_desired_size.y += space_needed_for_handles;
+		}
+
+		return my_desired_size;
+	}
+
 	std::vector<FLayoutGeometry> SSplitter::arrange_children_for_layout(const FGeometry& allotted_geometry) const
 	{
 		std::vector<FLayoutGeometry> result_geometries;
@@ -455,7 +496,12 @@ namespace DoDo {
 
 	glm::vec2 SSplitter::Compute_Desired_Size(float Layout_Scale_Multiplier) const
 	{
-		return glm::vec2(100.0f, 100.0f);//todo:fix me
+		//return glm::vec2(100.0f, 100.0f);//todo:fix me
+		glm::vec2 my_desired_size = (m_orientation == Orient_Horizontal)
+			? compute_desired_size_for_splitter<Orient_Horizontal>(m_physical_splitter_handle_size, m_children)
+			: compute_desired_size_for_splitter<Orient_Vertical>(m_physical_splitter_handle_size, m_children);
+
+		return my_desired_size;
 	}
 
 	FChildren* SSplitter::Get_Children()

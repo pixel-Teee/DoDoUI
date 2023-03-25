@@ -115,6 +115,8 @@ namespace DoDo
 			, m_can_spawn_tab(in_can_spawn_tab)
 			, m_spawned_tab_ptr()
 		{}
+
+		FTabSpawnerEntry& set_icon(const FSlateIcon& in_icon);
 	private:
 		DoDoUtf8String m_tab_type;//tab type
 		FOnSpawnTab m_on_spawn_tab;
@@ -304,7 +306,7 @@ namespace DoDo
 			FArea(const float in_width, const float in_height)
 				: m_window_placement(Placement_Automatic)
 				, m_unscaled_window_position(glm::vec2(0.0f, 0.0f))
-				, m_unscaled_window_size(in_width, in_height)
+				, m_unscaled_window_size(glm::vec2(in_width, in_height))
 				, m_b_is_maximized(false)
 			{}
 
@@ -471,5 +473,11 @@ namespace DoDo
 		FGlobalTabmanager()
 			: FTabManager(std::shared_ptr<SDockTab>(), std::make_shared<FTabSpawner>())
 		{}
+
+		const DoDoUtf8String& get_application_title() const;
+
+		void set_application_title(const DoDoUtf8String& app_title);//this title will set to main SWindow title
+
+		DoDoUtf8String m_app_title;
 	};
 }

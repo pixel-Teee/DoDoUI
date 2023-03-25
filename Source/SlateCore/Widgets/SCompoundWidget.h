@@ -56,6 +56,16 @@ namespace DoDo {
 		}
 
 		/*
+		* sets the widget's color
+		* 
+		* @param InColorAndOpacity the color and opacity to be applied to this widget and all its contents
+		*/
+		void set_color_and_opacity(TAttribute<FLinearColor> in_color_and_opacity)
+		{
+			m_color_and_opacity_attribute.Assign(*this, std::move(in_color_and_opacity));
+		}
+
+		/*
 		 * gets the widget's color
 		 */
 		FLinearColor get_color_and_opacity() const

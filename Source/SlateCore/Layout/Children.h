@@ -12,6 +12,8 @@
 
 #include <functional>
 
+#include "SlateCore/Widgets/SNullWidget.h"//FNoChildren depends on it
+
 namespace DoDo
 {
 	/* a FChildren that has only one child and can take a templated slot */
@@ -499,5 +501,45 @@ namespace DoDo
 
 	private:
 		bool m_b_changes_invalidate_prepass;
+	};
+
+	/*
+	* widgets with no children can return an instance of FNoChildren
+	* 
+	* for convenience a shared instance FNoChildren::NoChildrenInstance can be used
+	*/
+	class FNoChildren : public FChildren
+	{
+	public:
+		static FNoChildren NoChildrenInstance;
+
+	public:
+		FNoChildren(SWidget* in_owner)
+			: FChildren(in_owner)
+		{}
+
+		FNoChildren(SWidget* in_owner, DoDoUtf8String in_name)
+			: FChildren(in_owner, in_name)
+		{}
+
+		virtual int32_t num() const override { return 0; }
+
+		virtual std::shared_ptr<SWidget> get_child_at(int32_t) override
+		{
+			return SNullWidget::NullWidget;
+		}
+
+		virtual std::shared_ptr<const SWidget> get_child_at(int32_t) const override
+		{
+			return SNullWidget::NullWidget;
+		}
+
+	private:
+		friend class SWidget;
+		virtual const FSlotBase& get_slot_at(int32_t child_index) const override
+		{
+			static FSlotBase null_slot;
+			return null_slot;
+		}
 	};
 }

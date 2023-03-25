@@ -33,6 +33,8 @@ namespace DoDo
 		//set content scale
 		Set_Content_Scale(in_args._ContentScale);
 
+		set_color_and_opacity(in_args._ColorAndOpacity);
+
 		set_border_back_ground_color(in_args._BorderBackgroundColor);
 
 		set_border_image(in_args._BorderImage);

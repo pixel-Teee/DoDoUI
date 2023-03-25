@@ -5,11 +5,13 @@
 #include "Layout/ChildrenBase.h"
 #include "Widgets/SWidget.h"
 
+#include "SlateCore/Widgets/SNullWidget.h"//SNullWidget depends on it
+
 namespace DoDo
 {
 	FSlotBase::FSlotBase()
 		: m_owner(nullptr)
-		, m_widget()
+		, m_widget(SNullWidget::NullWidget)
 	{
 	}
 
@@ -44,6 +46,15 @@ namespace DoDo
 			m_owner = &children;
 
 			after_content_or_owner_assigned();
+		}
+	}
+
+	void FSlotBase::invalidate(EInvalidateWidgetReason invalidate_reason)
+	{
+		//if a slot invalidates it needs to invalidate the parent of widget of its content
+		if (SWidget* owner_widget = get_owner_widget())
+		{
+			owner_widget->Invalidate(invalidate_reason);
 		}
 	}
 

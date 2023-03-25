@@ -10,6 +10,8 @@
 
 #include "SlateCore/Fonts/SlateFontInfo.h"
 
+#include "SlateCore/Styling/SlateDefaults.h"//FStyleDefaults depends on it
+
 namespace DoDo {
 	struct FSlateWidgetStyle;
 	//class DoDoUtf8String;
@@ -75,6 +77,7 @@ namespace DoDo {
 		virtual void get_resources(std::vector<const FSlateBrush*>& out_resources) const override;
 
 		virtual const FSlateBrush* get_brush(const DoDoUtf8String& property_name) const override;
+		virtual const FSlateBrush* get_optional_brush(const DoDoUtf8String property_name, const char* specifier = nullptr, const FSlateBrush* const default_brush = FStyleDefaults::get_no_brush()) const override;
 
 		virtual const FSlateWidgetStyle* get_widget_style_internal(const DoDoUtf8String desired_type_name, const DoDoUtf8String style_name
 		) const override;

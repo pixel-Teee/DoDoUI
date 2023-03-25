@@ -27,6 +27,9 @@ namespace DoDo {
 			/*color and opacity*/
 			SLATE_ATTRIBUTE(FSlateColor, ColorAndOpacity)
 
+			/*when specified, ignore the brushes size and report the desired size override as the desired image size*/
+			SLATE_ATTRIBUTE(std::optional<glm::vec2>, DesiredSizeOverride)
+
 			/*flips the image if the localization's flow direction is right to left*/
 			SLATE_ARGUMENT(bool, FlipForRightToLeftFlowDirection)
 		SLATE_END_ARGS()

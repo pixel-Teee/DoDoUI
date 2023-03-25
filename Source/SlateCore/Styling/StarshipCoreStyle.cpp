@@ -104,6 +104,8 @@ namespace DoDo {
 
 		set_up_text_styles(style);
 
+		const FTextBlockStyle& normal_text = style->get_widget_style<FTextBlockStyle>("NormalText");
+
 		//important colors
 		{
 			style->set("DefaultForeground", default_fore_ground);
@@ -163,6 +165,60 @@ namespace DoDo {
 			style->set("ColorWheel.Selector", new FSlateImageBrush(style->root_to_content_dir("Common/Circle", ".png"), glm::vec2(8.0f, 8.0f)));
 		}
 
+		//invisible buttons, borders, etc.
+		const FButtonStyle No_Border = FButtonStyle()
+			.set_normal(FSlateNoResource())
+			.set_hovered(FSlateNoResource())
+			.set_pressed(FSlateNoResource())
+			.set_normal_foreground(FStyleColors::ForegroundHover)
+			.set_hovered_foreground(FStyleColors::ForegroundHover)
+			.set_pressed_foreground(FStyleColors::ForegroundHover)
+			.set_normal_padding(FMargin(0.0f))
+			.set_pressed_padding(FMargin(0.0f));
+
+		//SWindow defaults
+		{
+			const FButtonStyle minimize_button_style = FButtonStyle(No_Border)
+				.set_normal(FSlateVectorImageBrush(style->root_to_content_dir("Starship/CoreWidgets/Window/minimize", ".svg"), glm::vec2(42.0f, 34.0f), FStyleColors::Foreground))
+				.set_hovered(FSlateVectorImageBrush(style->root_to_content_dir("Starship/CoreWidgets/Window/minimize", ".svg"), glm::vec2(42.0f, 34.0f), FStyleColors::ForegroundHover))
+				.set_pressed(FSlateVectorImageBrush(style->root_to_content_dir("Starship/CoreWidgets/Window/minimize", ".svg"), glm::vec2(42.0f, 34.0f), FStyleColors::ForegroundHover));
+
+			const FButtonStyle maximize_button_style = FButtonStyle(No_Border)
+				.set_normal(FSlateVectorImageBrush(style->root_to_content_dir("Starship/CoreWidgets/Window/maximize", ".svg"), glm::vec2(42.0f, 34.0f), FStyleColors::Foreground))
+				.set_hovered(FSlateVectorImageBrush(style->root_to_content_dir("Starship/CoreWidgets/Window/maximize", ".svg"), glm::vec2(42.0f, 34.0f), FStyleColors::ForegroundHover))
+				.set_pressed(FSlateVectorImageBrush(style->root_to_content_dir("Starship/CoreWidgets/Window/maximize", ".svg"), glm::vec2(42.0f, 34.0f), FStyleColors::ForegroundHover));
+
+			const FButtonStyle restore_button_style = FButtonStyle(No_Border)
+				.set_normal(FSlateVectorImageBrush(style->root_to_content_dir("Starship/CoreWidgets/Window/restore", ".svg"), glm::vec2(42.0f, 34.0f), FStyleColors::Foreground))
+				.set_hovered(FSlateVectorImageBrush(style->root_to_content_dir("Starship/CoreWidgets/Window/restore", ".svg"), glm::vec2(42.0f, 34.0f), FStyleColors::ForegroundHover))
+				.set_pressed(FSlateVectorImageBrush(style->root_to_content_dir("Starship/CoreWidgets/Window/restore", ".svg"), glm::vec2(42.0f, 34.0f), FStyleColors::ForegroundHover));
+
+			const FButtonStyle close_button_style = FButtonStyle(No_Border)
+				.set_normal(FSlateVectorImageBrush(style->root_to_content_dir("Starship/CoreWidgets/Window/close", ".svg"), glm::vec2(42.0f, 34.0f), FStyleColors::Foreground))
+				.set_hovered(FSlateVectorImageBrush(style->root_to_content_dir("Starship/CoreWidgets/Window/close", ".svg"), glm::vec2(42.0f, 34.0f), FStyleColors::ForegroundHover))
+				.set_pressed(FSlateVectorImageBrush(style->root_to_content_dir("Starship/CoreWidgets/Window/close", ".svg"), glm::vec2(42.0f, 34.0f), FStyleColors::ForegroundHover));
+
+			FWindowStyle window =
+				FWindowStyle()
+				.set_minimize_button_style(minimize_button_style)
+				.set_maximize_button_style(maximize_button_style)
+				.set_restore_button_style(restore_button_style)
+				.set_close_button_style(close_button_style)
+				.set_title_text_style(normal_text)
+				.set_active_title_brush(FSlateNoResource())
+				.set_inactive_title_brush(FSlateNoResource())
+				.set_flash_title_brush(FSlateImageBrush(style->root_to_content_dir("Common/Window/WindowTitle_Flashing", ".png"), Icon24x24, FLinearColor(1.0f, 1.0f, 1.0f, 1.0f), ESlateBrushTileType::Horizontal))
+				.set_background_brush(FSlateColorBrush(FStyleColors::Recessed))
+				.set_outline_brush(FSlateRoundedBoxBrush(FStyleColors::Recessed, 2.0f, FStyleColors::WindowBorder, 2.0f))
+				.set_child_background_brush(FSlateRoundedBoxBrush(FStyleColors::Recessed, 2.0f, FStyleColors::InputOutline, 2.0f))
+				.set_corner_radius(2.0f)
+				.set_border_padding(FMargin(3.0f, 3.0f, 3.0f, 3.0f));
+			
+			style->set("Window", window);
+
+			window.set_corner_radius(8.0f);
+		}
+		
 		set_up_button_styles(style);
 		set_up_docking_styles(style);
 
@@ -222,14 +278,14 @@ namespace DoDo {
 			.set_hovered(FSlateRoundedBoxBrush(FStyleColors::PrimaryHover, 4.0f, FStyleColors::Input, input_focus_thickness))
 			.set_pressed(FSlateRoundedBoxBrush(FStyleColors::PrimaryPress, 4.0f, FStyleColors::Input, input_focus_thickness))
 			.set_disabled(FSlateRoundedBoxBrush(FStyleColors::DropDown, 4.0f, FStyleColors::Recessed, input_focus_thickness))
-			//.set_normal_foreground(FStyleColors::ForegroundHover)
-			//.set_pressed_foreground(FStyleColors::ForegroundHover)
-			//.set_hovered_foreground(FStyleColors::ForegroundHover)
-			//.set_disabled_foreground(FStyleColors::Foreground)//todo:fix me
-			.set_normal_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
-			.set_pressed_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
-			.set_hovered_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
-			.set_disabled_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//todo:fix me
+			.set_normal_foreground(FStyleColors::ForegroundHover)
+			.set_pressed_foreground(FStyleColors::ForegroundHover)
+			.set_hovered_foreground(FStyleColors::ForegroundHover)
+			.set_disabled_foreground(FStyleColors::Foreground)//todo:fix me
+			//.set_normal_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+			//.set_pressed_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+			//.set_hovered_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+			//.set_disabled_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//todo:fix me
 			.set_normal_padding(button_margins)
 			.set_pressed_padding(pressed_button_margins);
 
@@ -240,10 +296,14 @@ namespace DoDo {
 			.set_hovered(FSlateRoundedBoxBrush(FStyleColors::Hover, 4.0f, FStyleColors::Input, input_focus_thickness))
 			//se.set_pressed(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))t_up_button_styles(style);
 			.set_disabled(FSlateRoundedBoxBrush(FStyleColors::DropDown, 4.0f, FStyleColors::Recessed, input_focus_thickness))
-			.set_normal_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
-			.set_pressed_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
-			.set_hovered_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
-			.set_disabled_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//todo:fix me
+			.set_normal_foreground(FStyleColors::ForegroundHover)
+			.set_pressed_foreground(FStyleColors::ForegroundHover)
+			.set_hovered_foreground(FStyleColors::ForegroundHover)
+			.set_disabled_foreground(FStyleColors::Foreground)//todo:fix me
+			//.set_normal_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+			//.set_pressed_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+			//.set_hovered_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))
+			//.set_disabled_foreground(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f))//todo:fix me
 			.set_normal_padding(button_margins)
 			.set_pressed_padding(pressed_button_margins);
 

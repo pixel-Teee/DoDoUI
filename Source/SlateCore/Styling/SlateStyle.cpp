@@ -67,6 +67,17 @@ namespace DoDo {
 
 		return result;
 	}
+	const FSlateBrush* FSlateStyleSet::get_optional_brush(const DoDoUtf8String property_name, const char* specifier, const FSlateBrush* const default_brush) const
+	{
+		const DoDoUtf8String style_name = property_name + specifier;
+
+		const FSlateBrush* result = m_brush_resources.find(property_name)->second;
+
+
+		//todo:implement slate dynamic image brush
+
+		return result ? result : default_brush;
+	}
 	const FSlateWidgetStyle* FSlateStyleSet::get_widget_style_internal(const DoDoUtf8String desired_type_name, const DoDoUtf8String style_name) const
 	{
 		const std::shared_ptr<FSlateWidgetStyle> style_ptr = m_widget_style_values.find(style_name)->second;

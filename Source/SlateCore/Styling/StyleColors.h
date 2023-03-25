@@ -21,6 +21,8 @@ namespace DoDo {
 		Background,
 		Secondary,
 		Hover,
+		WindowBorder,
+		InputOutline,
 
 		max
 	};
@@ -75,5 +77,7 @@ namespace DoDo {
 		static const FSlateColor Background;
 		static const FSlateColor Secondary;
 		static const FSlateColor Hover;
+		static const FSlateColor WindowBorder;
+		static const FSlateColor InputOutline;
 	};
 }

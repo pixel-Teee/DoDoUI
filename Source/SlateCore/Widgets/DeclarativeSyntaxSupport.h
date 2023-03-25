@@ -400,6 +400,12 @@ namespace DoDo
 		{
 			return T2RequiredArgs<Arg0Type&&, Arg1Type&&>(std::forward<Arg0Type>(in_arg0), std::forward<Arg1Type>(in_arg1));
 		}
+
+		template<typename Arg0Type, typename Arg1Type, typename Arg2Type>
+		T3RequiredArgs<Arg0Type&&, Arg1Type&&, Arg2Type&&> Make_Required_Args(Arg0Type&& in_arg0, Arg1Type&& in_arg1, Arg2Type&& in_arg2)
+		{
+			return T3RequiredArgs<Arg0Type&&, Arg1Type&&, Arg2Type&&>(std::forward<Arg0Type>(in_arg0), std::forward<Arg1Type>(in_arg1), std::forward<Arg2Type>(in_arg2));
+		}
 	}
 
 	//todo:implement SUserWidget

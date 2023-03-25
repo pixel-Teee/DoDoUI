@@ -183,6 +183,11 @@ namespace DoDo {
 		return get_foreground_color();
 	}
 
+	const FGeometry& SWidget::get_tick_space_geometry() const
+	{
+		return m_persistent_state.m_desktop_geometry;
+	}
+
 	SWidget::SWidget()
 		: b_can_have_children(true)
 		, m_b_is_hovered_attribute_set(false)
@@ -217,6 +222,7 @@ namespace DoDo {
 		SWidget* mutable_this = const_cast<SWidget*>(this);
 
 		FGeometry desktop_space_geometry = allotted_geometry;
+		//desktop_space_geometry.append_transform(FSlateLayoutTransform(args.get_window_to_desktop_transform()));
 		//todo:implement this variable
 
 		//------collect some information for handle input------
@@ -301,6 +307,12 @@ namespace DoDo {
 		std::optional<EMouseCursor::Type> the_cursor = get_cursor();
 
 		return (the_cursor.has_value()) ? FCursorReply::Cursor(the_cursor.value()) : FCursorReply::un_handled();//note:construct a FCursorReply
+	}
+
+	void SWidget::slate_prepass()
+	{
+		//todo:implement application get application scale
+		slate_prepass(1.0f);
 	}
 
 	void SWidget::slate_prepass(float in_layout_scale_multiplier)

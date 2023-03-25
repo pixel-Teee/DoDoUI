@@ -119,6 +119,9 @@ namespace DoDo {
 		/*gets the tab icon*/
 		const FSlateBrush* get_tab_icon() const;
 
+		/*@return the size the tab icon should be*/
+		std::optional<glm::vec2> get_tab_icon_size() const;
+
 		/*depending on the tabs we put into the tab well, we want a different background brush*/
 		const FSlateBrush* get_tab_well_brush() const;
 
@@ -136,7 +139,11 @@ namespace DoDo {
 
 		/*sets the tab's tab well parent, or resets it if nothing is passed in*/
 		void set_parent(std::shared_ptr<SDockingTabWell> parent = std::shared_ptr<SDockingTabWell>());
+
 	protected:
+		/*provide a default tab icon*/
+		void provide_default_icon(const FSlateBrush* in_default_icon);
+
 		/*@return the style currently applied to the dock tab*/
 		const FDockTabStyle& get_current_style() const;
 

@@ -186,7 +186,7 @@ namespace DoDo
 			{
 				m_halignment = alignment;
 				//call widget's Invalidate function
-				static_cast<MixedIntoType*>(this)->Invalidate(EInvalidateWidgetReason::Layout);
+				static_cast<MixedIntoType*>(this)->invalidate(EInvalidateWidgetReason::Layout);
 			}
 		}
 
@@ -200,7 +200,7 @@ namespace DoDo
 			if (m_valignment != alignment)
 			{
 				m_valignment = alignment;
-				static_cast<MixedIntoType*>(this)->Invalidate(EInvalidateWidgetReason::Layout);
+				static_cast<MixedIntoType*>(this)->invalidate(EInvalidateWidgetReason::Layout);
 			}
 		}
 
@@ -429,5 +429,12 @@ namespace DoDo
 			//todo:implement register
 			TPaddingSingleWidgetSlotMixin<SlotType>::Register_Attributes_Mixin(attribute_initializer);
 		}
+	};
+
+	/*the basic slot that can be used by layout*/
+	class FBasicLayoutWidgetSlot : public TBasicLayoutWidgetSlot<FBasicLayoutWidgetSlot>
+	{
+	public:
+		using TBasicLayoutWidgetSlot<FBasicLayoutWidgetSlot>::TBasicLayoutWidgetSlot;
 	};
 }

@@ -6,6 +6,8 @@
 
 #include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"
 
+#include "SlateCore/Layout/Children.h"//FNoChildren depends on it
+
 namespace DoDo {
 	class SNullWidgetContent : public SWidget
 	{
@@ -34,7 +36,7 @@ namespace DoDo {
 
 		virtual FChildren* Get_Children() override final
 		{
-			return nullptr;//todo:fix me
+			return &FNoChildren::NoChildrenInstance;
 		}
 
 		virtual glm::vec2 Compute_Desired_Size(float Layout_Scale_Multiplier) const override final
@@ -60,4 +62,6 @@ namespace DoDo {
 		}
 	}
 	std::shared_ptr<SWidget> SNullWidget::NullWidget = NullWidgetPrivate::Construct();
+
+	FNoChildren FNoChildren::NoChildrenInstance(NullWidgetPrivate::Construct().get());
 }

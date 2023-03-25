@@ -37,6 +37,9 @@ namespace DoDo
 	class STextBlock;//for test
 	class SBorder;//for test
 
+	struct FWindowTitleBarArgs;
+	class IWindowTitleBar;
+
 	class Application : public FGenericApplicationMessageHandler//slate application
 	{
 	public:
@@ -358,7 +361,8 @@ namespace DoDo
 		*/
 		virtual bool does_widget_have_mouse_capture_by_user(const std::shared_ptr<const SWidget> widget, int32_t user_index, std::optional<int32_t> pointer_index) const;
 
-	protected:
+		virtual std::shared_ptr<SWidget> make_window_title_bar(const FWindowTitleBarArgs& in_args, std::shared_ptr<IWindowTitleBar>& out_title_bar) const;
+	protected: 
 		//holds the slate renderer used to render this application
 		std::shared_ptr<Renderer> m_renderer;
 

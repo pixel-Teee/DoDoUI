@@ -163,6 +163,7 @@ namespace DoDo {
 			if (std::shared_ptr<SWindow> parent_window = m_tab_well->get_foreground_tab()->get_parent_window())
 			{
 				//todo:implement parent window title bar
+				
 			}
 		}
 	}

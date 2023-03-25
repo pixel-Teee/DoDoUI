@@ -32,7 +32,7 @@ namespace DoDo
 
 		FGeometry m_allotted_geometry;
 
-		FGeometry m_desktop_geometry;
+		FGeometry m_desktop_geometry;//note:this is will useful for panel widget
 
 		FWidgetStyle m_widget_style;//note:this is different from FSlateWidgetStyle, it just three color
 

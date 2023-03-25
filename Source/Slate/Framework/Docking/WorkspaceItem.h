@@ -18,6 +18,11 @@ namespace DoDo {
 		, m_b_sort_children(b_in_sort_children)
 		{}
 
+		const FSlateIcon& get_icon() const
+		{
+			return m_icon;
+		}
+
 		FSlateIcon m_icon;
 
 		TAttribute<DoDoUtf8String> m_display_name_attribute;
