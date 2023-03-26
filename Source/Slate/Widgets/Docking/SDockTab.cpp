@@ -41,8 +41,14 @@ namespace DoDo
 		m_major_tab_style = &FAppStyle::get().get_widget_style<FDockTabStyle>("Docking.MajorTab");
 		m_generic_tab_style = &FAppStyle::get().get_widget_style<FDockTabStyle>("Docking.Tab");//todo:to register these style
 
+		m_content_area_padding = in_args._ContentPadding;
+
 		const FButtonStyle* const close_button_style = &get_current_style().m_close_button_style;
 		//todo:add FTextBlockStyle to the FButtonStyle
+
+		//static FLinearColor active_border_color = FAppStyle::get().get_slate_color("Docking.Tab.ActiveTabIndicatorColor").get_specified_color();
+		//static FLinearColor active_border_color_transparent = FLinearColor(active_border_color.R, active_border_color.G, active_border_color.B, 0.0f);
+		//static std::vector<FLinearColor> gradient_stops{ active_border_color_transparent, active_border_color, active_border_color_transparent };
 
 		//parent construct
 		SBorder::Construct(SBorder::FArguments()
@@ -162,6 +168,7 @@ namespace DoDo
 		, m_tab_role(ETabRole::PanelTab)
 		, m_parent_ptr()
 		, m_tab_label("DockTab")
+		, m_content_area_padding(2.0f)
 		, m_tab_color_scale()//todo:add more initialize
 	{
 	}
@@ -178,8 +185,8 @@ namespace DoDo
 	}
 	bool SDockTab::is_fore_ground() const
 	{
-		//return m_parent_ptr.expired() ? (m_parent_ptr.lock()->get_foreground_tab() == shared_from_this()) : true;
-		return true;
+		return m_parent_ptr.lock() != nullptr ? (m_parent_ptr.lock()->get_foreground_tab() == shared_from_this()) : true;
+		//return true;
 	}
 	ETabRole SDockTab::get_tab_role() const
 	{
@@ -228,6 +235,11 @@ namespace DoDo
 	std::shared_ptr<SWidget> SDockTab::get_content()
 	{
 		return m_content;
+	}
+
+	FMargin SDockTab::get_content_padding() const
+	{
+		return m_content_area_padding.Get();
 	}
 
 	std::shared_ptr<SDockingArea> SDockTab::get_dock_area() const

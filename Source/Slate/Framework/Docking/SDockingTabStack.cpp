@@ -57,7 +57,7 @@ namespace DoDo {
 			+ SHorizontalBox::Slot()
 			.fill_width(1.0f)
 			.VAlign(VAlign_Bottom)
-			.Padding(4.0f, 0.0f, 0.0f, 0.0f)
+			.Padding(0.0f, 0.0f, 0.0f, 0.0f)
 			[
 				//todo:implement SVertical Box
 				SNew(SVerticalBox)
@@ -95,7 +95,8 @@ namespace DoDo {
 				//tab well area
 				SNew(SBorder)
 				//.DesiredSizeScale(this, &SDockingTabStack::get_tab_well_scale)
-				//.BorderImage(this, &SDockingTabStack::get_tab_stack_border_image)
+				.BorderImage(this, &SDockingTabStack::get_tab_stack_border_image)
+				//.BorderImage()
 				.VAlign(VAlign_Bottom)
 				.Padding(0.0f)
 				[
@@ -125,6 +126,7 @@ namespace DoDo {
 					//content goes here
 					SAssignNew(m_content_slot, SBorder) //note:this is content of this SDockTab
 					.BorderImage(this, &SDockingTabStack::get_content_area_brush)
+					.Padding(this, &SDockingTabStack::get_content_padding)
 					[
 						SNew(STextBlock)
 						.Text("empty tab!")
@@ -173,12 +175,23 @@ namespace DoDo {
 
 		//todo:hide cross
 	}
+	FMargin SDockingTabStack::get_content_padding() const
+	{
+		std::shared_ptr<SDockTab> foreground_tab = m_tab_well->get_foreground_tab();
+		return (foreground_tab != nullptr) ? foreground_tab->get_content_padding() : FMargin(0.0f);
+	}
 	const FSlateBrush* SDockingTabStack::get_tab_well_brush() const
 	{
 		std::shared_ptr<SDockTab> foreground_tab = m_tab_well->get_foreground_tab();
 
 		//todo:fix me, use FStyleDefaults::get no brush
-		return foreground_tab ? foreground_tab->get_tab_well_brush() : nullptr;
+		return foreground_tab ? foreground_tab->get_tab_well_brush() : FStyleDefaults::get_no_brush();
+	}
+	const FSlateBrush* SDockingTabStack::get_tab_stack_border_image() const
+	{
+		static const FSlateBrush* minor_tab_background_brush = FAppStyle::get().get_brush("Brushes.Background");
+
+		return minor_tab_background_brush;
 	}
 	void SDockingTabStack::set_parent_node(std::shared_ptr<SDockingSplitter> in_parent)
 	{

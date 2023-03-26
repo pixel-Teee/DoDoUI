@@ -36,6 +36,8 @@ namespace DoDo
 
 	class STextBlock;//for test
 	class SBorder;//for test
+	class SImage;
+	struct FSlateBrush;
 
 	struct FWindowTitleBarArgs;
 	class IWindowTitleBar;
@@ -362,6 +364,13 @@ namespace DoDo
 		virtual bool does_widget_have_mouse_capture_by_user(const std::shared_ptr<const SWidget> widget, int32_t user_index, std::optional<int32_t> pointer_index) const;
 
 		virtual std::shared_ptr<SWidget> make_window_title_bar(const FWindowTitleBarArgs& in_args, std::shared_ptr<IWindowTitleBar>& out_title_bar) const;
+
+		/*
+		* creates an image widget
+		* 
+		* @return the new image widget
+		*/
+		virtual std::shared_ptr<SImage> make_image(const TAttribute<const FSlateBrush*>& image, const TAttribute<FSlateColor>& color, const TAttribute<EVisibility>& visibility) const;
 	protected: 
 		//holds the slate renderer used to render this application
 		std::shared_ptr<Renderer> m_renderer;

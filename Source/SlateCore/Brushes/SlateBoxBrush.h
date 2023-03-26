@@ -28,5 +28,9 @@ namespace DoDo {
 		inline FSlateBoxBrush(const DoDoUtf8String& in_image_name, const FMargin& in_margin, const FLinearColor& in_color_and_opacity = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f), ESlateBrushImageType::Type in_image_type = ESlateBrushImageType::FullColor)
 			: FSlateBrush(ESlateBrushDrawType::Box, in_image_name, in_margin, ESlateBrushTileType::NoTile, in_image_type, glm::vec2(0.0f), in_color_and_opacity)
 		{}
+
+		inline FSlateBoxBrush(const DoDoUtf8String& in_image_name, const FMargin& in_margin, const FSlateColor& in_color_and_opacity, ESlateBrushImageType::Type in_image_type = ESlateBrushImageType::FullColor)
+			: FSlateBrush(ESlateBrushDrawType::Box, in_image_name, in_margin, ESlateBrushTileType::NoTile, in_image_type, glm::vec2(0.0f), in_color_and_opacity)
+		{}
 	};
 }

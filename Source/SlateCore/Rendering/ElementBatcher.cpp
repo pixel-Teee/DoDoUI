@@ -291,10 +291,10 @@ namespace DoDo
 				? start_uv.y + margin.top * size_uv.y + half_texel.y : start_uv.y;
 
 			float right_margin_u = (margin.right > 0.0f)
-				? end_uv.x - margin.top * size_uv.x + half_texel.x : end_uv.x;
+				? end_uv.x - margin.right * size_uv.x + half_texel.x : end_uv.x;
 
 			float bottom_margin_v = (margin.bottom > 0.0f)
-				? end_uv.y - margin.bottom * size_uv.y + half_texel.x : end_uv.y;
+				? end_uv.y - margin.bottom * size_uv.y + half_texel.y : end_uv.y;
 
 			//todo:interms of mirror to rejust uv
 
@@ -312,7 +312,7 @@ namespace DoDo
 			render_batch.add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(left_margin_x, position.y), local_size, draw_scale, glm::vec4(left_margin_u, start_uv.y, tiling.x, tiling.y), tint, secondary_color));//2 
 			render_batch.add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(left_margin_x, top_margin_y), local_size, draw_scale, glm::vec4(left_margin_u, top_margin_v, tiling.x, tiling.y), tint, secondary_color));//3
 			render_batch.add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(right_margin_x, position.y), local_size, draw_scale, glm::vec4(right_margin_u, start_uv.y, tiling.x, tiling.y), tint, secondary_color));//4
-			render_batch.add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(right_margin_x, top_margin_y), local_size, draw_scale, glm::vec4(right_margin_u, top_margin_y, tiling.x, tiling.y), tint, secondary_color));//5
+			render_batch.add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(right_margin_x, top_margin_y), local_size, draw_scale, glm::vec4(right_margin_u, top_margin_v, tiling.x, tiling.y), tint, secondary_color));//5
 			render_batch.add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(end_pos.x, position.y), local_size, draw_scale, glm::vec4(end_uv.x, start_uv.y, tiling.x, tiling.y), tint, secondary_color));//6
 			render_batch.add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(end_pos.x, top_margin_y), local_size, draw_scale, glm::vec4(end_uv.x, top_margin_v, tiling.x, tiling.y), tint, secondary_color));//7
 

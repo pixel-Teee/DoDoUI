@@ -45,6 +45,40 @@ namespace DoDo {
 		return glm::vec2(m_desired_size.value_or(glm::vec2(0.0f)));
 	}
 
+	FSlateRect SWidget::calculate_culling_and_clipping_rules(const FGeometry& allotted_geometry, const FSlateRect& in_coming_culling_rect, bool& b_clip_to_bounds, bool& b_always_clip, bool& b_intersect_clip_bounds) const
+	{
+		b_clip_to_bounds = false;
+
+		b_intersect_clip_bounds = true;
+
+		b_always_clip = false;
+
+		if (!b_clipping_proxy)
+		{
+			switch (m_clipping)
+			{
+			case EWidgetClipping::ClipToBounds:
+				b_clip_to_bounds = true;
+				break;
+			}
+		}
+
+		if (b_clip_to_bounds)
+		{
+			FSlateRect my_culling_rect(allotted_geometry.get_render_bounding_rect(FSlateRect(glm::vec2(0.0f), allotted_geometry.m_size)));//todo:add extend ability
+
+			if (b_intersect_clip_bounds)
+			{
+				bool b_clip_bounds_overlapping;
+				return in_coming_culling_rect.intersection_with(my_culling_rect, b_clip_bounds_overlapping);
+			}
+
+			return my_culling_rect;
+		}
+
+		return in_coming_culling_rect;
+	}
+
 	void SWidget::assign_parent_widget(std::shared_ptr<SWidget> in_parent)
 	{
 		m_parent_widget_ptr = in_parent;
@@ -130,6 +164,11 @@ namespace DoDo {
 		return Application::get().does_widget_have_mouse_capture_by_user(shared_from_this(), user_index, pointer_index);
 	}
 
+	bool SWidget::is_child_widget_culled(const FSlateRect& my_culling_rect, const FArrangedChildren& arranged_children) const
+	{
+		return true;
+	}
+
 	const FGeometry& SWidget::get_paint_space_geometry() const
 	{
 		return m_persistent_state.m_allotted_geometry;
@@ -190,6 +229,7 @@ namespace DoDo {
 
 	SWidget::SWidget()
 		: b_can_have_children(true)
+		, b_clipping_proxy(false)
 		, m_b_is_hovered_attribute_set(false)
 		, m_hovered_attribute(*this, false)
 		, m_b_has_registered_slate_attribute(false)
@@ -219,6 +259,12 @@ namespace DoDo {
 		const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
 		const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
+		//if this widget clips to its bounds, then generate a new clipping rect representing the intersection of the bounding
+		//rectangle of the widget's geometry, and the current clipping rectangle
+		bool b_clip_to_bounds, b_always_clip, b_intersect_clip_bounds;
+
+		FSlateRect culling_bounds = calculate_culling_and_clipping_rules(allotted_geometry, my_culling_rect, b_clip_to_bounds, b_always_clip, b_intersect_clip_bounds);
+
 		SWidget* mutable_this = const_cast<SWidget*>(this);
 
 		FGeometry desktop_space_geometry = allotted_geometry;
@@ -257,9 +303,15 @@ namespace DoDo {
 		//todo:update paint args
 		FPaintArgs updated_args = args.with_new_parent(this);
 
+		if (b_clip_to_bounds)
+		{
+			//this is sets up the clip state for any children not myself
+
+		}
+
 		//paint the geometry of this widget
 		//content widget style will accumulate the opacity of parent widget
-		int32_t new_layer_id = On_Paint(updated_args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, content_widget_style, b_parent_enabled);
+		int32_t new_layer_id = On_Paint(updated_args, allotted_geometry, culling_bounds, out_draw_elements, layer_id, content_widget_style, b_parent_enabled);
 
 		return new_layer_id;
 	}

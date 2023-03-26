@@ -100,6 +100,8 @@ namespace DoDo {
 		//const std::string canary_path;
 		const FSlateColor default_fore_ground(FStyleColors::Foreground);//use color table id
 
+		set_up_colors(style);
+
 		const FStyleFonts& style_fonts = FStyleFonts::get();
 
 		set_up_text_styles(style);
@@ -253,6 +255,11 @@ namespace DoDo {
 		return *m_instances;
 	}
 
+	void FStarshipCoreStyle::set_up_colors(std::shared_ptr<FStyle>& style)
+	{
+		style->set("Brushes.Background", new FSlateColorBrush(FStyleColors::Background));
+	}
+
 	void FStarshipCoreStyle::set_up_text_styles(std::shared_ptr<FStyle>& style)
 	{
 		const FStyleFonts& style_fonts = FStyleFonts::get();
@@ -332,8 +339,8 @@ namespace DoDo {
 			FDockTabStyle()
 			.set_close_button_style(close_button)
 			.set_normal_brush(FSlateNoResource())
-			.set_hovered_brush(FSlateBoxBrush(style->root_to_content_dir("Starship/Docking/DockTab_Foreground", ".png"), 4.0f / 20.0f))
-			.set_foreground_brush(FSlateBoxBrush(style->root_to_content_dir("Starship/Docking/DockTab_Foreground", ".png"), 4.0f / 20.0f))
+			.set_hovered_brush(FSlateBoxBrush(style->root_to_content_dir("Starship/Docking/DockTab_Foreground", ".png"), 4.0f / 20.0f, FStyleColors::Panel.get_specified_color().copy_with_new_opacity(0.8)))
+			.set_foreground_brush(FSlateBoxBrush(style->root_to_content_dir("Starship/Docking/DockTab_Foreground", ".png"), 4.0f / 20.0f, FStyleColors::Foreground))
 			.set_color_overlay_tab_brush(FSlateNoResource())
 			.set_color_overlay_icon_brush(FSlateNoResource())
 			.set_content_area_brush(FSlateColorBrush(FStyleColors::Panel))

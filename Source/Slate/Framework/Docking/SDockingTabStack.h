@@ -46,8 +46,14 @@ namespace DoDo {
 
 		void add_tab_widget(const std::shared_ptr<SDockTab>& in_tab, int32_t at_location = -1, bool b_keep_inactive = false);
 
+		/*how much padding to show around the content currently being presented*/
+		FMargin get_content_padding() const;
+
 		/*depending on the tabs we put into the tab well, we want a different background brush*/
 		const FSlateBrush* get_tab_well_brush() const;
+
+		/*gets the background behind the tab stack*/
+		const FSlateBrush* get_tab_stack_border_image() const;
 
 		/*overridden from SDockingNode*/
 		virtual void set_parent_node(std::shared_ptr<SDockingSplitter> in_parent) override;

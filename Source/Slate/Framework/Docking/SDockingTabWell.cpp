@@ -362,7 +362,7 @@ namespace DoDo {
 			{
 				const glm::vec2 some_tab_desired_size = some_tab->get_desired_size();
 				desired_size_result.x += some_tab_desired_size.x;
-				desired_size_result.y = std::max(some_tab_desired_size.y, desired_size_result.y);
+				desired_size_result.y = std::max(some_tab_desired_size.y, 50.0f);//todo:fix me
 			}
 		}
 

@@ -1448,6 +1448,13 @@ namespace DoDo
         return title_bar;
     }
 
+    std::shared_ptr<SImage> Application::make_image(const TAttribute<const FSlateBrush*>& image, const TAttribute<FSlateColor>& color, const TAttribute<EVisibility>& visibility) const
+    {
+        return SNew(SImage)
+            .ColorAndOpacity(color)
+            .Image(image);//todo:add visibility
+    }
+
     DoDoUtf8String Application::calculate_frame_per_second() const
     {
         return DoDoUtf8String(std::string("FPS:") + std::to_string(m_last_frame_count));
@@ -1556,8 +1563,8 @@ namespace DoDo
             ->split //note:put new node in FArea nodes array
             (
                 FTabManager::new_stack()
-                ->add_tab("starship widgets", ETabState::OpenedTab) //note:first parameter is tab type
-                ->add_tab("test widget", ETabState::OpenedTab)
+				->add_tab("starship widgets", ETabState::OpenedTab) //note:first parameter is tab type
+				->add_tab("test widget", ETabState::OpenedTab)
                 ->set_foreground_tab(DoDoUtf8String("starship widgets"))
             )
 			//->split

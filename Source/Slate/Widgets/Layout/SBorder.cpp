@@ -131,7 +131,7 @@ namespace DoDo
 			}
 			else
 			{
-				FSlateDrawElement::MakeBox(
+                 FSlateDrawElement::MakeBox(
 					out_draw_elements,
 					layer_id,
 					allotted_geometry.to_paint_geometry(),

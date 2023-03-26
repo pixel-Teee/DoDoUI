@@ -23,6 +23,10 @@
 
 #include "SlateCore/Input/CursorReply.h"//FCursorReply depends on it
 
+#include "SlateCore/Layout/Clipping.h"//EWidgetClipping depends on it
+
+#include "SlateCore/Layout/Margin.h"//FMargin depends on it
+
 namespace DoDo
 {
 	struct FKeyEvent;
@@ -67,6 +71,13 @@ namespace DoDo
 		glm::vec2 get_desired_size() const;
 
 		std::shared_ptr<SWidget> get_parent_widget() const { return m_parent_widget_ptr.lock(); }
+
+		/*
+		* calculates what if any clipping state changes need to happen when drawing this widget
+		* @return the culling rect that should be used going forward
+		*/
+		FSlateRect calculate_culling_and_clipping_rules(const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, bool& b_clip_to_bounds, bool& b_always_clip,
+			bool& b_intersect_clip_bounds) const;
 
 		std::shared_ptr<SWidget> advanced_get_paint_parent_widget() const { return m_persistent_state.m_paint_parent.lock(); }//todo:may be to check
 
@@ -184,6 +195,14 @@ namespace DoDo
 		*/
 		bool has_mouse_capture_by_user(int32_t user_index, std::optional<int32_t> pointer_index = std::optional<int32_t>()) const;
 
+		/*
+		* tests if an arranged widget should be culled
+		* 
+		* @param MyCullingRect the culling rect of the widget currently doing the culling
+		* @param ArrangedChild the arranged widget in the widget currently attempting to cull children
+		*/
+		bool is_child_widget_culled(const FSlateRect& my_culling_rect, const FArrangedChildren& arranged_children) const;
+			 
 	public:
 		/* @return whether or not this widget is enabled */
 		inline bool Is_Enabled() const
@@ -438,6 +457,13 @@ namespace DoDo
 		 * rather than setting this directly, you should probably inherit from SLeafWidget
 		 */
 		uint8_t b_can_have_children : 1;
+
+		uint8_t b_clipping_proxy : 1;//todo:how to understand it?
+
+		/*
+		* set to true if all content of the widget should clip to the bounds of this widget
+		*/
+		EWidgetClipping m_clipping;
 	private:
 		/* are bound slate attributes will be updated once per frame */
 		uint8_t m_b_enabled_attributes_update : 1;
@@ -500,6 +526,9 @@ namespace DoDo
 		uint8_t m_b_has_registered_slate_attribute : 1;
 
 	protected:
+
+		FMargin m_culling_bounds_extension;//todo:how to understand it?
+
 		std::optional<float> m_prepass_layout_scale_multiplier;
 	};
 }

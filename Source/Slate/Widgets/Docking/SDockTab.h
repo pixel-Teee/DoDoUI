@@ -144,6 +144,9 @@ namespace DoDo {
 		/*@return the content associated with this tab*/
 		std::shared_ptr<SWidget> get_content();
 
+		/*padding around the content when it is presented by the SDockingTabStack*/
+		FMargin get_content_padding() const;
+
 		/*gets the dock area that this resides in*/
 		std::shared_ptr<SDockingArea> get_dock_area() const;
 
@@ -204,6 +207,7 @@ namespace DoDo {
 		const FDockTabStyle* m_major_tab_style;
 		const FDockTabStyle* m_generic_tab_style;//note:don't owner the life time
 
+		TAttribute<FMargin> m_content_area_padding;
 		//todo:add call back
 
 		TAttribute<FLinearColor> m_tab_color_scale;

@@ -9,17 +9,25 @@
 
 #include "SlateCore/Widgets/SBoxPanel.h"//SVerticalBox depends on it
 
+#include "SlateCore/Styling/SlateTypes.h"//FWindowStyle depends on it
+
+#include "SlateCore/Styling/CoreStyle.h"//FCoreStyle depends on it
+
+#include "SlateCore/Styling/ISlateStyle.h"//ISlateStyle depends on it
+
 namespace DoDo
 {
 	class Window;//native window
 	class IWindowTitleBar;
 	class SOverlay;
+	class SImage;
 	//todo:let SWindow to inherited from FSlateInvalidationRoot
 	class SWindow : public SCompoundWidget, public FSlateInvalidationRoot
 	{
 	public:
 		SLATE_BEGIN_ARGS(SWindow)
 			: _Type(EWindowType::Normal)
+			, _Style(&FCoreStyle::get().get_widget_style<FWindowStyle>("Window"))
 			, _Title()
 			, _ScreenPosition(glm::vec2(0.0f, 0.0f))
 			, _ClientSize(glm::vec2(0.0f, 0.0f))
@@ -27,6 +35,8 @@ namespace DoDo
 		{}
 			/*type of this window*/
 			SLATE_ARGUMENT(EWindowType, Type)
+			/*style used to draw this window*/
+			SLATE_STYLE_ARGUMENT(FWindowStyle, Style)
 			/*title of the window*/
 			SLATE_ATTRIBUTE(DoDoUtf8String, Title)
 			/*screen-space position where the window should be initially located*/
@@ -144,6 +154,9 @@ namespace DoDo
 		/* @return the position of the window in screen space */
 		glm::vec2 get_position_in_screen() const;
 
+		/*@return a clipping rectangle that represents this window in window space (i.e. alwyas starts at 0.0)*/
+		FSlateRect get_clipping_rectangle_in_window() const;
+
 		/*make the window visible*/
 		void show_window();
 
@@ -207,6 +220,13 @@ namespace DoDo
 
 		SVerticalBox::FSlot* m_content_slot;
 	private:
+		/*style used to draw this window*/
+		const FWindowStyle* m_style;
+
+		const FSlateBrush* m_window_background;
+
+		std::shared_ptr<SImage> m_window_background_image;
+
 		std::shared_ptr<SWidget> m_content_area_v_box;
 
 	protected:

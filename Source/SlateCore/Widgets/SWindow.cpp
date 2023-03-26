@@ -21,6 +21,8 @@
 
 #include "SlateCore/Widgets/SOverlay.h"//SOverlay depends on it
 
+#include "SlateCore/Widgets/Images/SImage.h"//SImage depends on it
+
 namespace DoDo {
 	//SWindow::SWindow()
 	//{
@@ -64,6 +66,8 @@ namespace DoDo {
 	{
 		this->m_type = in_args._Type;
 		this->m_title = in_args._Title;
+		this->m_style = in_args._Style;
+		this->m_window_background = &in_args._Style->m_background_brush;
 
 		//calculate initial window position
 		glm::vec2 window_position = in_args._ScreenPosition;
@@ -178,6 +182,13 @@ namespace DoDo {
 		return m_screen_position;//window position
 	}
 
+	FSlateRect SWindow::get_clipping_rectangle_in_window() const
+	{
+		glm::vec2 view_size = get_view_port_size();
+
+		return FSlateRect(0.0f, 0.0f, view_size.x, view_size.y);
+	}
+
 	void SWindow::show_window()
 	{
 		if(m_native_window)
@@ -269,7 +280,12 @@ namespace DoDo {
 		//todo:create window title bar
 
 		//create window
-
+		m_window_background_image =
+			Application::get().make_image(
+				m_window_background,
+				m_style->m_background_color,
+				EVisibility::visible
+			);
 		//create window content slot
 		main_window_area->add_slot()
 			.fill_height(1.0f)
@@ -281,6 +297,11 @@ namespace DoDo {
 		this->m_child_slot
 		[
 			SAssignNew(m_window_overlay, SOverlay)
+			//window background
+			+ SOverlay::Slot()
+			[
+				m_window_background_image
+			]
 			//main area
 			+ SOverlay::Slot()
 			[
