@@ -13,3 +13,6 @@
 [submodule "ThirdParty/nanosvg"]
 	path = ThirdParty/nanosvg
 	url = https://github.com/pixel-Teee/nanosvg.git
+[submodule "ThirdParty/RapidJson"]
+	path = ThirdParty/RapidJson
+	url = https://github.com/Tencent/rapidjson.git

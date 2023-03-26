@@ -36,6 +36,7 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "../ThirdParty/stbimage/*.h"
 "../ThirdParty/stbimage/*.cpp"
 "../ThirdParty/nanosvg/src/*.h"
+"../ThirdParty/RapidJson/include/*.h"
 )
 
 file(GLOB_RECURSE Renderer_Source
@@ -49,8 +50,9 @@ if(NOT CMAKE_SYSTEN_NAME MATCHES "Android")
 	file(GLOB Glfw_Window "Platform/Window/WindowsWindow.h" "Platform/Window/WindowsWindow.cpp" "Platform/Window/WindowsCursor.h" "Platform/Window/WindowsCursor.cpp")
 	file(GLOB Glfw_Application "Platform/Application/GLFWApplication.h" "Platform/Application/GLFWApplication.cpp")
 	file(GLOB Application_Misc "Platform/Application/WindowsPlatformApplicationMisc.h" "Platform/Application/WindowsPlatformApplicationMisc.cpp")
+	file(GLOB Other_Misc "Platform/Window/WindowsPlatformMisc.h" "Platform/Window/WindowsPlatformMisc.cpp")
 	# message(${Glfw_Window})
-	list(APPEND Renderer_Source ${Glfw_Window} ${Glfw_Application} ${Application_Misc})
+	list(APPEND Renderer_Source ${Glfw_Window} ${Glfw_Application} ${Application_Misc} ${Other_Misc})
 else()
 	file(GLOB Android_Window "Platform/Window/AndroidWindow.h" "Platform/Window/AndroidWindow.cpp")
 	file(GLOB Android_Application "Platform/Application/AndroidApplication.h" "Platform/Application/AndroidApplication.cpp")
@@ -98,7 +100,7 @@ else()
 	target_include_directories(DoDoUI PRIVATE "." ${ANDROID_NDK}/sources/android/native_app_glue "../ThirdParty/glm")
 endif()
 
-target_include_directories(DoDoUI PRIVATE ../ThirdParty/vma ../ThirdParty/stbimage "../ThirdParty/nanosvg")
+target_include_directories(DoDoUI PRIVATE ../ThirdParty/vma ../ThirdParty/stbimage "../ThirdParty/nanosvg" "../ThirdParty/RapidJson/include")
 
 # pch
 target_precompile_headers(DoDoUI PRIVATE "PreCompileHeader.h")

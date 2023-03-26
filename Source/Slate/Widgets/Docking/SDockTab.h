@@ -101,8 +101,19 @@ namespace DoDo {
 		/*Construct the widget from the declaration*/
 		void Construct(const FArguments& in_args);
 
+		//SWidget interface
+		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+		//End of SWidget interface
+
 		/*protected constructor, widgets may only be constructed via a FArguments (i.e.: SNew(SDockTab))*/
 		SDockTab();
+
+		/*
+		* make this tab active in its tabwell
+		* 
+		* @param InActivationMethod how this tab was activated
+		*/
+		void active_in_parent(ETabActivationCause in_activation_cause);
 
 		/*@return true if this tab appears active, false otherwise*/
 		bool is_fore_ground() const;
@@ -121,6 +132,11 @@ namespace DoDo {
 
 		/*@return the size the tab icon should be*/
 		std::optional<glm::vec2> get_tab_icon_size() const;
+
+		/*what should the content area look like for this type of tab?
+		* documents, apps, and tool panels have different backgrounds
+		*/
+		const FSlateBrush* get_content_area_brush() const;
 
 		/*depending on the tabs we put into the tab well, we want a different background brush*/
 		const FSlateBrush* get_tab_well_brush() const;

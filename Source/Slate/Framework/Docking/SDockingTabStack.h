@@ -51,6 +51,12 @@ namespace DoDo {
 
 		/*overridden from SDockingNode*/
 		virtual void set_parent_node(std::shared_ptr<SDockingSplitter> in_parent) override;
+
+		/*what should the content area look like for the current tab?*/
+		const FSlateBrush* get_content_area_brush() const;
+	public:
+		/*SWidget interface*/
+		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
 	private:
 		/*data that persists across sessions and when the widget associated with this node is removed*/
 		std::vector<FTabManager::FTab> m_tabs;

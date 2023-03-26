@@ -294,7 +294,7 @@ namespace DoDo {
 		const FButtonStyle Button = FButtonStyle()
 			.set_normal(FSlateRoundedBoxBrush(FStyleColors::Secondary, 4.0f, FStyleColors::Input, input_focus_thickness))//FSlateRoundedBoxBrush
 			.set_hovered(FSlateRoundedBoxBrush(FStyleColors::Hover, 4.0f, FStyleColors::Input, input_focus_thickness))
-			//se.set_pressed(FSlateRoundedBoxBrush(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 4.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), input_focus_thickness))t_up_button_styles(style);
+			.set_pressed(FSlateRoundedBoxBrush(FStyleColors::Header, 4.0f, FStyleColors::Input, input_focus_thickness))
 			.set_disabled(FSlateRoundedBoxBrush(FStyleColors::DropDown, 4.0f, FStyleColors::Recessed, input_focus_thickness))
 			.set_normal_foreground(FStyleColors::ForegroundHover)
 			.set_pressed_foreground(FStyleColors::ForegroundHover)
@@ -341,7 +341,7 @@ namespace DoDo {
 			.set_flash_color(glm::vec4(1.0f))//todo:add tab flash color
 
 			.set_tab_padding(FMargin(4.0f, 3.0f, 10.0f, 4.0f))
-			.set_overlap_width(-2.0f) //negative overlap width to add space between tabs
+			.set_overlap_width(0.0f) //negative overlap width to add space between tabs
 
 			.set_normal_foreground_color(glm::vec4(1.0f))
 			.set_active_foreground_color(glm::vec4(1.0f))

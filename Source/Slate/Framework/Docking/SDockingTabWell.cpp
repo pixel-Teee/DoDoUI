@@ -131,6 +131,21 @@ namespace DoDo {
 		refresh_parent_cotent();
 	}
 
+	void SDockingTabWell::bring_tab_to_front(std::shared_ptr<SDockTab> tab_to_activate)
+	{
+		if (m_tabs.num() > 0)
+		{
+			for (int32_t tab_index = 0; tab_index < m_tabs.num(); ++tab_index)
+			{
+				if (m_tabs[tab_index] == tab_to_activate)
+				{
+					bring_tab_to_front(tab_index);
+					return;
+				}
+			}
+		}
+	}
+
 	glm::vec2 SDockingTabWell::Compute_Child_Size(const FGeometry& allotted_geometry) const
 	{
 		const int32_t num_children = m_tabs.num();
@@ -163,7 +178,7 @@ namespace DoDo {
 
 		//don't let the tabs get too big, or they'll look ugly
 		return glm::vec2(
-			glm::min(child_size.x, max_tab_size.y),
+			glm::min(child_size.x, max_tab_size.x),
 			glm::min(child_size.y, max_tab_size.y)
 		);
 	}

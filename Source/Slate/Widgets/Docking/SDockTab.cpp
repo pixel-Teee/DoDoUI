@@ -134,6 +134,25 @@ namespace DoDo
 
 		//todo:implement SOverlay
 	}
+
+	static float total_dragged_distance = 0.0f;
+
+	FReply SDockTab::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		if (!has_mouse_capture())
+		{
+			if (mouse_event.get_effecting_button() == EKeys::LeftMouseButton)
+			{
+				total_dragged_distance = 0.0;
+				active_in_parent(ETabActivationCause::UserClickedOnTab);
+
+				//todo:implement detect drag
+				return FReply::handled();
+			}
+		}
+
+		return FReply::un_handled();
+	}
 	SDockTab::SDockTab()
 		: m_content(SNew(SSpacer))
 		, m_tab_well_content_left(SNullWidget::NullWidget)
@@ -145,6 +164,17 @@ namespace DoDo
 		, m_tab_label("DockTab")
 		, m_tab_color_scale()//todo:add more initialize
 	{
+	}
+	void SDockTab::active_in_parent(ETabActivationCause in_activation_cause)
+	{
+		std::shared_ptr<SDockingTabWell> parent_tab_well = m_parent_ptr.lock();
+
+		if (parent_tab_well)
+		{
+			parent_tab_well->bring_tab_to_front(std::static_pointer_cast<SDockTab>(shared_from_this()));
+		}
+
+		//todo:implement on tab activated delegate
 	}
 	bool SDockTab::is_fore_ground() const
 	{
@@ -183,6 +213,11 @@ namespace DoDo
 	std::optional<glm::vec2> SDockTab::get_tab_icon_size() const
 	{
 		return get_current_style().m_icon_size;
+	}
+
+	const FSlateBrush* SDockTab::get_content_area_brush() const
+	{
+		return &get_current_style().m_content_area_brush;
 	}
 
 	const FSlateBrush* SDockTab::get_tab_well_brush() const

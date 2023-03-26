@@ -15,6 +15,8 @@ layout(location = 3) in vec4 secondary_color;
 
 layout(location = 0) out vec4 out_color;
 
+vec2 gamma_values = vec2(1.0f, 1.0f / 2.2f);
+
 layout(set = 0, binding = 0) uniform ShaderParams{
 	vec4 shader_param1;			//16 bytes
 	vec4 shader_param2;			//16 bytes
@@ -34,6 +36,49 @@ vec4 get_color(vec2 uv)
 	final_color = base_color * color;
 
 	return final_color;
+}
+
+float linear_to_srgb_branching_channel(float lin)
+{
+	if(lin < 0.00313067) return lin * 12.92;
+	return pow(lin, (1.0/2.4)) * 1.055 - 0.055;
+}
+
+vec3 linear_to_srgb_branching(vec3 lin)
+{
+	return vec3(
+				linear_to_srgb_branching_channel(lin.r),
+				linear_to_srgb_branching_channel(lin.g),
+				linear_to_srgb_branching_channel(lin.b));
+}
+
+vec3 pow_scalar(vec3 values, float power)
+{
+	return vec3(pow(values.x, power), pow(values.y, power), pow(values.z, power));
+}
+
+/*
+*	@param gamme curve ratio the curve ratio compared to a 2.2 standard gamma, e.g. 2.2 / DisplayGamma, so normally the value is 1
+*/
+vec3 apply_gamma_correction(vec3 linear_color, float gamma_curve_ratio)
+{
+	//apply "gamma" curve adjustment
+	vec3 corrected_color = pow_scalar(linear_color, gamma_curve_ratio);
+
+	corrected_color = linear_to_srgb_branching(corrected_color);
+
+	return corrected_color;
+}
+vec3 gamma_correct(vec3 in_color)
+{
+	vec3 corrected_color = in_color;
+
+	if(gamma_values.y != 1.0f)
+	{
+		corrected_color = apply_gamma_correction(corrected_color, gamma_values.x);
+	}
+
+	return corrected_color;
 }
 
 vec4 get_default_element_color()
@@ -131,6 +176,7 @@ void main()
 		out_color = get_color_font_element_color();
 	}
 	//todo:gamma correct
+	out_color.rgb = gamma_correct(out_color.rgb);
 
 	//vec4 texture_color = texture(element_texture, texcoords.xy + texcoords.zw) * color;
 

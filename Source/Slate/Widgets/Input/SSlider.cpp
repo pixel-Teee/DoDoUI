@@ -59,7 +59,7 @@ namespace DoDo {
 		//however, the allotted geometry is computed as it will be rendered, so we have to use the "horizontal orientation" when doing drawing computations
 
 		const float allotted_width = m_orientation == Orient_Horizontal ? allotted_geometry.get_local_size().x : allotted_geometry.get_local_size().y;
-		const float allotted_height = m_orientation == Orient_Vertical ? allotted_geometry.get_local_size().y : allotted_geometry.get_local_size().x;
+		const float allotted_height = m_orientation == Orient_Horizontal ? allotted_geometry.get_local_size().y : allotted_geometry.get_local_size().x;
 
 		float handle_rotation;
 		glm::vec2 handle_top_left_point;

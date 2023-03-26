@@ -59,6 +59,9 @@ namespace DoDo {
 		*/
 		void bring_tab_to_front(int32_t tab_index_to_active);
 
+		/*activate the tab specified by tab to activate SDockTab*/
+		void bring_tab_to_front(std::shared_ptr<SDockTab> tab_to_activate);
+
 		glm::vec2 Compute_Child_Size(const FGeometry& allotted_geometry) const;
 
 		//SWidget interface

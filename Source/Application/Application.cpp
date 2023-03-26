@@ -64,6 +64,8 @@
 
 #include "Slate/Framework/Application/SWindowTitleBar.h"//SWindowTitleBar depends on it
 
+#include "SlateCore/Styling/StyleColors.h"
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -757,6 +759,8 @@ namespace DoDo
         //initialize FCoreStyle
         if (FCoreStyle::is_star_ship_style())
         {
+            USlateThemeManager::get().load_themes();//load theme
+
             FStarshipCoreStyle::reset_to_default();//create a ISlateStyle
             FAppStyle::set_app_style(FStarshipCoreStyle::get_core_style());
         }
@@ -1472,10 +1476,10 @@ namespace DoDo
                     //.auto_width()
                    [                 
 					  SNew(SOverlay)
-                      + SOverlay::Slot()
-                      [
-                          SNew(SImage)
-                      ]
+					  //+ SOverlay::Slot()
+					  //[
+					  //    SNew(SImage)
+					  //]
                       + SOverlay::Slot()
                       [
 						  SNew(SConstraintCanvas)
@@ -1489,14 +1493,54 @@ namespace DoDo
                               .ColorAndOpacity(FLinearColor(0.7f, 0.3f, 0.9f, 1.0f))
                               [
 								  SNew(SButton)
-								  .ButtonColorAndOpacity(FLinearColor(0.7f, 0.3f, 0.9f, 1.0f))
+								  //.ButtonColorAndOpacity(FLinearColor(0.7f, 0.3f, 0.9f, 1.0f))
 						          //.Text(s_current_application, &Application::calculate_frame_per_second)
 						          [
-							          SNew(SImage)
-							          .Image(FAppStyle::get().get_brush("Icons.ArrowLeft"))
+									  SNew(SImage)
+									  .Image(FAppStyle::get().get_brush("Icons.ArrowLeft"))
 						          ]
                               ]
 
+                          ]
+                      ]
+                   ]			  
+               ];
+    }
+
+    static std::shared_ptr<SDockTab> spawn_slider_widgets(const FSpawnTabArgs& spawn_tab_args)
+    {
+        return SNew(SDockTab)
+               //.ContentPadding(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
+               .ForegroundColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
+               [
+                   SNew(SHorizontalBox)
+                   + SHorizontalBox::Slot()
+                    .fill_width(1.0f)
+                    //.auto_width()
+                   [                 
+					  SNew(SOverlay)
+					  //+ SOverlay::Slot()
+					  //[
+					  //    SNew(SImage)
+					  //]
+                      + SOverlay::Slot()
+                      [
+						  SNew(SConstraintCanvas)
+						  + SConstraintCanvas::Slot()
+						  .Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
+						  .Offset(FMargin(0.0f, 0.0f, 200.0f, 80.0f))//position and size
+						  .Alignment(glm::vec2(0.5f, 0.5f))
+						  .AutoSize(false)//todo:use fix size
+                          [
+                              SNew(SBorder)
+                              .ColorAndOpacity(FLinearColor(1.0f, 0.8f, 0.0f, 1.0f))
+                              [
+								  SNew(SSlider)
+								  .MaxValue(1.0f)
+			                      .MinValue(0.0f)
+                                  .IndentHandle(true)
+                              ]
+                             
                           ]
                       ]
                    ]			  
@@ -1526,7 +1570,7 @@ namespace DoDo
 
         FGlobalTabmanager::get()->register_nomad_tab_spawner("starship widgets", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets))
             .set_icon(FSlateIcon("CoreStyle", "Icons.heart2"));//todo:implement this function
-        FGlobalTabmanager::get()->register_nomad_tab_spawner("test widget", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets))
+        FGlobalTabmanager::get()->register_nomad_tab_spawner("test widget", FOnSpawnTab::CreateStatic(spawn_slider_widgets))
            .set_icon(FSlateIcon("CoreStyle", "Icons.heart2"));//todo:this is use for SDockTab icon
 
         FGlobalTabmanager::get()->restore_from(layout, std::shared_ptr<SWindow>());

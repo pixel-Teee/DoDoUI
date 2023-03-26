@@ -36,11 +36,11 @@ namespace DoDo
 					.Orientation(persistent_node->get_orientation())
 				]
 			]
-			+ SOverlay::Slot()
-			//house the minimize, maximize, restore, and icon
-			.Expose(m_window_controls_area)
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Top)
+			//+ SOverlay::Slot()
+			////house the minimize, maximize, restore, and icon
+			//.Expose(m_window_controls_area)
+			//.HAlign(HAlign_Fill)
+			//.VAlign(VAlign_Top)
 		];
 
 		//if the owner window is set and bManageParentWindow is true, this docknode will close the window then its last tab is removed
@@ -65,22 +65,22 @@ namespace DoDo
 		m_parent_window_ptr = new_parent_window;
 
 		//event though we don't manage the parent window's lifetime, we are still responsible for making its window chrome
-		{
-			std::shared_ptr<IWindowTitleBar> title_bar;
-
-			FWindowTitleBarArgs args(new_parent_window);
-			args.m_center_content = SNullWidget::NullWidget;
-			args.m_center_content_alignment = HAlign_Fill;
-
-			//std::shared_ptr<SWidget> title_bar_widget = Application::get().make_window_title_bar(args, title_bar);
-
-			(*m_window_controls_area)
-			[
-				SNullWidget::NullWidget
-			];
-
-			//new_parent_window->set_title_bar(title_bar);
-		}
+		//{
+		//	std::shared_ptr<IWindowTitleBar> title_bar;
+		//
+		//	FWindowTitleBarArgs args(new_parent_window);
+		//	args.m_center_content = SNullWidget::NullWidget;
+		//	args.m_center_content_alignment = HAlign_Fill;
+		//
+		//	//std::shared_ptr<SWidget> title_bar_widget = Application::get().make_window_title_bar(args, title_bar);
+		//
+		//	(*m_window_controls_area)
+		//	[
+		//		SNullWidget::NullWidget
+		//	];
+		//
+		//	//new_parent_window->set_title_bar(title_bar);
+		//}
 
 		m_parent_window_ptr = new_parent_window;
 	}

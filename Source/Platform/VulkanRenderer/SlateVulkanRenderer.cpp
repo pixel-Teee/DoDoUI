@@ -341,7 +341,7 @@ namespace DoDo {
 
 				VkClearValue clearValue;
 				//float flash = abs(sin(m_frame_number / 120.f));
-				clearValue.color = { { 0.0f, 0.0f, 0.4, 1.0f } };
+				clearValue.color = { { 1.0f, 1.0f, 1.0f, 1.0f } };
 
 				VkRenderPassBeginInfo rpInfo = {};
 				rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

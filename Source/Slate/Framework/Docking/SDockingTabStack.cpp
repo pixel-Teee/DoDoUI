@@ -124,7 +124,7 @@ namespace DoDo {
 				[
 					//content goes here
 					SAssignNew(m_content_slot, SBorder) //note:this is content of this SDockTab
-					//.BorderImage(FAppStyle::get().get_brush("Icons.solar-system"))
+					.BorderImage(this, &SDockingTabStack::get_content_area_brush)
 					[
 						SNew(STextBlock)
 						.Text("empty tab!")
@@ -189,5 +189,22 @@ namespace DoDo {
 		const std::shared_ptr<SDockingArea>& dock_area = get_dock_area();
 
 		m_title_bar_slot->attach_widget(m_title_bar_content);
+	}
+	const FSlateBrush* SDockingTabStack::get_content_area_brush() const
+	{
+		std::shared_ptr<SDockTab> foreground_tab = m_tab_well->get_foreground_tab();
+
+		return foreground_tab ? foreground_tab->get_content_area_brush() : FStyleDefaults::get_no_brush();
+	}
+	FReply SDockingTabStack::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		const std::shared_ptr<SDockTab> foreground = m_tab_well->get_foreground_tab();
+
+		//if (foreground && !foreground->is_active())
+		//{
+		//
+		//}
+
+		return FReply::un_handled();
 	}
 }

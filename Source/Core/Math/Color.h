@@ -4,6 +4,10 @@
 
 #include "Core/Misc/CoreMiscDefines.h"//EForceInit
 
+#include "Core/Misc/Parse.h"
+
+#include "Core/String/DoDoString.h"
+
 namespace DoDo
 {
 	/*enum for the different kinds of gamma spaces we expect to need to covert from/to*/
@@ -79,6 +83,18 @@ namespace DoDo
 		bool operator==(const FLinearColor& color_b) const
 		{
 			return this->R == color_b.R && this->G == color_b.G && this->B == color_b.B && this->A == color_b.A;
+		}
+
+		bool init_from_string(const DoDoUtf8String& in_source_str)
+		{
+			R = G = B = 0.0f;
+			A = 1.0f;
+
+			const bool b_successful = FParse::Value(in_source_str.c_str(), "R=", R) && FParse::Value(in_source_str.c_str(), "G=", G) && FParse::Value(in_source_str.c_str(), "B=", B);
+
+			FParse::Value(in_source_str.c_str(), "A=", A);
+
+			return b_successful;
 		}
 
 		/*
