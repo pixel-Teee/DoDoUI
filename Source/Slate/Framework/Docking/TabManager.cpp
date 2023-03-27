@@ -301,6 +301,8 @@ namespace DoDo
 
 				new_tab_widget->provide_default_icon(spawner->get_icon().get_icon());//note:this is important
 
+				new_tab_widget->provide_default_label(spawner->get_display_name());
+
 				//the spawner tracks that last tab it spawned
 				spawner->m_spawned_tab_ptr = new_tab_widget;
 			}
@@ -608,6 +610,12 @@ namespace DoDo
 	FTabSpawnerEntry& FTabSpawnerEntry::set_icon(const FSlateIcon& in_icon)
 	{
 		m_icon = in_icon;
+		return *this;
+	}
+
+	FTabSpawnerEntry& FTabSpawnerEntry::set_display_name(const DoDoUtf8String& in_legible_name)
+	{
+		m_display_name_attribute = in_legible_name;
 		return *this;
 	}
 }

@@ -21,6 +21,6 @@ namespace DoDo
 			, m_num_indices(0)
 			, m_next_batch_index(-1)//batch index
 	{
-		std::cout << "test" << std::endl;
+		//std::cout << "test" << std::endl;
 	}
 }

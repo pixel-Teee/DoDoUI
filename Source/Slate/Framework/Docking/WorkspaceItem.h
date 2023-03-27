@@ -23,6 +23,11 @@ namespace DoDo {
 			return m_icon;
 		}
 
+		const DoDoUtf8String& get_display_name() const
+		{
+			return m_display_name_attribute.Get();
+		}
+
 		FSlateIcon m_icon;
 
 		TAttribute<DoDoUtf8String> m_display_name_attribute;

@@ -21,6 +21,7 @@ namespace DoDo
 	FCharacterList::FCharacterList(const FSlateFontKey& in_font_key, FSlateFontCache& in_font_cache)
 		: m_font_key(in_font_key)
 		, m_font_cache(in_font_cache)
+		, m_max_height(0)
 		, m_max_direct_indexed_entries(256)
 	{
 	}

@@ -163,6 +163,9 @@ namespace DoDo {
 		/*provide a default tab icon*/
 		void provide_default_icon(const FSlateBrush* in_default_icon);
 
+		/*provide a default tab label in case the spawner did not set one*/
+		void provide_default_label(const DoDoUtf8String& in_default_label);
+
 		/*@return the style currently applied to the dock tab*/
 		const FDockTabStyle& get_current_style() const;
 

@@ -562,7 +562,7 @@ namespace DoDo
 						//note posx, posy is the upper left corner of the bounding box representing the string, this computes the y position of the baseline where text will sit
 
 						//todo:implement max_height
-						const float y = pos_y - entry.m_vertical_offset + ((80.0f + entry.m_global_descendar) * inv_bit_map_render_scale);
+						const float y = pos_y - entry.m_vertical_offset + ((20.0f + entry.m_global_descendar) * inv_bit_map_render_scale);
 						const float u = entry.m_start_u * inv_texture_size_x;
 						const float v = entry.m_start_v * inv_texture_size_y;
 						const float size_x = entry.m_u_size * entry.m_bitmap_render_scale;

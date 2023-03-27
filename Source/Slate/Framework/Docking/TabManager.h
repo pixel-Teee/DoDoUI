@@ -117,6 +117,8 @@ namespace DoDo
 		{}
 
 		FTabSpawnerEntry& set_icon(const FSlateIcon& in_icon);
+
+		FTabSpawnerEntry& set_display_name(const DoDoUtf8String& in_legible_name);
 	private:
 		DoDoUtf8String m_tab_type;//tab type
 		FOnSpawnTab m_on_spawn_tab;
