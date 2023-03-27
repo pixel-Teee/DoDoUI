@@ -156,9 +156,74 @@ namespace DoDo
 		return &m_children;
 	}
 
+	/*
+	 * helper to compute desired size
+	 *
+	 * @param Orientation template parameters that controls the orientation in which the children are layed out
+	 * @param Children the children whose size we want to assess in a horizontal or vertical arrangement
+	 *
+	 * @return the size desired by the children given an orientation
+	 */
+	template<EOrientation Orientation, typename SlotType>
+	static glm::vec2 compute_desired_size_for_box(const TPanelChildren<SlotType>& children)
+	{
+		//the desired size of this panel is the total size desired by its children plus any margins specified in this panel
+		//the layout along the panel's axis is describe by the size param, while the perpendicular layout is described by the
+		//alignment property
+		glm::vec2 my_desired_size(0.0f, 0.0f);
+		for(int32_t child_index = 0; child_index < children.num(); ++child_index)
+		{
+			const SlotType& cur_child = children[child_index];
+
+			if(cur_child.get_widget()->get_visibility() != EVisibility::Collapsed)
+			{
+				const glm::vec2& cur_child_desired_size = cur_child.get_widget()->get_desired_size();
+
+				if(Orientation == Orient_Vertical)
+				{
+					//for a vertical panel, we want to find the maximum desired width(including margin)
+					//that will be the desired width of the whole panel
+					my_desired_size.x = std::max(my_desired_size.x, cur_child_desired_size.x + cur_child.get_padding().template Get_Total_Space_Along<Orient_Horizontal>());
+
+					//clamp to the max size if it was specified
+					float final_child_desired_size = cur_child_desired_size.y;
+					float max_size = cur_child.get_max_size();
+
+					if(max_size > 0)
+					{
+						final_child_desired_size = std::min(max_size, final_child_desired_size);
+					}
+
+					my_desired_size.y += final_child_desired_size + cur_child.get_padding().template Get_Total_Space_Along<Orient_Vertical>();
+				}
+				else
+				{
+					//a horizontal panel is just a sideways vertical panel, the axes are swapped
+					my_desired_size.y = std::max(my_desired_size.y, cur_child_desired_size.y + cur_child.get_padding().template Get_Total_Space_Along<Orient_Vertical>());
+
+					//clamp to the max size if it was specified
+					float final_child_desired_size = cur_child_desired_size.x;
+
+					float max_size = cur_child.get_max_size();
+
+					if(max_size > 0)
+					{
+						final_child_desired_size = std::min(max_size, final_child_desired_size);
+					}
+
+					my_desired_size.x += final_child_desired_size + cur_child.get_padding().template Get_Total_Space_Along<Orient_Horizontal>();
+				}
+			}
+		}
+
+		return my_desired_size;
+	}
+
 	glm::vec2 SBoxPanel::Compute_Desired_Size(float Layout_Scale_Multiplier) const
 	{
-		return glm::vec2(1.0f, 1.0f);//todo:fix me
+		return (m_orientation == Orient_Horizontal)
+			? compute_desired_size_for_box<Orient_Horizontal>(this->m_children)
+			: compute_desired_size_for_box<Orient_Vertical>(this->m_children);
 	}
 
 	SBoxPanel::SBoxPanel(EOrientation in_orientation)

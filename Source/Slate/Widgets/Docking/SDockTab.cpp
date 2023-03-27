@@ -102,25 +102,25 @@ namespace DoDo
 							.DesiredSizeOverride(this, &SDockTab::get_tab_icon_size)
 						]
 					]
-					+ SHorizontalBox::Slot()//todo:add tab label and label suffix
-					. fill_width(1.0f)
-					. Padding(0.0f, 1.0f)
-					. HAlign(HAlign_Left)
-					. VAlign(VAlign_Center)
-					[
-						//label sub hbox
-						SNew(SHorizontalBox)
-						//tab label
-						+ SHorizontalBox::Slot()
-						. fill_width(1.0f)
-						. Padding(0.0f, 1.0f)
-						. VAlign(VAlign_Center)
-						[
-							SAssignNew(m_label_widget, STextBlock)
-							.TextStyle(&get_current_style().m_tab_text_style)
-							.Text(this, &SDockTab::get_tab_label)
-						]
-					]
+					//+ SHorizontalBox::Slot()//todo:add tab label and label suffix
+					//. fill_width(1.0f)
+					//. Padding(0.0f, 1.0f)
+					//. HAlign(HAlign_Left)
+					//. VAlign(VAlign_Center)
+					//[
+					//	//label sub hbox
+					//	SNew(SHorizontalBox)
+					//	//tab label
+					//	+ SHorizontalBox::Slot()
+					//	. fill_width(1.0f)
+					//	. Padding(0.0f, 1.0f)
+					//	. VAlign(VAlign_Center)
+					//	[
+					//		SAssignNew(m_label_widget, STextBlock)
+					//		.TextStyle(&get_current_style().m_tab_text_style)
+					//		.Text(this, &SDockTab::get_tab_label)
+					//	]
+					//]
 					+ SHorizontalBox::Slot()
 					. auto_width() //note:use desired size
 					. HAlign(HAlign_Right)

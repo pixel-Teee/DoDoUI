@@ -13,7 +13,7 @@
 #include "SlateCore/Rendering/DrawElements.h"
 
 namespace DoDo {
-	const glm::vec2 FDockingConstants::max_minor_tab_size(160.0f, 25.0f);
+	const glm::vec2 FDockingConstants::max_minor_tab_size(160.0f, 50.0f);//todo:fix me, this will affect the calculate of SDock tab size
 	const glm::vec2 FDockingConstants::max_major_tab_size(210.0f, 50.0f);
 
 	const glm::vec2 FDockingConstants::get_max_tab_size_for(ETabRole tab_role)
@@ -362,7 +362,7 @@ namespace DoDo {
 			{
 				const glm::vec2 some_tab_desired_size = some_tab->get_desired_size();
 				desired_size_result.x += some_tab_desired_size.x;
-				desired_size_result.y = std::max(some_tab_desired_size.y, 50.0f);//todo:fix me
+				desired_size_result.y = std::max(some_tab_desired_size.y, desired_size_result.y);//todo:fix me
 			}
 		}
 
@@ -370,7 +370,7 @@ namespace DoDo {
 		{
 			const glm::vec2 some_tab_desired_size = m_tab_being_dragged_ptr->get_desired_size();
 			desired_size_result.x += some_tab_desired_size.x;
-			desired_size_result.y += std::max(some_tab_desired_size.y, desired_size_result.y);
+			desired_size_result.y = std::max(some_tab_desired_size.y, desired_size_result.y);
 		}
 
 		return desired_size_result;

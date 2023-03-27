@@ -129,9 +129,9 @@ namespace DoDo
 
 	const FWindowStyle& FWindowStyle::get_default()
 	{
-		static FWindowStyle default;
+		static FWindowStyle Default;
 
-		return default;
+		return Default;
 	}
 
 	//const FSplitterStyle& FSplitterStyle::get_default()

@@ -348,7 +348,7 @@ namespace DoDo {
 			.set_flash_color(glm::vec4(1.0f))//todo:add tab flash color
 
 			.set_tab_padding(FMargin(4.0f, 3.0f, 10.0f, 4.0f))
-			.set_overlap_width(0.0f) //negative overlap width to add space between tabs
+			.set_overlap_width(-2.0f) //negative overlap width to add space between tabs
 
 			.set_normal_foreground_color(glm::vec4(1.0f))
 			.set_active_foreground_color(glm::vec4(1.0f))

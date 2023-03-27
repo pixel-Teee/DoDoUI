@@ -46,7 +46,6 @@ namespace DoDo {
 		//create inline title bar content
 		m_title_bar_content = 
 		SNew(SOverlay)
-		//+ SOverlay::Slot().Expose(m_back_ground_content_area)
 		+ SOverlay::Slot()
 		[
 			SNew(SHorizontalBox)//todo:add visibility
@@ -61,13 +60,13 @@ namespace DoDo {
 			[
 				//todo:implement SVertical Box
 				SNew(SVerticalBox)
-				+ SVerticalBox::Slot()
-				.auto_height()
-				[
-					//todo:implement SSpacer
-					SNew(SSpacer)
-					.Size(glm::vec2(0.0f, 10.0f))
-				]
+				//+ SVerticalBox::Slot()
+				//.auto_height()
+				//[
+				//	//todo:implement SSpacer
+				//	SNew(SSpacer)
+				//	.Size(glm::vec2(0.0f, 10.0f))
+				//]
 				+ SVerticalBox::Slot()
 				. auto_height()
 				[
@@ -104,9 +103,10 @@ namespace DoDo {
 
 					+ SVerticalBox::Slot()
 					.Expose(m_title_bar_slot)
+					//.fill_height(1.4f)
 					.auto_height()
-
 					+ SVerticalBox::Slot()
+					//.fill_height(0.0f)
 					.auto_height()
 					[
 						SNew(SImage)
