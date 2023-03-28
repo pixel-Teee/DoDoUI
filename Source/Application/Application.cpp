@@ -1474,7 +1474,7 @@ namespace DoDo
     static std::shared_ptr<SDockTab> spawn_star_ship_widgets(const FSpawnTabArgs& spawn_tab_args)
     {
         std::vector<FLinearColor> colors2 = { {0.55f, 0.77f, 0.98f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f} };
-        std::vector<FLinearColor> colors = { {0.51f, 0.99f, 0.73f, 1.0f}, {1.0f, 0.98f, 0.49f, 1.0f} };
+        std::vector<FLinearColor> colors = { {0.51f, 0.99f, 0.73f, 1.0f}, {1.0f, 0.98f, 0.49f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f} };
         return SNew(SDockTab)
                //.ContentPadding(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
                .ForegroundColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
