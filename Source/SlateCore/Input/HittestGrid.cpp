@@ -291,7 +291,12 @@ namespace DoDo
 
 	void FHittestGrid::clear_internal(int32_t total_cells)
 	{
-		m_cells.resize(total_cells, FCell());//clear
+		m_cells.clear();//clear
+
+		for (size_t i = 0; i < total_cells; ++i)
+		{
+			m_cells.push_back(FCell());
+		}
 
 		m_widget_map.clear();
 		m_widget_array.clear();
@@ -345,6 +350,12 @@ namespace DoDo
 		m_grid_window_origin = hittest_offset_in_window;
 
 		return b_was_cleared;
+	}
+
+	void FHittestGrid::clear()
+	{
+		const int32_t total_cells = m_cells.size();
+		clear_internal(total_cells);
 	}
 
 	void FHittestGrid::add_widget(const SWidget* in_widget, int32_t in_batch_priority_group, int32_t layer_id)

@@ -276,7 +276,7 @@ namespace DoDo
 
 	void SDockTab::provide_default_label(const DoDoUtf8String& in_default_label)
 	{
-		const bool user_provided_label = m_tab_label.Is_Bound() || !m_tab_label.Get().get_length();
+		bool user_provided_label = m_tab_label.Is_Bound() && m_tab_label.Get().get_length();//todo:implement is_empty
 
 		if(!user_provided_label)//todo:fix me
 		{

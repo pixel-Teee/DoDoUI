@@ -47,6 +47,12 @@ namespace DoDo
 		* load the given glyph into the active slot of the given face
 		*/
 		FT_Error load_glyph(FT_Face in_face, const uint32_t in_glyph_index, const int32_t in_load_flags, const int32_t in_font_size, const float in_font_scale);
+
+		/*
+		* get the height of the given face under the given layout method, scaled by the face scale
+		* @note ApplySizeAndScale must have been called prior to this function to prepare the face
+		*/
+		FT_Pos get_scaled_height(FT_Face in_face, const EFontLayoutMethod in_layout_method);
 	}
 	/*
 	 * wrapped around a free type library instance
@@ -171,6 +177,11 @@ namespace DoDo {
 			//return FreeTypeUtils::get_bit_map_render_scale(m_ft_face);
 
 			return 1.0f;
+		}
+
+		FT_Pos get_scaled_height() const
+		{
+			return FreeTypeUtils::get_scaled_height(m_ft_face, m_layout_method);//apply size, then get character max height
 		}
 
 		bool is_face_valid()

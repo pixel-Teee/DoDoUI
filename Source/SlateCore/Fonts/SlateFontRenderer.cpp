@@ -30,6 +30,23 @@ namespace DoDo
 
 	uint16_t FSlateFontRenderer::get_max_height(const FSlateFontInfo& in_font_info, const float in_scale) const
 	{
+		char Char = 0;//todo:fix me, use utf8 str
+
+		//font_data is just font name and font file name
+		const FFontData& font_data = m_composite_font_cache->get_default_font_data(in_font_info);
+
+		const FFreeTypeFaceGlyphData face_glyph_data = get_font_face_for_code_point(font_data, Char, in_font_info.m_font_fallback);
+
+		if (face_glyph_data.m_face_and_memory && face_glyph_data.m_face_and_memory->is_face_valid())
+		{
+			FreeTypeUtils::apply_size_and_scale(face_glyph_data.m_face_and_memory->get_face(), in_font_info.m_size, in_scale);
+
+			//adjust the height by the size of the outline that was applied
+
+			const float height_adjustment = in_font_info.m_outline_settings.m_outline_size * in_scale;
+			return static_cast<uint16_t>(FreeTypeUtils::Convert26Dot6ToRoundedPixel<int32_t>(face_glyph_data.m_face_and_memory->get_scaled_height()) + height_adjustment);
+		}
+
 		return 0;//todo:implement this function
 	}
 	bool FSlateFontRenderer::get_render_data(const FShapedGlyphEntry& in_shaped_glyph, const FFontOutlineSettings& in_outline_settings, FCharacterRenderData& out_render_data) const

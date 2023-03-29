@@ -317,6 +317,7 @@ namespace DoDo {
 	int32_t SWindow::paint_slow_path(const FSlateInvalidationContext& invalidation_context)
 	{
 		//todo:clear hittest grid
+		m_hittest_grid->clear();//note:this is important, because SDockTab switch need to clear hittest grid
 
 		const FSlateRect window_culling_bounds;
 		const int32_t layer_id = 0;

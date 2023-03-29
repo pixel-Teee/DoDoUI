@@ -37,6 +37,11 @@ namespace DoDo
 		return nullptr;//todo:fix me
 	}
 
+	const FFontData* FCachedTypefaceData::get_primary_font_data() const
+	{
+		return m_type_face->m_fonts.size() > 0 ? &m_type_face->m_fonts[0].m_font : nullptr;
+	}
+
 	FCachedCompositeFontData::FCachedCompositeFontData()
 		: m_composite_font(nullptr)
 	{
@@ -110,6 +115,37 @@ namespace DoDo
 
 	FCompositeFontCache::~FCompositeFontCache()
 	{
+	}
+
+	const FFontData& FCompositeFontCache::get_default_font_data(const FSlateFontInfo& in_font_info)
+	{
+		static const FFontData dummy_font_data;//font data just font name and font file name
+
+		const FCompositeFont* const resolve_composite_font = in_font_info.get_composite_font();
+
+		//FCachedTypefaceData have FTypeFace and FCacheFontData(font name + FFontData)
+		const FCachedTypefaceData* const cached_type_face_data = get_default_cached_type_face(resolve_composite_font);
+
+		if (cached_type_face_data)
+		{
+			//try to find the correct font from the typeface
+			//typeface is FTypeFaceEntry array, FTypeFaceEntry contains the FFontData
+			const FFontData* found_font_data = cached_type_face_data->get_font_data(in_font_info.m_type_face_font_name);
+			if (found_font_data)
+			{
+				return *found_font_data;
+			}
+
+			//failing that, return the primary font
+			found_font_data = cached_type_face_data->get_primary_font_data();
+
+			if (found_font_data)
+			{
+				return *found_font_data;
+			}
+		}
+
+		return dummy_font_data;
 	}
 
 	const FFontData& FCompositeFontCache::get_font_data_for_code_point(const FSlateFontInfo& in_font_info,

@@ -29,6 +29,9 @@ namespace DoDo
 		/*find the font associated with the given name*/
 		const FFontData* get_font_data(const DoDoUtf8String& in_name) const;
 
+		/*get the font data associated with primary (first) entry in this typeface*/
+		const FFontData* get_primary_font_data() const;
+
 		/*get the scaling factor for this typeface*/
 		float get_scaling_factor() const
 		{
@@ -145,6 +148,9 @@ namespace DoDo
 		FCompositeFontCache(const FFreeTypeLibrary* in_ft_library);
 
 		~FCompositeFontCache();
+
+		/*get the default font data to use for the given font info*/
+		const FFontData& get_default_font_data(const FSlateFontInfo& in_font_info);
 
 		/*get the font data to use for the given font info and codepoint*/
 		const FFontData& get_font_data_for_code_point(const FSlateFontInfo& in_font_info, const uint32_t in_code_point, float& out_scaling_factor);

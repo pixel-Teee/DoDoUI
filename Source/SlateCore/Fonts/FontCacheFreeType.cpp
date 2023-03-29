@@ -129,6 +129,21 @@ namespace DoDo
 			apply_size_and_scale(in_face, in_font_size, in_font_scale);
 			return FT_Load_Glyph(in_face, in_glyph_index, in_load_flags);
 		}
+
+		FT_Pos get_scaled_height(FT_Face in_face, const EFontLayoutMethod in_layout_method)
+		{
+			if (FT_IS_SCALABLE(in_face))
+			{
+				//scalable fonts use the unscaled value (and apply the scale manually), as the metrices have had rounding applied to them
+				return FT_MulFix((in_layout_method == EFontLayoutMethod::Metrics) ? in_face->height : (in_face->bbox.yMax - in_face->bbox.yMin), in_face->size->metrics.y_scale);
+			}
+			else if (FT_HAS_FIXED_SIZES(in_face))
+			{
+				//fixed size fonts don't support scaling, but we calculated the scale to use for the glyph in ApplySizeAndScale
+				return FT_MulFix(in_face->size->metrics.height, in_face->size->metrics.y_scale);
+			}
+			return 0;
+		}
 	}
 	
 	FFreeTypeAdvanceCache::FFreeTypeAdvanceCache(FT_Face in_face, const int32_t in_load_flags, const int32_t in_font_size, const float in_font_scale)
