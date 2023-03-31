@@ -213,6 +213,9 @@ namespace DoDo
 		/*returns the distance the mouse traveled since the last event was handled*/
 		const glm::vec2& get_cursor_delta() const { return m_cursor_delta; }
 
+		/*mouse buttons that are currently pressed*/
+		bool is_mouse_button_down(FKey mouse_button) const { return m_pressed_buttons->find(mouse_button) != m_pressed_buttons->end(); }
+
 		template<typename PointerEventType>
 		static PointerEventType make_translated_event(const PointerEventType& in_pointer_event, const FVirtualPointerPosition& virtual_position)
 		{

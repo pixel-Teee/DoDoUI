@@ -15,6 +15,7 @@
 
 #include <optional>//std::optional depends on it
 
+#include "ApplicationCore/GenericPlatform/GenericApplicationMessageHandler.h"//EWindowZone depends on it
 #include "SlateCore/Input/Reply.h"
 #include "SlateCore/FastUpdate/WidgetProxy.h"
 #include "SlateCore/Layout/FlowDirection.h"
@@ -388,6 +389,15 @@ namespace DoDo
 		* @return FCursorReply::UnHandled() if the event is not handled, return FCursorReply::Cursor() otherwise
 		*/
 		virtual FCursorReply On_Cursor_Query(const FGeometry& my_geometry, const FPointerEvent& cursor_event) const;
+
+		/*
+		 * called when the mouse is moved over the widget's window, to determine if we should report whether
+		 * OS-specific features should be active at this location (such as a title bar grip, system menu, etc.)
+		 * usually you should not need to override this function
+		 *
+		 * @return the window "zone" the cursor is over, or EWindowZone::Unspecified if no special behavior is needed
+		 */
+		virtual EWindowZone::Type get_window_zone_override();
 
 		void slate_prepass();
 

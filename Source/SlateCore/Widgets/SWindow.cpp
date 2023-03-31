@@ -68,6 +68,7 @@ namespace DoDo {
 		this->m_title = in_args._Title;
 		this->m_style = in_args._Style;
 		this->m_window_background = &in_args._Style->m_background_brush;
+		this->m_user_resize_border = in_args._UserResizeBorder;
 
 		//calculate initial window position
 		glm::vec2 window_position = in_args._ScreenPosition;
@@ -262,6 +263,111 @@ namespace DoDo {
 		set_cached_size(new_size);
 	}
 
+	EWindowZone::Type SWindow::get_current_window_zone(glm::vec2 local_mouse_position)
+	{
+		//todo:check is full screen
+
+		//todo:check is game window and don't have os window border
+
+		//todo:get dpi scale
+		const float window_dpi_scale = 1.0f;
+
+		//todo:implement dpi scale resize border
+
+		const FMargin dpi_scaled_resize_border = m_user_resize_border * window_dpi_scale;
+
+		const bool b_is_cursor_visible = Application::get().get_platform_cursor()->get_type() != EMouseCursor::None;
+
+		//don't allow position/resizing of window while in fullscreen mode by ignoring title bar/border zones
+		//todo:add check
+
+		if(local_mouse_position.x >= 0 && local_mouse_position.x < m_size.x &&
+			local_mouse_position.y >= 0 && local_mouse_position.y < m_size.y)
+		{
+			int32_t row = 1;
+			int32_t col = 1;
+
+			//todo:add sizing rule check
+			if(local_mouse_position.x < (dpi_scaled_resize_border.left + 5))
+			{
+				col = 0;
+			}
+			else if(local_mouse_position.x >= m_size.x - (dpi_scaled_resize_border.right + 5))
+			{
+				col = 2;
+			}
+
+			if(local_mouse_position.y < (dpi_scaled_resize_border.top + 5))
+			{
+				row = 0;
+			}
+			else if(local_mouse_position.y >= m_size.y - (dpi_scaled_resize_border.bottom + 5))
+			{
+				row = 2;
+			}
+
+			//the actual border is smaller than the hit result zones
+			//this grants larger corner areas to grab onto
+			bool b_in_border = local_mouse_position.x < dpi_scaled_resize_border.left ||
+				local_mouse_position.x >= m_size.x - dpi_scaled_resize_border.right ||
+				local_mouse_position.y < dpi_scaled_resize_border.top ||
+				local_mouse_position.y >= m_size.y - dpi_scaled_resize_border.bottom;
+
+			if(!b_in_border)
+			{
+				row = 1;
+				col = 1;
+			}
+
+			static const EWindowZone::Type type_zones[3][3] =
+			{
+				{EWindowZone::TopLeftBorder, EWindowZone::TopBorder, EWindowZone::TopRightBorder},
+				{EWindowZone::LeftBorder, EWindowZone::ClientArea, EWindowZone::RightBorder},
+				{EWindowZone::BottomLeftBorder, EWindowZone::BottomBorder, EWindowZone::BottomRightBorder}
+			};
+
+			EWindowZone::Type in_zone = type_zones[row][col];
+
+			if(in_zone == EWindowZone::ClientArea)
+			{
+				//hittest to see if the widget under the mouse should be treated as a title bar (i.e. should move the window)
+				FWidgetPath hit_test_results = Application::get().get_hit_testing().locate_widget_in_window(Application::get().get_cursor_pos(),
+					std::static_pointer_cast<SWindow>(shared_from_this()), false, -1);
+
+				if(hit_test_results.m_widgets.num() > 0)
+				{
+					const EWindowZone::Type zone_override = hit_test_results.m_widgets.last().m_widget->get_window_zone_override();
+
+					if(zone_override != EWindowZone::Unspecified)
+					{
+						//the widget override the window zone
+						in_zone = zone_override;
+					}
+					else if(hit_test_results.m_widgets.last().m_widget == shared_from_this())
+					{
+						//the window itself was hit, so check for a traditional title bar
+						if((local_mouse_position.y - dpi_scaled_resize_border.top) < 34.0f * window_dpi_scale)
+						{
+							in_zone = EWindowZone::TitleBar;
+						}
+					}
+				}
+
+				m_window_zone = in_zone;
+			}
+			else
+			{
+				m_window_zone = in_zone;
+			}
+		}
+		else
+		{
+			m_window_zone = EWindowZone::NotInWindow;
+		}
+
+		return m_window_zone;
+	}
+
 	int32_t SWindow::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
 		int32_t max_layer = SCompoundWidget::On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, b_parent_enabled);
@@ -356,4 +462,42 @@ namespace DoDo {
 		set_cached_size(new_window_size);
 	}
 
+	FReply SWindow::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		if(mouse_event.get_effecting_button() == EKeys::LeftMouseButton)
+		{
+			m_move_resize_zone = m_window_zone;
+			return FReply::handled().capture_mouse(shared_from_this());
+		}
+		else
+		{
+			return FReply::un_handled();
+		}
+	}
+
+	FReply SWindow::On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		if(this->has_mouse_capture() && mouse_event.get_effecting_button() == EKeys::LeftMouseButton)
+		{
+			m_move_resize_zone = EWindowZone::Unspecified;
+			return FReply::handled().release_mouse_capture();
+		}
+		else
+		{
+			return FReply::un_handled();
+		}
+	}
+
+	FReply SWindow::On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		if(this->has_mouse_capture() && mouse_event.is_mouse_button_down(EKeys::LeftMouseButton) && m_move_resize_zone == EWindowZone::TitleBar)
+		{
+			this->move_window_to(m_screen_position + mouse_event.get_cursor_delta());
+			return FReply::handled();
+		}
+		else
+		{
+			return FReply::un_handled();
+		}
+	}
 }

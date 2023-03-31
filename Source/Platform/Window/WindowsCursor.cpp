@@ -89,6 +89,11 @@ namespace DoDo
 		glfwSetCursor((GLFWwindow*)(window->get_window_native_handle()), m_cursor_handles[in_new_cursor]);
 	}
 
+	EMouseCursor::Type FWindowsCursor::get_type() const
+	{
+		return m_current_type;
+	}
+
 	glm::vec2 FWindowsCursor::get_position() const
 	{
 		//from cursor to get position

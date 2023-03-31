@@ -32,6 +32,7 @@ namespace DoDo
 			, _ScreenPosition(glm::vec2(0.0f, 0.0f))
 			, _ClientSize(glm::vec2(0.0f, 0.0f))
 			, _AdjustInitialSizeAndPositionForDPIScale(true)
+			, _UserResizeBorder(FMargin(5, 5, 5, 5))
 		{}
 			/*type of this window*/
 			SLATE_ARGUMENT(EWindowType, Type)
@@ -45,6 +46,9 @@ namespace DoDo
 			SLATE_ARGUMENT(glm::vec2, ClientSize)
 			/*if the initial ClientSize and ScreenPosition arguments should be automatically adjusted to account for DPI scale*/
 			SLATE_ARGUMENT(bool, AdjustInitialSizeAndPositionForDPIScale)
+
+			/*the margin around the edges of the window that will be detected as places the user can grab to resize the window*/
+			SLATE_ARGUMENT(FMargin, UserResizeBorder)
 
 			SLATE_DEFAULT_SLOT(FArguments, Content)//declare a slot
 
@@ -181,6 +185,12 @@ namespace DoDo
 		/*relocate the window to a screenspace position specified by new position and resize it to new size*/
 		void reshape_window(glm::vec2 new_position, glm::vec2 new_size);
 
+		/*gets the current window zone that mouse position is over*/
+		EWindowZone::Type get_current_window_zone(glm::vec2 local_mouse_position);
+
+		/*used to store the zone where the mouse down event occurred during move/drag*/
+		EWindowZone::Type m_move_resize_zone;
+
 		/*
 		 * sets the widget content for this window
 		 *
@@ -194,6 +204,12 @@ namespace DoDo
 		/*resize using already dpi scaled window size including borders/title bar*/
 		void resize_window_size(glm::vec2 new_window_size);
 	private:
+		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+
+		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+
+		virtual FReply On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements,
 			int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
 	protected:
@@ -217,6 +233,9 @@ namespace DoDo
 
 		/*size of the viewport, if (0, 0) then it is equal to size*/
 		glm::vec2 m_view_port_size;
+
+		/*cached "zone" the cursor was over in the window the last time that someone called get_current_window_zone()*/
+		EWindowZone::Type m_window_zone;
 
 		SVerticalBox::FSlot* m_content_slot;
 	private:
@@ -248,6 +267,9 @@ namespace DoDo
 
 		//the window title bar
 		std::shared_ptr<IWindowTitleBar> m_title_bar;
+
+		//the margin around the edges of the window that will be detected as places the user can grab to resize the window
+		FMargin m_user_resize_border;
 
 	protected:
 

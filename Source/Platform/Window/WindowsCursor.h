@@ -21,6 +21,8 @@ namespace DoDo
 
 		virtual void set_type(const std::shared_ptr<Window> window, const EMouseCursor::Type in_new_cursor) override;
 
+		virtual EMouseCursor::Type get_type() const override;
+
 		glm::vec2 get_position() const override;
 
 	private:

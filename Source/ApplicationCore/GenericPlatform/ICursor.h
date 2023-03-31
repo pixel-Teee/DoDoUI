@@ -75,5 +75,8 @@ namespace DoDo
 		virtual void set_type(const EMouseCursor::Type in_new_cursor) = 0;
 
 		virtual void set_type(const std::shared_ptr<Window> window, const EMouseCursor::Type in_new_cursor) = 0;
+
+		/*gets the current type of the cursor*/
+		virtual EMouseCursor::Type get_type() const = 0;
 	};
 }

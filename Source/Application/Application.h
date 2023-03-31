@@ -41,6 +41,28 @@ namespace DoDo
 
 	struct FWindowTitleBarArgs;
 	class IWindowTitleBar;
+	class Application;
+	/*
+	 * private interface to control which classes are allowed to perform hit-testing
+	 */
+	class FHitTesting
+	{
+	public:
+		FHitTesting(Application* in_slate_application)
+			: m_slate_app(in_slate_application)
+		{}
+
+	private:
+		//SWindow must be able to test which part of the window is being moused-over
+		friend class SWindow;
+
+	private:
+		Application* m_slate_app;
+
+		//FSlateApplicationBase::LocateWidgetInWindow
+		FWidgetPath locate_widget_in_window(glm::vec2 screen_space_mouse_coordinate, const std::shared_ptr<SWindow>& window, bool b_ignore_enabled_status,
+			int32_t user_index) const;
+	};
 
 	class Application : public FGenericApplicationMessageHandler//slate application
 	{
@@ -322,6 +344,10 @@ namespace DoDo
 		std::shared_ptr<Window> make_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately);
 	public:
 
+		/*@return a hittesting object that can perform hittests agains widgets, only certain classes can make sure of FHitTesting*/
+		friend class FHitTesting;
+		const FHitTesting& get_hit_testing() const;
+
 		virtual FWidgetPath locate_window_under_mouse(glm::vec2 screen_space_mouse_coordinate, const std::vector<std::shared_ptr<SWindow>>& windows,
 			bool b_ignore_enabled_status = false, int32_t user_index = -1);
 
@@ -374,6 +400,9 @@ namespace DoDo
 	protected: 
 		//holds the slate renderer used to render this application
 		std::shared_ptr<Renderer> m_renderer;
+
+		//private interface for select entities that are allowed to perform hittetsting
+		FHitTesting m_hit_testing;
 
 		//holds a pointer to the current slate application
 		static std::shared_ptr<Application> s_current_application;

@@ -255,8 +255,15 @@ namespace DoDo
         FSlateDrawBuffer& m_out_draw_buffer;
     };
 
+    FWidgetPath FHitTesting::locate_widget_in_window(glm::vec2 screen_space_mouse_coordinate,
+	    const std::shared_ptr<SWindow>& window, bool b_ignore_enabled_status, int32_t user_index) const
+    {
+        return m_slate_app->locate_widget_in_window(screen_space_mouse_coordinate, window, b_ignore_enabled_status, user_index);
+    }
+
     Application::Application()
-	    : m_last_tick_time(0.0f)
+	    : m_hit_testing(this)
+		, m_last_tick_time(0.0f)
         , m_current_time(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
 		, m_average_delta_time(1.0f / 30.0f)
     {
@@ -1287,8 +1294,13 @@ namespace DoDo
         return new_window;
     }
 
+    const FHitTesting& Application::get_hit_testing() const
+    {
+        return m_hit_testing;
+    }
+
     FWidgetPath Application::locate_window_under_mouse(glm::vec2 screen_space_mouse_coordinate,
-	    const std::vector<std::shared_ptr<SWindow>>& windows, bool b_ignore_enabled_status, int32_t user_index)
+                                                       const std::vector<std::shared_ptr<SWindow>>& windows, bool b_ignore_enabled_status, int32_t user_index)
     {
         //todo:give the os a chance to tell use which window to use, in case a child window is not guaranteed to stay on top of it's parent window
         std::shared_ptr<Window> native_window_under_mouse = s_platform_application->get_window_under_cursor();

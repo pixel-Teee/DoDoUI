@@ -361,6 +361,12 @@ namespace DoDo {
 		return (the_cursor.has_value()) ? FCursorReply::Cursor(the_cursor.value()) : FCursorReply::un_handled();//note:construct a FCursorReply
 	}
 
+	EWindowZone::Type SWidget::get_window_zone_override()
+	{
+		//no special behaviour
+		return EWindowZone::Unspecified;
+	}
+
 	void SWidget::slate_prepass()
 	{
 		//todo:implement application get application scale

@@ -20,6 +20,35 @@ namespace DoDo
 		};
 	}
 
+	namespace EWindowZone
+	{
+		/*
+		 * the window zone is the window area we are currently over to send back to the operating system
+		 * for operating system compliance
+		 */
+		enum Type
+		{
+			NotInWindow  = 0,
+			TopLeftBorder = 1,
+			TopBorder = 2,
+			TopRightBorder = 3,
+			LeftBorder = 4,
+			ClientArea = 5,
+			RightBorder = 6,
+			BottomLeftBorder = 7,
+			BottomBorder = 8,
+			BottomRightBorder = 9,
+			TitleBar = 10,
+			MinimizeButton = 11,
+			MaximizeButton = 12,
+			CloseButton = 13,
+			SysMenu = 14,
+
+			/*no zone specified*/
+			Unspecified = 0
+		};
+	}
+
 	/*interface that defines how to handle interaction with a user via hardware input and output*/
 	class FGenericApplicationMessageHandler
 	{
