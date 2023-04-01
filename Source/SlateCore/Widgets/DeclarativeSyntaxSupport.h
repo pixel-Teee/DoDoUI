@@ -285,6 +285,8 @@ namespace DoDo
 	{
 		typedef typename WidgetType::FArguments WidgetArgsType;
 
+		SLATE_PRIVATE_ATTRIBUTE_FUNCTION(EVisibility, Visibility)
+
 		/*used by the named argument pattern as a safe way to 'return *this' for call-chaining purposes*/
 		WidgetArgsType& Me()
 		{

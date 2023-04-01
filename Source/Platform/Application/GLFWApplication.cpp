@@ -39,11 +39,28 @@ namespace DoDo {
 		//application->get_message_handler()->set_cursor_pos(glm::vec2(x_pos, y_pos));//todo:first to update cursor storage position information
 		//todo:implement slate user
 
+		int32_t native_window_pos_x, native_window_pos_y;
+		glfwGetWindowPos(native_window, &native_window_pos_x, &native_window_pos_y);
+
+		int32_t absolute_cursor_pos_x, absolute_cursor_pos_y;
+		absolute_cursor_pos_x = native_window_pos_x + x_pos;
+		absolute_cursor_pos_y = native_window_pos_y + y_pos;
+
 		//WM_SETCURSOR
 		//todo:add os window border and regular window check
 		application->get_message_handler()->On_Cursor_Set();//note:this function will generate a update cursor request
 
-		application->get_message_handler()->On_Mouse_Move(x_pos, y_pos);//todo:call this function
+		application->get_message_handler()->On_Mouse_Move(absolute_cursor_pos_x, absolute_cursor_pos_y);//todo:call this function
+
+		//application->get_message_handler()->set_cursor_pos(glm::vec2(x_pos, y_pos));
+
+		//std::cout << "window pos:(" << native_window_pos_x << ", " << native_window_pos_y << ")" << std::endl;
+		//
+		//std::cout << "mouse pos:(" << x_pos << ", " << y_pos << ")" << std::endl;
+
+		//todo:check window is regular window
+
+		application->get_message_handler()->get_window_zone_for_point(window, absolute_cursor_pos_x, absolute_cursor_pos_y);
 	}
 
 	static void mouse_button_call_back(GLFWwindow* native_window, int32_t button, int32_t action, int32_t mods)
@@ -59,9 +76,16 @@ namespace DoDo {
 		double x_pos, y_pos;
 		glfwGetCursorPos(native_window, &x_pos, &y_pos);
 
+		int32_t native_window_pos_x, native_window_pos_y;
+		glfwGetWindowPos(native_window, &native_window_pos_x, &native_window_pos_y);
+
+		int32_t absolute_cursor_pos_x, absolute_cursor_pos_y;
+		absolute_cursor_pos_x = native_window_pos_x + x_pos;
+		absolute_cursor_pos_y = native_window_pos_y + y_pos;
+
 		if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 		{
-			application->get_message_handler()->set_cursor_pos(glm::vec2(x_pos, y_pos));//todo:first to update cursor storage position information
+			application->get_message_handler()->set_cursor_pos(glm::vec2(absolute_cursor_pos_x, absolute_cursor_pos_y));//todo:first to update cursor storage position information
 			application->get_message_handler()->On_Mouse_Down(window, EMouseButtons::Left);
 		}
 
@@ -69,6 +93,7 @@ namespace DoDo {
 		{
 			application->get_message_handler()->On_Mouse_Up(EMouseButtons::Left);
 		}
+
 	}
 
 	static void window_size_callback(GLFWwindow* native_window, int32_t width, int32_t height) //todo:may be need to call set frame buffer size change
@@ -87,6 +112,17 @@ namespace DoDo {
 		{
 			const bool result = application->get_message_handler()->On_Size_Changed(window, width, height, false);
 		}
+	}
+
+	static void window_pos_callback(GLFWwindow* native_window, int32_t x_pos, int32_t y_pos)
+	{
+		GLFWApplication* application = (GLFWApplication*)glfwGetWindowUserPointer(native_window);
+
+		//find window
+		const std::shared_ptr<WindowsWindow> window = find_window_by_glfw_window(application->get_native_windows(), native_window);
+
+		//note:noting to do
+		//std::cout << x_pos << " " << y_pos << std::endl;
 	}
 
 	GLFWApplication::GLFWApplication()
@@ -125,6 +161,8 @@ namespace DoDo {
 		glfwSetMouseButtonCallback(native_window_handle, mouse_button_call_back);//register mouse button call back
 
 		glfwSetFramebufferSizeCallback(native_window_handle, window_size_callback);//register window resize call back
+
+		glfwSetWindowPosCallback(native_window_handle, window_pos_callback);
 	}
 
 	int32_t GLFWApplication::process_message()

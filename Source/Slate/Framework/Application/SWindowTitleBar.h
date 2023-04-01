@@ -69,6 +69,7 @@ namespace DoDo {
 			[
 				 SNew(SBorder)
 				.Padding(0.0f)//todo:add visibility
+				.Visibility(EVisibility::SelfHitTestInvisible)
 				.BorderImage(this, &SWindowTitleBar::get_window_title_background_image)
 				[
 					SNew(SOverlay)
@@ -78,6 +79,11 @@ namespace DoDo {
 					]
 				]
 			];
+		}
+
+		virtual EWindowZone::Type get_window_zone_override() const override
+		{
+			return EWindowZone::TitleBar;
 		}
 
 		/*@return an appropriate resource for the window title background depending on whether the window is active*/
@@ -131,11 +137,13 @@ namespace DoDo {
 			{
 				center_content = SNew(SBox)
 								.HAlign(HAlign_Center)
+								.Visibility(EVisibility::SelfHitTestInvisible)
 								.Padding(FMargin(5.0f, 2.0f, 5.0f, 2.0f))
 								[
 									//note:we bind the window's title text to our windows' get title method, so that if the
 									//title is changed later, the text will always be visually up to date
 									SNew(STextBlock)
+									.Visibility(EVisibility::SelfHitTestInvisible)
 									.TextStyle(&m_style->m_title_text_style)
 									.Text(m_title)
 								];
@@ -165,56 +173,60 @@ namespace DoDo {
 
 			//create title bar
 			return SAssignNew(m_title_area, SBox)
-				[
-					SNew(SOverlay)
-					+ SOverlay::Slot()
-					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						.auto_width()
-						.HAlign(HAlign_Left)
-						.VAlign(VAlign_Top)
-						[
-							SNew(SSpacer)
-							.Size(glm::vec2(left_size.x, spacer_height))
-						]
-						+ SHorizontalBox::Slot()
-						.HAlign(center_content_alignment)
-						.VAlign(VAlign_Center)
-						.fill_width(1.0f)
-						[
-							center_content
-						]
-						+ SHorizontalBox::Slot()
-						.auto_width()
-						.HAlign(HAlign_Right)
-						.VAlign(VAlign_Top)
-						[
-							SNew(SSpacer)
-							.Size(glm::vec2(right_size.x, spacer_height))
-						]
-					]
-					+ SOverlay::Slot()
-					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						.auto_width()
-						.HAlign(HAlign_Left)
-						.VAlign(VAlign_Top)
-						[
-							left_content
-						]
-						+ SHorizontalBox::Slot()
-						.fill_width(1.0f)
-						+ SHorizontalBox::Slot()
-						.auto_width()
-						.HAlign(HAlign_Right)
-						.VAlign(VAlign_Top)
-						[
-							right_content
-						]
-					]
-				];
+				  .Visibility(EVisibility::SelfHitTestInvisible)
+				  [
+				  	SNew(SOverlay)
+				  	.Visibility(EVisibility::SelfHitTestInvisible)
+				  	+ SOverlay::Slot()
+				  	[
+				  		SNew(SHorizontalBox)
+				  		.Visibility(EVisibility::SelfHitTestInvisible)
+				  		+ SHorizontalBox::Slot()
+				  		.auto_width()
+				  		.HAlign(HAlign_Left)
+				  		.VAlign(VAlign_Top)
+				  		[
+				  			SNew(SSpacer)
+				  			.Size(glm::vec2(left_size.x, spacer_height))
+				  		]
+				  		+ SHorizontalBox::Slot()
+				  		.HAlign(center_content_alignment)
+				  		.VAlign(VAlign_Center)
+				  		.fill_width(1.0f)
+				  		[
+				  			center_content
+				  		]
+				  		+ SHorizontalBox::Slot()
+				  		.auto_width()
+				  		.HAlign(HAlign_Right)
+				  		.VAlign(VAlign_Top)
+				  		[
+				  			SNew(SSpacer)
+				  			.Size(glm::vec2(right_size.x, spacer_height))
+				  		]
+				  	]
+				  	+ SOverlay::Slot()
+				  	[
+				  		SNew(SHorizontalBox)
+				  		.Visibility(EVisibility::SelfHitTestInvisible)
+				  		+ SHorizontalBox::Slot()
+				  		.auto_width()
+				  		.HAlign(HAlign_Left)
+				  		.VAlign(VAlign_Top)
+				  		[
+				  			left_content
+				  		]
+				  		+ SHorizontalBox::Slot()
+				  		.fill_width(1.0f)
+				  		+ SHorizontalBox::Slot()
+				  		.auto_width()
+				  		.HAlign(HAlign_Right)
+				  		.VAlign(VAlign_Top)
+				  		[
+				  			right_content
+				  		]
+				  	]
+				  ];
 		}
 
 		DoDoUtf8String handle_window_title_text() const

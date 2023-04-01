@@ -57,6 +57,7 @@ namespace DoDo {
 		, m_initial_desired_size(glm::vec2(0.0f, 0.0f))
 		, m_size(glm::vec2(0.0f, 0.0f))
 		, m_view_port_size(glm::vec2(0.0f, 0.0f))
+		, m_title_bar_size(34.0f)
 		, m_content_slot(nullptr)
 		, m_hittest_grid(std::make_unique<FHittestGrid>())
 	{
@@ -107,7 +108,7 @@ namespace DoDo {
 		//we are scaling children for layout, but our pixel bounds are not changing
 		//FGeometry expects size in local space, but our size is stored in screen space(same as window space + screen offset)
 		//so we need to transform size into the window's local space for FGeometry
-		FSlateLayoutTransform local_to_window(1.0f);//todo:implement GetLocalToWindowTransform
+		FSlateLayoutTransform local_to_window;//todo:implement GetLocalToWindowTransform
 
 		glm::vec2 view_size = get_view_port_size();//note:if viewport size is 0, then return size
 
@@ -238,6 +239,7 @@ namespace DoDo {
 			glm::vec2 speculative_screen_position(new_position.x, new_position.y);
 			set_cached_screen_position(speculative_screen_position);//note:update window position information
 
+			//std::cout << "new window pos" << new_position.x << " " << new_position.y << std::endl;
 			m_native_window->move_window_to(new_position.x, new_position.y);
 		}
 		else
@@ -384,6 +386,14 @@ namespace DoDo {
 		FWindowTitleBarArgs args(std::static_pointer_cast<SWindow>(shared_from_this()));
 
 		//todo:create window title bar
+		std::shared_ptr<SWidget> title_bar_widget = Application::get().make_window_title_bar(args, m_title_bar);
+
+		//create title bar
+		main_window_area->add_slot()
+		.auto_height()
+		[
+			title_bar_widget
+		];
 
 		//create window
 		m_window_background_image =
@@ -490,13 +500,17 @@ namespace DoDo {
 
 	FReply SWindow::On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
 	{
-		if(this->has_mouse_capture() && mouse_event.is_mouse_button_down(EKeys::LeftMouseButton) && m_move_resize_zone == EWindowZone::TitleBar)
+		if(this->has_mouse_capture() && mouse_event.is_mouse_button_down(EKeys::LeftMouseButton) && m_move_resize_zone == EWindowZone::TitleBar) //todo:fix me
 		{
 			this->move_window_to(m_screen_position + mouse_event.get_cursor_delta());
+
+			//std::cout << "screen position:(" << m_screen_position.x << ", " << m_screen_position.y << ")" << std::endl;
+
 			return FReply::handled();
 		}
 		else
 		{
+			//std::cout << "xx" << std::endl;
 			return FReply::un_handled();
 		}
 	}

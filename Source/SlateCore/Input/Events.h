@@ -204,6 +204,18 @@ namespace DoDo
 			, m_pointer_index(in_pointer_index)
 		{} //todo:add more state
 
+		/*a constructor to alter cursor positions*/
+		FPointerEvent(
+			const FPointerEvent& other,
+			const glm::vec2& in_screen_space_position,
+			const glm::vec2& in_last_screen_space_position
+		)
+		{
+			*this = other;
+			m_screen_space_position = in_screen_space_position;
+			m_last_screen_space_position = in_last_screen_space_position;
+		}
+
 		/*returns the position of the cursor in screen space*/
 		const glm::vec2& get_screen_space_position() const { return m_screen_space_position; }
 

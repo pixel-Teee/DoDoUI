@@ -93,6 +93,9 @@ namespace DoDo {
         int32_t window_width = m_definition->m_width_desired_on_screen;//todo:need to trunc to int
         int32_t window_height = m_definition->m_height_desired_on_screen;
 
+		//glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+		glfwWindowHint(GLFW_DECORATED, GL_FALSE);
+       
         /*
         * finally, let's initialize the new native window object
         * calling this function will often cause os window messages to be sent(such as messages)

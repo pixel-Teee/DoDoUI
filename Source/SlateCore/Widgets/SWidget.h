@@ -397,7 +397,7 @@ namespace DoDo
 		 *
 		 * @return the window "zone" the cursor is over, or EWindowZone::Unspecified if no special behavior is needed
 		 */
-		virtual EWindowZone::Type get_window_zone_override();
+		virtual EWindowZone::Type get_window_zone_override() const;
 
 		void slate_prepass();
 

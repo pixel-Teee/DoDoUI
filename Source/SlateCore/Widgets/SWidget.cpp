@@ -245,7 +245,7 @@ namespace DoDo {
 	void SWidget::SWidgetConstruct(const FSlateBaseNamedArgs& args)
 	{
 		//todo:to fix this
-		//m_Visibility_Attribute.Assign(*this, args._Visibility);
+		m_Visibility_Attribute.Assign(*this, args._Visibility);
 
 		//------append a array to this array------
 		for(size_t i = 0; i < args.m_meta_data.size(); ++i)
@@ -361,7 +361,7 @@ namespace DoDo {
 		return (the_cursor.has_value()) ? FCursorReply::Cursor(the_cursor.value()) : FCursorReply::un_handled();//note:construct a FCursorReply
 	}
 
-	EWindowZone::Type SWidget::get_window_zone_override()
+	EWindowZone::Type SWidget::get_window_zone_override() const
 	{
 		//no special behaviour
 		return EWindowZone::Unspecified;

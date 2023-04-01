@@ -42,7 +42,7 @@ namespace DoDo
 		float cursor_radius, bool b_ignore_enabled_status, int32_t user_index)
 	{
 		//const glm::vec2 cursor_position_in_grid = desktop_space_coordinate - m_grid_origin;
-		const glm::vec2 cursor_position_in_grid = desktop_space_coordinate;//note:this desktop_space_coordinate is local cursor position(interms of glfw)
+		const glm::vec2 cursor_position_in_grid = desktop_space_coordinate - m_grid_origin;//note:this desktop_space_coordinate is local cursor position(interms of glfw)
 
 		if(m_widget_array.size() > 0 && m_cells.size() > 0)
 		{
@@ -74,7 +74,7 @@ namespace DoDo
 						FGeometry desktop_space_geometry = current_widget->get_paint_space_geometry();
 
 						//todo:implement desktop space geometry
-						//desktop_space_geometry.append_transform(FSlateLayoutTransform(m_grid_origin - m_grid_window_origin));
+						desktop_space_geometry.append_transform(FSlateLayoutTransform(m_grid_origin - m_grid_window_origin));
 
 						path.emplace_back(FArrangedWidget(current_widget, desktop_space_geometry));
 
@@ -360,6 +360,10 @@ namespace DoDo
 
 	void FHittestGrid::add_widget(const SWidget* in_widget, int32_t in_batch_priority_group, int32_t layer_id)
 	{
+		if (!in_widget->get_visibility().is_hit_test_visible())
+		{
+			return;
+		}
 		//track the widget and identify it's widget index
 		FGeometry grid_space_geometry = in_widget->get_paint_space_geometry();
 		grid_space_geometry.append_transform(FSlateLayoutTransform(-m_grid_window_origin));

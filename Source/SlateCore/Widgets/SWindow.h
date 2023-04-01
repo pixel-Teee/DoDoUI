@@ -234,6 +234,9 @@ namespace DoDo
 		/*size of the viewport, if (0, 0) then it is equal to size*/
 		glm::vec2 m_view_port_size;
 
+		/*size of this window's title bar, can be zero, set at construction and should not be changed afterwards*/
+		float m_title_bar_size;
+
 		/*cached "zone" the cursor was over in the window the last time that someone called get_current_window_zone()*/
 		EWindowZone::Type m_window_zone;
 

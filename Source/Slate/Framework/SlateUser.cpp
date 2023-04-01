@@ -379,10 +379,12 @@ namespace DoDo
 		if (it != m_previous_pointer_position_by_index.end())
 		{
 			it->second = pointer_event.get_screen_space_position();
+			//std::cout << "notify pointer move complete pointer event (" << pointer_event.get_screen_space_position().x << ", " << pointer_event.get_screen_space_position().y << ")" << std::endl;
 		}
 		else
 		{
 			m_previous_pointer_position_by_index.insert({ pointer_event.get_pointer_index(), pointer_event.get_screen_space_position() });
+			//std::cout << m_previous_pointer_position_by_index.size() << std::endl;
 		}
 
 		auto it2 = m_widgets_under_pointer_last_event_by_index.find(pointer_event.get_pointer_index());

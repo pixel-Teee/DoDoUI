@@ -109,5 +109,7 @@ namespace DoDo
 		{
 			return false;
 		}
+
+		virtual EWindowZone::Type get_window_zone_for_point(const std::shared_ptr<Window>& platform_window, const int32_t x, int32_t y) = 0;
 	};
 }

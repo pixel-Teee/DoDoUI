@@ -974,6 +974,9 @@ namespace DoDo
         if (window)
         {
             //todo:implement this function
+            glm::vec2 window_size = window->get_size_in_screen();
+
+            transformed_pointer_event = FPointerEvent(pointer_event, pointer_event.get_screen_space_position(), pointer_event.get_last_screen_space_position());
         }
 
         return transformed_pointer_event;
@@ -1220,6 +1223,11 @@ namespace DoDo
     {
         FReply reply = FReply::un_handled();
 
+        if (in_mouse_event.get_user_index() == m_cursor_user_index)
+        {
+            m_pressed_mouse_buttons.insert(in_mouse_event.get_effecting_button());//note:record pressed button
+        }
+
         //only process mouse down messages if we are not drag/dropping
         std::shared_ptr<FSlateUser> slate_user = get_or_create_user(in_mouse_event);
 
@@ -1232,6 +1240,12 @@ namespace DoDo
 
     bool Application::process_mouse_button_up_event(const FPointerEvent& mouse_event)
     {
+        const bool b_is_cursor_user = mouse_event.get_user_index() == m_cursor_user_index;
+        if (b_is_cursor_user)
+        {
+            m_pressed_mouse_buttons.erase(mouse_event.get_effecting_button());
+        }
+
         //an empty widget path is passed in, as an optimization, one will be generated only if a captures mouse event isn't routed
         FWidgetPath empty_path;
         const bool b_handled = route_pointer_up_event(empty_path, mouse_event).is_event_handled();
@@ -1348,13 +1362,13 @@ namespace DoDo
     FReply Application::route_pointer_down_event(const FWidgetPath& widgets_under_pointer,
 	    const FPointerEvent& pointer_event)
     {
-        FPointerEvent transformed_pointer_event = pointer_event;//todo:implement transform pointer event
+        FPointerEvent new_transformed_pointer_event = widgets_under_pointer.is_valid() ? transform_pointer_event(pointer_event, widgets_under_pointer.get_window()) : pointer_event;//todo:implement transform pointer event
 
         std::shared_ptr<FSlateUser> slate_user = get_or_create_user(pointer_event);
 
         //todo:update pointer position
 
-        FReply reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(widgets_under_pointer), transformed_pointer_event, [this](const FArrangedWidget& target_widget, const FPointerEvent& event)
+        FReply reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(widgets_under_pointer), new_transformed_pointer_event, [this](const FArrangedWidget& target_widget, const FPointerEvent& event)
         {
             FReply temp_reply = FReply::un_handled();
 
@@ -1372,7 +1386,7 @@ namespace DoDo
     FReply Application::route_pointer_up_event(const FWidgetPath& widgets_under_pointer,
 	    const FPointerEvent& pointer_event)
     {
-        FPointerEvent transformed_pointer_event = pointer_event;//todo:implement transform pointer event
+        FPointerEvent new_transformed_pointer_event = pointer_event;//todo:implement transform pointer event
 
         std::shared_ptr<FSlateUser> slate_user = get_or_create_user(pointer_event);
 
@@ -1386,7 +1400,7 @@ namespace DoDo
             local_widgets_under_pointer = locate_window_under_mouse(pointer_event.get_screen_space_position(), m_windows, false, slate_user->get_user_index());
         }
 
-        reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(local_widgets_under_pointer), transformed_pointer_event, [&](const FArrangedWidget& cur_widget, const FPointerEvent& event)
+        reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(local_widgets_under_pointer), new_transformed_pointer_event, [&](const FArrangedWidget& cur_widget, const FPointerEvent& event)
         {
             FReply temp_reply = FReply::un_handled();
 
@@ -1405,11 +1419,13 @@ namespace DoDo
     {
         bool b_handled = false;
 
+        FPointerEvent new_transform_pointer_event = widgets_under_pointer.is_valid() ? transform_pointer_event(pointer_event, widgets_under_pointer.get_window()) : pointer_event;
+
         std::shared_ptr<FSlateUser> slate_user = get_or_create_user(pointer_event);
         slate_user->notify_pointer_move_begin(pointer_event);
 
         //bubble the mouse move event
-        FReply reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(widgets_under_pointer), pointer_event,
+        FReply reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(widgets_under_pointer), new_transform_pointer_event,
          [=](const FArrangedWidget& cur_widget, const FPointerEvent& event)
         {
             FReply temp_reply = FReply::un_handled();
@@ -1863,6 +1879,18 @@ namespace DoDo
         get_cursor_user()->request_cursor_query();//mark to update cursor
 
         return true;
+    }
+
+    EWindowZone::Type Application::get_window_zone_for_point(const std::shared_ptr<Window>& platform_window, const int32_t x, int32_t y)
+    {
+        std::shared_ptr<SWindow> window = FSlateWindowHelper::find_window_by_platform_window(m_windows, platform_window);
+
+        if (window)
+        {
+            return window->get_current_window_zone(glm::vec2(x, y));
+        }
+
+        return EWindowZone::NotInWindow;
     }
 
     FModifierKeyState Application::get_modifier_keys() const
