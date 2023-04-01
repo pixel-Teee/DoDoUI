@@ -57,7 +57,7 @@ namespace DoDo {
 		, m_initial_desired_size(glm::vec2(0.0f, 0.0f))
 		, m_size(glm::vec2(0.0f, 0.0f))
 		, m_view_port_size(glm::vec2(0.0f, 0.0f))
-		, m_title_bar_size(34.0f)
+		, m_title_bar_size(SWindowDefs::default_title_bar_size)
 		, m_content_slot(nullptr)
 		, m_hittest_grid(std::make_unique<FHittestGrid>())
 	{
@@ -70,6 +70,9 @@ namespace DoDo {
 		this->m_style = in_args._Style;
 		this->m_window_background = &in_args._Style->m_background_brush;
 		this->m_user_resize_border = in_args._UserResizeBorder;
+
+		//calculate window size from client size
+		b_create_title_bar = in_args._CreateTitleBar;//todo:add other check
 
 		//calculate initial window position
 		glm::vec2 window_position = in_args._ScreenPosition;
@@ -348,7 +351,7 @@ namespace DoDo {
 					else if(hit_test_results.m_widgets.last().m_widget == shared_from_this())
 					{
 						//the window itself was hit, so check for a traditional title bar
-						if((local_mouse_position.y - dpi_scaled_resize_border.top) < 34.0f * window_dpi_scale)
+						if((local_mouse_position.y - dpi_scaled_resize_border.top) < SWindowDefs::default_title_bar_size * window_dpi_scale)
 						{
 							in_zone = EWindowZone::TitleBar;
 						}
@@ -389,11 +392,20 @@ namespace DoDo {
 		std::shared_ptr<SWidget> title_bar_widget = Application::get().make_window_title_bar(args, m_title_bar);
 
 		//create title bar
-		main_window_area->add_slot()
-		.auto_height()
-		[
-			title_bar_widget
-		];
+		if (b_create_title_bar)
+		{
+			m_title_bar_size = SWindowDefs::default_title_bar_size;
+			main_window_area->add_slot()
+			.auto_height()
+			[
+				title_bar_widget
+			];//todo:fix me, may be conflict with SDockArea
+		}
+		else
+		{
+			m_title_bar_size = 0.0f;
+		}
+		
 
 		//create window
 		m_window_background_image =

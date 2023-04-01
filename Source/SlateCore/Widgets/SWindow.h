@@ -21,6 +21,11 @@ namespace DoDo
 	class IWindowTitleBar;
 	class SOverlay;
 	class SImage;
+	namespace SWindowDefs
+	{
+		/*height of a slate window title bar, in pixels*/
+		static const float default_title_bar_size = 34.0f;
+	}
 	//todo:let SWindow to inherited from FSlateInvalidationRoot
 	class SWindow : public SCompoundWidget, public FSlateInvalidationRoot
 	{
@@ -32,6 +37,7 @@ namespace DoDo
 			, _ScreenPosition(glm::vec2(0.0f, 0.0f))
 			, _ClientSize(glm::vec2(0.0f, 0.0f))
 			, _AdjustInitialSizeAndPositionForDPIScale(true)
+			, _CreateTitleBar(true)
 			, _UserResizeBorder(FMargin(5, 5, 5, 5))
 		{}
 			/*type of this window*/
@@ -46,6 +52,13 @@ namespace DoDo
 			SLATE_ARGUMENT(glm::vec2, ClientSize)
 			/*if the initial ClientSize and ScreenPosition arguments should be automatically adjusted to account for DPI scale*/
 			SLATE_ARGUMENT(bool, AdjustInitialSizeAndPositionForDPIScale)
+
+			/*
+			* true if we should initially create a traditional title bar area
+			* if false, the user must embed the title area content into the window manully, taking into account platform-specific considerations!
+			* has no effect for certain types of windows (popups, tool-tips, etc)
+			*/
+			SLATE_ARGUMENT(bool, CreateTitleBar)
 
 			/*the margin around the edges of the window that will be detected as places the user can grab to resize the window*/
 			SLATE_ARGUMENT(FMargin, UserResizeBorder)
@@ -218,6 +231,9 @@ namespace DoDo
 
 		/*title of the window, displayed in the title bar as well as potentially in the task bar (windows platform)*/
 		TAttribute<DoDoUtf8String> m_title;
+
+		/*true if this window has a title bar*/
+		bool b_create_title_bar : 1;
 
 		/*initial desired position of the window's content in screen space*/
 		glm::vec2 m_initial_desired_screen_position;

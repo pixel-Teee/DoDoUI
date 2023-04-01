@@ -237,6 +237,16 @@ namespace DoDo
 		return m_content;
 	}
 
+	std::shared_ptr<SWidget> SDockTab::get_left_content()
+	{
+		return m_tab_well_content_left;
+	}
+
+	std::shared_ptr<SWidget> SDockTab::get_right_content()
+	{
+		return m_title_bar_content_right;
+	}
+
 	FMargin SDockTab::get_content_padding() const
 	{
 		return m_content_area_padding.Get();

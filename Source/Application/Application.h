@@ -290,6 +290,13 @@ namespace DoDo
 		{
 			return s_current_application != nullptr;
 		}
+
+		/*
+		* gets the global application icon
+		* 
+		* @return the icon
+		*/
+		virtual const FSlateBrush* get_app_icon() const;
 	public:
 		/*
 		* apply any requests from the reply to the application, e.g. capture mouse

@@ -70,7 +70,9 @@ namespace DoDo {
 		virtual void On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
 		virtual glm::vec2 Compute_Desired_Size(float) const override;
 		virtual FChildren* Get_Children() override;
+		virtual EWindowZone::Type get_window_zone_override() const override;
 		//SWidget interface
+
 	private:
 		/*the tabs in this tabwell*/
 		TSlotlessChildren<SDockTab> m_tabs;

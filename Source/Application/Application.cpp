@@ -1469,7 +1469,8 @@ namespace DoDo
 
     std::shared_ptr<SWidget> Application::make_window_title_bar(const FWindowTitleBarArgs& in_args, std::shared_ptr<IWindowTitleBar>& out_title_bar) const
     {
-        std::shared_ptr<SWindowTitleBar> title_bar = SNew(SWindowTitleBar, in_args.m_window, in_args.m_center_content, in_args.m_center_content_alignment);
+        std::shared_ptr<SWindowTitleBar> title_bar = SNew(SWindowTitleBar, in_args.m_window, in_args.m_center_content, in_args.m_center_content_alignment)
+            .Visibility(EVisibility::SelfHitTestInvisible);
 
         out_title_bar = title_bar;
 
@@ -1649,6 +1650,12 @@ namespace DoDo
            .set_icon(FSlateIcon("CoreStyle", "Icons.heart2"));//todo:this is use for SDockTab icon
 
         FGlobalTabmanager::get()->restore_from(layout, std::shared_ptr<SWindow>());
+    }
+
+    const FSlateBrush* Application::get_app_icon() const
+    {
+        static DoDoUtf8String app_icon_name("AppIcon");
+        return FAppStyle::get().get_brush(app_icon_name);
     }
 
     void Application::process_reply(const FWidgetPath& current_event_path, const FReply& the_reply, const FWidgetPath* widgets_under_mouse, const FPointerEvent* in_mouse_event, const int32_t m_user_index)

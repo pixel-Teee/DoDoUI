@@ -14,7 +14,7 @@ namespace DoDo {
 	public:
 		SLATE_BEGIN_ARGS(SNullWidgetContent)
 		{
-			//_Visibility = EVisibility::SelfHitTestInvisible
+			_Visibility = EVisibility::SelfHitTestInvisible;
 			//todo:add visibility
 		}
 		SLATE_END_ARGS()
@@ -26,7 +26,7 @@ namespace DoDo {
 
 		void Construct(const FArguments& in_args)
 		{
-
+			b_can_have_children = false;
 		}
 
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override
@@ -56,7 +56,7 @@ namespace DoDo {
 	{
 		std::shared_ptr<SWidget> Construct()
 		{
-			static std::shared_ptr<SWidget> Result = SNew(SNullWidgetContent);//todo:add visibility
+			static std::shared_ptr<SWidget> Result = SNew(SNullWidgetContent).Visibility(EVisibility::Hidden);//todo:add visibility
 
 			return Result;
 		}

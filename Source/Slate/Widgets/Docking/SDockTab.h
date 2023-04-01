@@ -143,6 +143,8 @@ namespace DoDo {
 
 		/*@return the content associated with this tab*/
 		std::shared_ptr<SWidget> get_content();
+		std::shared_ptr<SWidget> get_left_content();
+		std::shared_ptr<SWidget> get_right_content();
 
 		/*padding around the content when it is presented by the SDockingTabStack*/
 		FMargin get_content_padding() const;

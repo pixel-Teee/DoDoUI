@@ -121,7 +121,18 @@ namespace DoDo
 		{\
 			_##ArgName = in_arg; \
 			return static_cast<WidgetArgsType*>(this)->Me(); \
-		}
+		}\
+		\
+		WidgetArgsType& ArgName(const class ISlateStyle* in_slate_style, const DoDoUtf8String& style_name, const char* specifier = nullptr) \
+		{\
+			_##ArgName = &in_slate_style->get_widget_style<ArgType>(style_name, specifier); \
+			return static_cast<WidgetArgsType*>(this)->Me(); \
+		}\
+		WidgetArgsType& ArgName(const class ISlateStyle& in_slate_style, const DoDoUtf8String& style_name, const char* specifier = nullptr) \
+		{\
+			_##ArgName = &in_slate_style.get_widget_style<ArgType>(style_name, specifier); \
+			return static_cast<WidgetArgsType*>(this)->Me(); \
+		}\
 
 //todo:implement SLATE_SLOT_ARGUMENT
 

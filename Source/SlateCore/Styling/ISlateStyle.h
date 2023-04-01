@@ -32,7 +32,7 @@ namespace DoDo {
 		virtual const FSlateBrush* get_brush(const DoDoUtf8String& property_name) const = 0;//todo:implement this add extra parameter
 
 		template<typename WidgetStyleType>
-		const WidgetStyleType& get_widget_style(DoDoUtf8String property_name) const//todo:add extra parameter
+		const WidgetStyleType& get_widget_style(DoDoUtf8String property_name, const char* specifier = nullptr) const//todo:add extra parameter
 		{
 			//dispatch to specific class function
 			const FSlateWidgetStyle* existing_style = get_widget_style_internal(WidgetStyleType::TypeName, property_name);

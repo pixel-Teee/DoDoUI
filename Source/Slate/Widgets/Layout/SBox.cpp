@@ -253,7 +253,7 @@ namespace DoDo {
 		const FOptionalSize current_min_desired_height = m_min_desired_height.Get();
 		const FOptionalSize current_max_desired_height = m_max_desired_height.Get();
 
-		float current_height = un_modified_child_desired_size.x;
+		float current_height = un_modified_child_desired_size.y;
 
 		if (current_min_desired_height.is_set())
 		{

@@ -178,6 +178,18 @@ namespace DoDo {
 			.set_normal_padding(FMargin(0.0f))
 			.set_pressed_padding(FMargin(0.0f));
 
+		//convenient transprent/invsible elements
+		{
+			style->set("NoBrush", new FSlateNoResource());
+
+			style->set("NoBorder", No_Border);
+		}
+
+		//appicon image
+		{
+			style->set("AppIcon", new FSlateImageBrush(style->root_to_content_dir("Starship/Common/UELogo", ".png"), glm::vec2(36.0f, 36.0f), FStyleColors::Foreground));
+		}
+
 		//SWindow defaults
 		{
 			const FButtonStyle minimize_button_style = FButtonStyle(No_Border)

@@ -67,8 +67,8 @@ namespace DoDo {
 			std::shared_ptr<SDockingTabStack> parent_tab_stack = m_parent_tab_stack_ptr.lock();
 
 			FDockingStackOptionalContent optional_content{};
-			//optional_content.m_content_left = foreground_tab->get_left_content();
-			//optional_content.m_content_right = foreground_tab->get_right_content();
+			optional_content.m_content_left = foreground_tab->get_left_content();
+			optional_content.m_content_right = foreground_tab->get_right_content();
 			
 			//note:this function is important
 			parent_tab_stack->set_node_content(foreground_tab->get_content(), optional_content);
@@ -378,5 +378,10 @@ namespace DoDo {
 	FChildren* SDockingTabWell::Get_Children()
 	{
 		return &m_tabs;
+	}
+	EWindowZone::Type SDockingTabWell::get_window_zone_override() const
+	{
+		//pretend we are a title bar so the user can grab the area to move window around
+		return EWindowZone::TitleBar;
 	}
 }

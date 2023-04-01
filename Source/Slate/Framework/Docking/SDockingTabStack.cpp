@@ -49,10 +49,10 @@ namespace DoDo {
 		+ SOverlay::Slot()
 		[
 			SNew(SHorizontalBox)//todo:add visibility
-			//+ SHorizontalBox::Slot() 
-			//.auto_width()
-			//.Expose(m_inline_content_area_left)
-
+			.Visibility(EVisibility::SelfHitTestInvisible)
+			+ SHorizontalBox::Slot()
+			.auto_width()
+			.Expose(m_inline_content_area_left)
 			+ SHorizontalBox::Slot()
 			.fill_width(1.0f)
 			.VAlign(VAlign_Bottom)
@@ -60,13 +60,14 @@ namespace DoDo {
 			[
 				//todo:implement SVertical Box
 				SNew(SVerticalBox)
-				//+ SVerticalBox::Slot()
-				//.auto_height()
-				//[
-				//	//todo:implement SSpacer
-				//	SNew(SSpacer)
-				//	.Size(glm::vec2(0.0f, 10.0f))
-				//]
+				.Visibility(EVisibility::SelfHitTestInvisible)
+				+ SVerticalBox::Slot()
+				.auto_height()
+				[
+					//todo:implement SSpacer
+					SNew(SSpacer)
+					.Size(glm::vec2(0.0f, 10.0f))
+				]
 				+ SVerticalBox::Slot()
 				. auto_height()
 				[
@@ -76,19 +77,20 @@ namespace DoDo {
 				]
 			]
 
-			//+ SHorizontalBox::Slot()
-			//.auto_width()
-			//.Expose(m_inline_content_area_right)
-			//.Padding(5.0f, 0.0f, 0.0f, 0.0f)
-			//.VAlign(VAlign_Center)
+			+ SHorizontalBox::Slot()
+			.auto_width()
+			.Expose(m_inline_content_area_right)
+			.Padding(5.0f, 0.0f, 0.0f, 0.0f)
+			.VAlign(VAlign_Center)
 		];
 
 		
 		m_child_slot
 		[
 			SNew(SVerticalBox)
-
+			.Visibility(EVisibility::SelfHitTestInvisible)
 			+ SVerticalBox::Slot()
+			
 			.auto_height()
 			[
 				//tab well area
@@ -159,6 +161,8 @@ namespace DoDo {
 	void SDockingTabStack::set_node_content(const std::shared_ptr<SWidget>& in_content, const FDockingStackOptionalContent& optional_content)
 	{
 		m_content_slot->set_content(in_content);//note:this function is important, will use SDockTab's content to populate this
+		(*m_inline_content_area_left)[optional_content.m_content_left];
+		(*m_inline_content_area_right)[optional_content.m_content_right];
 
 		if(m_tab_well->get_foreground_tab())
 		{

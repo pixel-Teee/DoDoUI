@@ -93,7 +93,7 @@ namespace DoDo
 		const float child_desired_size = (Orientation == Orient_Horizontal) ? (child_to_arrange.get_widget()->get_desired_size().x * content_scale) : (child_to_arrange.get_widget()->get_desired_size().y * content_scale);
 
 		//use child desired size, is fixed size
-		const float child_size = std::max((b_Clamp_To_Parent ? std::max(child_desired_size, allotted_size - total_margin) : child_desired_size), 0.0f);
+		const float child_size = std::max((b_Clamp_To_Parent ? std::min(child_desired_size, allotted_size - total_margin) : child_desired_size), 0.0f);
 
 		switch(alignment)
 		{

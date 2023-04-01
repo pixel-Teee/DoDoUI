@@ -177,9 +177,11 @@ namespace DoDo
 				std::shared_ptr<SWindow> new_window = b_auto_placement
 					? SNew(SWindow)
 					.ClientSize(node_as_area->m_unscaled_window_size)
+					.CreateTitleBar(false)//note:this title bar is created from SDockArea
 					: SNew(SWindow)
 					.ScreenPosition(node_as_area->m_unscaled_window_position)
-					.ClientSize(node_as_area->m_unscaled_window_size);
+					.ClientSize(node_as_area->m_unscaled_window_size)
+					.CreateTitleBar(false);
 
 				//set a default title, restoring the splitter content may override this if it actives a tab
 				//todo:set title
