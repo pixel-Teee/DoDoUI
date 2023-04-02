@@ -131,6 +131,8 @@ namespace DoDo
 		/*@return the list of this window's child windows*/
 		const std::vector<std::shared_ptr<SWindow>>& get_child_windows() const;
 
+		std::vector<std::shared_ptr<SWindow>>& get_child_windows();
+
 		/*return the parent of this window, invalid shared pointer if this window is not a child*/
 		std::shared_ptr<SWindow> get_parent_window() const;
 
@@ -173,6 +175,12 @@ namespace DoDo
 
 		/*@return a clipping rectangle that represents this window in window space (i.e. alwyas starts at 0.0)*/
 		FSlateRect get_clipping_rectangle_in_window() const;
+
+		/*request that this window be destroyed, the window is not destroyed immediately, instead it is placed in a queue for destrution on next tick*/
+		void request_destroy_window();
+
+		/*use request destroy window whenever possible! this method destroys the window immediately*/
+		void destroy_window_immediately();
 
 		/*make the window visible*/
 		void show_window();

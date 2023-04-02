@@ -84,7 +84,7 @@ public:
 			return std::apply(m_method_ptr, std::make_tuple(mutable_user_object, params...));
 		}
 
-		return RetValType();//todo:fix me
+		//return RetValType();//todo:fix me
 	}
 
 	bool execute_if_safe(ParamTypes... params) const final

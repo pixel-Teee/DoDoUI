@@ -7,6 +7,8 @@
 //#include "SlateCore/Styling/SlateStyle.h"
 #include "SlateCore/Styling/SlateTypes.h"
 
+#include "Slate/Framework/SlateDelegates.h"
+
 namespace DoDo
 {
 	struct FButtonStyle;
@@ -52,6 +54,9 @@ namespace DoDo
 
 		/*the text to display in this button, if no custom content is specified*/
 		SLATE_ATTRIBUTE(DoDoUtf8String, Text)
+
+		/*called when the button is clicked*/
+		SLATE_EVENT(FOnClicked, OnClicked)
 
 		/*called when the button is clicked*/
 		SLATE_EVENT(FSimpleDelegate, OnPressed)
@@ -111,6 +116,9 @@ namespace DoDo
 
 		virtual void Release();
 
+		/*execute the "OnClicked" delegate, and get the reply*/
+		FReply execute_on_click();
+
 		/*@return combines the user-specified margin and the button's internal margin*/
 		FMargin get_combined_padding() const;
 
@@ -133,7 +141,7 @@ namespace DoDo
 		const FButtonStyle* m_style;
 		/*the delegate to execute when button is clicked*/
 		//todo:implement FReply
-		FSimpleDelegate m_on_clicked;
+		FOnClicked m_on_clicked;
 
 		/*the delegate to execute when button is pressed*/
 		//todo:implement FSlateDelegate

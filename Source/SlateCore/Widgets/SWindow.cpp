@@ -152,6 +152,11 @@ namespace DoDo {
 		return m_child_windows;
 	}
 
+	std::vector<std::shared_ptr<SWindow>>& SWindow::get_child_windows()
+	{
+		return m_child_windows;
+	}
+
 	std::shared_ptr<SWindow> SWindow::get_parent_window() const
 	{
 		return m_parent_window_ptr.lock();//promote
@@ -192,6 +197,22 @@ namespace DoDo {
 		glm::vec2 view_size = get_view_port_size();
 
 		return FSlateRect(0.0f, 0.0f, view_size.x, view_size.y);
+	}
+
+	void SWindow::request_destroy_window()
+	{
+		//todo:add request destroy window override
+
+		Application::get().request_destroy_window(std::static_pointer_cast<SWindow>(shared_from_this()));
+	}
+
+	void SWindow::destroy_window_immediately()
+	{
+		if (m_native_window)
+		{
+			//destroy the native window
+			m_native_window->destroy();
+		}
 	}
 
 	void SWindow::show_window()

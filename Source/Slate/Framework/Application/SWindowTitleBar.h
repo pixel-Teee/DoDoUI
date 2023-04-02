@@ -163,6 +163,7 @@ namespace DoDo {
 			{
 				m_close_button = SNew(SButton)
 								.ButtonStyle(FCoreStyle::get(), "NoBorder")
+								.OnClicked(this, &SWindowTitleBar::close_button_on_clicked)
 								[
 									SNew(SImage)
 									.Image(this, &SWindowTitleBar::get_close_image)
@@ -347,12 +348,23 @@ namespace DoDo {
 		FSlateColor get_window_title_content_color() const
 		{
 			//color of the title area contents - modulates the icon and buttons
-			//float flash = get_flash_value();
 
-			return FSlateColor();
+			return FSlateColor(FLinearColor::White);
 		}
 
 	private:
+		//callback for clicking the close button
+		FReply close_button_on_clicked()
+		{
+			std::shared_ptr<SWindow> owner_window = m_owner_window_ptr.lock();
+
+			if (owner_window)
+			{
+				owner_window->request_destroy_window();
+			}
+
+			return FReply::handled();
+		}
 		//callback for getting the image of the close button
 		const FSlateBrush* get_close_image() const
 		{

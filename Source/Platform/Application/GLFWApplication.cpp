@@ -125,6 +125,16 @@ namespace DoDo {
 		//std::cout << x_pos << " " << y_pos << std::endl;
 	}
 
+	static void window_close_callback(GLFWwindow* native_window)
+	{
+		GLFWApplication* application = (GLFWApplication*)glfwGetWindowUserPointer(native_window);
+
+		//find window
+		const std::shared_ptr<WindowsWindow> window = find_window_by_glfw_window(application->get_native_windows(), native_window);
+
+		application->remove_window(window);
+	}
+
 	GLFWApplication::GLFWApplication()
 		: GenericApplication(std::make_shared<FWindowsCursor>())
 	{
@@ -163,6 +173,8 @@ namespace DoDo {
 		glfwSetFramebufferSizeCallback(native_window_handle, window_size_callback);//register window resize call back
 
 		glfwSetWindowPosCallback(native_window_handle, window_pos_callback);
+
+		glfwSetWindowCloseCallback(native_window_handle, window_close_callback);
 	}
 
 	int32_t GLFWApplication::process_message()
@@ -211,6 +223,15 @@ namespace DoDo {
 	const std::vector<std::shared_ptr<WindowsWindow>> GLFWApplication::get_native_windows() const
 	{
 		return m_windows;//todo:may be const?
+	}
+	void GLFWApplication::remove_window(std::shared_ptr<Window> window)
+	{
+		auto it = std::find(m_windows.begin(), m_windows.end(), window);
+
+		if (it != m_windows.end())
+		{
+			m_windows.erase(it);
+		}
 	}
 	FPlatformRect GLFWApplication::get_work_area_from_os(const FPlatformRect& current_window) const
 	{

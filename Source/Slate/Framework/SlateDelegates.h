@@ -6,6 +6,10 @@
 
 namespace DoDo
 {
+	DECLARE_DELEGATE_RetVal(
+		FReply,
+		FOnClicked
+	)
 	/*
 	 * a delegate that is invoked when widgets want to notify a user that they have been clicked
 	 * intended for use by buttons and other button-like widgets

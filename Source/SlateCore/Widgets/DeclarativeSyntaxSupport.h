@@ -274,6 +274,18 @@ namespace DoDo
 			_##EventName = DelegateName::CreateSP(in_user_object_ref, in_func, Vars...);\
 			return static_cast<WidgetArgsType*>(this)->Me(); \
 		} \
+		template<class UserClass, typename... VarTypes> \
+		WidgetArgsType& EventName(UserClass* in_user_object, typename DelegateName::template TMethodPtr<UserClass, VarTypes...> in_func, VarTypes... Vars) \
+		{ \
+			_##EventName = DelegateName::CreateSP(in_user_object, in_func, Vars...); \
+			return static_cast<WidgetArgsType*>(this)->Me(); \
+		} \
+		template<class UserClass, typename... VarTypes> \
+		WidgetArgsType& EventName(UserClass* in_user_object, typename DelegateName::template TConstMethodPtr<UserClass, VarTypes...> in_func, VarTypes... Vars) \
+		{ \
+			_##EventName = DelegateName::CreateSP(in_user_object, in_func, Vars...); \
+			return static_cast<WidgetArgsType*>(this)->Me(); \
+		} \
 		DelegateName _##EventName;
 
 	/*

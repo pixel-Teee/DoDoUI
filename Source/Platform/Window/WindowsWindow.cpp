@@ -135,4 +135,10 @@ namespace DoDo {
 
         glfwSetWindowPos(m_p_window, x, y);
     }
+    void WindowsWindow::destroy()
+    {
+        //glfwDestroyWindow(m_p_window);
+
+        glfwSetWindowShouldClose(m_p_window, true);
+    }
 }

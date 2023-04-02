@@ -243,6 +243,13 @@ namespace DoDo
 
 		/* @return an array of top-level windows that can be interacted with e.g. when a modal window is up, only return the modal window*/
 		std::vector<std::shared_ptr<SWindow>> get_interactive_top_level_windows();
+
+		/*
+		* assign a delegate to be called when this application is requesting an exit (e.g. when the last window is closed)
+		* 
+		* @param OnExitRequestHandler function to execute when the application wants to quit
+		*/
+		void set_exit_requested_handler(const FSimpleDelegate& on_exit_requested_handler);
 	public:
 		/*
 		 * called by the native application in response to a mouse move, routs the event to slate widgets
@@ -299,6 +306,12 @@ namespace DoDo
 		virtual const FSlateBrush* get_app_icon() const;
 	public:
 		/*
+		* destroy the native and slate windows in the array provided
+		* 
+		* @param WindowsToDestroy destroy these windows
+		*/
+		void destroy_windows_immediately();
+		/*
 		* apply any requests from the reply to the application, e.g. capture mouse
 		* 
 		* @param CurrentEventPath the widget path along which the reply-generated event was routed
@@ -351,6 +364,13 @@ namespace DoDo
 		std::shared_ptr<SWindow> add_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately = true);
 
 		std::shared_ptr<Window> make_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately);
+
+		/*
+		* destroy an SWindow, removing it and all its children from the slate window list, notifies the native window to destroy itself and releases rendering resources
+		* 
+		* @param DestroyedWindow the window to destroy
+		*/
+		void private_destroy_window(const std::shared_ptr<SWindow>& destroyed_window);
 	public:
 
 		/*@return a hittesting object that can perform hittests agains widgets, only certain classes can make sure of FHitTesting*/
@@ -401,6 +421,15 @@ namespace DoDo
 		virtual std::shared_ptr<SWidget> make_window_title_bar(const FWindowTitleBarArgs& in_args, std::shared_ptr<IWindowTitleBar>& out_title_bar) const;
 
 		/*
+		* destroying windows has implications on some OSs (e.g. destroying win32 hwnds can cause events to be lost)
+		* 
+		* slate strictly controls when windows are destroyed
+		* 
+		* @param WindowToDestroy the window to queue for destruction
+		*/
+		virtual void request_destroy_window(std::shared_ptr<SWindow> window_to_destroy);
+
+		/*
 		* creates an image widget
 		* 
 		* @return the new image widget
@@ -428,6 +457,12 @@ namespace DoDo
 		/*delegate for post slate tick*/
 		FSlateTickEvent m_post_tick_event;
 
+		/*
+		* provides a platform-agnostic method for rquesting that the application exit
+		* implementations should assign a handler that terminates the process when this delegate is invoked
+		*/
+		FSimpleDelegate m_on_exit_requested;
+
 		/* the current cached absolute real time, right before we tick widgets */
 		double m_current_time;//todo:use platform current time to initialize
 
@@ -445,6 +480,9 @@ namespace DoDo
 
 		//all top-level windows owned by this application, there are tracked here in a platform-agnostic way
 		std::vector<std::shared_ptr<SWindow>> m_windows;
+
+		/*these windows will be destroyed next tick*/
+		std::vector<std::shared_ptr<SWindow>> m_window_destroy_queue;
 
 		/*
 		 * all users currently registered with slate

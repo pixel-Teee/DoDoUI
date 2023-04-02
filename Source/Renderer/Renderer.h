@@ -82,6 +82,9 @@ namespace DoDo
 		 */
 		virtual void draw_windows(FSlateDrawBuffer& in_window_draw_buffer) = 0;
 
+		/*called when a window is destroyed to give the renderer a chance to free resources*/
+		virtual void on_window_destroyed(const std::shared_ptr<SWindow>& in_window) = 0;
+
 		virtual FSlateResourceHandle get_resource_handle(const FSlateBrush& brush, glm::vec2 local_size, float draw_scale) = 0;//todo:add comment
 
 		virtual bool initialize() = 0;

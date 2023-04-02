@@ -35,6 +35,8 @@ namespace DoDo {
 
 		const std::vector<std::shared_ptr<WindowsWindow>> get_native_windows() const;
 
+		void remove_window(std::shared_ptr<Window> window);
+
 		std::shared_ptr<WindowsWindow> m_current_under_cursor_window;//note:to handle this in the defer message 
 	private:
 

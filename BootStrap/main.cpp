@@ -10,6 +10,8 @@
 
 #include "Core/Delegates/DelegateCombinations.h"
 
+#include "Core/Misc/CoreGlobals.h"
+
 #ifdef WIN32
 #include "Platform/Application/WindowsPlatformApplicationMisc.h"
 #endif
@@ -137,11 +139,13 @@ int main()
 
     DoDo::FGlobalTabmanager::get()->set_application_title("my app");
 
+    DoDo::Application::get().set_exit_requested_handler(DoDo::FSimpleDelegate::CreateStatic(&DoDo::request_engine_exit));
+
     DoDo::Application::get().test_create_widget();
 
     //tick
     //todo:add exit global variable
-	while (true)
+	while (!DoDo::is_engine_exit_requested())
 	{
 		DoDo::Application::get().Tick();
 	}

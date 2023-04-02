@@ -29,6 +29,8 @@ namespace DoDo {
 		void adjust_window_region(int32_t width, int32_t height);
 
 		virtual void move_window_to(int32_t x, int32_t y) override;
+
+		virtual void destroy() override;
 	private:
 		//windows window owner this lifetime
 		/*the window's handle*/

@@ -29,7 +29,8 @@ namespace DoDo
 	void SButton::Construct(const FArguments& in_args)
 	{
 		m_border_foreground_color_attribute.Assign(*this, in_args._ForegroundColor);
-
+		
+		m_on_clicked = in_args._OnClicked;
 		m_on_pressed = in_args._OnPressed;
 
 		struct
@@ -142,6 +143,9 @@ namespace DoDo
 		{
 			Press();
 
+			//get the reply from the execute function
+			reply = execute_on_click();
+
 			//todo:get the reply from execute function
 			reply = FReply::handled();
 		}
@@ -186,6 +190,19 @@ namespace DoDo
 			m_b_is_pressed = false;
 			//todo:implement on released
 			update_press_state_changed();
+		}
+	}
+
+	FReply SButton::execute_on_click()
+	{
+		if (m_on_clicked.is_bound())
+		{
+			FReply reply = m_on_clicked.execute();
+			return reply;
+		}
+		else
+		{
+			return FReply::handled();
 		}
 	}
 

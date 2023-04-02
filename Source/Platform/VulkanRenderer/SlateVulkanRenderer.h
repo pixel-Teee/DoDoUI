@@ -126,6 +126,8 @@ namespace DoDo {
 
 		void draw_windows(FSlateDrawBuffer& in_window_draw_buffer) override;
 
+		virtual void on_window_destroyed(const std::shared_ptr<SWindow>& in_window) override;
+
 		virtual FSlateResourceHandle get_resource_handle(const FSlateBrush& brush, glm::vec2 local_size, float draw_scale) override;
 
 		bool initialize() override;

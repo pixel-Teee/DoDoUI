@@ -436,6 +436,11 @@ namespace DoDo {
 		//flush the cache if needed
 	}
 
+	void FSlateVulkanRenderer::on_window_destroyed(const std::shared_ptr<SWindow>& in_window)
+	{
+		m_window_to_viewport_map.erase(in_window.get());
+	}
+
 	FSlateResourceHandle FSlateVulkanRenderer::get_resource_handle(const FSlateBrush& brush, glm::vec2 local_size, float draw_scale)
 	{
 		return m_texture_manager->get_resource_handle(brush, local_size, draw_scale);

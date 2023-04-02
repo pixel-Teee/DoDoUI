@@ -21,6 +21,9 @@ namespace DoDo {
 		/*native windows should implement move window to by relocating the platform-specific window to (x, y)*/
 		virtual void move_window_to(int32_t x, int32_t y);
 
+		/*native windows should implement this function by asking the os to destroy os-specific resource associated with the window*/
+		virtual void destroy();
+
 	protected:
 		std::shared_ptr<FGenericWindowDefinition> m_definition;
 	};

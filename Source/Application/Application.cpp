@@ -1308,6 +1308,46 @@ namespace DoDo
         return new_window;
     }
 
+    void Application::private_destroy_window(const std::shared_ptr<SWindow>& destroyed_window)
+    {
+        //todo:add more handle
+
+        //release rendering resources
+        //this must be done before destroying the native window as the native window is required to be valid before releasing rendering resources with some API's
+        m_renderer->on_window_destroyed(destroyed_window);
+
+        //destroy the native window
+        destroyed_window->destroy_window_immediately();
+        //remove the window and all its children from the slate window list
+        FSlateWindowHelper::remove_window_from_list(m_windows, destroyed_window);
+
+        //shutdown the application if there are no more windows
+        {
+            bool b_any_regular_windows = false;
+
+            for (auto window_iter = m_windows.begin(); window_iter != m_windows.end(); ++window_iter)
+            {
+                auto window = *window_iter;
+
+                //todo:check is regular window
+
+                b_any_regular_windows = true;
+                break;
+            }
+
+            if (!b_any_regular_windows)
+            {
+                m_on_exit_requested.execute_if_bound();
+            }
+        }
+
+    }
+
+    void Application::set_exit_requested_handler(const FSimpleDelegate& on_exit_requested_handler)
+    {
+        m_on_exit_requested = on_exit_requested_handler;
+    }
+
     const FHitTesting& Application::get_hit_testing() const
     {
         return m_hit_testing;
@@ -1475,6 +1515,36 @@ namespace DoDo
         out_title_bar = title_bar;
 
         return title_bar;
+    }
+
+    void Application::request_destroy_window(std::shared_ptr<SWindow> window_to_destroy)
+    {
+        //todo:notify each user window destroyed
+
+        struct local
+        {
+            static void helper(const std::shared_ptr<SWindow> window_to_destroy, std::vector<std::shared_ptr<SWindow>>& out_window_destroy_queue)
+            {
+                /*@return the list of this window's child windows*/
+                std::vector<std::shared_ptr<SWindow>>& child_windows = window_to_destroy->get_child_windows();
+
+                //children need to be destroyed first
+                if (child_windows.size() > 0)
+                {
+                    for (int32_t child_index = 0; child_index < child_windows.size(); ++child_index)
+                    {
+                        //recursively request that the window is destroyed which will also queue any children of children etc...
+                        helper(child_windows[child_index], out_window_destroy_queue);
+                    }
+                }
+
+                out_window_destroy_queue.push_back(window_to_destroy);
+            }
+        };
+
+        local::helper(window_to_destroy, m_window_destroy_queue);
+
+        destroy_windows_immediately();
     }
 
     std::shared_ptr<SImage> Application::make_image(const TAttribute<const FSlateBrush*>& image, const TAttribute<FSlateColor>& color, const TAttribute<EVisibility>& visibility) const
@@ -1672,6 +1742,29 @@ namespace DoDo
     {
         static DoDoUtf8String app_icon_name("AppIcon");
         return FAppStyle::get().get_brush(app_icon_name);
+    }
+
+    void Application::destroy_windows_immediately()
+    {
+        //destroy any windows that were queued for deletion
+
+        while (m_window_destroy_queue.size() > 0)
+        {
+            std::shared_ptr<SWindow> current_window = m_window_destroy_queue[0];
+            
+            auto it = std::find(m_window_destroy_queue.begin(), m_window_destroy_queue.end(), current_window);
+
+            m_window_destroy_queue.erase(it);
+
+            //handle active modal window
+
+            //handle menu stack
+
+            //perform actual cleanup of the window
+            private_destroy_window(current_window);
+        }
+
+        m_window_destroy_queue.clear();
     }
 
     void Application::process_reply(const FWidgetPath& current_event_path, const FReply& the_reply, const FWidgetPath* widgets_under_mouse, const FPointerEvent* in_mouse_event, const int32_t m_user_index)

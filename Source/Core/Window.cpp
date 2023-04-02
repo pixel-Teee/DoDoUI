@@ -31,4 +31,8 @@ namespace DoDo {
 	{
 		//empty
 	}
+	void Window::destroy()
+	{
+
+	}
 }
