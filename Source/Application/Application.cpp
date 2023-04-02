@@ -1644,10 +1644,10 @@ namespace DoDo
         );
 
         FGlobalTabmanager::get()->register_nomad_tab_spawner("starship widgets", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets))
-            .set_icon(FSlateIcon("CoreStyle", "Icons.heart2"))
+            .set_icon(FSlateIcon("CoreStyle", "Icons.tree-decidious-svgrepo-com"))
     		.set_display_name("starship widgets");//todo:implement this function
         FGlobalTabmanager::get()->register_nomad_tab_spawner("test widget", FOnSpawnTab::CreateStatic(spawn_slider_widgets))
-           .set_icon(FSlateIcon("CoreStyle", "Icons.heart2"));//todo:this is use for SDockTab icon
+           .set_icon(FSlateIcon("CoreStyle", "Icons.tree-decidious-svgrepo-com"));//todo:this is use for SDockTab icon
 
         FGlobalTabmanager::get()->restore_from(layout, std::shared_ptr<SWindow>());
     }

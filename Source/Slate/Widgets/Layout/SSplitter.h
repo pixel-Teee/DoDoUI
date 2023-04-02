@@ -158,6 +158,11 @@ namespace DoDo {
 		 */
 		void Construct(const FArguments& in_args);
 
+		/*
+		* return the current orientation of the splitter
+		*/
+		EOrientation get_orientation() const;
+
 	public:
 		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
 

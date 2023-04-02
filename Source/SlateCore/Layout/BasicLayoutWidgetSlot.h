@@ -258,6 +258,10 @@ namespace DoDo
 				return static_cast<typename MixedIntoType::FSlotArguments&>(*this);
 			}
 		};
+		void set_padding(TAttribute<FMargin> in_padding)
+		{
+			m_slot_padding_attribute.Assign(static_cast<MixedIntoType&>(*this), std::move(in_padding));
+		}
 
 		FMargin get_padding() const
 		{

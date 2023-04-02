@@ -14,6 +14,8 @@
 
 #include "SlateCore/Widgets/SWindow.h"
 
+#include "Slate/Framework/Docking/SDockingTabStack.h"
+
 namespace DoDo
 {
 	void SDockingArea::Construct(const FArguments& in_args, const std::shared_ptr<FTabManager>& in_tab_manager, const std::shared_ptr<FTabManager::FArea>& persistent_node)
@@ -86,4 +88,28 @@ namespace DoDo
 
 		m_parent_window_ptr = new_parent_window;
 	}
+	void SDockingArea::add_side_bar_tabs_from_restored_layout(const FSidebarTabLists& side_bar_tabs)
+	{
+
+	}
+	void SDockingArea::clean_up(ELayoutModification removal_method)
+	{
+
+		//in some cases a dock area will control the window
+		//and we need to move some of the tabs out of the way to make room for window chrome
+		update_window_chrome_and_side_bar();
+	}
+	void SDockingArea::update_window_chrome_and_side_bar()
+	{
+
+		//reserve some space for the minimize, restore, and close controls
+		std::shared_ptr<SDockingTabStack> window_control_housing = this->find_tab_stack_to_house_window_controls();
+		window_control_housing->reserve_space_for_window_chrome(SDockingTabStack::EChromeElement::Controls, false, false);
+
+		//reserve some space for the app icons
+		std::shared_ptr<SDockingTabStack> icon_housing = this->find_tab_stack_to_house_window_icon();
+		icon_housing->reserve_space_for_window_chrome(SDockingTabStack::EChromeElement::Icon, true, true);//todo:fix me
+
+	}
+
 }

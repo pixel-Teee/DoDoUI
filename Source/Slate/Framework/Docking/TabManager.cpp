@@ -48,6 +48,9 @@ namespace DoDo
 			std::shared_ptr<SDockingArea> restored_area = std::static_pointer_cast<SDockingArea>(restore_node);
 
 			//todo:implement clean up
+			restored_area->clean_up(SDockingNode::TabRemoval_None);//note:will add some padding from app icon
+
+			restored_area->add_side_bar_tabs_from_restored_layout(side_bar_tabs);
 
 			return restored_area;
 		}

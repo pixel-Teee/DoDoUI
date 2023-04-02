@@ -14,6 +14,8 @@
 
 #include "Slate/Widgets/Input/SButton.h"
 
+#include "Application/Application.h"//get app icon depends on it
+
 namespace DoDo {
 	void SDockingTabStack::Construct(const FArguments& in_args, const std::shared_ptr<FTabManager::FStack>& persistent_node)
 	{
@@ -212,6 +214,29 @@ namespace DoDo {
 		std::shared_ptr<SDockTab> foreground_tab = m_tab_well->get_foreground_tab();
 
 		return foreground_tab ? foreground_tab->get_content_area_brush() : FStyleDefaults::get_no_brush();
+	}
+	void SDockingTabStack::reserve_space_for_window_chrome(EChromeElement element, bool b_include_padding_for_menu_bar, bool b_only_minor_tabs)
+	{
+		static const float top_padding_for_menu_bar = 27.0f;
+		static const float left_padding_for_icon = Application::get().get_app_icon()->get_image_size().x;
+		const FMargin controls_padding = FMargin(8.0f, b_include_padding_for_menu_bar ? top_padding_for_menu_bar : 5.0f, 0.0f, 0.0f);
+		const FMargin icon_padding = FMargin(b_include_padding_for_menu_bar ? left_padding_for_icon + 12.0f : 25.0f, b_only_minor_tabs ? 5.0f : 0.0f, 0.0f, 0.0f);
+		
+		//todo:add showing title bar area
+		const FMargin current_padding = m_title_bar_slot->get_padding();
+		switch (element)
+		{
+		case EChromeElement::Controls:
+			m_title_bar_slot->set_padding(current_padding + controls_padding);
+			break;
+
+		case EChromeElement::Icon:
+			m_title_bar_slot->set_padding(current_padding + icon_padding);
+			break;
+
+		default:
+			break;
+		}
 	}
 	FReply SDockingTabStack::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
 	{

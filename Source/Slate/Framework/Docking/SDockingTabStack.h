@@ -39,6 +39,11 @@ namespace DoDo {
 	class SDockingTabStack : public SDockingArea
 	{
 	public:
+		virtual Type get_node_type() const override
+		{
+			return SDockingNode::DockTabStack;
+		}
+
 		void Construct(const FArguments& in_args, const std::shared_ptr<FTabManager::FStack>& persistent_node);
 
 		/*set the content that the DockNode is presenting*/
@@ -60,6 +65,19 @@ namespace DoDo {
 
 		/*what should the content area look like for the current tab?*/
 		const FSlateBrush* get_content_area_brush() const;
+
+		/*elements for which we might want to reserve space*/
+		enum class EChromeElement
+		{
+			Icon,
+			Controls
+		};
+
+		/*
+		* add some extra padding so that the corresponding window chrome element
+		* does not overlap our tabs
+		*/
+		void reserve_space_for_window_chrome(EChromeElement element, bool b_include_padding_for_menu_bar, bool b_only_minor_tabs);
 	public:
 		/*SWidget interface*/
 		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;

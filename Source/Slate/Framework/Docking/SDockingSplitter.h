@@ -38,6 +38,18 @@ namespace DoDo {
 		/*gets an array of all child dock nodes*/
 		const std::vector<std::shared_ptr<SDockingNode>>& get_child_nodes() const;
 
+		/*
+		* the tab stack which would be appropriate to use for showing the minimize/maxmize/close buttons
+		* on windows it is the upper right most, on mac the upper left most
+		*/
+		std::shared_ptr<SDockingTabStack> find_tab_stack_to_house_window_controls();
+
+		/*which tab stack is appropriate for showing the app icon*/
+		std::shared_ptr<SDockingTabStack> find_tab_stack_to_house_window_icon();
+
+		/*gets the orientation of this splitter*/
+		EOrientation get_orientation() const;
+
 	protected:
 		//todo:implement these functions
 
@@ -48,7 +60,7 @@ namespace DoDo {
 		};
 
 		/*helper: finds the upper left or the upper right tab stack in the hierarchy*/
-
+		std::shared_ptr<SDockingNode> find_tab_stack(ETabStackToFind find_me) const;
 
 		/*the SSplitter widget that SDockingSplitter wraps*/
 		std::shared_ptr<SSplitter> m_splitter;

@@ -75,6 +75,11 @@ namespace DoDo {
 		m_children.add_slots(std::move(const_cast<std::vector<FSlot::FSlotArguments>&>(in_args._Slots)));
 	}
 
+	EOrientation SSplitter::get_orientation() const
+	{
+		return m_orientation;
+	}
+
 	/*
 	 * panels arrange their children in a space described by the allocated geometry parameter, the results of the arrangement
 	 * should be returned by appending a FArrangedWidget pair for every child widget, see stack panel for an example

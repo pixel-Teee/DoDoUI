@@ -52,6 +52,25 @@ namespace DoDo
 
 		void set_parent_window(const std::shared_ptr<SWindow>& new_parent_window);
 
+		/*
+		* adds all tabs back to a sidebar that were saved in a sidebar from a previous session
+		*/
+		void add_side_bar_tabs_from_restored_layout(const FSidebarTabLists& side_bar_tabs);
+
+		/*
+		* removes redundant stack and splitters, collapses any widgets that any no longer showing live content
+		*/
+		void clean_up(ELayoutModification removal_method);
+
+		/*
+		* if this dock area controls a window, then we need
+		* to reserve some room in the upper left and upper right tab wells
+		* so that there is no overlap with the window chrome
+		* 
+		* we also update the sidebar to account for major tabs, docking areas for major tabs do not have a sidebar
+		*/
+		void update_window_chrome_and_side_bar();
+
 	private:
 		/*the tab manager that controls this dock area*/
 		std::weak_ptr<FTabManager> m_my_tab_manager;

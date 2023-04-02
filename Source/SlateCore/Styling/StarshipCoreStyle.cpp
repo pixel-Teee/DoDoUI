@@ -167,6 +167,11 @@ namespace DoDo {
 			style->set("ColorWheel.Selector", new FSlateImageBrush(style->root_to_content_dir("Common/Circle", ".png"), glm::vec2(8.0f, 8.0f)));
 		}
 
+		//tree-decidious-svgrepo-com
+		{
+			style->set("Icons.tree-decidious-svgrepo-com", new FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/tree-decidious-svgrepo-com", ".svg"), Icon16x16));
+		}
+
 		//invisible buttons, borders, etc.
 		const FButtonStyle No_Border = FButtonStyle()
 			.set_normal(FSlateNoResource())
@@ -187,7 +192,7 @@ namespace DoDo {
 
 		//appicon image
 		{
-			style->set("AppIcon", new FSlateImageBrush(style->root_to_content_dir("Starship/Common/UELogo", ".png"), glm::vec2(36.0f, 36.0f), FStyleColors::Foreground));
+			style->set("AppIcon", new FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/gamepad-svgrepo-com", ".svg"), glm::vec2(36.0f, 36.0f)));
 		}
 
 		//SWindow defaults
