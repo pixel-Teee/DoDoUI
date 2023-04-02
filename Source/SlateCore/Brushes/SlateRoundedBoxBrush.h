@@ -45,6 +45,25 @@ namespace DoDo {
 			m_outline_settings = FSlateBrushOutlineSettings(in_outline_color, in_outline_width);
 		}
 
-
+		/*
+		* creates and initializes a new instance with the specified color and corner radius
+		* 
+		* @param InColor linear fill color
+		* @param InRadius corner radius in slate unis applied to the outline at each corner, x = top left, y = top right, z = bottom right, w = bottom left
+		*/
+		template<typename FillColorType, typename RadiusType>
+		FSlateRoundedBoxBrush(const FillColorType& in_color, RadiusType in_radius, const glm::vec2& in_image_size = glm::vec2(0.0f))
+			: FSlateBrush(ESlateBrushDrawType::RoundedBox,
+				"",
+				FMargin(0.0f),
+				ESlateBrushTileType::NoTile,
+				ESlateBrushImageType::NoImage,
+				in_image_size,
+				in_color,
+				nullptr,
+				false)
+		{
+			m_outline_settings = FSlateBrushOutlineSettings(in_radius);
+		}
 	};
 }

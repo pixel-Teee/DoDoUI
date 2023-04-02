@@ -1568,8 +1568,24 @@ namespace DoDo
 						  .MinSize(20.0f)
 						  .Resizable(true)
                           [
-							  SNew(SBorder)
-							  .ColorAndOpacity(FLinearColor(1.0f, 0.8f, 0.0f, 1.0f))
+							  SNew(SHorizontalBox)
+							  + SHorizontalBox::Slot()
+                              .HAlign(HAlign_Left)
+                              .VAlign(VAlign_Center)
+                              .auto_width()
+							  [
+								  //SNew(SBorder)
+								  //.BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+								  //.ColorAndOpacity(FLinearColor(0.2f, 0.7f, 0.2f, 1.0f))
+								  //[
+									  SNew(STextBlock)
+									  .Text("test slider:")
+                                  //]								  
+							  ]
+                              + SHorizontalBox::Slot()
+                              //.HAlign(HAlign_Center)
+                              .VAlign(VAlign_Center)
+                              .fill_width(1.0f)
 							  [
 								  SNew(SSlider)
 								  .MaxValue(1.0f)

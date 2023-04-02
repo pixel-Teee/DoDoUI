@@ -220,24 +220,24 @@ namespace DoDo
 		FDockTabStyle& set_overlap_width(const float in_overlap_width) { m_overlap_width = in_overlap_width; return *this; }
 
 		/*color used when flashing this tab*/
-		glm::vec4 m_flash_color;
-		FDockTabStyle& set_flash_color(const glm::vec4& in_flash_color) { m_flash_color = in_flash_color; return *this; }
+		FSlateColor m_flash_color;
+		FDockTabStyle& set_flash_color(const FSlateColor& in_flash_color) { m_flash_color = in_flash_color; return *this; }
 
 		/*foreground color when the tab is not hovered, pressed, active or in the foreground*/
-		glm::vec4 m_normal_foreground_color;
-		FDockTabStyle& set_normal_foreground_color(const glm::vec4& in_normal_foreground_color) { m_normal_foreground_color = in_normal_foreground_color; return *this; }
+		FSlateColor m_normal_foreground_color;
+		FDockTabStyle& set_normal_foreground_color(const FSlateColor& in_normal_foreground_color) { m_normal_foreground_color = in_normal_foreground_color; return *this; }
 
 		/*foreground color when hovered*/
-		glm::vec4 m_hovered_foreground_color;
-		FDockTabStyle& set_hovered_foreground_color(const glm::vec4& in_hovered_foreground_color) { m_hovered_foreground_color = in_hovered_foreground_color; return *this; }
+		FSlateColor m_hovered_foreground_color;
+		FDockTabStyle& set_hovered_foreground_color(const FSlateColor& in_hovered_foreground_color) { m_hovered_foreground_color = in_hovered_foreground_color; return *this; }
 
 		/*foreground color when active*/
-		glm::vec4 m_active_foreground_color;
-		FDockTabStyle& set_active_foreground_color(const glm::vec4& in_active_foreground_color) { m_active_foreground_color = in_active_foreground_color; return *this; }
+		FSlateColor m_active_foreground_color;
+		FDockTabStyle& set_active_foreground_color(const FSlateColor& in_active_foreground_color) { m_active_foreground_color = in_active_foreground_color; return *this; }
 
 		/*foreground color when this tab is the foreground tab*/
-		glm::vec4 m_foreground_foreground_color;
-		FDockTabStyle& set_foreground_foreground_color(const glm::vec4& in_foreground_foreground_color) { m_foreground_foreground_color = in_foreground_foreground_color; return *this; }
+		FSlateColor m_foreground_foreground_color;
+		FDockTabStyle& set_foreground_foreground_color(const FSlateColor& in_foreground_foreground_color) { m_foreground_foreground_color = in_foreground_foreground_color; return *this; }
 
 		/*the padding applied to the border around the tab icon*/
 		float m_icon_border_padding;

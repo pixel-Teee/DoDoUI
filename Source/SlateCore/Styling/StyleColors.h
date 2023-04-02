@@ -23,6 +23,7 @@ namespace DoDo {
 		Background,
 		Secondary,
 		Hover,
+		White,
 		WindowBorder,
 		InputOutline,
 		Header,
@@ -45,6 +46,7 @@ namespace DoDo {
 		get_enum_str(EStyleColor::Background),
 		get_enum_str(EStyleColor::Secondary),
 		get_enum_str(EStyleColor::Hover),
+		get_enum_str(EStyleColor::White),
 		get_enum_str(EStyleColor::WindowBorder),
 		get_enum_str(EStyleColor::InputOutline),
 		get_enum_str(EStyleColor::Header)
@@ -150,6 +152,7 @@ namespace DoDo {
 		static const FSlateColor Background;
 		static const FSlateColor Secondary;
 		static const FSlateColor Hover;
+		static const FSlateColor White;
 		static const FSlateColor WindowBorder;
 		static const FSlateColor InputOutline;
 		static const FSlateColor Header;

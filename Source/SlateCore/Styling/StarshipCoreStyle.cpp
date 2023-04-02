@@ -362,15 +362,15 @@ namespace DoDo {
 			.set_color_overlay_icon_brush(FSlateNoResource())
 			.set_content_area_brush(FSlateColorBrush(FStyleColors::Panel))
 			.set_tab_well_brush(FSlateColorBrush(FStyleColors::Background))
-			.set_flash_color(glm::vec4(1.0f))//todo:add tab flash color
+			//.set_flash_color()//todo:add tab flash color
 
 			.set_tab_padding(FMargin(4.0f, 3.0f, 10.0f, 4.0f))
 			.set_overlap_width(-2.0f) //negative overlap width to add space between tabs
 
-			.set_normal_foreground_color(glm::vec4(1.0f))
-			.set_active_foreground_color(glm::vec4(1.0f))
-			.set_foreground_foreground_color(glm::vec4(1.0f))
-			.set_hovered_foreground_color(glm::vec4(1.0f))
+			.set_normal_foreground_color(FStyleColors::Foreground)
+			.set_active_foreground_color(FStyleColors::ForegroundHover)
+			.set_foreground_foreground_color(FStyleColors::Foreground)
+			.set_hovered_foreground_color(FStyleColors::ForegroundHover)
 			.set_tab_text_style(normal_text);
 
 		style->set("Docking.UnhideTabwellButton", FButtonStyle(button)
@@ -382,6 +382,29 @@ namespace DoDo {
 
 		//panel tab
 		style->set("Docking.Tab", minor_tab_style);
+
+		//app tab
+		style->set("Docking.MajorTab", FDockTabStyle()
+			.set_close_button_style(close_button)
+			.set_normal_brush(FSlateNoResource())
+			.set_hovered_brush(FSlateBoxBrush(style->root_to_content_dir("Starship/Docking/DockTab_Foreground", ".png"), 4.0f / 20.0f, FStyleColors::Foreground)) //panel + 20% block
+			.set_foreground_brush(FSlateBoxBrush(style->root_to_content_dir("Starship/Docking/DockTab_Foreground", ".png"), 4.0f / 20.0f, FStyleColors::Panel))
+			.set_color_overlay_tab_brush(FSlateNoResource())
+			.set_color_overlay_icon_brush(FSlateRoundedBoxBrush(FStyleColors::Foreground, 4.0f))
+			.set_content_area_brush(FSlateColorBrush(FStyleColors::Background))
+			.set_tab_well_brush(FSlateColorBrush(FStyleColors::Background))
+
+			.set_tab_padding(FMargin(4.0f, 4.0f, 10.0f, 4.0f))
+			.set_overlap_width(-2.0f)//negative overlap width to ad space between tabs
+			//todo:add tab flash color
+
+			.set_normal_foreground_color(FStyleColors::Foreground)
+			.set_active_foreground_color(FStyleColors::White)
+			.set_foreground_foreground_color(FStyleColors::White)
+			.set_hovered_foreground_color(FStyleColors::White)
+			.set_tab_text_style(normal_text)
+			.set_icon_border_padding(4.0f)
+		);
 
 		//todo:add more tab
 		style->set("Docking.MajorTab", minor_tab_style);
