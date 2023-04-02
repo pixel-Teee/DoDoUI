@@ -30,12 +30,12 @@ namespace DoDo
 	}
 
 	FDockTabStyle::FDockTabStyle()
-		: m_icon_size(32, 32)//todo:fix me, use 16 x 16
+		: m_icon_size(16, 16)//todo:fix me, use 16 x 16
 		, m_overlap_width(0.0f)
-		, m_normal_foreground_color(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f))
-		, m_hovered_foreground_color(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f))
-		, m_active_foreground_color(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f))
-		, m_foreground_foreground_color(glm::vec4(1.0f, 0.0f, 1.0f, 1.0f))
+		, m_normal_foreground_color(FSlateColor::use_foreground())
+		, m_hovered_foreground_color(FSlateColor::use_foreground())
+		, m_active_foreground_color(FSlateColor::use_foreground())
+		, m_foreground_foreground_color(FSlateColor::use_foreground())
 		, m_icon_border_padding(1.0f)
 	{
 	}
