@@ -6,6 +6,8 @@
 
 #include "SlateCore/Fonts/SlateFontInfo.h"
 
+#include "SlateCore/Fonts/CompositeFont.h"//FCompositeFont
+
 namespace DoDo {
 	class ISlateStyle;
 	/*
@@ -16,6 +18,11 @@ namespace DoDo {
 	public:
 
 		static std::shared_ptr<ISlateStyle> Create();
+
+		/*get a font style using the default for slate*/
+		static FSlateFontInfo get_default_font_style(const DoDoUtf8String in_type_face_font_name, const int32_t in_size, const FFontOutlineSettings& in_outline_settings = FFontOutlineSettings());
+
+		static std::shared_ptr<const FCompositeFont> get_default_font();
 
 		static void reset_to_default();//note:this function will call create
 

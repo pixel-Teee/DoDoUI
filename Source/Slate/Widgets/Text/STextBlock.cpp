@@ -20,6 +20,7 @@ namespace DoDo
 
 	STextBlock::STextBlock()
 		: m_bound_text(*this)
+		, m_font(*this)
 		, m_strike_brush(*this)
 		, m_color_and_opacity(*this)
 		, m_shadow_offset(*this, glm::vec2(0.0f))
@@ -45,27 +46,41 @@ namespace DoDo
 		m_text_style = *in_args._TextStyle;
 
 		set_text(in_args._Text);
+
+		set_font(in_args._Font);
+
+		set_color_and_opacity(in_args._ColorAndOpacity);
+	}
+
+	FSlateColor STextBlock::get_color_and_opacity() const
+	{
+		return m_b_is_attribute_color_and_opacity_set ? m_color_and_opacity.Get() : m_text_style.m_color_and_opacity;
 	}
 
 	int32_t STextBlock::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry,
 		const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
 		const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
+
 		if(m_b_simple_text_mode)
 		{
 			//draw the optional shadow
 
+			const bool b_should_be_enabled = should_be_enabled(b_parent_enabled);
+
 			//todo:draw shadow
 
 			//draw the text itself
+			const DoDoUtf8String& local_text = m_bound_text.Get();
 			FSlateFontInfo local_font = get_font();
 
 			FSlateDrawElement::make_text(out_draw_elements,
 				layer_id,
 				allotted_geometry.to_paint_geometry(),
-				m_bound_text.Get(),//todo:fix me, use bound text's get function
+				local_text,//todo:fix me, use bound text's get function
 				local_font,
-				ESlateDrawEffect::None);//todo:fix color
+				b_should_be_enabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect,
+				in_widget_style.get_color_and_opacity_tint() * get_color_and_opacity().get_color(in_widget_style));//todo:fix color
 		}
 		else
 		{
@@ -101,8 +116,20 @@ namespace DoDo
 		m_bound_text.Assign(*this, std::move(in_text));
 	}
 
+	void STextBlock::set_font(TAttribute<FSlateFontInfo> in_font)
+	{
+		m_b_is_attribute_font_set = in_font.Is_Set();
+		m_font.Assign(*this, std::move(in_font));
+	}
+
+	void STextBlock::set_color_and_opacity(TAttribute<FSlateColor> in_color_and_opacity)
+	{
+		m_b_is_attribute_color_and_opacity_set = in_color_and_opacity.Is_Set();
+		m_color_and_opacity.Assign(*this, std::move(in_color_and_opacity));
+	}
+
 	FSlateFontInfo STextBlock::get_font() const
 	{
-		return m_text_style.m_font;
+		return m_b_is_attribute_font_set ? m_font.Get() : m_text_style.m_font;
 	}
 }

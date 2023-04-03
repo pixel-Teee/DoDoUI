@@ -20,6 +20,7 @@ namespace DoDo {
 		PrimaryHover,
 		PrimaryPress,
 		DropDown,
+		DropDownOutline,
 		Background,
 		Secondary,
 		Hover,
@@ -43,6 +44,7 @@ namespace DoDo {
 		get_enum_str(EStyleColor::PrimaryHover),
 		get_enum_str(EStyleColor::PrimaryPress),
 		get_enum_str(EStyleColor::DropDown),
+		get_enum_str(EStyleColor::DropDownOutline),
 		get_enum_str(EStyleColor::Background),
 		get_enum_str(EStyleColor::Secondary),
 		get_enum_str(EStyleColor::Hover),
@@ -149,6 +151,7 @@ namespace DoDo {
 		static const FSlateColor PrimaryHover;
 		static const FSlateColor PrimaryPress;
 		static const FSlateColor DropDown;
+		static const FSlateColor DropDownOutline;
 		static const FSlateColor Background;
 		static const FSlateColor Secondary;
 		static const FSlateColor Hover;

@@ -24,13 +24,21 @@ namespace DoDo
 		SLATE_BEGIN_ARGS(STextBlock)
 			: _Text()
 			, _TextStyle(&FCoreStyle::get().get_widget_style<FTextBlockStyle>("NormalText"))
+			, _Font()
+			, _ColorAndOpacity()
 			{}
 
 			/*the text displayed in this text block*/
 			SLATE_ATTRIBUTE(DoDoUtf8String, Text)
 
+			/*sets the font used to draw the text*/
+			SLATE_ATTRIBUTE(FSlateFontInfo, Font)
+
 			/*pointer to a style of the text block, which dictates the font, color, and shadow options*/
 			SLATE_STYLE_ARGUMENT(FTextBlockStyle, TextStyle)
+
+			/*text color and opacity*/
+			SLATE_ATTRIBUTE(FSlateColor, ColorAndOpacity)
 		SLATE_END_ARGS()
 
 		/*Constructor*/
@@ -60,6 +68,9 @@ namespace DoDo
 			}
 			return m_bound_text.Get();
 		}
+
+		/*gets the current foreground color*/
+		FSlateColor get_color_and_opacity() const;
 	public:
 		//------SWidget interface------
 		int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
@@ -71,6 +82,12 @@ namespace DoDo
 	public:
 		/*sets the text for this text block*/
 		void set_text(TAttribute<DoDoUtf8String> in_text);
+
+		/*sets the font used to draw the text*/
+		void set_font(TAttribute<FSlateFontInfo> in_font);
+
+		/*see color and opacity attribute*/
+		void set_color_and_opacity(TAttribute<FSlateColor> in_color_and_opacity);
 	private:
 		/*gets the current font*/
 		FSlateFontInfo get_font() const;
@@ -85,12 +102,13 @@ namespace DoDo
 		FTextBlockStyle m_text_style;
 
 		//todo:implement FSlateFontInfo, sets the font used to draw the text
+		TSlateAttribute<FSlateFontInfo> m_font;
 
 		/*sets the brush used to strike through the text*/
 		TSlateAttribute<const FSlateBrush*> m_strike_brush;
 
 		/*text color and opacity*/
-		TSlateAttribute<glm::vec4> m_color_and_opacity;
+		TSlateAttribute<FSlateColor> m_color_and_opacity;
 
 		/*drop shadow offset in pixels*/
 		TSlateAttribute<glm::vec2> m_shadow_offset;
@@ -141,6 +159,7 @@ namespace DoDo
 			{
 				uint16_t m_b_is_attribute_bound_text_bound : 1;
 				uint16_t m_b_is_attribute_font_set : 1;
+				uint16_t m_b_is_attribute_color_and_opacity_set : 1;
 			};
 			uint16_t m_union_flags;
 		};

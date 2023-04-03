@@ -66,6 +66,8 @@
 
 #include "SlateCore/Styling/StyleColors.h"
 
+#include "Slate/Widgets/SToolTip.h"//SToolTip depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -1572,8 +1574,8 @@ namespace DoDo
 
     static std::shared_ptr<SDockTab> spawn_star_ship_widgets(const FSpawnTabArgs& spawn_tab_args)
     {
-        std::vector<FLinearColor> colors2 = { {0.55f, 0.77f, 0.98f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f} };
-        std::vector<FLinearColor> colors = { {0.51f, 0.99f, 0.73f, 1.0f}, {1.0f, 0.98f, 0.49f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f} };
+        std::vector<FLinearColor> colors2 = { {1.0f, 0.2f, 0.2f, 1.0f}, {0.55f, 0.77f, 0.98f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f} };
+        std::vector<FLinearColor> colors = { {0.51f, 0.99f, 0.73f, 1.0f}, {1.0f, 0.98f, 0.49f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f}, {0.4f, 0.76f, 0.2f, 1.0f} };
         return SNew(SDockTab)
                //.ContentPadding(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
                .ForegroundColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
@@ -1649,6 +1651,7 @@ namespace DoDo
 								  //.ColorAndOpacity(FLinearColor(0.2f, 0.7f, 0.2f, 1.0f))
 								  //[
 									  SNew(STextBlock)
+                                      .ColorAndOpacity(FLinearColor::Yellow)
 									  .Text("test slider:")
                                   //]								  
 							  ]
@@ -1704,7 +1707,13 @@ namespace DoDo
                              
                           ]
                       ]
-                   ]			  
+                   ]
+                   + SHorizontalBox::Slot()
+                   .auto_width()
+                    [
+                        SNew(SToolTip)
+                        .Text("Your are the boy!")
+                    ]
                ];
     }
 

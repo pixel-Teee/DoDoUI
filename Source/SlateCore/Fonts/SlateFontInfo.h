@@ -117,5 +117,10 @@ namespace DoDo
 
 			return hash;
 		}
+
+		inline bool operator==(const FSlateFontInfo& other) const
+		{
+			return is_identical_to_for_caching(other);
+		}
 	};
 }

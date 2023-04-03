@@ -22,6 +22,10 @@ namespace DoDo
 
 		FSlateFontInfo m_font;
 		FTextBlockStyle& set_font(const FSlateFontInfo& in_font) { m_font = in_font; return *this; }
+
+		/*the color and opacity of this text*/
+		FSlateColor m_color_and_opacity;
+		FTextBlockStyle& set_color_and_opacity(const FSlateColor& in_color_and_opacity) { m_color_and_opacity = in_color_and_opacity; return *this; }
 	};
 
 	/*represents the appearance of an SButton*/

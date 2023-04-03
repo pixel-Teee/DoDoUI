@@ -113,6 +113,14 @@ namespace DoDo {
 			style->set("DefaultForeground", default_fore_ground);
 		}
 
+		//SToolTip defaults
+		{
+			style->set("ToolTip.Font", get_default_font_style("Regular", 9));
+			style->set("ToolTip.Background", new FSlateRoundedBoxBrush(FStyleColors::DropDown, 0.0f, FStyleColors::DropDownOutline, 1.0f));
+			style->set("ToolTip.LargerFont", style_fonts.m_normal);
+			style->set("ToolTip.BrightBackground", new FSlateBoxBrush("Old/ToolTip_BrightBackground", FMargin(8.0f / 64.0f)));
+		}
+
 		//SBorder defaults
 		{
 			style->set("Border", new FSlateColorBrush(FStyleColors::Panel));
@@ -243,6 +251,17 @@ namespace DoDo {
 
 		return style;
 	}
+
+	std::shared_ptr<const FCompositeFont> FStarshipCoreStyle::get_default_font()
+	{
+		return FCoreStyle::get_default_font();
+	}
+
+	FSlateFontInfo FStarshipCoreStyle::get_default_font_style(const DoDoUtf8String in_type_face_font_name, const int32_t in_size, const FFontOutlineSettings& in_outline_settings)
+	{
+		return FSlateFontInfo(get_default_font(), in_size, in_type_face_font_name, in_outline_settings);
+	}
+
 	void FStarshipCoreStyle::reset_to_default()
 	{
 		//todo:implement set style
@@ -282,7 +301,8 @@ namespace DoDo {
 		const FStyleFonts& style_fonts = FStyleFonts::get();
 
 		const FTextBlockStyle normal_text = FTextBlockStyle()
-			.set_font(style_fonts.m_normal);
+			.set_font(style_fonts.m_normal)
+			.set_color_and_opacity(FSlateColor::use_foreground());
 
 		style->set("NormalFont", style_fonts.m_normal);
 

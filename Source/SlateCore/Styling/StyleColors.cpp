@@ -216,6 +216,7 @@ namespace DoDo {
 	const FSlateColor FStyleColors::PrimaryHover =		EStyleColor::PrimaryHover;
 	const FSlateColor FStyleColors::PrimaryPress =		EStyleColor::PrimaryPress;
 	const FSlateColor FStyleColors::DropDown =			EStyleColor::DropDown;
+	const FSlateColor FStyleColors::DropDownOutline =   EStyleColor::DropDownOutline;
 	const FSlateColor FStyleColors::Background =		EStyleColor::Background;
 	const FSlateColor FStyleColors::Secondary =			EStyleColor::Secondary;
 	const FSlateColor FStyleColors::Hover =				EStyleColor::Hover;
