@@ -430,4 +430,13 @@ namespace DoDo {
 		style->set("Docking.MajorTab", minor_tab_style);
 	}
 
+	void FStarshipCoreStyle::set_up_multibox_styles(std::shared_ptr<FStyle>& style)
+	{
+		//menu bar
+		{
+			style->set("Menu.Background", new FSlateColorBrush(FStyleColors::DropDown));
+			style->set("Menu.Outline", new FSlateRoundedBoxBrush(FStyleColors::Transparent, 0.0f, FStyleColors::DropDownOutline, 1.0f));
+		}
+	}
+
 }

@@ -11,6 +11,7 @@
 namespace DoDo {
 	enum class EStyleColor : uint8_t
 	{
+		Transparent,
 		Foreground,
 		ForegroundHover,
 		Panel,
@@ -35,6 +36,7 @@ namespace DoDo {
 #define get_enum_str(ENUM) #ENUM
 
 	static const char* style_color_enum_str[(int32_t)EStyleColor::max] = {
+		get_enum_str(EStyleColor::Transparent),
 		get_enum_str(EStyleColor::Foreground),
 		get_enum_str(EStyleColor::ForegroundHover),
 		get_enum_str(EStyleColor::Panel),
@@ -142,6 +144,7 @@ namespace DoDo {
 	*/
 	struct FStyleColors
 	{
+		static const FSlateColor Transparent;
 		static const FSlateColor Foreground;//table id
 		static const FSlateColor ForegroundHover;
 		static const FSlateColor Panel;
