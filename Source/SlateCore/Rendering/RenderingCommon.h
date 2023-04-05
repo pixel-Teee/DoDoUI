@@ -246,4 +246,39 @@ namespace DoDo
 	typedef std::vector<FSlateDrawElement> FSlateDrawElementArray;
 	typedef std::vector<FSlateVertex> FSlateVertexArray;
 	typedef std::vector<uint16_t> FSlateIndexArray;
+
+	/*
+	* viewport implementation interface that is used by SViewport when it needs to draw and processes input
+	*/
+	class ISlateViewport
+	{
+	public:
+		virtual ~ISlateViewport() {}
+
+		/*
+		* returns a slate texture used to draw the rendered viewport in slate
+		*/
+		virtual class FSlateShaderResource* get_viewport_render_target_texture() const = 0;
+
+		/*
+		* whether the viewport contents should b e scaled or not, defaults to true
+		*/
+		virtual bool allow_scaling() const
+		{
+			return true;
+		}
+
+		/*
+		* does the texture returned by GetViewportRenderTargetTexture only have an alpha channel?
+		*/
+		virtual bool is_viewport_texture_alpha_only() const
+		{
+			return false;
+		}
+
+		/*
+		* returns true if the viewport should be vsynced
+		*/
+		virtual bool requires_vsync() const = 0;
+	};
 }
