@@ -8,6 +8,8 @@
 #include "SlateCore/Layout/Margin.h"//FSlatBoxPayload depends on it
 #include "SlateCore/Styling/SlateBrush.h"//FSlateBoxPayload depends on it
 
+#include "RenderingCommon.h"//FSlateViewportPayload depends on ISlateViewport
+
 namespace DoDo
 {
 	struct FSlateGradientStop
@@ -157,6 +159,23 @@ namespace DoDo
 			m_gradient_stops = in_gradient_stops;
 			m_gradient_type = in_gradient_type;
 			m_corner_radius = in_corner_radius;
+		}
+	};
+
+	struct FSlateViewportPayload : public FSlateDataPayload, public FSlateTintableElement
+	{
+		FSlateShaderResource* m_render_target_resource;
+		uint8_t m_b_allow_viewport_scaling : 1;
+		uint8_t m_b_viewport_texture_alphy_only : 1;
+		uint8_t m_b_requires_vsync : 1;
+
+		void set_viewport(const std::shared_ptr<const ISlateViewport>& in_viewport, const FLinearColor& in_tint)
+		{
+			tint = in_tint;
+			m_render_target_resource = in_viewport->get_viewport_render_target_texture();
+			m_b_allow_viewport_scaling = in_viewport->allow_scaling();
+			m_b_viewport_texture_alphy_only = in_viewport->is_viewport_texture_alpha_only();
+			m_b_requires_vsync = in_viewport->requires_vsync();
 		}
 	};
 }
