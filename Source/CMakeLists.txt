@@ -32,6 +32,8 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "Application/*.cpp"
 "ApplicationCore/GenericPlatform/*.h"
 "ApplicationCore/GenericPlatform/*.cpp"
+"AppFramework/*.h"
+"AppFramework/*.cpp"
 "../ThirdParty/glm/glm/*.h"
 "../ThirdParty/glm/glm/*.hpp"
 "../ThirdParty/glm/glm/*.cpp"

@@ -131,6 +131,25 @@ namespace DoDo
 		}
 	}
 
+	FLinearColor FLinearColor::linear_rgb_to_hsv() const
+	{
+		const float rgb_min = std::min(R, std::min(G, B));
+		const float rgb_max = std::max(R, std::max(G, B));
+		const float rgb_range = rgb_max - rgb_min;
+
+		const float hue = (rgb_max == rgb_min ? 0.0f :
+							rgb_max == R ? std::fmod((((G - B) / rgb_range) * 60.0f) + 360.0f, 360.0f) :
+							rgb_max == G ? (((B - R) / rgb_range) * 60.0f) + 120.0f :
+							rgb_max == B ? (((R - G) / rgb_range) * 60.0f) + 240.0f :
+							0.0f);
+
+		const float saturation = (rgb_max == 0.0f ? 0.0f : rgb_range / rgb_max);
+		const float value = rgb_max;
+
+		//in the new color, r = h, g = s, b = v, a = a
+		return FLinearColor(hue, saturation, value, A);
+	}
+
 	/**
 	* pow table for fast FColor -> FLinearColor conversion.
 	*

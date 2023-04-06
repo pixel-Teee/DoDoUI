@@ -294,6 +294,7 @@ namespace DoDo {
 	void FStarshipCoreStyle::set_up_colors(std::shared_ptr<FStyle>& style)
 	{
 		style->set("Brushes.Background", new FSlateColorBrush(FStyleColors::Background));
+		style->set("Brushes.Panel", new FSlateColorBrush(FStyleColors::Panel));
 	}
 
 	void FStarshipCoreStyle::set_up_text_styles(std::shared_ptr<FStyle>& style)

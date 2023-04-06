@@ -110,6 +110,9 @@ namespace DoDo
 
 		FColor to_fcolor(const bool b_srgb) const;
 
+		/*convers a linear space rgb color to a hsv color*/
+		FLinearColor linear_rgb_to_hsv() const;
+
 		//common colors
 		static const FLinearColor White;
 		static const FLinearColor Gray;
