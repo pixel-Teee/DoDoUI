@@ -60,7 +60,7 @@ namespace DoDo {
 
 		//todo:check window is regular window
 
-		application->get_message_handler()->get_window_zone_for_point(window, absolute_cursor_pos_x, absolute_cursor_pos_y);
+		application->get_message_handler()->get_window_zone_for_point(window, x_pos, y_pos);//note:get window zone for point need local mouse pos
 	}
 
 	static void mouse_button_call_back(GLFWwindow* native_window, int32_t button, int32_t action, int32_t mods)
