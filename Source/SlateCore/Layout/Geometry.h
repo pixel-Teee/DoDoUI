@@ -77,11 +77,11 @@ namespace DoDo
 			, m_accumulated_render_transform(
 				concatenate(
 					//covert the pivot to local space and make it the origin
-					inverse(transform_point(in_local_size, in_local_render_transform_pivot)),
+					inverse(transform_point(FScale2D(in_local_size), in_local_render_transform_pivot)),
 					//apply the render transform in local space centered around the pivot
 					in_local_render_transform,
 					//translate the pivot back
-					transform_point(in_local_size, in_local_render_transform_pivot),
+					transform_point(FScale2D(in_local_size), in_local_render_transform_pivot),
 					//apply the layout transform next
 					in_local_layout_transform,
 					//finally apply the parent accumulated transform, which takes us to the root
@@ -109,7 +109,7 @@ namespace DoDo
 
 			const_cast<glm::vec2&>(m_absolute_position) = accumulated_layout_transform.get_translation();
 			const_cast<float&>(m_scale) = accumulated_layout_transform.get_scale();
-			const_cast<glm::vec2&>(m_local_position) = accumulated_layout_transform.get_translation();
+			const_cast<glm::vec2&>(m_local_position) = in_local_layout_transform.get_translation();
 		}
 
 		FGeometry(

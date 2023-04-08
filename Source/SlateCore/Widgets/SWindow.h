@@ -17,6 +17,19 @@
 
 namespace DoDo
 {
+	/*enum to descibe how windows are sized*/
+	enum class ESizingRule : uint8_t
+	{
+		/*the windows size fixed and cannot be resized*/
+		FixedSize,
+
+		/*the window size is computed from its content and cannot be resized by users*/
+		AutoSized,
+
+		/*the window can be resized by users*/
+		UserSized
+	};
+
 	class Window;//native window
 	class IWindowTitleBar;
 	class SOverlay;
@@ -37,6 +50,7 @@ namespace DoDo
 			, _ScreenPosition(glm::vec2(0.0f, 0.0f))
 			, _ClientSize(glm::vec2(0.0f, 0.0f))
 			, _AdjustInitialSizeAndPositionForDPIScale(true)
+			, _SizingRule(ESizingRule::UserSized)
 			, _CreateTitleBar(true)
 			, _UserResizeBorder(FMargin(5, 5, 5, 5))
 		{}
@@ -50,6 +64,8 @@ namespace DoDo
 			SLATE_ARGUMENT(glm::vec2, ScreenPosition)
 			/*what the initial size of the window should be*/
 			SLATE_ARGUMENT(glm::vec2, ClientSize)
+			/*how to window should be sized*/
+			SLATE_ARGUMENT(ESizingRule, SizingRule)
 			/*if the initial ClientSize and ScreenPosition arguments should be automatically adjusted to account for DPI scale*/
 			SLATE_ARGUMENT(bool, AdjustInitialSizeAndPositionForDPIScale)
 
@@ -144,6 +160,9 @@ namespace DoDo
 			return (m_view_port_size.x) ? m_view_port_size : m_size;
 		}
 
+		/*@return true if the window is sized by the windows content*/
+		bool is_auto_sized() const;
+
 		/*
 		 * access the hittest acceleration data structure for this window
 		 * the grid is filled out every time the window is painted
@@ -206,6 +225,13 @@ namespace DoDo
 		/*relocate the window to a screenspace position specified by new position and resize it to new size*/
 		void reshape_window(glm::vec2 new_position, glm::vec2 new_size);
 
+		/*
+		* resize the window to be dpi scaled new client size immediately
+		* 
+		* @param new client size: client size with dpi scaling already applied that does not include border or title bars
+		*/
+		void resize(glm::vec2 new_client_size);
+
 		/*gets the current window zone that mouse position is over*/
 		EWindowZone::Type get_current_window_zone(glm::vec2 local_mouse_position);
 
@@ -224,6 +250,14 @@ namespace DoDo
 
 		/*resize using already dpi scaled window size including borders/title bar*/
 		void resize_window_size(glm::vec2 new_window_size);
+	public:
+		/*
+		* for a given client size, calculate the window size required to accommodate any potential non-os borders and title bars
+		* 
+		* @param InClientSize: client size with dpi scaling already applied
+		* @param DPIScale: scale that will be applied for border and title, when not supplied detects dpi scale using native or initial position
+		*/
+		glm::vec2 get_window_size_from_client_size(glm::vec2 in_client_size, std::optional<float> dpi_scale = std::optional<float>());
 	private:
 		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
 
@@ -233,9 +267,15 @@ namespace DoDo
 
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements,
 			int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
+
+		/*the window's desired size takes into account the ratio between the slate units and the pixel size*/
+		virtual glm::vec2 Compute_Desired_Size(float) const override;
 	protected:
 		/*type of the window*/
 		EWindowType m_type;
+
+		/*how to size the window*/
+		ESizingRule m_sizing_rule;
 
 		/*title of the window, displayed in the title bar as well as potentially in the task bar (windows platform)*/
 		TAttribute<DoDoUtf8String> m_title;

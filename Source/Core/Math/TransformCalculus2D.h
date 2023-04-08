@@ -159,6 +159,94 @@ namespace DoDo
 		return concatenate(concatenate(transform_a_to_b, transform_b_to_c, transform_c_to_d, transform_d_to_e), transform_e_to_f);
 	}
 
+	/*
+	* represents a 2d rotation as a complex number (analagous to quaternions)
+	* rot(theta) == cos(theta) + i * sin(theta)
+	* general transformation follows complex number algebra from there
+	* does not use "spinor" notation using theta/2 as we don't need that decomposition for our purposes
+	* this makes the implementation for straightforward and efficient for 2d
+	*/
+	class FQuat2D
+	{
+	public:
+		/*ctor, initialize to an identity rotation*/
+		FQuat2D() : m_rot(1.0f, 0.0f) {}
+
+		/*ctor, initialize from a rotation in radians*/
+		explicit FQuat2D(float rot_radians) : m_rot(glm::cos(rot_radians), glm::sin(rot_radians)) {}
+
+		/*ctor, initialize from a FVector2D, representing a complex number*/
+		explicit FQuat2D(const glm::vec2& in_rot) : m_rot(in_rot) {}
+
+		/*
+		* transform a 2d point by the 2d complex number representing the rotation:
+		* in imaginray land: (x + yi) * (u + vi) == (xu - yv) + (xv + yu)i
+		* 
+		* looking at this as a matrix, x = cos(a), y = sin(a)
+		* 
+		* [x y] * [cosa  sina] == [x y] * [u  v] == [xu-yv xv+yu]
+		*		  [-sina cosa]			  [-v u] 
+		* looking at the above results, we see the equivalence with matrix multiplication
+		*/
+		glm::vec2 transform_point(const glm::vec2& point) const
+		{
+			return glm::vec2(
+				point.x * m_rot.x - point.y * m_rot.y,
+				point.x * m_rot.y + point.y * m_rot.x
+			);
+		}
+
+		/*
+		* vector rotation is equivalent to rotating a point
+		*/
+		glm::vec2 transform_vector(const glm::vec2& vector) const
+		{
+			return transform_point(vector);
+		}
+
+		/*
+		* transform 2d rotations defined by complex numbers:
+		* in imaginary land: (A + Bi) * (C + Di) == (AC - BD) + (AD + BC)i
+		* 
+		* looking at this as a matrix, a == cos(theta), b = sin(theta), c = cos(sigma), d == sin(sigma)
+		* 
+		* [A  B] * [C  D] == [AC-BD    AD+BC]
+		* [-B A]   [-D C]	 [-(AD+BD) AC-BD]
+		* 
+		* if you look at how the vector multiply works out: [x(AC-BD)+Y(-BC-AD) X(AD+BC)+Y(-BD+AC)]
+		* you can see it follows the same form of the imaginary form, indeed, check out how the matrix nicely works
+		* out to [A B] for a visual proof of the results
+		*		[-B A]
+		*/
+		FQuat2D concatenate(const FQuat2D& rhs) const
+		{
+			return FQuat2D(transform_point(glm::vec2(rhs.m_rot)));
+		}
+
+		FQuat2D inverse() const
+		{
+			return FQuat2D(glm::vec2(m_rot.x, -m_rot.y));
+		}
+
+		/*equality*/
+		bool operator==(const FQuat2D& rhs) const
+		{
+			return m_rot == rhs.m_rot;
+		}
+
+		/*inequality*/
+		bool operator!=(const FQuat2D& other) const
+		{
+			return !operator==(other);
+		}
+
+		/*access to the underlying fvector2d that stores the complex number*/
+		const glm::vec2& get_vector() const { return m_rot; }
+	private:
+		/*underlying storage of the rotation(x = cos(theta), y = sin(theta))*/
+		glm::vec2 m_rot;
+	};
+
 	/*represents a 2d non-uniform scale(to disambiguate from an FVector2D, which is used for translation)*/
 	class FScale2D
 	{
@@ -169,6 +257,19 @@ namespace DoDo
 		/* ctor, initialize from a uniform scale */
 		explicit FScale2D(float in_scale) : m_scale(in_scale, in_scale) {}
 
+		explicit FScale2D(const glm::vec2& in_scale) : m_scale(in_scale) {}
+
+		/*transform 2d point*/
+		glm::vec2 transform_point(const glm::vec2& point) const
+		{
+			return glm::vec2(m_scale) * point;
+		}
+
+		/*transform 2d vector*/
+		glm::vec2 transform_vector(const glm::vec2 vector) const
+		{
+			return transform_point(vector);
+		}
 
 		/* access to the underlying FVector2D that stores the scale */
 		const glm::vec2& get_vector() const { return m_scale; }
@@ -208,6 +309,14 @@ namespace DoDo
 			m_m[1][0] = m10, m_m[1][1] = m11;
 		}
 
+		explicit FMatrix2x2(const FQuat2D& rotation)
+		{
+			float cos_angle = (float)rotation.get_vector().x;
+			float sin_angle = (float)rotation.get_vector().y;
+			m_m[0][0] = cos_angle; m_m[0][1] = sin_angle;
+			m_m[1][0] = -sin_angle; m_m[1][1] = cos_angle;
+		}
+
 		void get_matrix(float& a, float& b, float& c, float& d) const
 		{
 			a = m_m[0][0];
@@ -224,7 +333,7 @@ namespace DoDo
 		glm::vec2 transform_point(const glm::vec2& point) const
 		{
 			return glm::vec2(point.x * m_m[0][0] + point.y * m_m[1][0],
-				point.y * m_m[0][1] + point.y * m_m[1][1]);
+				point.x * m_m[0][1] + point.y * m_m[1][1]);
 		}
 
 		/*vector transformation is equivalent to point transformation as our matrix is not homogeneous*/
@@ -313,6 +422,12 @@ namespace DoDo
 			
 		}
 
+		explicit FTransform2D(const FQuat2D& rot, const glm::vec2& translation = glm::vec2(0.0f, 0.0f))
+			: m_m(rot), m_trans(translation)
+		{
+
+		}
+
 		/*
 		 * 2d transformation of a vector, transforms rotation and scale
 		 */
@@ -376,6 +491,12 @@ namespace DoDo
 	{
 		//DoDo::concatenate(DoDo::transform_point(transform.get_matrix(), translation), transform.get_translation());
 		return FTransform2D(transform.get_matrix(), concatenate(DoDo::transform_point(transform.get_matrix(), translation), transform.get_translation()));
+	}
+
+	/*specialization for concatenating 2d translation and 2d rotation*/
+	inline FTransform2D concatenate(const glm::vec2& translation, const FQuat2D& rot)
+	{
+		return FTransform2D(rot, DoDo::transform_point(rot, translation));
 	}
 
 	//if two types don't equal, then return FTransform2D

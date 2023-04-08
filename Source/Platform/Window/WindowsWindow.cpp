@@ -135,6 +135,20 @@ namespace DoDo {
 
         glfwSetWindowPos(m_p_window, x, y);
     }
+    void WindowsWindow::reshape_window(int32_t new_x, int32_t new_y, int32_t new_width, int32_t new_height)
+    {
+        //todo:check os window border
+
+        //the window position is the requested position
+        int32_t window_x = new_x;
+        int32_t window_y = new_y;
+
+        //todo:check window size will change often?
+
+        glfwSetWindowPos(m_p_window, window_x, window_y);
+
+        glfwSetWindowSize(m_p_window, new_width, new_height);//note:this will dispatch one message to os message callback
+    }
     void WindowsWindow::destroy()
     {
         //glfwDestroyWindow(m_p_window);

@@ -150,6 +150,40 @@ namespace DoDo
 		return FLinearColor(hue, saturation, value, A);
 	}
 
+	FLinearColor FLinearColor::hsv_to_linear_rgb() const
+	{
+		//in this color, r = h, g = s, b = v
+		const float hue = R;
+		const float saturation = G;
+		const float value = B;
+
+		const float h_div_60 = hue / 60.0f;
+		const float h_div_60_floor = floorf(h_div_60);
+		const float h_div_60_fraction = h_div_60 - h_div_60_floor;
+
+		const float rgb_values[4] = {
+			value,
+			value * (1.0f - saturation),
+			value * (1.0f - (h_div_60_fraction - saturation)),
+			value * (1.0f - ((1.0f - h_div_60_fraction) * saturation))
+		};
+
+		const uint32_t rgb_swizzle[6][3] = {
+			{0, 3, 1},
+			{2, 0, 1},
+			{1, 0, 3},
+			{1, 2, 0},
+			{3, 1, 0},
+			{0, 1, 2}
+		};
+
+		const uint32_t swizzle_index = ((uint32_t)h_div_60_floor) % 6;
+
+		return FLinearColor(rgb_values[rgb_swizzle[swizzle_index][0]],
+			rgb_values[rgb_swizzle[swizzle_index][1]],
+			rgb_values[rgb_swizzle[swizzle_index][2]]);
+	}
+
 	/**
 	* pow table for fast FColor -> FLinearColor conversion.
 	*

@@ -19,7 +19,7 @@ namespace DoDo {
 			, _OnMouseCaptureBegin()
 		{}
 			/*the current color selected by the user*/
-			SLATE_ATTRIBUTE(glm::vec4, SelectedColor)
+			SLATE_ATTRIBUTE(FLinearColor, SelectedColor)
 
 			/*invoked when the mouse is pressed and a capture begins*/
 			SLATE_EVENT(FSimpleDelegate, OnMouseCaptureBegin)
@@ -70,7 +70,7 @@ namespace DoDo {
 		const FSlateBrush* m_image;
 
 		/*the current color selected by the user*/
-		TSlateAttribute<glm::vec4, EInvalidateWidgetReason::Paint> m_selected_color;
+		TSlateAttribute<FLinearColor, EInvalidateWidgetReason::Paint> m_selected_color;
 
 		/*the color selector image to show*/
 		const FSlateBrush* m_selector_image;

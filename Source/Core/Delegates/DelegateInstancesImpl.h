@@ -81,7 +81,11 @@ public:
 		{
 			MutableUserClass* mutable_user_object = const_cast<MutableUserClass*>(shared_user_object.get());
 
-			return std::apply(m_method_ptr, std::make_tuple(mutable_user_object, params...));
+			return std::apply([=](auto&&... args) {
+
+				return std::apply(m_method_ptr, std::make_tuple(mutable_user_object, params..., args...));
+
+			}, m_pay_load);
 		}
 
 		//return RetValType();//todo:fix me
@@ -95,7 +99,11 @@ public:
 
 			MutableUserClass* mutable_user_object = const_cast<MutableUserClass*>(shared_user_object.get());
 
-			std::apply(m_method_ptr, std::make_tuple(mutable_user_object, params...));
+			std::apply([=](auto&&... args) {
+
+				std::apply(m_method_ptr, std::make_tuple(mutable_user_object, params..., args...));
+
+			}, m_pay_load);
 
 			return true;
 		}

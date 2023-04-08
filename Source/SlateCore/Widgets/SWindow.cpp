@@ -69,6 +69,7 @@ namespace DoDo {
 		this->m_title = in_args._Title;
 		this->m_style = in_args._Style;
 		this->m_window_background = &in_args._Style->m_background_brush;
+		this->m_sizing_rule = in_args._SizingRule;
 		this->m_user_resize_border = in_args._UserResizeBorder;
 
 		//calculate window size from client size
@@ -160,6 +161,11 @@ namespace DoDo {
 	std::shared_ptr<SWindow> SWindow::get_parent_window() const
 	{
 		return m_parent_window_ptr.lock();//promote
+	}
+
+	bool SWindow::is_auto_sized() const
+	{
+		return m_sizing_rule == ESizingRule::AutoSized;
 	}
 
 	FHittestGrid& SWindow::get_hittest_grid()
@@ -283,10 +289,15 @@ namespace DoDo {
 			set_cached_screen_position(new_position);
 
 			//todo:implement native window reshape window
-
+			m_native_window->reshape_window(new_position.x, new_position.y, new_size.x, new_size.y);
 		}
 
 		set_cached_size(new_size);
+	}
+
+	void SWindow::resize(glm::vec2 new_client_size)
+	{
+		resize_window_size(get_window_size_from_client_size(new_client_size));
 	}
 
 	EWindowZone::Type SWindow::get_current_window_zone(glm::vec2 local_mouse_position)
@@ -401,6 +412,11 @@ namespace DoDo {
 		return max_layer;
 	}
 
+	glm::vec2 SWindow::Compute_Desired_Size(float layout_scale_multiplier) const
+	{
+		return SCompoundWidget::Compute_Desired_Size(layout_scale_multiplier) * layout_scale_multiplier;
+	}
+
 	void SWindow::construct_window_internals()
 	{
 		//set up widget that represents the main area of the window, that is, everything inside the window's border
@@ -494,6 +510,7 @@ namespace DoDo {
 			if (m_native_window)
 			{
 				//call native window's reshape window
+				m_native_window->reshape_window(m_screen_position.x, m_screen_position.y, new_window_size.x, new_window_size.y);
 			}
 			else
 			{
@@ -503,6 +520,15 @@ namespace DoDo {
 
 		//todo:implement set cached size
 		set_cached_size(new_window_size);
+	}
+
+	glm::vec2 SWindow::get_window_size_from_client_size(glm::vec2 in_client_size, std::optional<float> dpi_scale)
+	{
+		//if this is a regular non-os window, we need to compensate for the border and title bar area that we will add
+		//note:windows with an os border do this in reshape window
+		//todo:check is regular window
+
+		return in_client_size;
 	}
 
 	FReply SWindow::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)

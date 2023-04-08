@@ -18,6 +18,20 @@ namespace DoDo {
 		float* m_blue;
 		float* m_alpha;
 	};
+
+	/*
+	* enumerates color channels(do not reorder)
+	*/
+	enum class EColorPickerChannels
+	{
+		Red,
+		Green,
+		Blue,
+		Alpha,
+		Hue,
+		Saturation,
+		Value
+	};
 	/*
 	* class for placing a color picker, if all you need is a standalone color picker
 	* use the functions OpenColorPicker and DestroyPicker, since they hold a static 
@@ -61,9 +75,51 @@ namespace DoDo {
 		*/
 		void Construct(const FArguments& in_args);
 
+		FLinearColor get_current_color() const
+		{
+			return m_current_color_hsv;
+		}
+
+		//callback for value changes in the color spectrum picker
+		void handle_color_spectrum_value_changed(FLinearColor new_value);
+
+		/*sets new color in either rgb or hsv*/
+		bool set_new_target_color_hsv(const FLinearColor& new_value, bool b_force_update = false);
+
+		bool apply_new_target_color(bool b_force_update = false);
+
+		void update_color_pick();
+
+		void update_color_pick_mouse_up();
+	protected:
+		void generate_inline_color_picker_content();
+
+		//callback for getting the end color of a color slider
+		FLinearColor handle_color_slider_end_color(EColorPickerChannels channel) const;
+
+		//callback for getting the start color of a color slider
+		FLinearColor handle_color_slider_start_color(EColorPickerChannels channel) const;
+
+		/*
+		* creates a color slider widget for the specified channel
+		* 
+		* @param Channel the color channel to create the widget for
+		* @return the new slider
+		*/
+		std::shared_ptr<SWidget> make_color_slider(EColorPickerChannels channel) const;
+
+		/*set all the colors to this new color*/
+		void set_colors(const FLinearColor& in_color);
+
 	private:
 		/*the color that is being targeted as a TAttribute*/
 		TAttribute<FLinearColor> m_target_color_attribute;
+
+		/*an array of color pointers this color picker targets*/
+		std::vector<FColor*> m_target_f_colors;
+
+		/*an array of linear color pointers this color picker targets*/
+		std::vector<FLinearColor*> m_target_linear_colors;
 
 		/*the current color being picked in HSV*/
 		FLinearColor m_current_color_hsv;

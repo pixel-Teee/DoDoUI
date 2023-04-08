@@ -89,7 +89,14 @@ namespace DoDo {
 		if(m_orientation == Orient_Vertical)
 		{
 			//do this by translating along -x by the width of the geometry, then rotating 90 degress ccw(left-handle coordinate)
-			
+			FSlateRenderTransform slate_render_transform = TransformCast<FSlateRenderTransform>(concatenate(inverse(glm::vec2(allotted_width, 0.0f)), FQuat2D(glm::radians(-90.0f))));
+
+			//create a child geometry matching this one, but with the render transform
+			slider_geometry = allotted_geometry.make_child(
+				glm::vec2(allotted_width, allotted_height),
+				FSlateLayoutTransform(),
+				slate_render_transform, glm::vec2(0.0f)
+			);
 		}
 
 		const bool b_enabled = should_be_enabled(b_parent_enabled);

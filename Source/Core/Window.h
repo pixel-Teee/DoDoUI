@@ -21,6 +21,8 @@ namespace DoDo {
 		/*native windows should implement move window to by relocating the platform-specific window to (x, y)*/
 		virtual void move_window_to(int32_t x, int32_t y);
 
+		virtual void reshape_window(int32_t new_x, int32_t new_y, int32_t new_width, int32_t new_height);
+
 		/*native windows should implement this function by asking the os to destroy os-specific resource associated with the window*/
 		virtual void destroy();
 

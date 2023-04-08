@@ -68,6 +68,8 @@
 
 #include "Slate/Widgets/SToolTip.h"//SToolTip depends on it
 
+#include "AppFramework/Widgets/SColorPicker.h"//SColorPicker depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -1101,6 +1103,12 @@ namespace DoDo
                 window_to_prepass->slate_prepass(1.0f);//todo:pass dpi scale
             }
 
+            //note:auto sizing rule window will check window size every frame
+            if (b_is_window_visible && window_to_prepass->is_auto_sized()) //note:this is important, because color picker need to know the size of content to resize
+            {
+                window_to_prepass->resize(window_to_prepass->get_desired_size_desktop_pixels());
+            }
+
             //note:iterate over copy since num children can change during resize above
             std::vector<std::shared_ptr<SWindow>> child_windows(window_to_prepass->get_child_windows());
             for(const std::shared_ptr<SWindow>& child_window : child_windows)
@@ -1572,6 +1580,15 @@ namespace DoDo
         m_border->set_border_back_ground_color(new_color);
     }
 
+    static FReply open_one_color_picker()
+    {
+        FColorPickerArgs args = {};
+
+        open_color_picker(args);
+
+        return FReply::handled();
+    }
+
     static std::shared_ptr<SDockTab> spawn_star_ship_widgets(const FSpawnTabArgs& spawn_tab_args)
     {
         std::vector<FLinearColor> colors2 = { {1.0f, 0.2f, 0.2f, 1.0f}, {0.55f, 0.77f, 0.98f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f} };
@@ -1627,6 +1644,7 @@ namespace DoDo
 								  .ColorAndOpacity(FLinearColor(0.7f, 0.3f, 0.9f, 1.0f))
 								  [
 									  SNew(SButton)
+                                      .OnClicked_Static(&open_one_color_picker)
 									  //.ButtonColorAndOpacity(FLinearColor(0.7f, 0.3f, 0.9f, 1.0f))
 									  //.Text(s_current_application, &Application::calculate_frame_per_second)
 								      [
@@ -1637,34 +1655,52 @@ namespace DoDo
                               ]         
                           ]
                           + SSplitter::Slot()
-						  .MinSize(20.0f)
+						  .MinSize(400.0f)
 						  .Resizable(true)
                           [
-							  SNew(SHorizontalBox)
-							  + SHorizontalBox::Slot()
-                              .HAlign(HAlign_Left)
-                              .VAlign(VAlign_Center)
-                              .auto_width()
-							  [
-								  //SNew(SBorder)
-								  //.BorderImage(FCoreStyle::get().get_brush("Checkboard"))
-								  //.ColorAndOpacity(FLinearColor(0.2f, 0.7f, 0.2f, 1.0f))
+                              SNew(SVerticalBox)
+                              + SVerticalBox::Slot()
+                              .fill_height(1.0f)
+                              [
+                                  SNew(SHorizontalBox)
+							      + SHorizontalBox::Slot()
+                                  .HAlign(HAlign_Left)
+                                  .VAlign(VAlign_Center)
+                                  .auto_width()
+							      [
+								      //SNew(SBorder)
+								      //.BorderImage(FCoreStyle::get().get_brush("Checkboard"))
+								      //.ColorAndOpacity(FLinearColor(0.2f, 0.7f, 0.2f, 1.0f))
+								      //[
+								        SNew(STextBlock)
+                                        .ColorAndOpacity(FLinearColor::Yellow)
+								        .Text("test slider:")
+                                      //]								  
+							      ]
+                                  + SHorizontalBox::Slot()
+                                  //.HAlign(HAlign_Center)
+                                  .VAlign(VAlign_Center)
+                                  .fill_width(1.0f)
+							      [
+								      SNew(SSlider)
+								      .MaxValue(1.0f)
+							          .MinValue(0.0f)
+							          .IndentHandle(true)
+                                  ]			
+								  //+ SHorizontalBox::Slot()
+								  //.auto_width()
 								  //[
-									  SNew(STextBlock)
-                                      .ColorAndOpacity(FLinearColor::Yellow)
-									  .Text("test slider:")
-                                  //]								  
-							  ]
-                              + SHorizontalBox::Slot()
-                              //.HAlign(HAlign_Center)
-                              .VAlign(VAlign_Center)
-                              .fill_width(1.0f)
-							  [
-								  SNew(SSlider)
-								  .MaxValue(1.0f)
-							      .MinValue(0.0f)
-							      .IndentHandle(true)
-							  ]
+								  //    SNew(SVerticalBox)
+								  //    + SVerticalBox::Slot()
+								  //    [
+									//	  SNew(SSlider)
+								  //        .Orientation(Orient_Vertical)
+									//	  .MaxValue(1.0f)
+									//      .MinValue(0.0f)
+									//      .IndentHandle(true)
+								  //    ]
+								  //]
+                              ]	
                           ]
                       ]
                    ]			  

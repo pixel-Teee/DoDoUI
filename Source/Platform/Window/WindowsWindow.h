@@ -30,6 +30,8 @@ namespace DoDo {
 
 		virtual void move_window_to(int32_t x, int32_t y) override;
 
+		virtual void reshape_window(int32_t new_x, int32_t new_y, int32_t new_width, int32_t new_height);
+
 		virtual void destroy() override;
 	private:
 		//windows window owner this lifetime

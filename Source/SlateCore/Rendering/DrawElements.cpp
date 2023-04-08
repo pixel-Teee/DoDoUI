@@ -10,6 +10,18 @@
 
 namespace DoDo
 {
+	static bool should_cull(const FSlateWindowElementList& element_list, const FPaintGeometry& paint_geometry, const FSlateBrush* in_brush, const FLinearColor& in_tint)
+	{
+		bool b_is_full_transparent = in_tint.A == 0 && (in_brush->m_outline_settings.m_color.get_specified_color().A == 0 || in_brush->m_outline_settings.m_b_use_brush_transparency);
+
+		if (b_is_full_transparent)//todo:add more cull
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	FSlateDrawElement::FSlateDrawElement()
 		: m_data_payload(nullptr)
 	{
@@ -57,6 +69,11 @@ namespace DoDo
 		//call PaintGeometry's commit transforms if using legacy constructor
 		paint_geometry.commit_transforms_if_using_legacy_constructor();
 		//todo:implement should cull
+
+		if (should_cull(element_list, paint_geometry, in_brush, in_tint))
+		{
+			return;
+		}
 
 		//todo:implement make box internal
 		MakeBoxInternal(element_list, in_layer, paint_geometry, in_brush, in_draw_effects, in_tint);

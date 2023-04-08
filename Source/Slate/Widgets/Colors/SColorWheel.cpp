@@ -93,13 +93,13 @@ namespace DoDo {
 
 	glm::vec2 SColorWheel::Compute_Desired_Size(float) const
 	{
-		return glm::vec2();
+		return m_image->m_image_size + m_selector_image->m_image_size;
 	}
 
 	glm::vec2 SColorWheel::calc_relative_position_from_center() const
 	{
-		float hue = m_selected_color.Get().r;
-		float saturation = m_selected_color.Get().g;
+		float hue = m_selected_color.Get().R;
+		float saturation = m_selected_color.Get().G;
 		float angle = hue / 180.0f * 3.1415926535897932f;
 		float radius = saturation;
 
@@ -124,11 +124,11 @@ namespace DoDo {
 			}
 
 			m_selected_color.update_now(*this);
-			glm::vec4 new_color = m_selected_color.Get();
+			FLinearColor new_color = m_selected_color.Get();
 
 			{
-				new_color.r = angle * 180.0f * 0.31830988618f;//this is inv_pi
-				new_color.g = std::min(relative_radius, 1.0f);
+				new_color.R = angle * 180.0f * 0.31830988618f;//this is inv_pi
+				new_color.G = std::min(relative_radius, 1.0f);
 			}
 
 			m_selected_color.Set(*this, new_color);//todo:remove this function

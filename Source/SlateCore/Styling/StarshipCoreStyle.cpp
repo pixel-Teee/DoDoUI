@@ -249,6 +249,8 @@ namespace DoDo {
 		set_up_button_styles(style);
 		set_up_docking_styles(style);
 
+		set_up_color_picker_styles(style);
+
 		return style;
 	}
 
@@ -437,6 +439,17 @@ namespace DoDo {
 		{
 			style->set("Menu.Background", new FSlateColorBrush(FStyleColors::DropDown));
 			style->set("Menu.Outline", new FSlateRoundedBoxBrush(FStyleColors::Transparent, 0.0f, FStyleColors::DropDownOutline, 1.0f));
+		}
+	}
+
+	void FStarshipCoreStyle::set_up_color_picker_styles(std::shared_ptr<FStyle>& style)
+	{
+		//SColorPicker defaults
+		{
+			style->set("ColorPicker.Slider", FSliderStyle()
+				.set_normal_thumb_image(FSlateImageBrush(style->root_to_content_dir("Common/ColorPicker_SliderHandle", ".png"), glm::vec2(8.0f, 32.0f)))
+				.set_normal_thumb_image(FSlateImageBrush(style->root_to_content_dir("Common/ColorPicker_SliderHandle", ".png"), glm::vec2(8.0f, 32.0f)))
+				.set_hovered_thumb_image(FSlateImageBrush(style->root_to_content_dir("Common/ColorPicker_SliderHandle", ".png"), glm::vec2(8.0f, 32.0f))));
 		}
 	}
 

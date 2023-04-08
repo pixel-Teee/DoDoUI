@@ -37,6 +37,7 @@ namespace DoDo {
 		static void set_up_button_styles(std::shared_ptr<FStyle>& style);
 		static void set_up_docking_styles(std::shared_ptr<FStyle>& style);
 		static void set_up_multibox_styles(std::shared_ptr<FStyle>& style);
+		static void set_up_color_picker_styles(std::shared_ptr<FStyle>& style);
 
 		/*singleton instances of this style*/
 		static std::shared_ptr<ISlateStyle> m_instances;
