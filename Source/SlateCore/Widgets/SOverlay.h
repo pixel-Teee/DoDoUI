@@ -52,6 +52,7 @@ namespace DoDo
 		SLATE_BEGIN_ARGS(SOverlay)
 		{
 			//todo:visibility	
+			_Visibility = EVisibility::SelfHitTestInvisible;
 		}
 		SLATE_SLOT_ARGUMENT(SOverlay::FOverlaySlot, Slots)
 		SLATE_END_ARGS()

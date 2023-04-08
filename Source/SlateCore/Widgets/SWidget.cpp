@@ -128,6 +128,11 @@ namespace DoDo {
 		On_Arrange_Children(allotted_geometry, arranged_children);
 	}
 
+	void SWidget::set_visibility(TAttribute<EVisibility> in_visibility)
+	{
+		m_Visibility_Attribute.Assign(*this, std::move(in_visibility));
+	}
+
 	//FSlateAttributeMetaData::remove_meta_data_if_needed will call this function
 	//interms of parameter to mark different flag
 	void SWidget::Invalidate(EInvalidateWidgetReason in_validate_reason)

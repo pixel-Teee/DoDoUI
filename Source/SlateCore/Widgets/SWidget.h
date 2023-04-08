@@ -155,6 +155,9 @@ namespace DoDo
 		 * @note this widget can be visible but if a parent is hidden or collapsed, it would not show on screen
 		 */
 		EVisibility get_visibility() const { return m_Visibility_Attribute.Get(); }
+
+		/*@param InVisibility should this widget is*/
+		virtual void set_visibility(TAttribute<EVisibility> in_visibility);
 		/*
 		 * invalidates the widget from the view of a layout caching widget that may own this widget
 		 * will force the owning widget to redraw and cache children on the next paint pass

@@ -421,7 +421,8 @@ namespace DoDo {
 	{
 		//set up widget that represents the main area of the window, that is, everything inside the window's border
 
-		std::shared_ptr<SVerticalBox> main_window_area = SNew(SVerticalBox);
+		std::shared_ptr<SVerticalBox> main_window_area = SNew(SVerticalBox)
+			.Visibility(EVisibility::SelfHitTestInvisible);
 
 		FWindowTitleBarArgs args(std::static_pointer_cast<SWindow>(shared_from_this()));
 
@@ -442,15 +443,11 @@ namespace DoDo {
 		{
 			m_title_bar_size = 0.0f;
 		}
-		
 
+		update_window_content_visibility();
+		
 		//create window
-		m_window_background_image =
-			Application::get().make_image(
-				m_window_background,
-				m_style->m_background_color,
-				EVisibility::visible
-			);
+
 		//create window content slot
 		main_window_area->add_slot()
 			.fill_height(1.0f)
@@ -458,6 +455,12 @@ namespace DoDo {
 			[
 				SNullWidget::NullWidget
 			];
+
+		m_window_background_image =
+			Application::get().make_image(
+				m_window_background,
+				m_style->m_background_color,
+				m_window_content_visibility);
 
 		this->m_child_slot
 		[
@@ -471,12 +474,30 @@ namespace DoDo {
 			+ SOverlay::Slot()
 			[
 				SAssignNew(m_content_area_v_box, SVerticalBox)
+				.Visibility(m_window_content_visibility)
 				+ SVerticalBox::Slot()
 				[
 					main_window_area
 				]
 			]
 		];
+	}
+
+	void SWindow::update_window_content_visibility()
+	{
+		//the content of the window should be visible unless we have a full window overlay content
+		//in which case the full window overlay content is visible but noting under it
+		m_window_content_visibility = EVisibility::SelfHitTestInvisible;
+
+		if (m_window_background_image)
+		{
+			m_window_background_image->set_visibility(m_window_content_visibility);
+		}
+
+		if (m_content_area_v_box)
+		{
+			m_content_area_v_box->set_visibility(m_window_content_visibility);
+		}
 	}
 
 	int32_t SWindow::paint_slow_path(const FSlateInvalidationContext& invalidation_context)

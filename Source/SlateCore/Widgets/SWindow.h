@@ -315,6 +315,7 @@ namespace DoDo
 
 		std::shared_ptr<SWidget> m_content_area_v_box;
 
+		EVisibility m_window_content_visibility;
 	protected:
 		/*the native window that is backing this slate window*/
 		//todo:implement FGenericWindow
@@ -341,6 +342,8 @@ namespace DoDo
 	protected:
 
 		void construct_window_internals();
+
+		void update_window_content_visibility();
 
 		//------FSlateInvalidationRoot overrides------
 		virtual int32_t paint_slow_path(const FSlateInvalidationContext& context) override;

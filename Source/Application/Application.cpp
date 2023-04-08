@@ -1561,7 +1561,8 @@ namespace DoDo
     {
         return SNew(SImage)
             .ColorAndOpacity(color)
-            .Image(image);//todo:add visibility
+            .Image(image)
+            .Visibility(visibility);
     }
 
     DoDoUtf8String Application::calculate_frame_per_second() const
