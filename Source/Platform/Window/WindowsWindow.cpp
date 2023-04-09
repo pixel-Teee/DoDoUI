@@ -13,9 +13,14 @@
 
 #include "glm/glm.hpp"
 
-namespace DoDo {
-    //bool WindowsWindow::m_is_initialized_glfw = false;
+#include "Platform/Application/GLFWApplication.h"
 
+namespace DoDo {
+    //------todo:fix me, move this to glfw application------
+    extern std::shared_ptr<GLFWApplication> window_application;
+    //bool WindowsWindow::m_is_initialized_glfw = false;
+    extern std::shared_ptr<WindowsWindow> find_window_by_glfw_window(const std::vector<std::shared_ptr<WindowsWindow>> windows_to_search, GLFWwindow* handle_to_find);
+    //------todo:fix me, move this to glfw application------
     //p p1 x p p2
     int64_t get_cross(int64_t p1x, int64_t p1y, int64_t p2x, int64_t p2y, int64_t px, int64_t py)
     {
@@ -44,7 +49,7 @@ namespace DoDo {
         {
             glfwDestroyWindow(m_p_window);
 
-            glfwTerminate();
+            //glfwTerminate();
 
             m_p_window = nullptr;
         }
@@ -152,7 +157,11 @@ namespace DoDo {
     void WindowsWindow::destroy()
     {
         //glfwDestroyWindow(m_p_window);
+        //window_application->remove_window(shared_from_this());
 
-        glfwSetWindowShouldClose(m_p_window, true);
+        const std::shared_ptr<WindowsWindow> window = find_window_by_glfw_window(window_application->get_native_windows(), m_p_window);
+
+        //glfwSetWindowShouldClose(m_p_window, true);
+        window_application->remove_window(window);
     }
 }

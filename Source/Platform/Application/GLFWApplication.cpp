@@ -10,7 +10,7 @@
 namespace DoDo {
 	std::shared_ptr<GLFWApplication> window_application = nullptr;//todo:may be raw pointer type
 
-	static std::shared_ptr<WindowsWindow> find_window_by_glfw_window(const std::vector<std::shared_ptr<WindowsWindow>> windows_to_search, GLFWwindow* handle_to_find)
+	std::shared_ptr<WindowsWindow> find_window_by_glfw_window(const std::vector<std::shared_ptr<WindowsWindow>> windows_to_search, GLFWwindow* handle_to_find)
 	{
 		for(int32_t window_index = 0; window_index < windows_to_search.size(); ++window_index)
 		{
@@ -142,6 +142,7 @@ namespace DoDo {
 	}
 	GLFWApplication::~GLFWApplication()
 	{
+		glfwTerminate();
 	}
 
 	void GLFWApplication::pump_messages(const float time_delta)
