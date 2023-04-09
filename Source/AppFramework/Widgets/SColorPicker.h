@@ -20,6 +20,15 @@ namespace DoDo {
 	};
 
 	/*
+	* enumerates color picker modesx
+	*/
+	enum class EColorPickerModes
+	{
+		Spectrum,
+		Wheel
+	};
+
+	/*
 	* enumerates color channels(do not reorder)
 	*/
 	enum class EColorPickerChannels
@@ -85,6 +94,7 @@ namespace DoDo {
 
 		/*sets new color in either rgb or hsv*/
 		bool set_new_target_color_hsv(const FLinearColor& new_value, bool b_force_update = false);
+		bool set_new_target_color_rgb(const FLinearColor& new_value, bool b_force_update = false);
 
 		bool apply_new_target_color(bool b_force_update = false);
 
@@ -99,6 +109,18 @@ namespace DoDo {
 
 		//callback for getting the start color of a color slider
 		FLinearColor handle_color_slider_start_color(EColorPickerChannels channel) const;
+
+		//callback for when interactive user input begins
+		void handle_interactive_change_begin();
+
+		//callback for when interactive user input ends
+		void handle_interactive_change_end();
+
+		//callback for when interactive user input ends
+		void handle_interactive_change_end(float new_value);
+
+		//callback for value changes in a color spin box
+		void handle_color_spin_box_value_changed(float new_value, EColorPickerChannels channel);
 
 		/*
 		* creates a color slider widget for the specified channel
@@ -138,6 +160,9 @@ namespace DoDo {
 
 		/*time, used for color animation*/
 		float m_current_time;
+
+		/*tracks whether the user is moving a value spin box, the color wheel and the dropper*/
+		bool m_b_is_interactive;
 	};
 
 	struct FColorPickerArgs

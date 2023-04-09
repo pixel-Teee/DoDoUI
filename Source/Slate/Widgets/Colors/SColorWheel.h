@@ -24,6 +24,9 @@ namespace DoDo {
 			/*invoked when the mouse is pressed and a capture begins*/
 			SLATE_EVENT(FSimpleDelegate, OnMouseCaptureBegin)
 
+			/*invoked when the mouse is released and a capture ends*/
+			SLATE_EVENT(FSimpleDelegate, OnMouseCaptureEnd)
+
 			/*invoked when a new value is selected on the color wheel*/
 			SLATE_EVENT(FOnLinearColorValueChanged, OnValueChanged)
 
@@ -74,6 +77,12 @@ namespace DoDo {
 
 		/*the color selector image to show*/
 		const FSlateBrush* m_selector_image;
+
+		/*invoked when the mouse is pressed and a capture begins*/
+		FSimpleDelegate m_on_mouse_capture_begin;
+
+		/*invoked when the mouse is let up and a capture ends*/
+		FSimpleDelegate m_on_mouse_capture_end;
 
 		/*invoked when a new value is selected on the color wheel*/
 		FOnLinearColorValueChanged m_on_value_changed;

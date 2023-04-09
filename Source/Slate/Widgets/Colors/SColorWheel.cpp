@@ -23,6 +23,8 @@ namespace DoDo {
 		m_image = FCoreStyle::get().get_brush("ColorWheel.HueValueCircle");
 		m_selector_image = FCoreStyle::get().get_brush("ColorWheel.Selector");
 
+		m_on_mouse_capture_begin = in_args._OnMouseCaptureBegin;
+		m_on_mouse_capture_end = in_args._OnMouseCaptureEnd;
 		m_on_value_changed = in_args._OnValueChanged;
 	}
 
@@ -30,8 +32,12 @@ namespace DoDo {
 	{
 		if (mouse_event.get_effecting_button() == EKeys::LeftMouseButton)
 		{
+			m_on_mouse_capture_begin.execute_if_bound();
+
 			if (!process_mouse_action(my_geometry, mouse_event, false))
 			{
+				m_on_mouse_capture_end.execute_if_bound();
+
 				return FReply::un_handled();
 			}
 
@@ -131,7 +137,7 @@ namespace DoDo {
 				new_color.G = std::min(relative_radius, 1.0f);
 			}
 
-			m_selected_color.Set(*this, new_color);//todo:remove this function
+			//m_selected_color.Set(*this, new_color);//todo:remove this function
 
 			//todo:implement on value changed	
 			m_on_value_changed.execute_if_bound(new_color);

@@ -34,6 +34,8 @@ namespace DoDo {
 		m_target_color_attribute = in_args._TargetColorAttribute;
 		m_current_color_hsv = m_old_color = m_target_color_attribute.Get().linear_rgb_to_hsv();//h u v
 
+		m_b_is_interactive = false;
+
 		generate_inline_color_picker_content();//inline version
 	}
 	void SColorPicker::handle_color_spectrum_value_changed(FLinearColor new_value)
@@ -44,6 +46,13 @@ namespace DoDo {
 	{
 		m_current_color_hsv = new_value;
 		m_current_color_rgb = new_value.hsv_to_linear_rgb();
+
+		return apply_new_target_color(b_force_update);
+	}
+	bool SColorPicker::set_new_target_color_rgb(const FLinearColor& new_value, bool b_force_update)
+	{
+		m_current_color_rgb = new_value;
+		m_current_color_hsv = new_value.linear_rgb_to_hsv();
 
 		return apply_new_target_color(b_force_update);
 	}
@@ -62,7 +71,7 @@ namespace DoDo {
 	}
 	void SColorPicker::update_color_pick()
 	{
-		FLinearColor out_color = m_current_color_rgb;
+		FLinearColor out_color = m_current_color_rgb;//note:current color picked in rgb
 
 		set_colors(out_color);
 
@@ -86,7 +95,9 @@ namespace DoDo {
 				SNew(SColorWheel)
 				.SelectedColor(this, &SColorPicker::get_current_color)
 				//todo:add visibility bind
-				//.OnValueChanged(this, &SColorPicker::handle_color_specturm_value_changed)
+				.OnValueChanged(this, &SColorPicker::handle_color_spectrum_value_changed)
+				.OnMouseCaptureBegin(this, &SColorPicker::handle_interactive_change_begin)
+				.OnMouseCaptureEnd(this, &SColorPicker::handle_interactive_change_end)
 			]
 			+ SHorizontalBox::Slot()
 			.auto_width()
@@ -95,16 +106,17 @@ namespace DoDo {
 				//saturation slider
 				make_color_slider(EColorPickerChannels::Saturation)
 			]
-			//+ SHorizontalBox::Slot()
-			//.auto_width()
-			//[
-			//	//value slider
-			//	
-			//]
+			+ SHorizontalBox::Slot()
+			.auto_width()
+			[
+				//value slider
+				make_color_slider(EColorPickerChannels::Value)
+			]
 			//+ SHorizontalBox::Slot()
 			//.auto_width()
 			//[
 			//	//alpha slider
+			//	make_color_slider(EColorPickerChannels::Alpha)
 			//]
 		];
 	}
@@ -132,6 +144,53 @@ namespace DoDo {
 		case EColorPickerChannels::Saturation: return FLinearColor(m_current_color_hsv.R, 1.0f, 1.0f, 1.0f).hsv_to_linear_rgb();
 		case EColorPickerChannels::Value: return FLinearColor(m_current_color_hsv.R, m_current_color_hsv.G, 1.0, 1.0f).hsv_to_linear_rgb();
 		default: return FLinearColor();
+		}
+	}
+	void SColorPicker::handle_interactive_change_begin()
+	{
+		m_b_is_interactive = true;
+	}
+	void SColorPicker::handle_interactive_change_end()
+	{
+		handle_interactive_change_end(0.0f);
+	}
+	void SColorPicker::handle_interactive_change_end(float new_value)
+	{
+		m_b_is_interactive = false;
+
+
+	}
+	void SColorPicker::handle_color_spin_box_value_changed(float new_value, EColorPickerChannels channel)
+	{
+		int32_t component_index;
+		bool is_hsv = false;
+
+		switch (channel)
+		{
+		case DoDo::EColorPickerChannels::Red: component_index = 0; break;
+		case DoDo::EColorPickerChannels::Green: component_index = 1; break;
+		case DoDo::EColorPickerChannels::Blue: component_index = 2; break;
+		case DoDo::EColorPickerChannels::Alpha: component_index = 3; break;
+		case DoDo::EColorPickerChannels::Hue: component_index = 0; is_hsv = true; break;
+		case DoDo::EColorPickerChannels::Saturation: component_index = 1; is_hsv = true; break;
+		case DoDo::EColorPickerChannels::Value: component_index = 2; is_hsv = true; break;
+		default:
+			return;
+		}
+
+		FLinearColor& new_color = is_hsv ? m_current_color_hsv : m_current_color_rgb;
+
+		//todo:check zero
+
+		new_color.component(component_index) = new_value;//assign new value
+
+		if (is_hsv)
+		{
+			set_new_target_color_hsv(new_color, !m_b_is_interactive);//when interative end, then update color
+		}
+		else
+		{
+			set_new_target_color_rgb(new_color, !m_b_is_interactive);
 		}
 	}
 	std::shared_ptr<SWidget> SColorPicker::make_color_slider(EColorPickerChannels channel) const
@@ -167,6 +226,7 @@ namespace DoDo {
 					.Orientation(Orient_Vertical)
 					.SliderBarColor(FLinearColor::Transparent)//don't hide slider bar
 					.Style(&FAppStyle::get().get_widget_style<FSliderStyle>("ColorPicker.Slider"))
+					.OnValueChanged(const_cast<SColorPicker*>(this), &SColorPicker::handle_color_spin_box_value_changed, channel)
 				];
 	}
 	void SColorPicker::set_colors(const FLinearColor& in_color)

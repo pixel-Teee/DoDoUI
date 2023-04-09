@@ -97,6 +97,14 @@ namespace DoDo
 			return b_successful;
 		}
 
+		float& component(int32_t index)
+		{
+			if (index == 0) return R;
+			else if (index == 1) return G;
+			else if (index == 2) return B;
+			return A;
+		}
+
 		/*
 		 * quantizes the linear color and returns the result as a FColor with optional sRGB conversion
 		 *
