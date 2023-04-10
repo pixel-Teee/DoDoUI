@@ -22,6 +22,7 @@ namespace DoDo {
 	{
 		m_image = FCoreStyle::get().get_brush("ColorWheel.HueValueCircle");
 		m_selector_image = FCoreStyle::get().get_brush("ColorWheel.Selector");
+		m_selected_color.Assign(*this, in_args._SelectedColor);
 
 		m_on_mouse_capture_begin = in_args._OnMouseCaptureBegin;
 		m_on_mouse_capture_end = in_args._OnMouseCaptureEnd;
@@ -51,6 +52,8 @@ namespace DoDo {
 	{
 		if (mouse_event.get_effecting_button() == EKeys::LeftMouseButton && has_mouse_capture())
 		{
+			m_on_mouse_capture_end.execute_if_bound();
+
 			return FReply::handled().release_mouse_capture();
 		}
 

@@ -2,6 +2,8 @@
 
 #include "SlateCore/Widgets/SCompoundWidget.h"//SCompoundWidget depends on it
 
+#include "Slate/Framework/SlateDelegates.h"
+
 namespace DoDo {
 	/*
 	* struct for holding individual pointers to float values
@@ -67,6 +69,9 @@ namespace DoDo {
 
 			/*whether the ability to pick the alpha value is enabled*/
 			SLATE_ATTRIBUTE(bool, UseAlpha)
+
+			/*the event called when the color is committed*/
+			SLATE_EVENT(FOnLinearColorValueChanged, OnColorCommitted)
 
 			/*a pointer to the parent window*/
 			SLATE_ATTRIBUTE(std::shared_ptr<SWindow>, ParentWindow)
@@ -134,6 +139,9 @@ namespace DoDo {
 		void set_colors(const FLinearColor& in_color);
 
 	private:
+		/*invoked when a new value is selected on the color wheel*/
+		FOnLinearColorValueChanged m_on_color_committed;
+
 		/*the color that is being targeted as a TAttribute*/
 		TAttribute<FLinearColor> m_target_color_attribute;
 
@@ -180,6 +188,9 @@ namespace DoDo {
 		const std::vector<FLinearColor*>* m_linear_color_array;
 
 		/*an array of FColorChannels to target.(deprecate now that wx is gone?)*/
+
+		/*a delegate to be called when the color changes*/
+		FOnLinearColorValueChanged m_on_color_committed;
 
 		/*overrides the initial color set on the color picker*/
 		FLinearColor m_initial_color_override;

@@ -400,8 +400,8 @@ namespace DoDo
 			const glm::vec2 uv_max = end_uv;
 
 			//horizontal
-			start_uv.x = uv_max.x - (start_uv.x - uv_min.x);
-			end_uv.x = uv_max.x - (end_uv.x - uv_min.x);
+			//start_uv.x = uv_max.x - (start_uv.x - uv_min.x);
+			//end_uv.x = uv_max.x - (end_uv.x - uv_min.x);
 
 			//add four vertices to the list of verts to be added to the vertex buffer
 			render_batch.add_vertex(FSlateVertex::Make<rounding>(render_transform, top_left, local_size, draw_scale, glm::vec4(start_uv.x, start_uv.y, tiling.x, tiling.y), tint, secondary_color));

@@ -33,6 +33,7 @@ namespace DoDo {
 	{
 		m_target_color_attribute = in_args._TargetColorAttribute;
 		m_current_color_hsv = m_old_color = m_target_color_attribute.Get().linear_rgb_to_hsv();//h u v
+		m_on_color_committed = in_args._OnColorCommitted;
 
 		m_b_is_interactive = false;
 
@@ -74,6 +75,8 @@ namespace DoDo {
 		FLinearColor out_color = m_current_color_rgb;//note:current color picked in rgb
 
 		set_colors(out_color);
+
+		m_on_color_committed.execute_if_bound(out_color);
 
 		//todo:on color committed execute
 	}
@@ -157,8 +160,8 @@ namespace DoDo {
 	void SColorPicker::handle_interactive_change_end(float new_value)
 	{
 		m_b_is_interactive = false;
-
-
+		
+		update_color_pick_mouse_up();
 	}
 	void SColorPicker::handle_color_spin_box_value_changed(float new_value, EColorPickerChannels channel)
 	{
@@ -186,7 +189,7 @@ namespace DoDo {
 
 		if (is_hsv)
 		{
-			set_new_target_color_hsv(new_color, !m_b_is_interactive);//when interative end, then update color
+			set_new_target_color_hsv(new_color, !m_b_is_interactive);//when interactive end, then update color
 		}
 		else
 		{
@@ -298,6 +301,7 @@ namespace DoDo {
 			.TargetFColors(args.m_color_array ? *args.m_color_array : std::vector<FColor*>())
 			.TargetLinearColors(args.m_linear_color_array ? *args.m_linear_color_array : std::vector<FLinearColor*>())
 			.UseAlpha(args.b_user_alpha)
+			.OnColorCommitted(args.m_on_color_committed)
 			.ParentWindow(window);
 		
 		if (b_override_non_modal_creation)
