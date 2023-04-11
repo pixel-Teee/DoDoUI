@@ -369,6 +369,22 @@ namespace DoDo
 		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event);//todo:add comment
 
 		/*
+		* called when slate detects that a widget started to be dragged
+		* 
+		* usage:
+		* a widget can ask slate to detect a drag
+		* OnMouseDown() reply with FReply::Handled().DetectDrag(shared_this(this))
+		* slate will either send a OnDragDected() event or do nothing
+		* if the user releases a mouse button or leaves the widget before
+		* a drag is triggered (maybe user started at the very edge) then no event will be
+		* sent
+		* 
+		* @param InMyGeometry widget geometry
+		* @param InMouseEvent mouse event that triggered the drag
+		*/
+		virtual FReply On_Drag_Detected(const FGeometry& my_geometry, const FPointerEvent& mouse_event);
+
+		/*
 		 *	called during drag and drop when the drag enters a widget
 		 *
 		 *	enter/leave events in slate are meant as lightweight notifications
@@ -385,6 +401,31 @@ namespace DoDo
 		 *	@return a reply that indicated whether the contents of the DragDropEvent can potentially be processed by this widget
 		 */
 		virtual void On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event);
+
+		/*
+		* called during drag and drop when the drag leaves a widget
+		* 
+		* @param DragDropEvent the drag and drop event
+		*/
+		virtual void On_Drag_Leave(const FDragDropEvent& drag_drop_event);
+
+		/*
+		* called during drag and drop when the the mouse is being dragged over a widget
+		* 
+		* @param MyGeometry the geometry of the widget receiving the event
+		* @param DragDropEvent the drag and drop event
+		* @return a reply that indicated whether this event was handled
+		*/
+		virtual FReply On_Drag_Over(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event);
+
+		/*
+		* called when the user is dropping something onto a widget, terminates drag and drop
+		* 
+		* @param MyGeometry the geometry of the widget receiving the event
+		* @param DragDropEvent the drag and drop event
+		* @return a reply that indicated whether this event was handled
+		*/
+		virtual FReply On_Drop(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event);
 
 		/*
 		* the system asks each widget under the mouse to provide a cursor, this event is bubbled

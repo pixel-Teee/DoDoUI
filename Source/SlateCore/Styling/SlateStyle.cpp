@@ -36,6 +36,15 @@ namespace DoDo {
 	{
 		return m_default_brush;
 	}
+	const FLinearColor& FSlateStyleSet::get_color(const DoDoUtf8String& property_name, const char* specifier, const FLinearColor& default_value, const ISlateStyle* requesting_style) const
+	{
+		const DoDoUtf8String style_name = property_name + specifier;
+
+		auto it = m_color_values.find(property_name);
+
+		if (it == m_color_values.end()) return default_value;
+		else return it->second;
+	}
 	const DoDoUtf8String& FSlateStyleSet::get_style_set_name() const
 	{
 		return m_style_set_name;

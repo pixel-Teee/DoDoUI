@@ -16,13 +16,24 @@
 
 #include "Slate/Framework/Docking/SDockingTabStack.h"
 
+#include "Core/Misc/Attribute.h"//TAttribute depends on it
+
+#include "Slate/Framework/Docking/SDockingTarget.h"//SDockingNode depends on it
+
 namespace DoDo
 {
 	void SDockingArea::Construct(const FArguments& in_args, const std::shared_ptr<FTabManager>& in_tab_manager, const std::shared_ptr<FTabManager::FArea>& persistent_node)
 	{
 		m_my_tab_manager = in_tab_manager;
 
+		m_b_is_overlay_visible = false;
+
+		m_b_is_center_target_visible = false;
+
 		//todo:implement on dock area created
+
+		const TAttribute<EVisibility> target_cross_visibility = TAttribute<EVisibility>(std::static_pointer_cast<SDockingArea>(shared_from_this()), &SDockingArea::target_cross_visibility);
+		const TAttribute<EVisibility> target_cross_center_visibility = TAttribute<EVisibility>(std::static_pointer_cast<SDockingArea>(shared_from_this()), &SDockingArea::target_cross_center_visibility);
 
 		//in dock splitter mode we just act as a thin shell around a splitter widget
 		this->m_child_slot
@@ -45,6 +56,56 @@ namespace DoDo
 			.Expose(m_window_controls_area)
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Top)
+
+			+ SOverlay::Slot()
+			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Fill)
+			[
+				SNew(SDockingTarget)
+				.Visibility(target_cross_visibility)
+				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
+				.DockDirection(SDockingNode::LeftOf)
+			]
+
+			+ SOverlay::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Fill)
+			[
+				SNew(SDockingTarget)
+				.Visibility(target_cross_visibility)
+				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
+				.DockDirection(SDockingNode::RightOf)
+			]
+
+			+ SOverlay::Slot()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Top)
+			[
+				SNew(SDockingTarget)
+				.Visibility(target_cross_visibility)
+				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
+				.DockDirection(SDockingNode::Above)
+			]
+
+			+ SOverlay::Slot()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Bottom)
+			[
+				SNew(SDockingTarget)
+				.Visibility(target_cross_visibility)
+				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
+				.DockDirection(SDockingNode::Below)
+			]
+
+			+ SOverlay::Slot()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Center)
+			[
+				SNew(SDockingTarget)
+				.Visibility(target_cross_visibility)
+				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
+				.DockDirection(SDockingNode::Center)
+			]
 		];
 
 		//if the owner window is set and bManageParentWindow is true, this docknode will close the window then its last tab is removed
@@ -110,6 +171,20 @@ namespace DoDo
 		std::shared_ptr<SDockingTabStack> icon_housing = this->find_tab_stack_to_house_window_icon();
 		icon_housing->reserve_space_for_window_chrome(SDockingTabStack::EChromeElement::Icon, true, true);//todo:fix me
 
+	}
+
+	EVisibility SDockingArea::target_cross_visibility() const
+	{
+		return (m_b_is_overlay_visible && !m_b_is_center_target_visible)
+			? EVisibility::visible
+			: EVisibility::Collapsed;
+	}
+
+	EVisibility SDockingArea::target_cross_center_visibility() const
+	{
+		return (m_b_is_overlay_visible && m_b_is_center_target_visible)
+			? EVisibility::visible
+			: EVisibility::Collapsed;
 	}
 
 }

@@ -29,6 +29,16 @@ namespace DoDo {
 		*/
 		virtual void get_resources(std::vector<const FSlateBrush*>& out_resources) const = 0;
 
+		/*
+		* @param PropertyName name of the property to get
+		* @param Specifier an optional string to append to the property name
+		* @param DefaultValue the default value to return if the property cannot be found
+		* 
+		* @return a FLinearColor property
+		*/
+		virtual const FLinearColor& get_color(const DoDoUtf8String& property_name, const char* specifier = nullptr, const FLinearColor& default_value = FStyleDefaults::get_color(),
+			const ISlateStyle* requesting_style = nullptr) const = 0;
+
 		virtual const FSlateBrush* get_brush(const DoDoUtf8String& property_name) const = 0;//todo:implement this add extra parameter
 
 		template<typename WidgetStyleType>

@@ -11,4 +11,10 @@ namespace DoDo {
 
 		return &no_brush;
 	}
+	const FLinearColor& FStyleDefaults::get_color()
+	{
+		return m_default_color;
+	}
+
+	FLinearColor FStyleDefaults::m_default_color = FLinearColor(1, 1, 1);
 }

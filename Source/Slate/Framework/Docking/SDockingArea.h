@@ -72,6 +72,9 @@ namespace DoDo
 		void update_window_chrome_and_side_bar();
 
 	private:
+		EVisibility target_cross_visibility() const;
+
+		EVisibility target_cross_center_visibility() const;
 		/*the tab manager that controls this dock area*/
 		std::weak_ptr<FTabManager> m_my_tab_manager;
 
@@ -83,5 +86,11 @@ namespace DoDo
 
 		/*the window this dock area is embedded within, if bIsManagingParentWindow is true, the dock area will also destroy the window when the last tab goes away*/
 		std::weak_ptr<SWindow> m_parent_window_ptr;
+
+		/*the overlay is visible when the user is dragging a tab over the dock area*/
+		bool m_b_is_overlay_visible;
+
+		/*the center target is visible when the overlay is visible and there are no live tabs*/
+		bool m_b_is_center_target_visible;
 	};
 }

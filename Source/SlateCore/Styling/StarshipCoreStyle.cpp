@@ -431,6 +431,30 @@ namespace DoDo {
 
 		//todo:add more tab
 		style->set("Docking.MajorTab", minor_tab_style);
+
+		//dock cross
+		style->set("Docking.Cross.DockLeft", new FSlateImageBrush(style->root_to_content_dir("Docking/OuterDockingIndicator", ".png"), glm::vec2(6.0f, 6.0f), FLinearColor(1.0f, 0.35f, 0.0f, 0.25f)));
+		style->set("Docking.Cross.DockLeft_Hovered", new FSlateImageBrush(style->root_to_content_dir("Docking/OuterDockingIndicator", ".png"), glm::vec2(6.0f, 6.0f), FLinearColor(1.0f, 0.35f, 0.0f, 0.0f)));
+
+		style->set("Docking.Cross.DockTop", new FSlateImageBrush(style->root_to_content_dir("Docking/OuterDockingIndicator", ".png"), glm::vec2(6.0f, 6.0f), FLinearColor(1.0f, 0.35f, 0.0f, 0.25f)));
+		style->set("Docking.Cross.DockTop_Hovered", new FSlateImageBrush(style->root_to_content_dir("Docking/OuterDockingIndicator", ".png"), glm::vec2(6.0f, 6.0f), FLinearColor(1.0f, 0.35f, 0.0f, 0.0f)));
+
+		style->set("Docking.Cross.DockRight", new FSlateImageBrush(style->root_to_content_dir("Docking/OuterDockingIndicator", ".png"), glm::vec2(6.0f, 6.0f), FLinearColor(1.0f, 0.35f, 0.0f, 0.25f)));
+		style->set("Docking.Cross.DockRight_Hovered", new FSlateImageBrush(style->root_to_content_dir("Docking/OuterDockingIndicator", ".png"), glm::vec2(6.0f, 6.0f), FLinearColor(1.0f, 0.35f, 0.0f, 0.0f)));
+
+		style->set("Docking.Cross.DockBottom", new FSlateImageBrush(style->root_to_content_dir("Docking/OuterDockingIndicator", ".png"), glm::vec2(6.0f, 6.0f), FLinearColor(1.0f, 0.35f, 0.0f, 0.25f)));
+		style->set("Docking.Cross.DockBottom_Hovered", new FSlateImageBrush(style->root_to_content_dir("Docking/OuterDockingIndicator", ".png"), glm::vec2(6.0f, 6.0f), FLinearColor(1.0f, 0.35f, 0.0f, 0.0f)));
+
+		style->set("Docking.Cross.DockCenter", new FSlateImageBrush(style->root_to_content_dir("Docking/OuterDockingIndicator_Center", ".png"), glm::vec2(6.0f, 6.0f), FLinearColor(1.0f, 0.35f, 0.0f, 0.25f)));
+		style->set("Docking.Cross.DockCenter_Hovered", new FSlateImageBrush(style->root_to_content_dir("Docking/OuterDockingIndicator_Center", ".png"), glm::vec2(6.0f, 6.0f), FLinearColor(1.0f, 0.35f, 0.0f, 0.0f)));
+	
+		style->set("Docking.Cross.BorderLeft", new FSlateNoResource());
+		style->set("Docking.Cross.BorderTop", new FSlateNoResource());
+		style->set("Docking.Cross.BorderRight", new FSlateNoResource());
+		style->set("Docking.Cross.BorderBottom", new FSlateNoResource());
+		style->set("Docking.Cross.BorderCenter", new FSlateNoResource());
+
+		style->set("Docking.Cross.Tint", FLinearColor::White);
 	}
 
 	void FStarshipCoreStyle::set_up_multibox_styles(std::shared_ptr<FStyle>& style)

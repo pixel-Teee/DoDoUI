@@ -354,9 +354,28 @@ namespace DoDo {
 		return FReply::un_handled();
 	}
 
+	FReply SWidget::On_Drag_Detected(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		return FReply::un_handled();
+	}
+
 	void SWidget::On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
 	{
 		//noting
+	}
+
+	void SWidget::On_Drag_Leave(const FDragDropEvent& drag_drop_event)
+	{
+	}
+
+	FReply SWidget::On_Drag_Over(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
+	{
+		return FReply::un_handled();
+	}
+
+	FReply SWidget::On_Drop(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
+	{
+		return FReply::un_handled();
 	}
 
 	FCursorReply SWidget::On_Cursor_Query(const FGeometry& my_geometry, const FPointerEvent& cursor_event) const

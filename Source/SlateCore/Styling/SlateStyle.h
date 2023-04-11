@@ -37,6 +37,8 @@ namespace DoDo {
 
 		virtual FSlateBrush* get_default_brush() const override;
 
+		virtual const FLinearColor& get_color(const DoDoUtf8String& property_name, const char* specifier /* = nullptr */, const FLinearColor& default_value /* = FStyleDefaults::get_color() */, const ISlateStyle* requesting_style /* = nullptr */) const override;
+
 		/*
 		* add a FSlateLinearColor property to this style's collection
 		* 
@@ -58,6 +60,17 @@ namespace DoDo {
 		void set(const DoDoUtf8String& property_name, BrushType* in_brush)//note:the difference between DefinitionType, is this is pointer, we should to free this
 		{
 			m_brush_resources.insert({ property_name, in_brush });
+		}
+
+		/*
+		* set FLinearColor property
+		* 
+		* @param PropertyName - name of the property to set
+		* @param InColor - the value to set
+		*/
+		void set(const DoDoUtf8String& property_name, const FLinearColor& in_color)
+		{
+			m_color_values.insert({ property_name, in_color });
 		}
 
 		/*
@@ -90,6 +103,9 @@ namespace DoDo {
 
 		/*this dir is Engine/Editor Slate folder*/
 		DoDoUtf8String m_content_root_dir;
+
+		/*color property storage*/
+		std::map<DoDoUtf8String, FLinearColor> m_color_values;
 
 		/*FSlateColor property storage*/
 		std::map<DoDoUtf8String, FSlateColor> m_slate_color_values;
