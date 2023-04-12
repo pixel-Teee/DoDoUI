@@ -400,6 +400,11 @@ namespace DoDo
 
 	}
 
+	void FSlateUser::set_drag_drop_content(std::shared_ptr<FDragDropOperation> in_drag_drop_content)
+	{
+		m_drag_drop_content = in_drag_drop_content;
+	}
+
 	FWeakWidgetPath FSlateUser::get_last_widgets_under_pointer(uint32_t pointer_index) const
 	{
 		auto it = m_widgets_under_pointer_last_event_by_index.find(pointer_index);

@@ -8,6 +8,7 @@ namespace DoDo {
 	* for example, a widget may handle an OnMouseDown event by asking the system to give mouse capture to a specific widget
 	* to do this, return FReply::CaptureMpuse(NewMouseCapture)
 	*/
+	class FDragDropOperation;
 	class FReply : public TReplyBase<FReply>
 	{
 	public:
@@ -53,6 +54,11 @@ namespace DoDo {
 			return Me();
 		}
 
+		/*@return the content that we should use for the drag and drop operation, invalid shared ptr if a drag and drop operation is not requested*/
+		const std::shared_ptr<FDragDropOperation>& get_drag_drop_content() const { return m_drag_drop_content; }
+
+		/*@return a widget for which to detect a drag, invalid shared ptr if no drag detection requested*/
+		std::shared_ptr<SWidget> get_detect_drag_request() const { return m_detect_drag_for_widget.lock(); }
 	private:
 		/*
 		* hidden default constructor
@@ -64,6 +70,8 @@ namespace DoDo {
 		}
 
 		std::weak_ptr<SWidget> m_mouse_captor;
+		std::weak_ptr<SWidget> m_detect_drag_for_widget;
+		std::shared_ptr<FDragDropOperation> m_drag_drop_content;
 		uint32_t m_b_release_mouse_capture : 1;
 	};
 }

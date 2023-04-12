@@ -70,6 +70,8 @@
 
 #include "AppFramework/Widgets/SColorPicker.h"//SColorPicker depends on it
 
+#include "SlateCore/Input/DragAndDrop.h"//FDragDropOperation depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -1815,6 +1817,10 @@ namespace DoDo
 
     void Application::process_reply(const FWidgetPath& current_event_path, const FReply& the_reply, const FWidgetPath* widgets_under_mouse, const FPointerEvent* in_mouse_event, const int32_t m_user_index)
     {
+        const std::shared_ptr<FDragDropOperation> reply_drag_drop_content = the_reply.get_drag_drop_content();
+
+        const bool b_starting_drag_drop = reply_drag_drop_content && widgets_under_mouse && widgets_under_mouse->is_valid();
+
         //release mouse capture if requested or if we are starting a drag and drop
         //make sure to only clobber widgets under cursor if we actually had a mouse capture
         uint32_t pointer_index = in_mouse_event != nullptr ? in_mouse_event->get_pointer_index() : m_cursor_pointer_index;//note:pointer index is finger index
@@ -1830,9 +1836,71 @@ namespace DoDo
 
         //todo:cancel drag and drop
 
+        if (b_starting_drag_drop)
+        {
+            FPointerEvent transformed_pointer_event = transform_pointer_event(*in_mouse_event, widgets_under_mouse->get_window());
+
+            slate_user->set_drag_drop_content(reply_drag_drop_content);
+
+            const FWeakWidgetPath last_widgets_under_cursor = slate_user->get_last_widgets_under_pointer(pointer_index);
+
+            //we have entered drag and drop mode
+            //LastWidgetsUnderCursor.ToWidgetPath(), current event path, and
+            //*widgets under mouse should all be the same except during mouse move/
+            //drag detected events, in which use, the differences are as
+            //follows
+
+            //A) LastWidgetsUnderCursor.ToWidgetPath() - the path to the widget
+            // that the mouse cursor was over on the previous frame/mouse event
+
+            //B) CurrentEventPath - for the drag detected event, this is the path
+            // to the widget on which the drag was started, since the drag
+            // operation does not active until the mouse has been dragged
+            // a short distance, this means that this can be different from
+            // both the widget path that the cursor is currently on and the
+            // widget path that the cursor was on for the previous event
+            //C) *widgets under mouse - the widget that the mouse is currently
+            // over
+
+            //to process the beginning of the drag operation, widgets previously
+            //under the mouse cursor receive the OnMouseLeave notification
+            //regardless of whether the cursor is still over them or not
+            FEventRouter::Route<FNoReply>(this, FEventRouter::FBubblePolicy(last_widgets_under_cursor.to_widget_path()), transformed_pointer_event, [](const FArrangedWidget& some_widget,
+                const FPointerEvent& pointer_event)
+            {
+                some_widget.m_widget->On_Mouse_Leave(pointer_event);      
+
+                return FNoReply();
+            });
+
+            //then, the original widget started the drag receives OnDragEnter
+            FEventRouter::Route<FNoReply>(this, FEventRouter::FBubblePolicy(current_event_path), FDragDropEvent(transformed_pointer_event, reply_drag_drop_content),
+                [](const FArrangedWidget& some_widget, const FDragDropEvent& drag_drop_event)
+            {
+                some_widget.m_widget->On_Drag_Enter(some_widget.m_geometry, drag_drop_event);
+
+                return FNoReply();
+            });
+
+            //if the cursor is not currently over the widget on which the drag
+            //operation started (which should only be the case due to cursor
+            //movement), the remainder of events handled in
+            //route pointer move event(), which will immediately call OnDragLeave()
+            //on the widget that started the drag followed by OnDragEnter() on
+            //the current widget, thus, using the letters above, and assuming
+            //all of the widgets are different, the sequence should end up being:
+            //
+            //1. B - OnDragDected (processing reply with drag content)
+            // 1.1 A - OnMouseLeave
+            // 1.2 B - OnDragEnter
+            //2. B - OnDragLeave
+            //3. C - OnDragEnter
+            //4. C - OnDragOver
+        }
+
         //todo:add app is active check
         std::shared_ptr<SWidget> requested_mouse_captor = the_reply.get_mouse_captor();
-        if (requested_mouse_captor)//todo:check starting drag and drop
+        if (requested_mouse_captor && !b_starting_drag_drop)//todo:check starting drag and drop
         {
             if (slate_user->set_pointer_captor(pointer_index, requested_mouse_captor, current_event_path))//pointer is finger
             {
@@ -1880,6 +1948,17 @@ namespace DoDo
 
             //when the cursor capture state changes we need to refresh cursor state
             slate_user->request_cursor_query();//note:this will be trigger by query_cursor() function
+        }
+
+        //todo:releasing mouse lock
+
+        //todo:if we have a valid navigation request attempt the navigation
+
+        if (the_reply.get_detect_drag_request())
+        {
+            FPointerEvent transformed_pointer_event = transform_pointer_event(*in_mouse_event, widgets_under_mouse->get_window());
+
+            //slate_user->start_drag_detection();
         }
     }
 

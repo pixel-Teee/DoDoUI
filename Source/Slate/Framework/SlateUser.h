@@ -14,6 +14,7 @@
 namespace DoDo
 {
 	class FCursorReply;
+	class FDragDropOperation;
 	/*
 	 * slate's representation of an individual input-providing user
 	 * as new input sources are connected, new slate users are created
@@ -71,6 +72,8 @@ namespace DoDo
 
 		void notify_pointer_move_complete(const FPointerEvent& pointer_event, const FWidgetPath& widgets_under_pointer);
 
+		void set_drag_drop_content(std::shared_ptr<FDragDropOperation> in_drag_drop_content);
+
 		FWeakWidgetPath get_last_widgets_under_pointer(uint32_t pointer_index) const;
 
 		static std::shared_ptr<FSlateUser> Create(int32_t in_user_index, std::shared_ptr<ICursor> in_cursor);
@@ -105,6 +108,9 @@ namespace DoDo
 		//note:what it is?
 		/*weak paths to widgets that are currently capturing a particular pointer*/
 		std::map<uint32_t, FWeakWidgetPath> m_pointer_captor_paths_by_index;
+
+		/*when not null, the content of the current drag drop operation*/
+		std::shared_ptr<FDragDropOperation> m_drag_drop_content;
 
 		/*weak paths to the last widget each pointer was under last time an event was processed*/
 		std::map<uint32_t, FWeakWidgetPath> m_widgets_under_pointer_last_event_by_index;
