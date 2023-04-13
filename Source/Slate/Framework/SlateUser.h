@@ -74,6 +74,8 @@ namespace DoDo
 
 		void set_drag_drop_content(std::shared_ptr<FDragDropOperation> in_drag_drop_content);
 
+		void start_drag_detection(const FWidgetPath& path_to_widget, int32_t pointer_index, FKey drag_button, glm::vec2 start_location);
+
 		FWeakWidgetPath get_last_widgets_under_pointer(uint32_t pointer_index) const;
 
 		static std::shared_ptr<FSlateUser> Create(int32_t in_user_index, std::shared_ptr<ICursor> in_cursor);
@@ -108,6 +110,27 @@ namespace DoDo
 		//note:what it is?
 		/*weak paths to widgets that are currently capturing a particular pointer*/
 		std::map<uint32_t, FWeakWidgetPath> m_pointer_captor_paths_by_index;
+
+		struct FDragDetectionState
+		{
+			FDragDetectionState(const FWidgetPath& path_to_widget, int32_t pointer_index, FKey drag_button, const glm::vec2& start_location)
+				: m_detect_drag_for_widget(path_to_widget)
+				, m_drag_start_location(start_location)
+				, m_trigger_button(drag_button)
+				, m_pointer_index(pointer_index)
+			{}
+			/*if not null, a widget has requsted that we detect a drag being triggered in this widget and send an OnDragDected() event*/
+			FWeakWidgetPath m_detect_drag_for_widget;
+
+			glm::vec2 m_drag_start_location = glm::vec2(0.0f);
+
+			FKey m_trigger_button = EKeys::Invalid;
+
+			int32_t m_pointer_index = -1;
+		};
+
+		/*current drag status for pointers currently executing a drag/drop operation*/
+		std::map<uint32_t, FDragDetectionState> m_drag_states_by_pointer_index;
 
 		/*when not null, the content of the current drag drop operation*/
 		std::shared_ptr<FDragDropOperation> m_drag_drop_content;

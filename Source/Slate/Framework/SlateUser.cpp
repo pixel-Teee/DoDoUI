@@ -405,6 +405,11 @@ namespace DoDo
 		m_drag_drop_content = in_drag_drop_content;
 	}
 
+	void FSlateUser::start_drag_detection(const FWidgetPath& path_to_widget, int32_t pointer_index, FKey drag_button, glm::vec2 start_location)
+	{
+		m_drag_states_by_pointer_index.insert({ pointer_index, FDragDetectionState(path_to_widget, pointer_index, drag_button, start_location) });
+	}
+
 	FWeakWidgetPath FSlateUser::get_last_widgets_under_pointer(uint32_t pointer_index) const
 	{
 		auto it = m_widgets_under_pointer_last_event_by_index.find(pointer_index);

@@ -1958,7 +1958,11 @@ namespace DoDo
         {
             FPointerEvent transformed_pointer_event = transform_pointer_event(*in_mouse_event, widgets_under_mouse->get_window());
 
-            //slate_user->start_drag_detection();
+            slate_user->start_drag_detection(
+            widgets_under_mouse->get_path_down_to(the_reply.get_detect_drag_request()),
+                transformed_pointer_event.get_pointer_index(),
+                the_reply.get_detect_drag_request_button(),
+                transformed_pointer_event.get_screen_space_position());
         }
     }
 
