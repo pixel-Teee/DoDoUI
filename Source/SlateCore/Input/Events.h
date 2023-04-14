@@ -29,6 +29,8 @@ namespace DoDo
 	/*
 	 * base class for all mouse and key events
 	 */
+	class SWidget;
+	struct FGeometry;
 	struct FInputEvent
 	{
 	public:
@@ -68,6 +70,9 @@ namespace DoDo
 		{
 			return m_user_index;
 		}
+
+		/*the event path provides additional context for handling*/
+		FGeometry find_geometry(const std::shared_ptr<SWidget>& widget_to_find) const;
 
 	protected:
 		//state of modifier keys when this event happened

@@ -44,12 +44,17 @@ namespace DoDo {
 			return SDockingNode::DockTabStack;
 		}
 
+		void on_tab_removed(const FTabId& tab_id);
+
 		void Construct(const FArguments& in_args, const std::shared_ptr<FTabManager::FStack>& persistent_node);
 
 		/*set the content that the DockNode is presenting*/
 		void set_node_content(const std::shared_ptr<SWidget>& in_content, const FDockingStackOptionalContent& optional_content);
 
 		void add_tab_widget(const std::shared_ptr<SDockTab>& in_tab, int32_t at_location = -1, bool b_keep_inactive = false);
+
+		/*@return the last known geometry of this tab stack*/
+		FGeometry get_tab_stack_geometry() const;
 
 		/*how much padding to show around the content currently being presented*/
 		FMargin get_content_padding() const;
@@ -78,6 +83,8 @@ namespace DoDo {
 		* does not overlap our tabs
 		*/
 		void reserve_space_for_window_chrome(EChromeElement element, bool b_include_padding_for_menu_bar, bool b_only_minor_tabs);
+
+		void remove_persistent_tab(const FTabId& tab_id);
 	public:
 		/*SWidget interface*/
 		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
@@ -104,5 +111,26 @@ namespace DoDo {
 
 		/*whether or not this tab stack is part of the title bar area*/
 		bool m_b_showing_title_bar_area;
+	};
+
+	struct FTabMatcher
+	{
+		FTabMatcher(const FTabId& in_tab_id, ETabState::Type in_tab_state = static_cast<ETabState::Type>(ETabState::ClosedTab | ETabState::OpenedTab | ETabState::SidebarTab),
+			const bool in_treat_index_none_as_wild_card = true)
+			: m_tab_id_to_match(in_tab_id)
+			, m_required_tab_state(in_tab_state)
+			, m_treat_index_none_as_wild_card(in_treat_index_none_as_wild_card)
+		{}
+
+		bool operator()(const FTabManager::FTab& candidate) const
+		{
+			return ((candidate.m_tab_state & m_required_tab_state) != 0) &&
+				(candidate.m_tab_id.m_tab_type == m_tab_id_to_match.m_tab_type);
+			//todo:add instance id check
+		}
+
+		FTabId m_tab_id_to_match;
+		ETabState::Type m_required_tab_state;
+		bool m_treat_index_none_as_wild_card;
 	};
 }

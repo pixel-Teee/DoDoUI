@@ -40,6 +40,8 @@ namespace DoDo
 
 		//FWidgetPath(FWidgetPath&&) = delete;
 
+		std::optional<FArrangedWidget> find_arranged_widget(std::shared_ptr<const SWidget> widget_to_find) const;
+
 		std::optional<FWidgetAndPointer> find_arranged_widget_and_cursor(std::shared_ptr<const SWidget> widget_to_find) const;
 
 		/*

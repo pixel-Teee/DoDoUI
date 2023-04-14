@@ -27,8 +27,18 @@ namespace DoDo {
 
 		return false;
 	}
+
+	std::shared_ptr<FDockingDragOperation> FDockingDragOperation::New(
+		const std::shared_ptr<SDockTab>& in_tab_to_be_dragged, const glm::vec2 in_tab_grab_offset,
+		std::shared_ptr<SDockingArea> in_tab_owner_area, const glm::vec2& owner_area_size)
+	{
+		const std::shared_ptr<FDockingDragOperation> operation = std::make_shared<FDockingDragOperation>(in_tab_to_be_dragged, in_tab_grab_offset, in_tab_owner_area, owner_area_size);
+
+		return operation;
+	}
+
 	bool FDockingDragOperation::can_dock_in_node(const std::shared_ptr<SDockingNode>& dock_node,
-		EViaTabWell is_docking_via_tab_well) const
+	                                             EViaTabWell is_docking_via_tab_well) const
 	{
 		//todo:implement this function
 		const std::shared_ptr<FTabManager> target_tab_manager = dock_node->get_dock_area()->get_tab_manager();
@@ -90,5 +100,16 @@ namespace DoDo {
 	std::shared_ptr<SDockTab> FDockingDragOperation::get_tab_being_dragged()
 	{
 		return m_tab_being_dragged;
+	}
+
+	FDockingDragOperation::FDockingDragOperation(const std::shared_ptr<SDockTab>& in_tab_to_be_dragged,
+		const glm::vec2 in_tab_grab_offset_fraction, std::shared_ptr<SDockingArea> in_tab_owner_area,
+		const glm::vec2& owner_area_size)
+			: m_tab_being_dragged(in_tab_to_be_dragged)
+			, m_tab_grab_offset_fraction(in_tab_grab_offset_fraction)
+			, m_tab_owner_area_of_origin(in_tab_owner_area)
+			, m_last_content_size(owner_area_size)
+	{
+		//todo:create cursor decorator window
 	}
 }

@@ -73,6 +73,28 @@ namespace DoDo {
 		virtual EWindowZone::Type get_window_zone_override() const override;
 		//SWidget interface
 
+		/*
+		 * a tab notifies us that the started dragging it, so we should begin re-arranging layout
+		 *
+		 * @param TabToStartDragging the tab that notified us that the user started dragging it
+		 * @param TabGrabOffsetFraction the offset into the tab where the user grabbed it, as a fraction of the tab's size
+		 * @param MouseEvent the mouse event that caused this dragging to start
+		 *
+		 * @return the dragdrop operation
+		 */
+		FReply start_dragging_tab(std::shared_ptr<SDockTab> tab_to_start_dragging, glm::vec2 tab_grab_offset_fraction, const FPointerEvent& mouse_event);
+
+	private:
+		/*
+		 * compute the offset of the tab being dragged given:
+		 *
+		 * @param MyGeometry the tab well's geometry
+		 * @param MouseEvent the mouse event that is effecting the drag
+		 * @param tab grab offset fraction     how far into the tab the user grabbed it, as a faction of the tab's size
+		 *
+		 * @return the offset of the tab from the beginning of the tab well
+		 */
+		float compute_dragged_tab_offset(const FGeometry& my_geometry, const FPointerEvent& mouse_event, const glm::vec2& tab_grab_offset_fraction) const;
 	private:
 		/*the tabs in this tabwell*/
 		TSlotlessChildren<SDockTab> m_tabs;
@@ -85,6 +107,12 @@ namespace DoDo {
 
 		/*the tab being dragged through the tab well, if there is one*/
 		std::shared_ptr<SDockTab> m_tab_being_dragged_ptr;
+
+		/*the offset of the tab being dragged through this panel*/
+		float m_child_being_dragged_offset;
+
+		/*where the user grabbed the tab as a fraction of the tab's size*/
+		glm::vec2 m_tab_grab_offset_fraction;
 
 		/*the index of the tab that is in the foreground right now, index_none if either none are active or a tab is being dragged throgh*/
 		int32_t m_foreground_tab_index;

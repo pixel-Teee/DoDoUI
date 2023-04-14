@@ -496,6 +496,28 @@ namespace DoDo
 			return index;
 		}
 
+		int32_t remove(const std::shared_ptr<ChildType>& child)
+		{
+			if(child != SNullWidget::NullWidget)
+			{
+				child->conditionally_detach_parent_widget(&get_owner());
+			}
+
+			//note:will return the size of removed number
+			int32_t number = 0;
+
+			auto it = std::remove_if(m_children.begin(), m_children.end(), [child](std::shared_ptr<ChildType> in_child)
+			{
+				return in_child == child;
+			});
+
+			number = m_children.end() - it;
+
+			m_children.erase(it, m_children.end());
+
+			return number;//note:may error, to fix me
+		}
+
 		const std::shared_ptr<ChildType>& operator[](int32_t index) const { return m_children[index]; }
 		std::shared_ptr<ChildType>& operator[](int32_t index) { return m_children[index]; }
 

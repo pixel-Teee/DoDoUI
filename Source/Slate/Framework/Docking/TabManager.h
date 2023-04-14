@@ -338,6 +338,22 @@ namespace DoDo
 			/*the layout will be saved into a config file with this name, e.g. LevelEditorLayout or MaterialEditorLayout*/
 			DoDoUtf8String m_layout_name;
 		};
+
+		friend class FPrivateApi;
+		class FPrivateApi
+		{
+		public:
+			FPrivateApi(FTabManager& in_tab_manager)
+				: m_tab_manager(in_tab_manager)
+			{}
+
+			bool can_tab_leave_tab_well(const std::shared_ptr<const SDockTab>& tab_to_test) const;
+
+		private:
+			FTabManager& m_tab_manager;
+		};
+
+		FTabManager::FPrivateApi& get_private_api();
 	public:
 		static std::shared_ptr<FLayout> new_layout(const DoDoUtf8String& layout_name)
 		{
@@ -365,6 +381,8 @@ namespace DoDo
 
 		FTabManager(const std::shared_ptr<SDockTab>& in_owner_tab, const std::shared_ptr<FTabManager::FTabSpawner>& in_nomad_tab_spawner);
 
+		/*return true if we can do drag operation*/
+		bool get_can_do_drag_operation() { return m_b_can_do_drag_operation; }
 	protected:
 		
 		std::shared_ptr<SDockingArea> restore_area(
@@ -438,8 +456,14 @@ namespace DoDo
 
 		std::shared_ptr<FTabSpawner> m_nomed_tab_spawner;
 
+		/*protected private api that must only be accessed by the docking framework internals*/
+		std::shared_ptr<FPrivateApi> m_private_api;
+
 		/*the name of the layout being used*/
 		DoDoUtf8String m_active_layout_name;
+
+		/*prevent or allow drag operation*/
+		bool m_b_can_do_drag_operation;
 
 		/*allow systems to dynamically hide tabs*/
 		//note:in terms of tab types to hide tabs

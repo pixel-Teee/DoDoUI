@@ -57,6 +57,20 @@ namespace DoDo
 		}
 	}
 
+	std::optional<FArrangedWidget> FWidgetPath::find_arranged_widget(
+		std::shared_ptr<const SWidget> widget_to_find) const
+	{
+		for(int32_t widget_index = 0; widget_index < m_widgets.num(); ++widget_index)
+		{
+			if(m_widgets[widget_index].m_widget == widget_to_find)
+			{
+				return m_widgets[widget_index];
+			}
+		}
+
+		return std::optional<FArrangedWidget>();
+	}
+
 	std::optional<FWidgetAndPointer> FWidgetPath::find_arranged_widget_and_cursor(
 		std::shared_ptr<const SWidget> widget_to_find) const
 	{

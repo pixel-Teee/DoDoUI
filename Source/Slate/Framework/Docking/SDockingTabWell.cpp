@@ -31,6 +31,8 @@ namespace DoDo {
 	{
 		m_foreground_tab_index = -1;
 		m_tab_being_dragged_ptr = nullptr;
+		m_child_being_dragged_offset = 0.0f;
+		m_tab_grab_offset_fraction = glm::vec2(0.0f);
 
 		m_separator_brush = nullptr;//no separator between tabs
 
@@ -383,5 +385,56 @@ namespace DoDo {
 	{
 		//pretend we are a title bar so the user can grab the area to move window around
 		return EWindowZone::TitleBar;
+	}
+
+	FReply SDockingTabWell::start_dragging_tab(std::shared_ptr<SDockTab> tab_to_start_dragging,
+		glm::vec2 tab_grab_offset_fraction, const FPointerEvent& mouse_event)
+	{
+		std::shared_ptr<FTabManager> tab_manager = tab_to_start_dragging->get_tab_manager_ptr();
+		if(!tab_manager)
+		{
+			return FReply::handled();
+		}
+
+		const bool b_can_leave_tabwell = tab_manager->get_private_api().can_tab_leave_tab_well(tab_to_start_dragging);
+
+		//we are about to start dragging a tab, so make sure its offset is correct
+		this->m_child_being_dragged_offset = compute_dragged_tab_offset(mouse_event.find_geometry(shared_from_this()), mouse_event, tab_grab_offset_fraction);
+
+		//the tab well keeps track of which tab we are dragging, we treat is specially during rendering and layout
+		m_tab_being_dragged_ptr = tab_to_start_dragging;
+		m_tab_grab_offset_fraction = tab_grab_offset_fraction;
+
+		m_tabs.remove(tab_to_start_dragging);
+
+		if(b_can_leave_tabwell)
+		{
+			//we just removed the foreground tab
+			m_foreground_tab_index = -1;
+			m_parent_tab_stack_ptr.lock()->on_tab_removed(tab_to_start_dragging->get_layout_identifier());
+
+			//start dragging
+			std::shared_ptr<FDockingDragOperation> drag_drop_operation =
+				FDockingDragOperation::New(
+						tab_to_start_dragging,
+						tab_grab_offset_fraction,
+						get_dock_area(),
+						m_parent_tab_stack_ptr.lock()->get_tab_stack_geometry().get_local_size()
+					);
+
+			return FReply::handled().begin_drag_drop(drag_drop_operation);
+		}
+		else
+		{
+			return FReply::handled().capture_mouse(shared_from_this());
+		}
+	}
+
+	float SDockingTabWell::compute_dragged_tab_offset(const FGeometry& my_geometry, const FPointerEvent& mouse_event,
+		const glm::vec2& tab_grab_offset_fraction) const
+	{
+		const glm::vec2 computed_child_size = Compute_Child_Size(my_geometry);
+
+		return my_geometry.absolute_to_local(mouse_event.get_screen_space_position()).x - tab_grab_offset_fraction.x * computed_child_size.x;//note:how to understand it?
 	}
 }

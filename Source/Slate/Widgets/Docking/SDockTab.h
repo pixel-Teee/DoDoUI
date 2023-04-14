@@ -103,6 +103,7 @@ namespace DoDo {
 
 		//SWidget interface
 		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+		virtual FReply On_Drag_Detected(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
 		//End of SWidget interface
 
 		/*protected constructor, widgets may only be constructed via a FArguments (i.e.: SNew(SDockTab))*/
@@ -149,11 +150,17 @@ namespace DoDo {
 		/*padding around the content when it is presented by the SDockingTabStack*/
 		FMargin get_content_padding() const;
 
+		/*gets this tab's layout identifier*/
+		const FTabId get_layout_identifier() const;
+
 		/*gets the dock area that this resides in*/
 		std::shared_ptr<SDockingArea> get_dock_area() const;
 
 		/*get the window in which this tab's tabmanager has placed in*/
 		std::shared_ptr<SWindow> get_parent_window() const;
+
+		/*get the tab manager currently managing this tab, note that a user move the tab between tab managers, so this return value may change*/
+		std::shared_ptr<FTabManager> get_tab_manager_ptr() const;
 
 		/*the width that this tab will overlap with side-by-side tabs*/
 		float get_overlap_width() const;

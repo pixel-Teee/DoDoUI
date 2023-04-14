@@ -31,8 +31,20 @@ namespace DoDo
 	}
 	//------as function------
 
+	bool FTabManager::FPrivateApi::can_tab_leave_tab_well(const std::shared_ptr<const SDockTab>& tab_to_test) const
+	{
+		return m_tab_manager.m_b_can_do_drag_operation;//todo:add check this tab is main non closeable tab
+	}
+
+	FTabManager::FPrivateApi& FTabManager::get_private_api()
+	{
+		return *m_private_api;
+	}
+
 	FTabManager::FTabManager(const std::shared_ptr<SDockTab>& in_owner_tab, const std::shared_ptr<FTabManager::FTabSpawner>& in_nomad_tab_spawner)
-		: m_nomed_tab_spawner(in_nomad_tab_spawner) //todo:add owner tab ptr
+		: m_nomed_tab_spawner(in_nomad_tab_spawner)
+		, m_private_api(std::make_shared<FPrivateApi>(*this))
+		, m_b_can_do_drag_operation(true)//todo:add owner tab ptr
 	{
 	}
 

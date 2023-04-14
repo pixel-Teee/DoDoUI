@@ -153,12 +153,53 @@ namespace DoDo
 				active_in_parent(ETabActivationCause::UserClickedOnTab);
 
 				//todo:implement detect drag
-				return FReply::handled();
+				//note:process reply will pass this widget to start_drag_detection function
+				return FReply::handled().detect_drag(shared_from_this(), EKeys::LeftMouseButton);
+			}//todo:add middle mouse button handle
+			else if(mouse_event.get_effecting_button() == EKeys::RightMouseButton)
+			{
+				//we clicked on the tab, so it should be active
+				active_in_parent(ETabActivationCause::UserClickedOnTab);
+
+				return FReply::un_handled();
 			}
 		}
 
 		return FReply::un_handled();
 	}
+
+	FReply SDockTab::On_Drag_Detected(const FGeometry& my_geometry, const FPointerEvent& mouse_event) //create a payload
+	{
+		//need to remember where within a tab we grabbed
+		const glm::vec2 tab_grab_offset = my_geometry.absolute_to_local(mouse_event.get_screen_space_position());
+
+		const glm::vec2 tab_size = my_geometry.get_local_size();
+
+		const glm::vec2 tab_grab_offset_faction = glm::vec2(
+			std::clamp(tab_grab_offset.x / tab_size.x, 0.0f, 1.0f),
+			std::clamp(tab_grab_offset.y / tab_size.y, 0.0f, 1.0f)
+		);
+
+		if(std::shared_ptr<SDockingTabWell> pinned_parent = m_parent_ptr.lock())
+		{
+			//see if we can drag tabs contain in this manager
+			std::shared_ptr<FTabManager> tab_manager = get_tab_manager_ptr();
+			if(tab_manager && tab_manager->get_can_do_drag_operation())
+			{
+				return pinned_parent->start_dragging_tab(std::static_pointer_cast<SDockTab>(shared_from_this()), tab_grab_offset_faction, mouse_event);
+			}
+			else
+			{
+				return FReply::handled();
+			}
+		}
+		else
+		{
+			//should never get here (but sometimes does)
+			return FReply::un_handled();
+		}
+	}
+
 	SDockTab::SDockTab()
 		: m_content(SNew(SSpacer))
 		, m_tab_well_content_left(SNullWidget::NullWidget)
@@ -252,6 +293,11 @@ namespace DoDo
 		return m_content_area_padding.Get();
 	}
 
+	const FTabId SDockTab::get_layout_identifier() const
+	{
+		return m_layout_identifier;
+	}
+
 	std::shared_ptr<SDockingArea> SDockTab::get_dock_area() const
 	{
 		return m_parent_ptr.expired() ? m_parent_ptr.lock()->get_dock_area() : std::shared_ptr<SDockingArea>();
@@ -262,6 +308,11 @@ namespace DoDo
 		std::shared_ptr<SDockingArea> docking_area_ptr = this->get_dock_area();
 
 		return docking_area_ptr ? docking_area_ptr->get_parent_window() : std::shared_ptr<SWindow>();
+	}
+
+	std::shared_ptr<FTabManager> SDockTab::get_tab_manager_ptr() const
+	{
+		return m_my_tab_manager.lock();
 	}
 
 	float SDockTab::get_overlap_width() const

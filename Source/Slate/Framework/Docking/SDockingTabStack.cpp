@@ -17,6 +17,11 @@
 #include "Application/Application.h"//get app icon depends on it
 
 namespace DoDo {
+	void SDockingTabStack::on_tab_removed(const FTabId& tab_id)
+	{
+		remove_persistent_tab(tab_id);
+	}
+
 	void SDockingTabStack::Construct(const FArguments& in_args, const std::shared_ptr<FTabManager::FStack>& persistent_node)
 	{
 		//todo:implement bind tab commands
@@ -181,6 +186,12 @@ namespace DoDo {
 
 		//todo:hide cross
 	}
+
+	FGeometry SDockingTabStack::get_tab_stack_geometry() const
+	{
+		return get_tick_space_geometry();
+	}
+
 	FMargin SDockingTabStack::get_content_padding() const
 	{
 		std::shared_ptr<SDockTab> foreground_tab = m_tab_well->get_foreground_tab();
@@ -238,6 +249,16 @@ namespace DoDo {
 			break;
 		}
 	}
+
+	void SDockingTabStack::remove_persistent_tab(const FTabId& tab_id)
+	{
+		auto it = std::find_if(m_tabs.begin(), m_tabs.end(), FTabMatcher(tab_id));
+		if(it != m_tabs.end())
+		{
+			m_tabs.erase(it);
+		}
+	}
+
 	FReply SDockingTabStack::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
 	{
 		const std::shared_ptr<SDockTab> foreground = m_tab_well->get_foreground_tab();
