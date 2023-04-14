@@ -128,6 +128,9 @@ namespace DoDo
 			return m_widgets.back();
 		}
 
+		/*@return true if the widget to find is in this widget path, false otherwise*/
+		bool contains_widget(const SWidget* widget_to_find) const;
+
 		/*a valid path has at least one widget in it*/
 		bool is_valid() const { return m_widgets.size() > 0; }
 

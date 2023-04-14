@@ -461,6 +461,14 @@ namespace DoDo
 		virtual FReply On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event);
 
 		/*
+		* the system will use this event to notify a widget that the cursor has entered it, this event is uses a custom bubble strategy
+		* 
+		* @param MyGeometry the geometry of the widget receiving the event
+		* @param MouseEvent information about the input event
+		*/
+		virtual void On_Mouse_Enter(const FGeometry& my_geometry, const FPointerEvent& mouse_event);
+
+		/*
 		* the system will use this event to notify a widget that the cursor has left it, this event is uses a custom bubble strategy
 		* 
 		* @param mouse event information about the input event

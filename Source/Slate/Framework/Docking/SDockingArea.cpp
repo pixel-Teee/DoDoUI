@@ -115,6 +115,11 @@ namespace DoDo
 		}
 	}
 
+	std::shared_ptr<SDockingArea> SDockingArea::get_dock_area()
+	{
+		return std::static_pointer_cast<SDockingArea>(shared_from_this());
+	}
+
 	std::shared_ptr<FTabManager> SDockingArea::get_tab_manager() const
 	{
 		return m_my_tab_manager.lock();

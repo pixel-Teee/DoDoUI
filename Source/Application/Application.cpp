@@ -1513,6 +1513,11 @@ namespace DoDo
 
         //cache the drag drop content and reset the pointer in case OnMouseButtonUpMessage re-enters as a result of OnDrop
         //in such a case, we want the re-entrant call to skip any drag-drop stuff (otherwise we'd execute the drop action twice)
+        if (b_is_drag_dropping)
+        {
+            local_drag_drop_content = slate_user->get_drag_drop_content();
+            slate_user->reset_drag_drop_content();
+        }
 
         reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(local_widgets_under_pointer), new_transformed_pointer_event, [&](const FArrangedWidget& cur_widget, const FPointerEvent& event)
         {
@@ -1594,15 +1599,59 @@ namespace DoDo
 				last_widgets_under_pointer = it->second;
         }
 
+        //send out mouse leave events
+        //if we are doing a drag and drop, we will send this event instead
+        std::shared_ptr<FDragDropOperation> drag_drop_content = slate_user->get_drag_drop_content();
+
+        const bool b_is_drag_dropping_affected = slate_user->is_drag_dropping_affected(pointer_event);
+
+        //send out mouse enter events
+        if (b_is_drag_dropping_affected)
+        {
+            FDragDropEvent drag_drop_event(pointer_event, drag_drop_content);
+            
+            FEventRouter::Route<FNoReply>(this, FEventRouter::FBubblePolicy(widgets_under_pointer), drag_drop_event, [&last_widgets_under_pointer]
+            (const FArrangedWidget& widget_under_cursor, const FDragDropEvent& in_drag_drop_event)
+            {
+                if (!last_widgets_under_pointer.contains_widget(widget_under_cursor.get_widget_ptr()))
+                {
+                    widget_under_cursor.m_widget->On_Drag_Enter(widget_under_cursor.m_geometry, in_drag_drop_event);
+                }
+
+                return FNoReply();
+            });
+        }
+        else
+        {
+            FEventRouter::Route<FNoReply>(this, FEventRouter::FBubblePolicy(widgets_under_pointer), new_transform_pointer_event, [&last_widgets_under_pointer]
+            (const FArrangedWidget& widget_under_cursor, const FPointerEvent& pointer_event)
+            {
+                if (!last_widgets_under_pointer.contains_widget(widget_under_cursor.get_widget_ptr()))
+                {
+                    widget_under_cursor.m_widget->On_Mouse_Enter(widget_under_cursor.m_geometry, pointer_event);
+                }
+
+                return FNoReply();
+            });
+        }
+
         //bubble the mouse move event
         FReply reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(widgets_under_pointer), new_transform_pointer_event,
          [=](const FArrangedWidget& cur_widget, const FPointerEvent& event)
         {
             FReply temp_reply = FReply::un_handled();
 
-            if(!temp_reply.is_event_handled())
+            if (b_is_drag_dropping_affected)
             {
-                temp_reply = cur_widget.m_widget->On_Mouse_Move(cur_widget.m_geometry, event);
+                FDragDropEvent drag_drop_event(event, drag_drop_content);
+                temp_reply = cur_widget.m_widget->On_Drag_Over(cur_widget.m_geometry, drag_drop_event);
+            }
+            else
+            {
+				if (!temp_reply.is_event_handled())
+				{
+					temp_reply = cur_widget.m_widget->On_Mouse_Move(cur_widget.m_geometry, event);
+				}
             }
 
             return temp_reply;

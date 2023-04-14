@@ -376,6 +376,23 @@ namespace DoDo
 	{
 		//m_previous_pointer_position_by_index.insert({ pointer_event.get_pointer_index(), pointer_event.get_screen_space_position() });
 
+		if (is_drag_dropping_affected(pointer_event))
+		{
+			FDragDropEvent drag_drop_event(pointer_event, m_drag_drop_content);
+
+			m_drag_drop_content->On_Dragged(drag_drop_event);
+
+			//update the window we're under for rendering the drag drop operation if it's a windowless drag drop operation
+			if (widgets_under_pointer.is_valid())
+			{
+				//todo:get window
+			}
+			else
+			{
+
+			}
+		}
+
 		auto it = m_previous_pointer_position_by_index.find(pointer_event.get_pointer_index());
 
 		if (it != m_previous_pointer_position_by_index.end())
@@ -405,6 +422,11 @@ namespace DoDo
 	void FSlateUser::set_drag_drop_content(std::shared_ptr<FDragDropOperation> in_drag_drop_content)
 	{
 		m_drag_drop_content = in_drag_drop_content;
+	}
+
+	void FSlateUser::reset_drag_drop_content()
+	{
+		m_drag_drop_content.reset();
 	}
 
 	bool FSlateUser::is_drag_dropping() const

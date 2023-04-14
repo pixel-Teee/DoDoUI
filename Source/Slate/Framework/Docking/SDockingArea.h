@@ -45,6 +45,9 @@ namespace DoDo
 
 		void Construct(const FArguments& in_args, const std::shared_ptr<FTabManager>& in_tab_manager, const std::shared_ptr<FTabManager::FArea>& persistent_node);
 
+		/*returns this dock area*/
+		virtual std::shared_ptr<SDockingArea> get_dock_area() override;
+
 		std::shared_ptr<FTabManager> get_tab_manager() const;
 
 		/*returns the window that this dock area resides in directly and also manages*/

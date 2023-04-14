@@ -109,6 +109,9 @@ namespace DoDo {
 		/*protected constructor, widgets may only be constructed via a FArguments (i.e.: SNew(SDockTab))*/
 		SDockTab();
 
+		/*set the tab manager that is controlling this tab*/
+		void set_tab_manager(const std::shared_ptr<FTabManager>& in_tab_manager);
+
 		/*
 		* make this tab active in its tabwell
 		* 

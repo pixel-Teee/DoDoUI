@@ -423,6 +423,11 @@ namespace DoDo {
 		return FReply::un_handled();
 	}
 
+	void SWidget::On_Mouse_Enter(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		//todo:add mouse enter handler
+	}
+
 	void SWidget::On_Mouse_Leave(const FPointerEvent& mouse_event)
 	{
 		if (!m_b_is_hovered_attribute_set)

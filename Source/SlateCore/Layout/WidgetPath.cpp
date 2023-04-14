@@ -213,4 +213,16 @@ namespace DoDo
 			return b_path_un_interrupted ? EPathResolutionResult::Live : EPathResolutionResult::Truncated;
 		}
 	}
+	bool FWeakWidgetPath::contains_widget(const SWidget* widget_to_find) const
+	{
+		for (int32_t widget_index = 0; widget_index < m_widgets.size(); ++widget_index)
+		{
+			if (m_widgets[widget_index].lock().get() == widget_to_find)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

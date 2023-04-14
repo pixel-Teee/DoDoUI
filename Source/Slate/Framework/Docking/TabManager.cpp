@@ -331,6 +331,10 @@ namespace DoDo
 		}
 
 		//todo:add more logic
+		if (new_tab_widget)
+		{
+			new_tab_widget->set_tab_manager(shared_from_this());
+		}
 
 		return new_tab_widget;
 	}

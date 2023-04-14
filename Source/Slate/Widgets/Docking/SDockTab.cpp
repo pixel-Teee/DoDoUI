@@ -213,6 +213,10 @@ namespace DoDo
 		, m_tab_color_scale()//todo:add more initialize
 	{
 	}
+	void SDockTab::set_tab_manager(const std::shared_ptr<FTabManager>& in_tab_manager)
+	{
+		m_my_tab_manager = in_tab_manager;
+	}
 	void SDockTab::active_in_parent(ETabActivationCause in_activation_cause)
 	{
 		std::shared_ptr<SDockingTabWell> parent_tab_well = m_parent_ptr.lock();
