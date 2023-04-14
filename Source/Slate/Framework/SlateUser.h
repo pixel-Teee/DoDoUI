@@ -8,7 +8,6 @@
 
 #include <map>
 
-#include "SlateCore/Layout/WidgetPath.h"
 #include "SlateCore/Layout/WidgetPath.h"//FWidget depends on it
 
 namespace DoDo
@@ -74,9 +73,16 @@ namespace DoDo
 
 		void set_drag_drop_content(std::shared_ptr<FDragDropOperation> in_drag_drop_content);
 
+		bool is_drag_dropping() const;
+		bool is_drag_dropping_affected(const FPointerEvent& in_pointer_event) const;
+
 		void start_drag_detection(const FWidgetPath& path_to_widget, int32_t pointer_index, FKey drag_button, glm::vec2 start_location);
 
+		FWidgetPath detect_drag(const FPointerEvent& pointer_event, float drag_trigger_distance);
+		void reset_drag_detection();
+
 		FWeakWidgetPath get_last_widgets_under_pointer(uint32_t pointer_index) const;
+		const std::map<uint32_t, FWeakWidgetPath>& get_widgets_under_pointer_last_event_by_index() const { return m_widgets_under_pointer_last_event_by_index; }
 
 		static std::shared_ptr<FSlateUser> Create(int32_t in_user_index, std::shared_ptr<ICursor> in_cursor);
 

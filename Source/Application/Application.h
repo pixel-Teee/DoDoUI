@@ -250,6 +250,12 @@ namespace DoDo
 		* @param OnExitRequestHandler function to execute when the application wants to quit
 		*/
 		void set_exit_requested_handler(const FSimpleDelegate& on_exit_requested_handler);
+
+		/*
+		 * sets up any values that need to be based on the physical dimensions of the device
+		 * such as dead zone associated with precise tapping ... etc
+		 */
+		void set_up_physical_sensitivities();
 	public:
 		/*
 		 * called by the native application in response to a mouse move, routs the event to slate widgets
@@ -321,6 +327,9 @@ namespace DoDo
 		* @param UserIndex user index that generated the event we are replying to (defaults to 0, at least for now)
 		*/
 		void process_reply(const FWidgetPath& current_event_path, const FReply& the_reply, const FWidgetPath* widgets_under_mouse, const FPointerEvent* in_mouse_event, const int32_t m_user_index = 0);
+
+		/*@return the deadzone size for dragging in screen pixels(aka virtual desktop pixels)*/
+		float get_drag_trigger_distance() const;
 	public:
 		//------------------------FGenericApplicationMessageHandler Interface------------------------
 		virtual void set_cursor_pos(const glm::vec2 mouse_coordinate) override;
@@ -478,6 +487,9 @@ namespace DoDo
 
 		Scope<Window> m_p_window;
 
+		/*the dead zone distance in virtual desktop pixel (a.k.a screen pixels) that the user has to move their finder before it is considered a drag*/
+		float m_drag_trigger_distance;
+
 		//all top-level windows owned by this application, there are tracked here in a platform-agnostic way
 		std::vector<std::shared_ptr<SWindow>> m_windows;
 
@@ -513,4 +525,5 @@ namespace DoDo
 		void test_create_sdock();
 		//------test create sdock------
 	};
+
 }

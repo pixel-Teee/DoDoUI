@@ -40,6 +40,8 @@ namespace DoDo
 
 		//FWidgetPath(FWidgetPath&&) = delete;
 
+		std::optional<FWidgetAndPointer> find_arranged_widget_and_cursor(std::shared_ptr<const SWidget> widget_to_find) const;
+
 		/*
 		* get the first (top-most) widget in this path, which is always a window, assumes path is valid
 		* 

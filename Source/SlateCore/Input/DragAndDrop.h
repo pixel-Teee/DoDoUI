@@ -43,6 +43,14 @@ namespace DoDo {
 		}
 
 		/*
+		 * checks if this drag and drop operation is affected by a given pointer event
+		 *
+		 * @param pointer event the mouse event we are checking against
+		 * @return true if the pointer event affects this drag and drop operation (default true)
+		 */
+		virtual bool affected_by_pointer_event(const FPointerEvent& pointer_event) { return true; }
+
+		/*
 		* gets the widget that will serve as the decorator unless overridden
 		* if you do not override, you will have no decorator
 		*/

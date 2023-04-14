@@ -97,6 +97,15 @@ namespace DoDo
 		{
 			return m_array.clear();
 		}
+
+		template<typename PredicateType>
+		int32_t index_of_by_predicate(const PredicateType& pred) const
+		{
+			auto it = std::find_if(m_array.begin(), m_array.end(), pred);
+
+			if (it == m_array.end()) return -1;
+			return it - m_array.begin();
+		}
 	};
 
 }

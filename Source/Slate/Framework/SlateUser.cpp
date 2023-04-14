@@ -10,6 +10,8 @@
 
 #include "SlateCore/Widgets/SWindow.h"
 
+#include "SlateCore/Input/DragAndDrop.h"//FDragDropOperation depends on it
+
 namespace DoDo
 {
 	FSlateUser::~FSlateUser()
@@ -405,9 +407,54 @@ namespace DoDo
 		m_drag_drop_content = in_drag_drop_content;
 	}
 
+	bool FSlateUser::is_drag_dropping() const
+	{
+		return m_drag_drop_content != nullptr;//check
+	}
+
+	bool FSlateUser::is_drag_dropping_affected(const FPointerEvent& in_pointer_event) const
+	{
+		return m_drag_drop_content && m_drag_drop_content->affected_by_pointer_event(in_pointer_event);
+	}
+
 	void FSlateUser::start_drag_detection(const FWidgetPath& path_to_widget, int32_t pointer_index, FKey drag_button, glm::vec2 start_location)
 	{
 		m_drag_states_by_pointer_index.insert({ pointer_index, FDragDetectionState(path_to_widget, pointer_index, drag_button, start_location) });
+	}
+
+	FWidgetPath FSlateUser::detect_drag(const FPointerEvent& pointer_event, float drag_trigger_distance)
+	{
+		auto it = m_drag_states_by_pointer_index.find(pointer_event.get_pointer_index());
+
+		if(it != m_drag_states_by_pointer_index.end())
+		{
+			FDragDetectionState& drag_state = it->second;
+
+			const glm::vec2 drag_delta = drag_state.m_drag_start_location - pointer_event.get_screen_space_position();
+
+			float drag_delta_size_squared = drag_delta.x * drag_delta.x + drag_delta.y * drag_delta.y;
+
+			float drag_trigger_distance_size_squared = drag_trigger_distance * drag_trigger_distance;
+
+			if(drag_delta_size_squared > drag_trigger_distance_size_squared)
+			{
+				//weak path to widget path (add geometry)
+				FWidgetPath drag_detection_path = drag_state.m_detect_drag_for_widget.to_widget_path(FWeakWidgetPath::EInterruptedPathHandling::ReturnInvalid);
+
+				if(drag_detection_path.is_valid())
+				{
+					reset_drag_detection();
+					return drag_detection_path;
+				}
+			}
+		}
+
+		return FWidgetPath();
+	}
+
+	void FSlateUser::reset_drag_detection()
+	{
+		m_drag_states_by_pointer_index.clear();
 	}
 
 	FWeakWidgetPath FSlateUser::get_last_widgets_under_pointer(uint32_t pointer_index) const

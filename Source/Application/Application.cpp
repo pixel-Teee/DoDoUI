@@ -86,6 +86,56 @@ namespace DoDo
     {
     public:
 
+        class FDirectPolicy //only search root widget
+        {
+        public:
+            FDirectPolicy(const FWidgetAndPointer& in_target, const FWidgetPath& in_routing_path)
+	            : m_b_event_sent(false)
+				, m_routing_path(in_routing_path)
+				, m_widgets_under_cursor(&m_routing_path)
+				, m_target(in_target)
+            {}
+
+            FDirectPolicy(const FWidgetAndPointer& in_target, const FWidgetPath& in_routing_path, const FWidgetPath* in_widgets_under_cursor)
+                : m_b_event_sent(false)
+                , m_routing_path(in_routing_path)
+                , m_widgets_under_cursor(in_widgets_under_cursor)
+                , m_target(in_target)
+            {}
+            static DoDoUtf8String m_name;
+
+            void next()
+            {
+                m_b_event_sent = true;
+            }
+
+            bool should_keep_going() const
+            {
+                return !m_b_event_sent;
+            }
+
+            const FWidgetPath& get_routing_path() const
+            {
+                return m_routing_path;
+            }
+
+            const FWidgetPath* get_widgets_under_cursor()
+            {
+                return m_widgets_under_cursor;
+            }
+
+            FWidgetAndPointer get_widget() const
+            {
+                return m_target;
+            }
+
+        private:
+            bool m_b_event_sent;
+            const FWidgetPath& m_routing_path;
+            const FWidgetPath* m_widgets_under_cursor;
+            const FWidgetAndPointer& m_target;
+        };
+
 		class FBubblePolicy
 		{
 		public:
@@ -247,6 +297,8 @@ namespace DoDo
         }
     };
 
+    DoDoUtf8String FEventRouter::FDirectPolicy::m_name = "Direct";
+
     DoDoUtf8String FEventRouter::FBubblePolicy::m_name = "Bubble";
 
     struct FDrawWindowArgs
@@ -268,7 +320,8 @@ namespace DoDo
     }
 
     Application::Application()
-	    : m_hit_testing(this)
+	    : m_drag_trigger_distance(0.0f)
+		, m_hit_testing(this)
 		, m_last_tick_time(0.0f)
         , m_current_time(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
 		, m_average_delta_time(1.0f / 30.0f)
@@ -1360,6 +1413,11 @@ namespace DoDo
         m_on_exit_requested = on_exit_requested_handler;
     }
 
+    void Application::set_up_physical_sensitivities()
+    {
+        m_drag_trigger_distance = 5.0f;//todo:fix me
+    }
+
     const FHitTesting& Application::get_hit_testing() const
     {
         return m_hit_testing;
@@ -1440,11 +1498,12 @@ namespace DoDo
     {
         FPointerEvent new_transformed_pointer_event = pointer_event;//todo:implement transform pointer event
 
+        FReply reply = FReply::un_handled();
         std::shared_ptr<FSlateUser> slate_user = get_or_create_user(pointer_event);
+        const bool b_is_drag_dropping = slate_user->is_drag_dropping_affected(pointer_event);
+        std::shared_ptr<FDragDropOperation> local_drag_drop_content;
 
         FWidgetPath local_widgets_under_pointer = widgets_under_pointer;
-
-        FReply reply = FReply::un_handled();
 
         if(!widgets_under_pointer.is_valid())
         {
@@ -1452,8 +1511,20 @@ namespace DoDo
             local_widgets_under_pointer = locate_window_under_mouse(pointer_event.get_screen_space_position(), m_windows, false, slate_user->get_user_index());
         }
 
+        //cache the drag drop content and reset the pointer in case OnMouseButtonUpMessage re-enters as a result of OnDrop
+        //in such a case, we want the re-entrant call to skip any drag-drop stuff (otherwise we'd execute the drop action twice)
+
         reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(local_widgets_under_pointer), new_transformed_pointer_event, [&](const FArrangedWidget& cur_widget, const FPointerEvent& event)
         {
+            if(b_is_drag_dropping)
+            {
+                FDragDropEvent local_drop_event(event, local_drag_drop_content);
+
+                const FReply temp_drop_reply = cur_widget.m_widget->On_Drop(cur_widget.m_geometry, local_drop_event);
+
+                return temp_drop_reply;
+            }
+
             FReply temp_reply = FReply::un_handled();
 
             temp_reply = cur_widget.m_widget->On_Mouse_Button_On_Up(cur_widget.m_geometry, event);
@@ -1470,11 +1541,58 @@ namespace DoDo
                                                const FPointerEvent& pointer_event, bool b_is_synthetic)
     {
         bool b_handled = false;
+        FWeakWidgetPath last_widgets_under_pointer;
 
         FPointerEvent new_transform_pointer_event = widgets_under_pointer.is_valid() ? transform_pointer_event(pointer_event, widgets_under_pointer.get_window()) : pointer_event;
 
         std::shared_ptr<FSlateUser> slate_user = get_or_create_user(pointer_event);
         slate_user->notify_pointer_move_begin(pointer_event);
+
+        //currently we support only one dragged widget at a time per user
+        bool b_should_start_detecting_drag = !slate_user->is_drag_dropping();//note:check drag drop content
+
+        if(b_should_start_detecting_drag)
+        {
+            FWidgetPath drag_detect_path = slate_user->detect_drag(pointer_event, get_drag_trigger_distance());//note:check trigger distance, begin drag
+
+            if(drag_detect_path.is_valid())
+            {
+                //get the widget who wanted to drag
+                FWidgetAndPointer detect_drag_for_me = drag_detect_path.find_arranged_widget_and_cursor(drag_detect_path.get_last_widget()).value_or(FWidgetAndPointer());
+
+                //a drag has been triggered, the cursor exited some widgets as a result
+                //this assignment ensures that we will send OnLeave notifications to those widgets
+                last_widgets_under_pointer = drag_detect_path;
+
+                //send an OnDragDetected to the widget that requested drag detection
+                FReply reply = FEventRouter::Route<FReply>(this, FEventRouter::FDirectPolicy(detect_drag_for_me, drag_detect_path, &widgets_under_pointer), pointer_event, [](const FArrangedWidget& in_detect_drag_for_me, const FPointerEvent& translated_mouse_event)
+                {
+                    //on drag detected will call begin drag drop to add payload content to reply
+                    const FReply temp_reply = in_detect_drag_for_me.m_widget->On_Drag_Detected(in_detect_drag_for_me.m_geometry, translated_mouse_event);
+
+                    return temp_reply;
+                });
+
+                //note:process reply will set the drap drop content to the FSlateUser
+            }
+        }
+
+        //a drag was detected if the user is now executing a drag-drop action
+        if(b_should_start_detecting_drag && slate_user->is_drag_dropping())
+        {
+			//when a drag was detected, we pretend that the widgets under the mouse last time around
+			//we have set LastWidgetsUnderCursor accordingly when the drag was detected above
+        }
+        else
+        {
+            //last_widgets_under_pointer
+            auto it = slate_user->get_widgets_under_pointer_last_event_by_index().find(pointer_event.get_pointer_index());
+
+            if (it == slate_user->get_widgets_under_pointer_last_event_by_index().end())
+                last_widgets_under_pointer = FWeakWidgetPath();
+            else
+				last_widgets_under_pointer = it->second;
+        }
 
         //bubble the mouse move event
         FReply reply = FEventRouter::Route<FReply>(this, FEventRouter::FBubblePolicy(widgets_under_pointer), new_transform_pointer_event,
@@ -1954,15 +2072,16 @@ namespace DoDo
 
         //todo:if we have a valid navigation request attempt the navigation
 
-        if (the_reply.get_detect_drag_request())
+        if (the_reply.get_detect_drag_request()) //note:get detect drag for widget for setting from DetectDrag function
         {
             FPointerEvent transformed_pointer_event = transform_pointer_event(*in_mouse_event, widgets_under_mouse->get_window());
 
+            //note:store the information to FSlateUser map
             slate_user->start_drag_detection(
-            widgets_under_mouse->get_path_down_to(the_reply.get_detect_drag_request()),
+            widgets_under_mouse->get_path_down_to(the_reply.get_detect_drag_request()), //note:from top to down
                 transformed_pointer_event.get_pointer_index(),
                 the_reply.get_detect_drag_request_button(),
-                transformed_pointer_event.get_screen_space_position());
+                transformed_pointer_event.get_screen_space_position());//start location
         }
     }
 
@@ -2156,5 +2275,10 @@ namespace DoDo
     bool Application::make_platform_window_and_create_view_port(std::shared_ptr<SWindow> in_window) {
         in_window->show_window();//create swap chain and viewport
         return true;
+    }
+
+    float Application::get_drag_trigger_distance() const
+    {
+        return m_drag_trigger_distance;
     }
 }
