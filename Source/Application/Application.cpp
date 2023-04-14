@@ -327,6 +327,8 @@ namespace DoDo
 		, m_average_delta_time(1.0f / 30.0f)
     {
         m_last_time = m_current_time;
+
+        set_up_physical_sensitivities();
         //m_p_vk_instance = CreateScope<VkInstance>();
         //m_p_window = Window::Create();
 
@@ -1537,7 +1539,7 @@ namespace DoDo
             return temp_reply;
         });
 
-        //slate_user->notify_pointer_released(pointer_event, local_widgets_under_pointer, reply.is_event_handled());//todo:modify add drag and drop
+        slate_user->notify_pointer_released(pointer_event, local_widgets_under_pointer, local_drag_drop_content, reply.is_event_handled());//todo:modify add drag and drop
 
         return reply;
     }

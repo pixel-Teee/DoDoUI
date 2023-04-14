@@ -71,6 +71,9 @@ namespace DoDo
 
 		void notify_pointer_move_complete(const FPointerEvent& pointer_event, const FWidgetPath& widgets_under_pointer);
 
+		void notify_pointer_released(const FPointerEvent& pointer_event, const FWidgetPath& widgets_under_cursor, std::shared_ptr<FDragDropOperation> dropped_content,
+			bool b_was_handled);
+
 		void set_drag_drop_content(std::shared_ptr<FDragDropOperation> in_drag_drop_content);
 		void reset_drag_drop_content();
 

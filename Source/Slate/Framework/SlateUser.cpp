@@ -419,6 +419,22 @@ namespace DoDo
 
 	}
 
+	void FSlateUser::notify_pointer_released(const FPointerEvent& pointer_event, const FWidgetPath& widgets_under_cursor, std::shared_ptr<FDragDropOperation> dropped_content, bool b_was_handled)
+	{
+		const int32_t pointer_index = pointer_event.get_pointer_index();
+
+		auto drag_state = m_drag_states_by_pointer_index.find(pointer_index);
+
+		if (drag_state != m_drag_states_by_pointer_index.end() && drag_state->second.m_trigger_button == pointer_event.get_effecting_button())
+		{
+			//the user has released the button (or finger) that was supposed to start the drag, stop detecting it
+			
+			m_drag_states_by_pointer_index.erase(pointer_index);
+		}
+
+		//todo:add more logic
+	}
+
 	void FSlateUser::set_drag_drop_content(std::shared_ptr<FDragDropOperation> in_drag_drop_content)
 	{
 		m_drag_drop_content = in_drag_drop_content;
