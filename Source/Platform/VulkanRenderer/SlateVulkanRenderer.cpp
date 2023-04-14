@@ -438,7 +438,14 @@ namespace DoDo {
 
 	void FSlateVulkanRenderer::on_window_destroyed(const std::shared_ptr<SWindow>& in_window)
 	{
-		m_window_to_viewport_map.erase(in_window.get());
+		VkDevice device = *(VkDevice*)m_logic_device->get_native_handle();
+		vkDeviceWaitIdle(device);
+		auto it = m_window_to_viewport_map.find(in_window.get());
+		if(it != m_window_to_viewport_map.end())
+		{
+			it->second.m_deletion_queue.flush();
+			m_window_to_viewport_map.erase(in_window.get());
+		}
 	}
 
 	FSlateResourceHandle FSlateVulkanRenderer::get_resource_handle(const FSlateBrush& brush, glm::vec2 local_size, float draw_scale)
