@@ -165,6 +165,21 @@ namespace DoDo {
 		];
 		
 	}
+	void SDockingTabStack::open_tab(const std::shared_ptr<SDockTab>& in_tab, int32_t insert_at_location, bool b_keep_in_active)
+	{
+		const int32_t insert_index = open_persistent_tab(in_tab->get_layout_identifier(), insert_at_location);
+
+		//the tab may be a nomad tab, in which case it should inherit whichever tab manager it is being put into!
+		in_tab->set_tab_manager(get_dock_area()->get_tab_manager());
+
+		const FTabId tab_id = in_tab->get_layout_identifier();
+
+		//todo:check tab is sidebar tab
+
+		add_tab_widget(in_tab, insert_index, b_keep_in_active);
+		//todo:add on live tab added
+		m_tab_well->refresh_parent_cotent();
+	}
 	void SDockingTabStack::set_node_content(const std::shared_ptr<SWidget>& in_content, const FDockingStackOptionalContent& optional_content)
 	{
 		m_content_slot->set_content(in_content);//note:this function is important, will use SDockTab's content to populate this
@@ -256,6 +271,80 @@ namespace DoDo {
 		if(it != m_tabs.end())
 		{
 			m_tabs.erase(it);
+		}
+	}
+
+	int32_t SDockingTabStack::open_persistent_tab(const FTabId& tab_id, int32_t open_location_among_active_tabs)
+	{
+		auto it = std::find_if(m_tabs.begin(), m_tabs.end(), FTabMatcher(tab_id, static_cast<ETabState::Type>(ETabState::ClosedTab | ETabState::SidebarTab)));
+
+		int32_t existing_closed_tab_index = -1;
+		existing_closed_tab_index = m_tabs.end() - it;
+
+		if (open_location_among_active_tabs == -1)
+		{
+			if (existing_closed_tab_index != -1)
+			{
+				FTabManager::FTab& tab = m_tabs[existing_closed_tab_index];
+				tab.m_tab_state = tab.m_side_bar_location == ESidebarLocation::none ? ETabState::OpenedTab : ETabState::SidebarTab;
+				return existing_closed_tab_index;
+			}
+			else
+			{
+				//this tab was never opened in the tab stack before, add it
+				m_tabs.push_back(FTabManager::FTab(tab_id, ETabState::OpenedTab));
+				return m_tabs.size() - 1;
+			}
+		}
+		else
+		{
+			//we need to open a tab in a specific location
+
+			//we have the index of the open tab where to insert, but we need the index in the persistent
+			//array, which is an ordered list of all tabs (both open and closed)
+			int32_t open_location_in_global_list = -1;
+			for (int32_t tab_index = 0, open_tab_index = 0; tab_index < m_tabs.size() && open_location_in_global_list == -1; ++tab_index)
+			{
+				const bool b_this_tab_is_open = (m_tabs[tab_index].m_tab_state == ETabState::OpenedTab);
+
+				if (b_this_tab_is_open)
+				{
+					if (open_tab_index == open_location_among_active_tabs)
+					{
+						open_location_in_global_list = tab_index;
+					}
+					++open_tab_index;
+				}
+			}
+
+			if (open_location_in_global_list == -1)
+			{
+				open_location_in_global_list = m_tabs.size();
+			}
+
+			if (existing_closed_tab_index == -1)
+			{
+				//create a new tab
+				m_tabs.insert(m_tabs.begin() + open_location_in_global_list, FTabManager::FTab(tab_id, ETabState::OpenedTab));
+			}
+			else
+			{
+				//move the existing closed tab to the new desired location
+				FTabManager::FTab tab_to_move = m_tabs[existing_closed_tab_index];
+				m_tabs.erase(m_tabs.begin() + existing_closed_tab_index);
+
+				//if the element we removed was before the insert location, subtract one since the index was shifted during the removal
+				if (existing_closed_tab_index <= open_location_in_global_list)
+				{
+					--open_location_in_global_list;
+				}
+
+				//mark the tab opened
+				tab_to_move.m_tab_state = ETabState::OpenedTab;
+
+				m_tabs.insert(m_tabs.begin() + open_location_in_global_list, tab_to_move);
+				return open_location_among_active_tabs;
+			}
 		}
 	}
 

@@ -395,6 +395,17 @@ namespace DoDo {
 					const std::shared_ptr<SDockTab> tab_being_dragged = m_tab_being_dragged_ptr;
 
 					//figure out where in this tabwell to drop the tab
+					const int32_t drop_location_index = compute_child_drop_index(my_geometry, tab_being_dragged);
+
+					//remove the tab when dropped, if it was being dragged in this it will be added again in a more permanent way by open tab
+					m_tabs.remove(tab_being_dragged);
+
+					//actually insert the new tab
+					m_parent_tab_stack_ptr.lock()->open_tab(tab_being_dragged, drop_location_index);
+
+					//we are no longer dragging a tab
+					//note:this function is important
+					m_tab_being_dragged_ptr.reset();
 					//todo:implement this function
 
 					return FReply::handled();

@@ -48,6 +48,8 @@ namespace DoDo {
 
 		void Construct(const FArguments& in_args, const std::shared_ptr<FTabManager::FStack>& persistent_node);
 
+		void open_tab(const std::shared_ptr<SDockTab>& in_tab, int32_t insert_at_location = -1, bool b_keep_in_active = false);
+
 		/*set the content that the DockNode is presenting*/
 		void set_node_content(const std::shared_ptr<SWidget>& in_content, const FDockingStackOptionalContent& optional_content);
 
@@ -85,6 +87,8 @@ namespace DoDo {
 		void reserve_space_for_window_chrome(EChromeElement element, bool b_include_padding_for_menu_bar, bool b_only_minor_tabs);
 
 		void remove_persistent_tab(const FTabId& tab_id);
+
+		int32_t open_persistent_tab(const FTabId& tab_id, int32_t open_location_among_active_tabs = -1);
 	public:
 		/*SWidget interface*/
 		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
