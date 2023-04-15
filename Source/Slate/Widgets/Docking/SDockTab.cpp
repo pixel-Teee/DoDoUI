@@ -200,6 +200,13 @@ namespace DoDo
 		}
 	}
 
+	void SDockTab::On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
+	{
+		//todo:update tab style
+
+		SBorder::On_Drag_Enter(my_geometry, drag_drop_event);
+	}
+
 	SDockTab::SDockTab()
 		: m_content(SNew(SSpacer))
 		, m_tab_well_content_left(SNullWidget::NullWidget)
@@ -328,6 +335,11 @@ namespace DoDo
 	{
 		m_parent_ptr = parent;
 		//todo:implement on parent set
+	}
+
+	void SDockTab::set_dragged_over_dock_area(const std::shared_ptr<SDockingArea>& area)
+	{
+		m_dragged_over_docking_area = area;
 	}
 
 	void SDockTab::provide_default_icon(const FSlateBrush* in_default_icon)

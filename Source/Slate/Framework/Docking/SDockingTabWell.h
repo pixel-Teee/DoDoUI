@@ -68,8 +68,12 @@ namespace DoDo {
 		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
 		virtual void On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
+		virtual FReply On_Drag_Over(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
+		virtual FReply On_Drop(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
 		virtual glm::vec2 Compute_Desired_Size(float) const override;
 		virtual FChildren* Get_Children() override;
+		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+		virtual FReply On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
 		virtual EWindowZone::Type get_window_zone_override() const override;
 		//SWidget interface
 
@@ -95,6 +99,12 @@ namespace DoDo {
 		 * @return the offset of the tab from the beginning of the tab well
 		 */
 		float compute_dragged_tab_offset(const FGeometry& my_geometry, const FPointerEvent& mouse_event, const glm::vec2& tab_grab_offset_fraction) const;
+
+		/*
+		* the user is dropping a tab on this tabwell, and the tabwell's geometry is currently my geometry,
+		* @return the index of the slot into which the tab should go
+		*/
+		int32_t compute_child_drop_index(const FGeometry& my_geometry, const std::shared_ptr<SDockTab>& tab_being_dragged);
 	private:
 		/*the tabs in this tabwell*/
 		TSlotlessChildren<SDockTab> m_tabs;

@@ -8,6 +8,8 @@
 #include "SDockingArea.h"
 #include "Slate/Widgets/Docking/SDockTab.h"
 
+#include "SDockingTabWell.h"
+
 namespace DoDo {
 	/*
 	 * check if the given potential parent is a parent of potential child
@@ -92,14 +94,27 @@ namespace DoDo {
 	void FDockingDragOperation::on_tab_well_entered(const std::shared_ptr<SDockingTabWell>& the_panel)
 	{
 		//todo:implement this
+		if (is_parent_widget_of(this->m_tab_owner_area_of_origin, the_panel->get_dock_area()))
+		{
+			return;
+		}
 
 		//note:this function will change state
 
+		//we just pulled the tab into some tabwell(in some docknode)
+		//hide our decorator window and let the dock node handle previewing what will happen if we drop the node
+		
+		m_tab_being_dragged->set_dragged_over_dock_area(the_panel->get_dock_area());
 	}
 
 	std::shared_ptr<SDockTab> FDockingDragOperation::get_tab_being_dragged()
 	{
 		return m_tab_being_dragged;
+	}
+
+	glm::vec2 FDockingDragOperation::get_tab_grab_offset_fraction() const
+	{
+		return m_tab_grab_offset_fraction;
 	}
 
 	FDockingDragOperation::FDockingDragOperation(const std::shared_ptr<SDockTab>& in_tab_to_be_dragged,

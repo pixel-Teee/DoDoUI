@@ -125,6 +125,14 @@ namespace DoDo {
 			if (m_tabs.num() > 0 && my_dock_area)
 			{
 				//todo:implement this
+				const std::shared_ptr<SDockTab> previous_foreground_tab = (last_foreground_tab_index == -1) ?
+					std::shared_ptr<SDockTab>()
+					: m_tabs[last_foreground_tab_index];
+
+				const std::shared_ptr<SDockTab> new_foreground_tab = (m_foreground_tab_index == -1) ?
+					std::shared_ptr<SDockTab>()
+					: m_tabs[m_foreground_tab_index];
+
 			}
 		}
 
@@ -200,7 +208,7 @@ namespace DoDo {
 		//tabs have a uniform size
 		const glm::vec2 child_size = Compute_Child_Size(allotted_geometry);
 
-		const float dragged_child_center = child_size.x / 2.0f;//todo:add child being dragged offset
+		const float dragged_child_center = m_child_being_dragged_offset + child_size.x / 2.0f;//todo:add child being dragged offset
 
 		//arrange all the tabs left to right
 		float x_offset = 0.0f;
@@ -233,7 +241,7 @@ namespace DoDo {
 		//todo:implement child being dragged offset
 		if (tab_being_dragged)
 		{
-			arranged_children.add_widget(allotted_geometry.make_child(tab_being_dragged, glm::vec2(0.0f, 0.0f), child_size));
+			arranged_children.add_widget(allotted_geometry.make_child(tab_being_dragged, glm::vec2(m_child_being_dragged_offset, 0.0f), child_size));
 		}
 	}
 
@@ -342,11 +350,60 @@ namespace DoDo {
 				m_tabs.add(m_tab_being_dragged_ptr);
 
 				//todo:implement tab grab offset fraction
+				this->m_tab_grab_offset_fraction = drag_drop_operation->get_tab_grab_offset_fraction();
 
 				//the user should see the contents of the tab that we're dragging
 				m_parent_tab_stack_ptr.lock()->set_node_content(drag_drop_operation->get_tab_being_dragged()->get_content(), FDockingStackOptionalContent());
 			}
 		}
+	}
+	FReply SDockingTabWell::On_Drag_Over(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
+	{
+		std::shared_ptr<FDockingDragOperation> drag_drop_operation = drag_drop_event.get_operation_as<FDockingDragOperation>();
+
+		if (drag_drop_operation)
+		{
+			if (drag_drop_operation->can_dock_in_node(m_parent_tab_stack_ptr.lock(), FDockingDragOperation::DockingViaTabWell))
+			{
+				//we are dragging the tab through a tabwell
+				//update the position of the tab that we are dragging in the panel
+				this->m_child_being_dragged_offset = compute_dragged_tab_offset(my_geometry, drag_drop_event, m_tab_grab_offset_fraction);
+				return FReply::handled();
+			}
+		}
+		return FReply::un_handled();
+	}
+	FReply SDockingTabWell::On_Drop(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
+	{
+		std::shared_ptr<FDockingDragOperation> drag_drop_operation = drag_drop_event.get_operation_as<FDockingDragOperation>();
+
+		if (drag_drop_operation)
+		{
+			if (drag_drop_operation->can_dock_in_node(m_parent_tab_stack_ptr.lock(), FDockingDragOperation::DockingViaTabWell))
+			{
+				//it's rare, but sometimes a drop operation can happen after we drag a tab out of a docking tab well but before the engine has a
+				//chance to notify the next docking tab well what a drag operation has entered it, in this case, just use the tab referenced by the
+				//drag/drop operation
+				if (!m_tab_being_dragged_ptr)
+				{
+					m_tab_being_dragged_ptr = drag_drop_operation->get_tab_being_dragged();
+				}
+
+				if (m_tab_being_dragged_ptr)
+				{
+					//we dropped a tab into this tabwell
+					const std::shared_ptr<SDockTab> tab_being_dragged = m_tab_being_dragged_ptr;
+
+					//figure out where in this tabwell to drop the tab
+					//todo:implement this function
+
+					return FReply::handled();
+				}
+			}
+		}
+
+		//someone just dropped something in here, but we have no idea what to do with it
+		return FReply::un_handled();
 	}
 	glm::vec2 SDockingTabWell::Compute_Desired_Size(float) const
 	{
@@ -380,6 +437,42 @@ namespace DoDo {
 	FChildren* SDockingTabWell::Get_Children()
 	{
 		return &m_tabs;
+	}
+	FReply SDockingTabWell::On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		if (m_tab_being_dragged_ptr) //todo:fix me, this function need to call, to reset tab position
+		{
+			const std::shared_ptr<SDockTab> tab_being_dragged = m_tab_being_dragged_ptr;
+			this->m_tab_being_dragged_ptr.reset();
+			const int32_t drop_location_index = compute_child_drop_index(my_geometry, tab_being_dragged);
+
+			//reorder the tab
+			m_tabs.remove(tab_being_dragged);
+			m_tabs.insert(tab_being_dragged, drop_location_index - 1);//note:to fix this function
+
+			bring_tab_to_front(tab_being_dragged);
+
+			//we are no longer dragging a tab in this tab well, so stop showing it in the tabwell
+			return FReply::handled().release_mouse_capture();
+		}
+		else
+		{
+			return FReply::un_handled();
+		}
+	}
+	FReply SDockingTabWell::On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event)
+	{
+		if (this->has_mouse_capture())
+		{
+			//we are dragging the tab through a tab well
+			//update the position of the tab that we are dragging in the panel
+			this->m_child_being_dragged_offset = compute_dragged_tab_offset(my_geometry, mouse_event, m_tab_grab_offset_fraction);
+			return FReply::handled();
+		}
+		else
+		{
+			return FReply::un_handled();
+		}
 	}
 	EWindowZone::Type SDockingTabWell::get_window_zone_override() const
 	{
@@ -436,5 +529,13 @@ namespace DoDo {
 		const glm::vec2 computed_child_size = Compute_Child_Size(my_geometry);
 
 		return my_geometry.absolute_to_local(mouse_event.get_screen_space_position()).x - tab_grab_offset_fraction.x * computed_child_size.x;//note:how to understand it?
+	}
+	int32_t SDockingTabWell::compute_child_drop_index(const FGeometry& my_geometry, const std::shared_ptr<SDockTab>& tab_being_dragged)
+	{
+		const float child_width = Compute_Child_Size(my_geometry).x;
+		const float child_width_with_overlap = child_width - tab_being_dragged->get_overlap_width();
+		const float dragged_child_center = m_child_being_dragged_offset + child_width / 2.0f;
+		const int32_t drop_location_index = std::clamp(static_cast<int32_t>(dragged_child_center / child_width_with_overlap), 0, m_tabs.num());
+		return drop_location_index;
 	}
 }

@@ -44,6 +44,9 @@ namespace DoDo {
 
 		/*@return the widget being dragged*/
 		std::shared_ptr<SDockTab> get_tab_being_dragged();
+
+		/*@return location where the user grabbed within the tab as a fraction of the tab's size*/
+		glm::vec2 get_tab_grab_offset_fraction() const;
 	
 		/*the construct is protected, so that this class can only be instantiated as a shared pointer*/
 		FDockingDragOperation(const std::shared_ptr<SDockTab>& in_tab_to_be_dragged, const glm::vec2 in_tab_grab_offset_fraction, std::shared_ptr<SDockingArea> in_tab_owner_area, const glm::vec2& owner_area_size);

@@ -104,6 +104,7 @@ namespace DoDo {
 		//SWidget interface
 		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
 		virtual FReply On_Drag_Detected(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+		virtual void On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
 		//End of SWidget interface
 
 		/*protected constructor, widgets may only be constructed via a FArguments (i.e.: SNew(SDockTab))*/
@@ -170,6 +171,9 @@ namespace DoDo {
 
 		/*sets the tab's tab well parent, or resets it if nothing is passed in*/
 		void set_parent(std::shared_ptr<SDockingTabWell> parent = std::shared_ptr<SDockingTabWell>());
+
+		/*used by the drag/drop operation to signal to this tab what it is dragging over*/
+		void set_dragged_over_dock_area(const std::shared_ptr<SDockingArea>& area);
 
 	protected:
 		/*provide a default tab icon*/
