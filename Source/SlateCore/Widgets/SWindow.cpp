@@ -53,8 +53,12 @@ namespace DoDo {
 	}
 
 	SWindow::SWindow()
-		: m_initial_desired_screen_position(glm::vec2(0.0f))
+		: m_opacity(1.0f)
+		, m_sizing_rule(ESizingRule::UserSized)
+		, m_transparency_support(EWindowTransparency::None)
+		, m_initial_desired_screen_position(glm::vec2(0.0f))
 		, m_initial_desired_size(glm::vec2(0.0f, 0.0f))
+		, m_b_is_pop_up_window(false)
 		, m_size(glm::vec2(0.0f, 0.0f))
 		, m_view_port_size(glm::vec2(0.0f, 0.0f))
 		, m_title_bar_size(SWindowDefs::default_title_bar_size)
@@ -67,13 +71,18 @@ namespace DoDo {
 	{
 		this->m_type = in_args._Type;
 		this->m_title = in_args._Title;
+		this->m_opacity = in_args._InitialOpacity;
+		this->m_transparency_support = in_args._SupportsTransparency.m_value;
+		this->m_opacity = in_args._InitialOpacity;
 		this->m_style = in_args._Style;
 		this->m_window_background = &in_args._Style->m_background_brush;
 		this->m_sizing_rule = in_args._SizingRule;
 		this->m_user_resize_border = in_args._UserResizeBorder;
 
+		this->m_b_is_pop_up_window = in_args._IsPopupWindow;
+
 		//calculate window size from client size
-		b_create_title_bar = in_args._CreateTitleBar;//todo:add other check
+		b_create_title_bar = in_args._CreateTitleBar && !m_b_is_pop_up_window && m_type != EWindowType::CursorDecorator;//todo:add other check
 
 		//calculate initial window position
 		glm::vec2 window_position = in_args._ScreenPosition;
@@ -89,20 +98,56 @@ namespace DoDo {
 		dpi_scale = FPlatformApplicationMisc::get_dpi_scale_factor_at_point(window_position.x, window_position.y);
 
 		const glm::vec2 dpi_scaled_client_size = in_args._AdjustInitialSizeAndPositionForDPIScale ? in_args._ClientSize * dpi_scale : in_args._ClientSize;
+		glm::vec2 window_size = get_window_size_from_client_size(dpi_scaled_client_size, dpi_scale);
+
+		window_size = glm::vec2(std::max(20.0f, window_size.x), std::max(20.0f, window_size.y));//todo:fix this
 
 		this->m_initial_desired_screen_position = window_position;
-		this->m_initial_desired_size = dpi_scaled_client_size;//todo:need to interms of the dpi to scale
+		this->m_initial_desired_size = window_size;//todo:need to interms of the dpi to scale
 
-		resize_window_size(m_initial_desired_size);
+		resize_window_size(window_size);
 
 		this->construct_window_internals();
 
 		this->set_content(in_args._Content.m_widget);//set content, move FArgument's widget to this function
 	}
 
+	std::shared_ptr<SWindow> SWindow::make_cursor_decorator()
+	{
+		std::shared_ptr<SWindow> new_window = SNew(SWindow)
+			.Type(EWindowType::CursorDecorator)
+			.IsPopupWindow(true)
+			.SizingRule(ESizingRule::AutoSized)
+			.SupportsTransparency(EWindowTransparency::PerWindow);
+
+		new_window->m_opacity = 1.0f;
+
+		return new_window;
+	}
+
+	glm::vec2 SWindow::compute_window_size_for_cotent(glm::vec2 content_size)
+	{
+		return content_size + glm::vec2(0, SWindowDefs::default_title_bar_size);
+	}
+
 	bool SWindow::is_visible() const
 	{
 		return true;
+	}
+
+	void SWindow::set_opacity(const float in_opacity)
+	{
+		m_opacity = in_opacity;
+	}
+
+	float SWindow::get_opacity() const
+	{
+		return m_opacity;
+	}
+
+	EWindowTransparency SWindow::get_transparency_support() const
+	{
+		return m_transparency_support;
 	}
 
 	FGeometry SWindow::get_window_geometry_in_window() const
@@ -163,9 +208,19 @@ namespace DoDo {
 		return m_parent_window_ptr.lock();//promote
 	}
 
+	bool SWindow::accepts_input() const
+	{
+		return m_type != EWindowType::CursorDecorator && (m_type != EWindowType::ToolTip);//todo:add more logic
+	}
+
 	bool SWindow::is_auto_sized() const
 	{
 		return m_sizing_rule == ESizingRule::AutoSized;
+	}
+
+	void SWindow::set_sizing_rule(ESizingRule in_sizing_rule)
+	{
+		m_sizing_rule = in_sizing_rule;
 	}
 
 	FHittestGrid& SWindow::get_hittest_grid()
@@ -229,8 +284,19 @@ namespace DoDo {
 			Application::get().get_renderer()->create_view_port(std::static_pointer_cast<SWindow>(shared_from_this()));
 		}
 
+		//auto sized windows don't know their size until after their position is set
+		//repositioning the window on show with the new size solves this
+		if (m_sizing_rule == ESizingRule::AutoSized) //todo:check auto center
+		{
+			slate_prepass(1.0f);//todo:add get application scale and get dpi scale factor
+			const glm::vec2 window_desired_pixels = get_desired_size_desktop_pixels();
+			reshape_window(m_initial_desired_screen_position - (window_desired_pixels * 0.5f), window_desired_pixels);
+		}
+
 		//reshape window, to set screen position and size, todo:fix me, don't use initial desired size
-		reshape_window(m_initial_desired_screen_position, m_initial_desired_size);
+		reshape_window(m_initial_desired_screen_position, m_initial_desired_size);//todo:fix me
+
+		//todo:add show and bring to front
 	}
 
 	void SWindow::set_native_window(std::shared_ptr<Window> in_native_window)
@@ -293,6 +359,16 @@ namespace DoDo {
 		}
 
 		set_cached_size(new_size);
+	}
+
+	void SWindow::reshape_window(const FSlateRect& in_new_shape)
+	{
+		reshape_window(glm::vec2(in_new_shape.left, in_new_shape.top), glm::vec2(in_new_shape.right - in_new_shape.left, in_new_shape.bottom - in_new_shape.top));
+	}
+
+	void SWindow::update_morph_target_shape(const FSlateRect& target_shape)
+	{
+		Morpher.m_target_morph_shape = target_shape;
 	}
 
 	void SWindow::resize(glm::vec2 new_client_size)
@@ -548,6 +624,12 @@ namespace DoDo {
 		//if this is a regular non-os window, we need to compensate for the border and title bar area that we will add
 		//note:windows with an os border do this in reshape window
 		//todo:check is regular window
+		//todo:check has os window border
+
+		//if (b_create_title_bar)
+		//{
+		//	in_client_size.y += (SWindowDefs::default_title_bar_size * dpi_scale.value_or(1.0f)); //todo:fix me
+		//}
 
 		return in_client_size;
 	}

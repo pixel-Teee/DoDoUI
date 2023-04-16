@@ -284,6 +284,14 @@ namespace DoDo
 		bool process_mouse_button_up_event(const FPointerEvent& mouse_event);
 
 		/*
+		* called by the native application in response to an activation or deactivation
+		* 
+		* @param ActivateEvent information about the window activation/deactivation
+		* @return was this event handled by the slate application?
+		*/
+		bool process_window_activated_event(const FWindowActivateEvent& activate_event);
+
+		/*
 		* returns the current instance of the application, the application should have been initialized before
 		* this method is called
 		* 
@@ -347,6 +355,8 @@ namespace DoDo
 		virtual bool On_Mouse_Up(const EMouseButtons::Type button, const glm::vec2 cursor_pos) override;
 
 		virtual bool On_Size_Changed(const std::shared_ptr<Window>& window, const int32_t width, const int32_t height, bool b_was_minimized = false);
+
+		virtual bool On_Window_Activation_Changed(const std::shared_ptr<Window>& window, const EWindowActivation activation_type) override;
 
 		virtual bool On_Cursor_Set() override;
 

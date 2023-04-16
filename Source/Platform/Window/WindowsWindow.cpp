@@ -120,7 +120,12 @@ namespace DoDo {
         //todo:implement drag and drop operation
 
         //todo:implement reshape window
+        //reshape_window(window_x, window_y, window_width, window_height);//todo:fix me
         
+		if (m_definition->m_transparency_support == EWindowTransparency::PerWindow)
+		{
+            set_opacity(m_definition->m_opacity);
+        }
     }
 
     void WindowsWindow::adjust_window_region(int32_t width, int32_t height)
@@ -153,6 +158,10 @@ namespace DoDo {
         glfwSetWindowPos(m_p_window, window_x, window_y);
 
         glfwSetWindowSize(m_p_window, new_width, new_height);//note:this will dispatch one message to os message callback
+    }
+    void WindowsWindow::set_opacity(const float in_opacity)
+    {
+        glfwSetWindowOpacity(m_p_window, in_opacity);
     }
     void WindowsWindow::destroy()
     {

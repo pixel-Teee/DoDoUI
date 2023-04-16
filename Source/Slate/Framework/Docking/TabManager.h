@@ -266,8 +266,26 @@ namespace DoDo
 				
 			}
 
+			std::shared_ptr<FSplitter> split(std::shared_ptr<FLayoutNode> in_node)
+			{
+				m_child_nodes.push_back(in_node);
+				return std::static_pointer_cast<FSplitter>(shared_from_this());
+			}
+
 			virtual std::shared_ptr<FSplitter> as_splitter() override
 			{
+				return std::static_pointer_cast<FSplitter>(shared_from_this());
+			}
+
+			std::shared_ptr<FSplitter> set_orientation(const EOrientation in_orientation)
+			{
+				m_orientation = in_orientation;
+				return std::static_pointer_cast<FSplitter>(shared_from_this());
+			}
+
+			std::shared_ptr<FSplitter> set_size_coefficient(const float in_size_coefficient)
+			{
+				m_size_coefficient = in_size_coefficient;
 				return std::static_pointer_cast<FSplitter>(shared_from_this());
 			}
 
@@ -297,6 +315,15 @@ namespace DoDo
 
 			virtual std::shared_ptr<FArea> as_area() override
 			{
+				return std::static_pointer_cast<FArea>(shared_from_this());
+			}
+
+			std::shared_ptr<FArea> set_window(glm::vec2 in_position, bool is_maximized)
+			{
+				m_window_placement = Placement_Specified;
+				m_unscaled_window_position = in_position;
+				m_b_is_maximized = is_maximized;
+
 				return std::static_pointer_cast<FArea>(shared_from_this());
 			}
 
@@ -347,7 +374,11 @@ namespace DoDo
 				: m_tab_manager(in_tab_manager)
 			{}
 
+			std::shared_ptr<SWindow> get_parent_window() const;
+
 			bool can_tab_leave_tab_well(const std::shared_ptr<const SDockTab>& tab_to_test) const;
+
+			void on_dock_area_closing(const std::shared_ptr<SDockingArea>& dock_area_that_is_closing);
 
 		private:
 			FTabManager& m_tab_manager;
@@ -375,6 +406,11 @@ namespace DoDo
 		static std::shared_ptr<FStack> new_stack()
 		{
 			return std::make_shared<FStack>();
+		}
+
+		static std::shared_ptr<FSplitter> new_splitter()
+		{
+			return std::make_shared<FSplitter>();
 		}
 
 		using FTabSpawner = std::map<DoDoUtf8String, std::shared_ptr<FTabSpawnerEntry>>;//key is tab id's tab type
@@ -503,6 +539,15 @@ namespace DoDo
 		const DoDoUtf8String& get_application_title() const;
 
 		void set_application_title(const DoDoUtf8String& app_title);//this title will set to main SWindow title
+
+		/*provide a window under which all other windows in this application should nest*/
+		void set_root_window(const std::shared_ptr<SWindow> in_root_window);
+
+		/*the window under which all other windows in our app nest, might be null*/
+		std::shared_ptr<SWindow> get_root_window() const;
+
+		/*a window under which all of the windows in this application will nest*/
+		std::weak_ptr<SWindow> m_root_window_ptr;
 
 		DoDoUtf8String m_app_title;
 	};

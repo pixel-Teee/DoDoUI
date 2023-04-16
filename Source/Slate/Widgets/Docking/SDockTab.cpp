@@ -311,7 +311,7 @@ namespace DoDo
 
 	std::shared_ptr<SDockingArea> SDockTab::get_dock_area() const
 	{
-		return m_parent_ptr.expired() ? m_parent_ptr.lock()->get_dock_area() : std::shared_ptr<SDockingArea>();
+		return m_parent_ptr.lock() ? m_parent_ptr.lock()->get_dock_area() : std::shared_ptr<SDockingArea>();
 	}
 
 	std::shared_ptr<SWindow> SDockTab::get_parent_window() const

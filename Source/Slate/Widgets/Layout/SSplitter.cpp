@@ -75,9 +75,19 @@ namespace DoDo {
 		m_children.add_slots(std::move(const_cast<std::vector<FSlot::FSlotArguments>&>(in_args._Slots)));
 	}
 
+	void SSplitter::set_orientation(EOrientation new_orientation)
+	{
+		m_orientation = new_orientation;
+	}
+
 	EOrientation SSplitter::get_orientation() const
 	{
 		return m_orientation;
+	}
+
+	void SSplitter::remove_at(int32_t index_to_remove)
+	{
+		m_children.remove_at(index_to_remove);
 	}
 
 	/*

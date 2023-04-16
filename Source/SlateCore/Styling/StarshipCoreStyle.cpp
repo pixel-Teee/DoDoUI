@@ -368,6 +368,9 @@ namespace DoDo {
 
 		const FButtonStyle& button = style->get_widget_style<FButtonStyle>("Button");
 
+		//SDockTab, SDockingTarget, SDockingTabStack defaults...
+		style->set("Docking.Background", new FSlateBoxBrush("Old/Menu_Background", FMargin(8.0f / 64.0f)));
+
 		//todo:fix me, use close small
 		const FButtonStyle close_button = FButtonStyle()
 			.set_normal(FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/close-small", ".svg"), Icon16x16, FStyleColors::Foreground))

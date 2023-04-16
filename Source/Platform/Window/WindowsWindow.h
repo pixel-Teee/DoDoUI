@@ -32,6 +32,8 @@ namespace DoDo {
 
 		virtual void reshape_window(int32_t new_x, int32_t new_y, int32_t new_width, int32_t new_height);
 
+		virtual void set_opacity(const float in_opacity) override;
+
 		virtual void destroy() override;
 	private:
 		//windows window owner this lifetime

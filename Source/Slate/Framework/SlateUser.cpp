@@ -432,6 +432,19 @@ namespace DoDo
 			m_drag_states_by_pointer_index.erase(pointer_index);
 		}
 
+		if (!has_capture(pointer_index))
+		{
+			//todo:when we perform a touch end, we need to also send a mouse leave as if it were a cursor
+
+			if (dropped_content && dropped_content->affected_by_pointer_event(pointer_event))
+			{
+				FPointerEvent modified_event(pointer_event);
+				modified_event.set_event_path(widgets_under_cursor);
+				dropped_content->On_Drop(b_was_handled, modified_event);
+				m_widgets_under_pointer_last_event_by_index.erase(pointer_index);
+			}
+		}
+
 		//todo:add more logic
 	}
 

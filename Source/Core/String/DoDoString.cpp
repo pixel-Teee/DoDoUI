@@ -139,6 +139,7 @@ namespace DoDo {
 			delete m_buffer;
 			m_len = 0;
 			m_count = 0;
+			m_buffer = nullptr;
 		}
 	}
 	const char* DoDoUtf8String::c_str() const

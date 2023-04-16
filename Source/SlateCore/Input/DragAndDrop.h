@@ -62,6 +62,13 @@ namespace DoDo {
 		* @param DragDropEvent the event that describes this drag drop operation
 		*/
 		virtual void On_Dragged(const class FDragDropEvent& drag_drop_event);
+
+		/*
+		* invoked when the drag and drop operation has ended
+		*
+		* @param bDropWasHandled true when the drop was handled by some widget, false otherwise
+		*/
+		virtual void On_Drop(bool b_drop_was_handled, const FPointerEvent& mouse_event);
 	protected:
 		/*
 		* constructs the window and widget if applicable

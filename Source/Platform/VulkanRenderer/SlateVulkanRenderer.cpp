@@ -308,6 +308,9 @@ namespace DoDo {
 
 				glm::vec2 window_size = window_to_draw->get_size_in_screen();
 
+				if (m_window_to_viewport_map.find(window_to_draw) == m_window_to_viewport_map.end()) //todo:fix me
+					return;
+
 				FSlateVulkanViewport& view_port = m_window_to_viewport_map.find(window_to_draw)->second;
 
 				VkDevice device = *(VkDevice*)m_logic_device->get_native_handle();
@@ -692,6 +695,8 @@ namespace DoDo {
 		uint32_t height, bool b_full_screen)
 	{
 		auto it = m_window_to_viewport_map.find(in_window.get());
+
+		if (it == m_window_to_viewport_map.end()) return;//todo:to remove this
 
 		FSlateVulkanViewport* viewport = &(it->second);
 

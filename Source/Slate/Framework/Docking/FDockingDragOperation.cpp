@@ -10,6 +10,16 @@
 
 #include "SDockingTabWell.h"
 
+#include "Application/Application.h"//create window depends on it
+
+#include "SlateCore/Widgets/SWindow.h"//SWindow depends on it
+
+#include "Slate/Framework/Docking/SDockingTabStack.h"//SDockingTabStack depends on it
+
+#ifdef WIN32
+#include "Platform/Application/WindowsPlatformApplicationMisc.h"
+#endif
+
 namespace DoDo {
 	/*
 	 * check if the given potential parent is a parent of potential child
@@ -86,6 +96,43 @@ namespace DoDo {
 
 	}
 
+	void FDockingDragOperation::On_Dragged(const FDragDropEvent& drag_drop_event)
+	{
+		const bool b_previewing_target = m_hovered_dock_target.m_target_node.lock() != nullptr;//check is valid
+
+		if (!b_previewing_target)
+		{
+			//the tab is being dragged, move the decorator window to match the cursor position
+			glm::vec2 target_position = drag_drop_event.get_screen_space_position() - get_decorator_offset_from_cursor();
+
+			//todo:add update morph target shape
+			
+			m_cursor_decorator_window->move_window_to(target_position);
+		}
+	}
+
+	void FDockingDragOperation::On_Drop(bool b_drop_was_handled, const FPointerEvent& mouse_event)
+	{
+		const glm::vec2 window_zie = m_cursor_decorator_window->get_size_in_screen();
+
+		m_tab_being_dragged->set_dragged_over_dock_area(nullptr);
+
+		if (!b_drop_was_handled)
+		{
+			dropped_onto_nothing();
+		}
+		else
+		{
+			//the event was handled, so we have to have some window that we dropped into
+			//std::shared_ptr<SWindow> window_dropped_into = mouse_event.get_window();
+		}
+
+		//destroy the cursor decorator window by calling the base class implementation because we are relocating the content into a more permanent home
+		FDragDropOperation::On_Drop(b_drop_was_handled, mouse_event);
+
+		m_tab_being_dragged.reset();
+	}
+
 	/*
 	 * drag test area widgets invoke this method when a drag enters them
 	 *
@@ -103,8 +150,34 @@ namespace DoDo {
 
 		//we just pulled the tab into some tabwell(in some docknode)
 		//hide our decorator window and let the dock node handle previewing what will happen if we drop the node
+		m_hovered_tab_panel_ptr = the_panel;
+		//todo:add hide window
 		
 		m_tab_being_dragged->set_dragged_over_dock_area(the_panel->get_dock_area());
+	}
+
+	void FDockingDragOperation::on_tab_well_left(const std::shared_ptr<SDockingTabWell>& the_panel, const FGeometry& dock_node_geometry)
+	{
+		//move sdocktab from the_panel
+
+		//dock node geometry is parent stack's geometry
+
+		//we just pulled out of some dock node's tabwell
+		m_hovered_tab_panel_ptr.reset();
+
+		//show the preview window again
+		m_cursor_decorator_window->resize(dock_node_geometry.get_local_size());
+
+		m_cursor_decorator_window->show_window();
+
+		m_cursor_decorator_window->reshape_window(dock_node_geometry.get_layout_bounding_rect());
+
+		FCurveSequence sequence;
+		//todo:add curve
+
+		m_cursor_decorator_stack_node->open_tab(m_tab_being_dragged);
+
+		m_tab_being_dragged->set_dragged_over_dock_area(nullptr);
 	}
 
 	std::shared_ptr<SDockTab> FDockingDragOperation::get_tab_being_dragged()
@@ -126,5 +199,125 @@ namespace DoDo {
 			, m_last_content_size(owner_area_size)
 	{
 		//todo:create cursor decorator window
+
+		//create the decorator window that we will use during this drag and drop to make the user feel like
+		//they are actually dragging a piece of UI
+
+		//start the window off hidden
+		const bool b_show_immediately = false;//todo:fix this
+
+		m_cursor_decorator_window = Application::get().add_window(SWindow::make_cursor_decorator(), b_show_immediately);
+
+		//usually cursor decorators figure out their size automatically from content, but we will drive it
+		//here because the window will reshape itself to better reflect what will happen when the user drops the tab
+		m_cursor_decorator_window->set_opacity(0.45f);
+
+		m_cursor_decorator_window->set_sizing_rule(ESizingRule::FixedSize);
+		
+		m_cursor_decorator_window->set_content(
+			SNew(SBorder)
+					 .BorderImage(FCoreStyle::get().get_brush("Docking.Background"))
+					 [
+						 SNew(SDockingArea, m_tab_being_dragged->get_tab_manager_ptr(), FTabManager::new_primary_area())
+						 .InitialContent
+						 (
+							 SAssignNew(m_cursor_decorator_stack_node, SDockingTabStack, FTabManager::new_stack())
+						 )
+					 ]
+		);
+
+		//todo:set active tab null
+	}
+	FDockingDragOperation::~FDockingDragOperation()
+	{
+		if (m_tab_being_dragged)
+		{
+			dropped_onto_nothing();
+		}
+	}
+	const glm::vec2 FDockingDragOperation::get_decorator_offset_from_cursor()
+	{
+		const ETabRole role_to_use = m_tab_being_dragged->get_visual_tab_role();
+		const glm::vec2 tab_desired_size = m_tab_being_dragged->get_desired_size();
+		const glm::vec2 max_tab_size = FDockingConstants::get_max_tab_size_for(role_to_use);
+
+		return m_tab_grab_offset_fraction * glm::vec2(
+			std::min(tab_desired_size.x, max_tab_size.x),
+			std::min(tab_desired_size.y, max_tab_size.y)
+		);
+	}
+	void FDockingDragOperation::dropped_onto_nothing()
+	{
+		//if we dropped the tab into an existing docknode then it would have handled the drop event
+		//we are here because that didn't happen, so make a new window with a new dock node and drop the tab into that
+		std::shared_ptr<FTabManager> my_tab_manager = m_tab_being_dragged->get_tab_manager_ptr();
+		if (!my_tab_manager)
+		{
+			return;
+		}
+
+		const glm::vec2 position_to_drop = m_cursor_decorator_window->get_position_in_screen();
+
+		const float dpi_scale = FPlatformApplicationMisc::get_dpi_scale_factor_at_point(position_to_drop.x, position_to_drop.y);
+
+		std::shared_ptr<SWindow> new_window_parent = my_tab_manager->get_private_api().get_parent_window();
+
+		std::shared_ptr<SWindow> new_window = SNew(SWindow)
+			.Title(FGlobalTabmanager::get()->get_application_title())
+			//divide out scale, it is already factored into position
+			.ScreenPosition(position_to_drop / dpi_scale)
+			//make room for the title bar, otherwise windows will get progressive smaller whenver you float them
+			.ClientSize(SWindow::compute_window_size_for_cotent(m_cursor_decorator_window->get_size_in_screen()))
+			.CreateTitleBar(false);
+
+		std::shared_ptr<SDockingTabStack> new_dock_node;
+
+		if (m_tab_being_dragged->get_tab_role() == ETabRole::NomadTab)
+		{
+			m_tab_being_dragged->set_tab_manager(FGlobalTabmanager::get());
+		}
+
+		//create a new dockarea
+		std::shared_ptr<SDockingArea> new_dock_area =
+			SNew(SDockingArea, my_tab_manager, FTabManager::new_primary_area())
+			.ParentWindow(new_window)
+			.InitialContent
+			(
+				SAssignNew(new_dock_node, SDockingTabStack, FTabManager::new_stack())
+			);
+
+		if (m_tab_being_dragged->get_tab_role() == ETabRole::MajorTab || m_tab_being_dragged->get_tab_role() == ETabRole::NomadTab)
+		{
+			std::shared_ptr<SWindow> root_window = FGlobalTabmanager::get()->get_root_window();
+			if (root_window)
+			{
+				//we have a root window, so all major tabs are nested under it
+				
+			}
+			else
+			{
+				//app tabs get put in top-level windows, they show up on the taskbar
+				Application::get().add_window(new_window)->set_content(new_dock_area);
+			}
+		}
+		else
+		{
+			//other tab types are placed in child windows, their life is controlled by the top-level windows
+			//they do not show up on the taskbar
+			if (new_window_parent)
+			{
+
+			}
+			else
+			{
+				Application::get().add_window(new_window)->set_content(new_dock_area);
+			}
+		}
+
+		//do this after the window parenting so that the window title is set correctly
+		new_dock_node->open_tab(m_tab_being_dragged);
+
+		//let every widget under this tab manager know that this tab has found a new home
+		//todo:implement this
 	}
 }

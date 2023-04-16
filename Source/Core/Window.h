@@ -23,6 +23,13 @@ namespace DoDo {
 
 		virtual void reshape_window(int32_t new_x, int32_t new_y, int32_t new_width, int32_t new_height);
 
+		/*
+		* sets the opacity of this window
+		* 
+		* @param InOpacity the new window opacity represented as a floating scalar
+		*/
+		virtual void set_opacity(const float in_opacity);
+
 		/*native windows should implement this function by asking the os to destroy os-specific resource associated with the window*/
 		virtual void destroy();
 

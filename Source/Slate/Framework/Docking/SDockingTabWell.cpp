@@ -40,6 +40,11 @@ namespace DoDo {
 		m_parent_tab_stack_ptr = in_args._ParentStackNode.Get();
 	}
 
+	int32_t SDockingTabWell::get_num_tabs() const
+	{
+		return m_tabs.num();
+	}
+
 	std::shared_ptr<SDockTab> SDockingTabWell::get_foreground_tab() const
 	{
 		if (m_tab_being_dragged_ptr)
@@ -357,6 +362,51 @@ namespace DoDo {
 			}
 		}
 	}
+	void SDockingTabWell::On_Drag_Leave(const FDragDropEvent& drag_drop_event)
+	{
+		std::shared_ptr<FDockingDragOperation> drag_drop_operation = drag_drop_event.get_operation_as<FDockingDragOperation>();//note:this drag drop event is stored in FSlateUser
+
+		if (drag_drop_operation)
+		{
+			std::shared_ptr<SDockingTabStack> parent_tab_stack = m_parent_tab_stack_ptr.lock();
+			std::shared_ptr<SDockTab> tab_being_dragged = this->m_tab_being_dragged_ptr;
+			//check for tab being dragged ptr validity as it may no longer be valid when dragging tabs in game
+			if (tab_being_dragged && drag_drop_operation->can_dock_in_node(parent_tab_stack, FDockingDragOperation::DockingViaTabWell))
+			{
+				//update the drag and drop based on this change
+				const int32_t last_foreground_tab_index = m_tabs.find(m_tab_being_dragged_ptr);
+
+				//remove the tab from the well when it is dragged out
+				m_tabs.remove(m_tab_being_dragged_ptr);
+
+				//the user is pulling a tab out of this tabwell
+				m_tab_being_dragged_ptr->set_parent(nullptr);
+
+				//we are no longer dragging a tab in this tab well, so stop
+				//showing it in the tab well
+				this->m_tab_being_dragged_ptr.reset();
+
+				//we may have removed the last tab that this dock node had
+				if (m_tabs.num() == 0)
+				{
+					//let the dock node know that it is no longer needed
+					parent_tab_stack->on_last_tab_removed();
+				}
+				else
+				{
+					//also stop showing its content, switch to the last tab that was active
+					bring_tab_to_front(std::max(last_foreground_tab_index - 1, 0));
+				}
+
+				get_dock_area()->clean_up(SDockingNode::TabRemoval_DraggedOut);
+
+				const FGeometry& dock_node_geometry = parent_tab_stack->get_tab_stack_geometry();
+
+				//dock tab remove from SDockingTabWell
+				drag_drop_operation->on_tab_well_left(std::static_pointer_cast<SDockingTabWell>(shared_from_this()), dock_node_geometry);
+			}
+		}
+	}
 	FReply SDockingTabWell::On_Drag_Over(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
 	{
 		std::shared_ptr<FDockingDragOperation> drag_drop_operation = drag_drop_event.get_operation_as<FDockingDragOperation>();
@@ -459,7 +509,7 @@ namespace DoDo {
 
 			//reorder the tab
 			m_tabs.remove(tab_being_dragged);
-			m_tabs.insert(tab_being_dragged, drop_location_index - 1);//note:to fix this function
+			m_tabs.insert(tab_being_dragged, drop_location_index);//note:to fix this function
 
 			bring_tab_to_front(tab_being_dragged);
 
@@ -515,7 +565,7 @@ namespace DoDo {
 		{
 			//we just removed the foreground tab
 			m_foreground_tab_index = -1;
-			m_parent_tab_stack_ptr.lock()->on_tab_removed(tab_to_start_dragging->get_layout_identifier());
+			m_parent_tab_stack_ptr.lock()->on_tab_removed(tab_to_start_dragging->get_layout_identifier());//note:remove tab id from FTab array for tab stack
 
 			//start dragging
 			std::shared_ptr<FDockingDragOperation> drag_drop_operation =

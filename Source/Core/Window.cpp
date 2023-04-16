@@ -34,6 +34,10 @@ namespace DoDo {
 	void Window::reshape_window(int32_t new_x, int32_t new_y, int32_t new_width, int32_t new_height)
 	{
 	}
+	void Window::set_opacity(const float in_opacity)
+	{
+
+	}
 	void Window::destroy()
 	{
 

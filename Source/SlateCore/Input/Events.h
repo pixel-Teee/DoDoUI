@@ -266,4 +266,44 @@ namespace DoDo
 
 		//todo:implement other information and members
 	};
+
+	/*
+	* FWindowActivateEvent describes a window being activated or deactivated
+	* (i.e. brought to the foreground or moved to the background)
+	* this event is only passed to top level windows, most widgets are incapable
+	* of receiving this event
+	*/
+	class SWindow;
+	class FWindowActivateEvent
+	{
+	public:
+		enum EActivationType
+		{
+			EA_Activate,
+			EA_ActivateByMouse,
+			EA_Deactivate
+		};
+
+		FWindowActivateEvent(EActivationType in_activation_type, std::shared_ptr<SWindow> in_affected_window)
+			: m_affected_window(in_affected_window)
+			, m_activation_type(in_activation_type)
+		{}
+
+	public:
+		/*describes what actually happened to the window (e.h activated, deactivaed, activated by a mouse click)*/
+		EActivationType get_activation_type() const
+		{
+			return m_activation_type;
+		}
+
+		/*the window that this activation/deactivation happened to*/
+		std::shared_ptr<SWindow> get_affected_window() const
+		{
+			return m_affected_window;
+		}
+
+	private:
+		EActivationType m_activation_type;
+		std::shared_ptr<SWindow> m_affected_window;
+	};
 }

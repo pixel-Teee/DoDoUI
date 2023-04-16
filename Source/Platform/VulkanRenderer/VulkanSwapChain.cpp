@@ -248,7 +248,7 @@ namespace DoDo {
 
 		if (vkCreateSwapchainKHR(device, &create_info, nullptr, &m_swap_chain) != VK_SUCCESS)
 		{
-			std::cout << "failed to create device" << std::endl;
+			std::cout << "failed to create swap chain" << std::endl;
 		}
 
 		//------create swap chain------

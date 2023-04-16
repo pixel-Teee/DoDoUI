@@ -10,6 +10,10 @@
 
 namespace DoDo {
 	FSlateIcon::FSlateIcon()
+		: m_style_set_name("")
+		, m_style_name("")
+		, m_small_style_name("")
+		, m_status_overlay_style_name("")
 	{
 	}
 	FSlateIcon::FSlateIcon(const DoDoUtf8String in_style_set_name, const DoDoUtf8String in_style_name, const DoDoUtf8String in_small_style_name, const DoDoUtf8String in_status_overlay_style_name)

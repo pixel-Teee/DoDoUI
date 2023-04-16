@@ -113,11 +113,64 @@ namespace DoDo
 		{
 			set_parent_window(in_args._ParentWindow);
 		}
+
+		//add initial content if it was provided, for example, stack node
+		if (in_args._InitialContent)
+		{
+			add_child_node(in_args._InitialContent);
+		}
 	}
 
 	std::shared_ptr<SDockingArea> SDockingArea::get_dock_area()
 	{
 		return std::static_pointer_cast<SDockingArea>(shared_from_this());
+	}
+
+	std::shared_ptr<FTabManager::FLayoutNode> SDockingArea::gather_persistent_layout() const
+	{
+		//assume that all the nodes were dragged out, and there's no meaningful layout data to be gathered
+		bool b_have_layout_node = false;
+
+		std::shared_ptr<FTabManager::FArea> persistent_node;
+
+		std::shared_ptr<SWindow> parent_window = m_parent_window_ptr.lock();
+
+		if (parent_window) //todo:add manager parent window bool variable check
+		{
+			//todo:fix me
+
+			float dpi_scale = 1.0f;
+
+			persistent_node = FTabManager::new_area(parent_window->get_size_in_screen().x, parent_window->get_size_in_screen().y);
+
+			persistent_node->set_window(parent_window->get_position_in_screen(), false);
+		}
+		else
+		{
+			//an area without a window persists because it must be a primary area
+			//those must always be restore, even if they are empty
+			persistent_node = FTabManager::new_primary_area();
+			b_have_layout_node = true;
+		}
+
+		persistent_node->set_orientation(this->get_orientation());
+
+		for (int32_t child_index = 0; child_index < m_children.size(); ++child_index)
+		{
+			std::shared_ptr<FTabManager::FLayoutNode> persistent_child = m_children[child_index]->gather_persistent_layout();
+			if (persistent_child)
+			{
+				b_have_layout_node = true;
+				persistent_node->split(persistent_child);
+			}
+		}
+
+		if (!b_have_layout_node)
+		{
+			persistent_node.reset();
+		}
+
+		return persistent_node;
 	}
 
 	std::shared_ptr<FTabManager> SDockingArea::get_tab_manager() const
@@ -160,7 +213,36 @@ namespace DoDo
 	}
 	void SDockingArea::clean_up(ELayoutModification removal_method)
 	{
-
+		//const ECleanupRetVal cleanup_result = clean_up_nodes();
+		//
+		//if (cleanup_result != VisibleTabsUnderNode)
+		//{
+		//	m_b_is_center_target_visible = true;
+		//
+		//	//we may have a window to manage
+		//	std::shared_ptr<SWindow> parent_window = m_parent_window_ptr.lock();
+		//
+		//	//todo:add manager parent window bool variable check
+		//	if (parent_window)
+		//	{
+		//		if (removal_method == TabRemoval_Closed)
+		//		{
+		//			//m_my_tab_manager.lock()->get_private_api().on_close_area_closing()
+		//
+		//			parent_window->request_destroy_window();
+		//		}
+		//		else if (removal_method == TabRemoval_DraggedOut)
+		//		{
+		//			//we can't actually destroy this due to limitations of some platforms
+		//			//just hide the window, we will destroy when the drag and drop is done
+		//			//parent_window->request_destroy_window();
+		//		}
+		//	}
+		//}
+		//else
+		//{
+		//	m_b_is_center_target_visible = false;
+		//}
 		//in some cases a dock area will control the window
 		//and we need to move some of the tabs out of the way to make room for window chrome
 		update_window_chrome_and_side_bar();
@@ -176,6 +258,13 @@ namespace DoDo
 		std::shared_ptr<SDockingTabStack> icon_housing = this->find_tab_stack_to_house_window_icon();
 		icon_housing->reserve_space_for_window_chrome(SDockingTabStack::EChromeElement::Icon, true, true);//todo:fix me
 
+	}
+
+	SDockingNode::ECleanupRetVal SDockingArea::clean_up_nodes()
+	{
+		SDockingNode::ECleanupRetVal return_value = SDockingSplitter::clean_up_nodes();
+
+		return return_value;
 	}
 
 	EVisibility SDockingArea::target_cross_visibility() const

@@ -42,7 +42,7 @@ namespace DoDo {
 
 	glm::vec2 SWidget::get_desired_size() const
 	{
-		return glm::vec2(m_desired_size.value_or(glm::vec2(0.0f)));
+		return m_desired_size.value_or(glm::vec2(0.0f));
 	}
 
 	FSlateRect SWidget::calculate_culling_and_clipping_rules(const FGeometry& allotted_geometry, const FSlateRect& in_coming_culling_rect, bool& b_clip_to_bounds, bool& b_always_clip, bool& b_intersect_clip_bounds) const

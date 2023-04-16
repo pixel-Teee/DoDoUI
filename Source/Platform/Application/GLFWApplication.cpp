@@ -33,7 +33,7 @@ namespace DoDo {
 		const std::shared_ptr<WindowsWindow> window = find_window_by_glfw_window(application->get_native_windows(), native_window);
 
 		//application->get_message_handler()->set_hittest_window(window);
-		application->m_current_under_cursor_window = window;//note:handle this in the defer message
+		//application->m_current_under_cursor_window = window;//note:handle this in the defer message
 
 		//todo:set cursor position
 		//application->get_message_handler()->set_cursor_pos(glm::vec2(x_pos, y_pos));//todo:first to update cursor storage position information
@@ -71,7 +71,7 @@ namespace DoDo {
 		const std::shared_ptr<WindowsWindow> window = find_window_by_glfw_window(application->get_native_windows(), native_window);
 
 		//application->get_message_handler()->set_hittest_window(window);
-		application->m_current_under_cursor_window = window;
+		//application->m_current_under_cursor_window = window;
 
 		double x_pos, y_pos;
 		glfwGetCursorPos(native_window, &x_pos, &y_pos);
@@ -135,6 +135,33 @@ namespace DoDo {
 		application->remove_window(window);
 	}
 
+	static void window_focus_window(GLFWwindow* native_window, int32_t focused)
+	{
+		GLFWApplication* application = (GLFWApplication*)glfwGetWindowUserPointer(native_window);
+
+		//find window
+		const std::shared_ptr<WindowsWindow> window = find_window_by_glfw_window(application->get_native_windows(), native_window);
+
+		EWindowActivation activationType;
+
+		if (focused)
+		{
+			activationType = EWindowActivation::Activate;
+		}
+		else
+		{
+			activationType = EWindowActivation::Deactive;
+		}
+
+		//todo:update all modifier key states
+
+		if (window)
+		{
+			const bool result = application->get_message_handler()->On_Window_Activation_Changed(window, activationType);
+			//return result ? 0 : 1;
+		}
+	}
+
 	GLFWApplication::GLFWApplication()
 		: GenericApplication(std::make_shared<FWindowsCursor>())
 	{
@@ -176,6 +203,8 @@ namespace DoDo {
 		glfwSetWindowPosCallback(native_window_handle, window_pos_callback);
 
 		glfwSetWindowCloseCallback(native_window_handle, window_close_callback);
+
+		glfwSetWindowFocusCallback(native_window_handle, window_focus_window);
 	}
 
 	int32_t GLFWApplication::process_message()

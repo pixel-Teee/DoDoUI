@@ -6,6 +6,27 @@
 
 namespace DoDo
 {
+	void FSlateWindowHelper::arrange_window_to_front(std::vector<std::shared_ptr<SWindow>>& windows, const std::shared_ptr<SWindow>& window_to_bring_to_front)
+	{
+		auto it = std::find(windows.begin(), windows.end(), window_to_bring_to_front);
+
+		if (it != windows.end())
+			windows.erase(it);
+
+		if ((windows.size() == 0)) //todo:check is topmost window
+		{
+			windows.push_back(window_to_bring_to_front);
+		}
+		else
+		{
+			bool performed_insert = false;
+
+			int32_t window_index = windows.size() - 1;
+			//todo:skip non-regular windows
+
+			windows.insert(windows.begin() + window_index + 1, window_to_bring_to_front);
+		}
+	}
 	std::shared_ptr<SWindow> FSlateWindowHelper::find_window_by_platform_window(
 		const std::vector<std::shared_ptr<SWindow>>& windows_to_search, const std::shared_ptr<Window>& platform_window)
 	{
@@ -44,5 +65,24 @@ namespace DoDo
 		//}
 
 		windows.erase(it);
+	}
+	void FSlateWindowHelper::bring_window_to_front(std::vector<std::shared_ptr<SWindow>>& windows, const std::shared_ptr<SWindow>& bring_me_to_front)
+	{
+		const std::shared_ptr<SWindow> top_level_window_to_reorder = bring_to_front_in_parent(bring_me_to_front);
+
+		FSlateWindowHelper::arrange_window_to_front(windows, top_level_window_to_reorder);
+	}
+	std::shared_ptr<SWindow> FSlateWindowHelper::bring_to_front_in_parent(const std::shared_ptr<SWindow>& window_to_bring_to_front)
+	{
+		const std::shared_ptr<SWindow> parent_window = window_to_bring_to_front->get_parent_window();
+
+		if (!parent_window)
+		{
+			return window_to_bring_to_front;
+		}
+
+		FSlateWindowHelper::arrange_window_to_front(parent_window->get_child_windows(), window_to_bring_to_front);
+
+		return bring_to_front_in_parent(parent_window);
 	}
 }

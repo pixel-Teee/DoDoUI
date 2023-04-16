@@ -17,6 +17,12 @@
 #include "Application/Application.h"//get app icon depends on it
 
 namespace DoDo {
+	void SDockingTabStack::on_last_tab_removed()
+	{
+		//todo:check is document area
+
+		this->set_node_content(SNullWidget::NullWidget, FDockingStackOptionalContent());
+	}
 	void SDockingTabStack::on_tab_removed(const FTabId& tab_id)
 	{
 		remove_persistent_tab(tab_id);
@@ -167,6 +173,7 @@ namespace DoDo {
 	}
 	void SDockingTabStack::open_tab(const std::shared_ptr<SDockTab>& in_tab, int32_t insert_at_location, bool b_keep_in_active)
 	{
+		//note:put this tab to insert_at_location
 		const int32_t insert_index = open_persistent_tab(in_tab->get_layout_identifier(), insert_at_location);
 
 		//the tab may be a nomad tab, in which case it should inherit whichever tab manager it is being put into!
@@ -265,6 +272,23 @@ namespace DoDo {
 		}
 	}
 
+	SDockingNode::ECleanupRetVal SDockingTabStack::clean_up_nodes()
+	{
+		if (m_tab_well->get_num_tabs() > 0)
+		{
+			return VisibleTabsUnderNode;
+		}
+		else if (m_tabs.size() > 0)
+		{
+			set_visibility(EVisibility::Collapsed);
+			return HistoryTabsUnderNode;
+		}
+		else
+		{
+			return NoTabsUnderNode;
+		}
+	}
+
 	void SDockingTabStack::remove_persistent_tab(const FTabId& tab_id)
 	{
 		auto it = std::find_if(m_tabs.begin(), m_tabs.end(), FTabMatcher(tab_id));
@@ -274,14 +298,19 @@ namespace DoDo {
 		}
 	}
 
+	//note:put tab_id to open_location_among_active_tabs
 	int32_t SDockingTabStack::open_persistent_tab(const FTabId& tab_id, int32_t open_location_among_active_tabs)
 	{
 		auto it = std::find_if(m_tabs.begin(), m_tabs.end(), FTabMatcher(tab_id, static_cast<ETabState::Type>(ETabState::ClosedTab | ETabState::SidebarTab)));
 
 		int32_t existing_closed_tab_index = -1;
-		existing_closed_tab_index = m_tabs.end() - it;
 
-		if (open_location_among_active_tabs == -1)
+		if (it != m_tabs.end())
+		{
+			existing_closed_tab_index = it - m_tabs.begin();
+		}
+
+		if (open_location_among_active_tabs == -1) //-1 indicating put dock tab at end
 		{
 			if (existing_closed_tab_index != -1)
 			{
@@ -319,13 +348,16 @@ namespace DoDo {
 
 			if (open_location_in_global_list == -1)
 			{
-				open_location_in_global_list = m_tabs.size();
+				//note:insert at last element behind
+				open_location_in_global_list = m_tabs.size();//todo:may be error, fix me
 			}
 
 			if (existing_closed_tab_index == -1)
 			{
 				//create a new tab
 				m_tabs.insert(m_tabs.begin() + open_location_in_global_list, FTabManager::FTab(tab_id, ETabState::OpenedTab));
+
+				return open_location_among_active_tabs;
 			}
 			else
 			{
@@ -346,6 +378,19 @@ namespace DoDo {
 				return open_location_among_active_tabs;
 			}
 		}
+	}
+
+	std::shared_ptr<FTabManager::FLayoutNode> SDockingTabStack::gather_persistent_layout() const
+	{
+		if (m_tabs.size() > 0)
+		{
+			//each live tab might want to save custom visual state
+			{
+				//const std::vector<std::shared_ptr<SDockTab>> my_tabs = this->get_tabs
+			}
+		}
+
+		return nullptr;
 	}
 
 	FReply SDockingTabStack::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)

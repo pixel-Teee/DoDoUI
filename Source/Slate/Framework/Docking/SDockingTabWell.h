@@ -38,6 +38,9 @@ namespace DoDo {
 
 		void Construct(const FArguments& in_args);
 
+		/*@return how many tabs there are*/
+		int32_t get_num_tabs() const;
+
 		/*gets the currently active tab (or the currently dragged tab), or a null pointer if no tab is active*/
 		std::shared_ptr<SDockTab> get_foreground_tab() const;
 
@@ -68,6 +71,7 @@ namespace DoDo {
 		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
 		virtual void On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
+		virtual void On_Drag_Leave(const FDragDropEvent& drag_drop_event) override;
 		virtual FReply On_Drag_Over(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
 		virtual FReply On_Drop(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
 		virtual glm::vec2 Compute_Desired_Size(float) const override;

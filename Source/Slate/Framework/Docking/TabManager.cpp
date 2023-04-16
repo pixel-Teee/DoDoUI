@@ -31,9 +31,26 @@ namespace DoDo
 	}
 	//------as function------
 
+	std::shared_ptr<SWindow> FTabManager::FPrivateApi::get_parent_window() const
+	{
+		//todo:fix this function
+
+		return FGlobalTabmanager::get()->get_root_window();
+	}
+
 	bool FTabManager::FPrivateApi::can_tab_leave_tab_well(const std::shared_ptr<const SDockTab>& tab_to_test) const
 	{
 		return m_tab_manager.m_b_can_do_drag_operation;//todo:add check this tab is main non closeable tab
+	}
+
+	void FTabManager::FPrivateApi::on_dock_area_closing(const std::shared_ptr<SDockingArea>& dock_area_that_is_closing)
+	{
+		std::shared_ptr<FTabManager::FArea> persistent_dock_area_layout = std::static_pointer_cast<FTabManager::FArea>(dock_area_that_is_closing->gather_persistent_layout());
+
+		if (persistent_dock_area_layout)
+		{
+			//m_tab_manager.m_co
+		}
 	}
 
 	FTabManager::FPrivateApi& FTabManager::get_private_api()
@@ -627,6 +644,14 @@ namespace DoDo
 
 		//todo:check
 		//for(int32_t dock_area_index = 0; dock_area_index < 
+	}
+	void FGlobalTabmanager::set_root_window(const std::shared_ptr<SWindow> in_root_window)
+	{
+		m_root_window_ptr = in_root_window;
+	}
+	std::shared_ptr<SWindow> FGlobalTabmanager::get_root_window() const
+	{
+		return m_root_window_ptr.lock();
 	}
 	FTabSpawnerEntry& FTabSpawnerEntry::set_icon(const FSlateIcon& in_icon)
 	{

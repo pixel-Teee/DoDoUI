@@ -36,13 +36,18 @@ namespace DoDo {
 	class SDockingTabWell;
 	//class SHorizontalBox;
 	//class SHorizontalBox::FSlot;
-	class SDockingTabStack : public SDockingArea
+	class SDockingTabStack : public SDockingNode
 	{
 	public:
+		SLATE_BEGIN_ARGS(SDockingTabStack)
+		{}
+		SLATE_END_ARGS()
 		virtual Type get_node_type() const override
 		{
 			return SDockingNode::DockTabStack;
 		}
+
+		void on_last_tab_removed();
 
 		void on_tab_removed(const FTabId& tab_id);
 
@@ -86,15 +91,19 @@ namespace DoDo {
 		*/
 		void reserve_space_for_window_chrome(EChromeElement element, bool b_include_padding_for_menu_bar, bool b_only_minor_tabs);
 
+		virtual SDockingNode::ECleanupRetVal clean_up_nodes() override;
+
 		void remove_persistent_tab(const FTabId& tab_id);
 
 		int32_t open_persistent_tab(const FTabId& tab_id, int32_t open_location_among_active_tabs = -1);
+
+		virtual std::shared_ptr<FTabManager::FLayoutNode> gather_persistent_layout() const override;
 	public:
 		/*SWidget interface*/
 		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
 	private:
 		/*data that persists across sessions and when the widget associated with this node is removed*/
-		std::vector<FTabManager::FTab> m_tabs;
+		std::vector<FTabManager::FTab> m_tabs;//FTab don't have order need
 
 		/*the borders that hold any potential inline content areas*/
 		SHorizontalBox::FSlot* m_inline_content_area_left;

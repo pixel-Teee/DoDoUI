@@ -159,9 +159,23 @@ namespace DoDo {
 		void Construct(const FArguments& in_args);
 
 		/*
+		* change the orientation of the splitter
+		* 
+		* @param NewOrientation should the splitter be horizontal or vertical
+		*/
+		void set_orientation(EOrientation new_orientation);
+
+		/*
 		* return the current orientation of the splitter
 		*/
 		EOrientation get_orientation() const;
+
+		/*
+		* remove the child at index to remove
+		* 
+		* @param IndexToRemove remove the slot and child at this index
+		*/
+		void remove_at(int32_t index_to_remove);
 
 	public:
 		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;

@@ -49,6 +49,13 @@ namespace DoDo
 		};
 	}
 
+	enum class EWindowActivation : uint8_t
+	{
+		Activate,
+		ActivateByMouse,
+		Deactive
+	};
+
 	/*interface that defines how to handle interaction with a user via hardware input and output*/
 	class FGenericApplicationMessageHandler
 	{
@@ -96,6 +103,11 @@ namespace DoDo
 		}
 
 		virtual bool On_Size_Changed(const std::shared_ptr<Window>& window, const int32_t width, const int32_t height, bool b_was_minimized = false)
+		{
+			return false;
+		}
+
+		virtual bool On_Window_Activation_Changed(const std::shared_ptr<Window>& window, const EWindowActivation activation_type)
 		{
 			return false;
 		}

@@ -10,10 +10,12 @@
 
 namespace DoDo {
 	FDragDropOperation::FDragDropOperation()
+		: m_b_create_new_window(true)
 	{
 	}
 	FDragDropOperation::~FDragDropOperation()
 	{
+		destroy_cursor_decorator_window();
 	}
 
 	void FDragDropOperation::On_Dragged(const FDragDropEvent& drag_drop_event)
@@ -37,6 +39,11 @@ namespace DoDo {
 		}
 	}
 
+	void FDragDropOperation::On_Drop(bool b_drop_was_handled, const FPointerEvent& mouse_event)
+	{
+		destroy_cursor_decorator_window();
+	}
+
 	void FDragDropOperation::Construct()
 	{
 		if (m_b_create_new_window)
@@ -52,6 +59,10 @@ namespace DoDo {
 		if (decorator_to_use)
 		{
 			//todo:implement make cursor decorator
+			m_cursor_decorator_window = SWindow::make_cursor_decorator();
+			m_cursor_decorator_window->set_content(decorator_to_use);
+
+			Application::get().add_window(m_cursor_decorator_window, true);
 		}
 	}
 
@@ -59,7 +70,7 @@ namespace DoDo {
 	{
 		if (m_cursor_decorator_window)
 		{
-			//m_cursor_decorator_window->request_destroy_window();
+			m_cursor_decorator_window->request_destroy_window();
 			m_cursor_decorator_window.reset();
 		}
 	}

@@ -224,6 +224,13 @@ namespace DoDo
 			}
 		}
 
+		void remove_at(int32_t index)
+		{
+			std::unique_ptr<SlotType> slot_to_remove = std::move(m_children[index]);
+			m_children.erase(m_children.begin() + index);
+			slot_to_remove.reset();
+		}
+
 		void insert_slot(typename SlotType::FSlotArguments&& slot_arguments, int32_t index)
 		{
 			std::unique_ptr<SlotType> new_slot = slot_arguments.steal_slot();
@@ -516,6 +523,13 @@ namespace DoDo
 			m_children.erase(it, m_children.end());
 
 			return number;//note:may error, to fix me
+		}
+
+		int32_t find(const std::shared_ptr<ChildType>& item) const
+		{
+			auto it = std::find(m_children.begin(), m_children.end(), item);
+			if (it == m_children.end()) return -1;
+			return it - m_children.begin();
 		}
 
 		const std::shared_ptr<ChildType>& operator[](int32_t index) const { return m_children[index]; }

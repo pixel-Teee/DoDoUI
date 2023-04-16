@@ -15,6 +15,8 @@
 
 #include "SlateCore/Styling/ISlateStyle.h"//ISlateStyle depends on it
 
+#include "SlateCore/Animation/CurveSequence.h"//FMorpher depends on it
+
 namespace DoDo
 {
 	/*enum to descibe how windows are sized*/
@@ -28,6 +30,14 @@ namespace DoDo
 
 		/*the window can be resized by users*/
 		UserSized
+	};
+
+	/*proxy structure to handle deprecated construction from bool*/
+	struct FWindowTransparency
+	{
+		FWindowTransparency(EWindowTransparency in) : m_value(in) {}
+
+		EWindowTransparency m_value;
 	};
 
 	class Window;//native window
@@ -50,7 +60,10 @@ namespace DoDo
 			, _ScreenPosition(glm::vec2(0.0f, 0.0f))
 			, _ClientSize(glm::vec2(0.0f, 0.0f))
 			, _AdjustInitialSizeAndPositionForDPIScale(true)
+			, _SupportsTransparency(EWindowTransparency::None)
+			, _InitialOpacity(1.0f)
 			, _SizingRule(ESizingRule::UserSized)
+			, _IsPopupWindow(false)
 			, _CreateTitleBar(true)
 			, _UserResizeBorder(FMargin(5, 5, 5, 5))
 		{}
@@ -66,9 +79,16 @@ namespace DoDo
 			SLATE_ARGUMENT(glm::vec2, ClientSize)
 			/*how to window should be sized*/
 			SLATE_ARGUMENT(ESizingRule, SizingRule)
+			/*true if this should be a 'pop-up' window*/
+			SLATE_ARGUMENT(bool, IsPopupWindow)
 			/*if the initial ClientSize and ScreenPosition arguments should be automatically adjusted to account for DPI scale*/
 			SLATE_ARGUMENT(bool, AdjustInitialSizeAndPositionForDPIScale)
 
+			/*should this window support transparency*/
+			SLATE_ARGUMENT(FWindowTransparency, SupportsTransparency)
+
+			/*the initial opacity of the window*/
+			SLATE_ARGUMENT(float, InitialOpacity)
 			/*
 			* true if we should initially create a traditional title bar area
 			* if false, the user must embed the title area content into the window manully, taking into account platform-specific considerations!
@@ -93,8 +113,35 @@ namespace DoDo
 	public:
 		void Construct(const FArguments& in_args);
 
+		/*
+		* make cursor decorator window
+		* 
+		* @return the new SWindow
+		*/
+		static std::shared_ptr<SWindow> make_cursor_decorator();
+
+		/*
+		* @param ContentSize the size of content that we want to accommodate
+		* 
+		* @return the size of the window necessary to accommodate the given content
+		*/
+		static glm::vec2 compute_window_size_for_cotent(glm::vec2 content_size);
+
 		/*return true if the window is visible, false otherwise*/
 		bool is_visible() const;
+
+		/*
+		* sets the opacity of this window
+		* 
+		* @param InOpacity the new window opacity represented as a floating point scalar
+		*/
+		void set_opacity(const float in_opacity);
+
+		/*@return the window's current opacity*/
+		float get_opacity() const;
+
+		/*@return the level of transparency supported by this window*/
+		EWindowTransparency get_transparency_support() const;
 
 		/*
 		* grabs the window type
@@ -160,8 +207,14 @@ namespace DoDo
 			return (m_view_port_size.x) ? m_view_port_size : m_size;
 		}
 
+		/*@return true if the window accepts input, false if the window is non-interactive*/
+		bool accepts_input() const;
+
 		/*@return true if the window is sized by the windows content*/
 		bool is_auto_sized() const;
+
+		/*should this window automatically derive its size based on its content or be user-drive?*/
+		void set_sizing_rule(ESizingRule in_sizing_rule);
 
 		/*
 		 * access the hittest acceleration data structure for this window
@@ -224,6 +277,10 @@ namespace DoDo
 
 		/*relocate the window to a screenspace position specified by new position and resize it to new size*/
 		void reshape_window(glm::vec2 new_position, glm::vec2 new_size);
+		void reshape_window(const FSlateRect& in_new_shape);
+
+		/*set a new morph shape and force the morph to run for at least one frame in order to reach that target*/
+		void update_morph_target_shape(const FSlateRect& target_shape);
 
 		/*
 		* resize the window to be dpi scaled new client size immediately
@@ -280,8 +337,17 @@ namespace DoDo
 		/*title of the window, displayed in the title bar as well as potentially in the task bar (windows platform)*/
 		TAttribute<DoDoUtf8String> m_title;
 
+		/*current opacity of the window*/
+		float m_opacity;
+
+		/*transparency setting for this window*/
+		EWindowTransparency m_transparency_support;
+
 		/*true if this window has a title bar*/
 		bool b_create_title_bar : 1;
+
+		/*true if this is a pop up window*/
+		bool m_b_is_pop_up_window : 1;
 
 		/*initial desired position of the window's content in screen space*/
 		glm::vec2 m_initial_desired_screen_position;
@@ -300,6 +366,37 @@ namespace DoDo
 
 		/*size of this window's title bar, can be zero, set at construction and should not be changed afterwards*/
 		float m_title_bar_size;
+
+		/*utility for animating the window size*/
+		struct FMorpher
+		{
+			FMorpher()
+				: m_starting_morph_shape(FSlateRect(0, 0, 100, 100))
+				, m_target_morph_shape(FSlateRect(0, 0, 100, 100))
+				, m_b_active(false)
+				, m_b_is_animating_window_size(false)
+			{}
+			/*initial window opacity*/
+			float m_starting_opacity;
+
+			/*desired opacity of the window*/
+			float m_target_opacity;
+
+			/*initial size of the window(i.e. at the start of animation)*/
+			FSlateRect m_starting_morph_shape;
+
+			/*desired size of the window(i.e. at the end of animation)*/
+			FSlateRect m_target_morph_shape;
+
+			/*animation sequence to hold on to the handle*/
+			FCurveSequence m_sequence;
+
+			/*true if this morph is currently active*/
+			bool m_b_active : 1;
+
+			/*true if we're morphing size as well as position, false if we're just morphing position*/
+			bool m_b_is_animating_window_size : 1;
+		} Morpher;
 
 		/*cached "zone" the cursor was over in the window the last time that someone called get_current_window_zone()*/
 		EWindowZone::Type m_window_zone;

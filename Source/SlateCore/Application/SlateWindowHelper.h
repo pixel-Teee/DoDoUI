@@ -12,6 +12,13 @@ namespace DoDo
 	class FSlateWindowHelper
 	{
 	public:
+		/*
+		* recorders the given collection of windows so the specified window is brought to the front
+		* 
+		* @param Windows the collection of windows to reorder
+		* @param WindowToBringToFront the window to bring to the front
+		*/
+		static void arrange_window_to_front(std::vector<std::shared_ptr<SWindow>>& windows, const std::shared_ptr<SWindow>& window_to_bring_to_front);
 
 		/*
 		 * searches the given collection of windows to find the slate window that corresponds to the specified platform window
@@ -29,5 +36,23 @@ namespace DoDo
 		* @param WindowToRemove the window to remove
 		*/
 		static void remove_window_from_list(std::vector<std::shared_ptr<SWindow>>& windows, const std::shared_ptr<SWindow>& window_to_remove);
+
+		/*
+		* put 'bring me to front' at the front of the list of 'windows to reorder'
+		* the top-most (front-most) window is last in z-order and therefore is added to the end of the list
+		* 
+		* @param Windows an ordered list of windows
+		* @param BringMeToFront the window to bring to front
+		*/
+		static void bring_window_to_front(std::vector<std::shared_ptr<SWindow>>& windows, const std::shared_ptr<SWindow>& bring_me_to_front);
+
+	private:
+		/*
+		* make bring me to front first among its peers
+		* i.e. make it the last window in its parent's list of child windows
+		* 
+		* @return the top-most window whose children were re-arranged
+		*/
+		static std::shared_ptr<SWindow> bring_to_front_in_parent(const std::shared_ptr<SWindow>& window_to_bring_to_front);
 	};
 }

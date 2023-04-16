@@ -27,6 +27,13 @@ namespace DoDo {
 		}
 
 		/*
+		* remove a child at this index
+		* 
+		* @param IndexOfChildToRemove remove a child at this index
+		*/
+		void remove_child_at(int32_t index_of_child_to_remove);
+
+		/*
 		* add a new child dock node at the desired location
 		* assumes this dock node is a splitter
 		* 
@@ -50,8 +57,14 @@ namespace DoDo {
 		/*gets the orientation of this splitter*/
 		EOrientation get_orientation() const;
 
+		virtual std::shared_ptr<FTabManager::FLayoutNode> gather_persistent_layout() const override;
 	protected:
+
+		static SDockingNode::ECleanupRetVal most_responsibility(SDockingNode::ECleanupRetVal A, SDockingNode::ECleanupRetVal B);
 		//todo:implement these functions
+		virtual SDockingNode::ECleanupRetVal clean_up_nodes() override;
+
+		float compute_child_coefficient_total() const;
 
 		enum class ETabStackToFind
 		{

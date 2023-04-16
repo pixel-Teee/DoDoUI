@@ -48,6 +48,8 @@ namespace DoDo
 		/*returns this dock area*/
 		virtual std::shared_ptr<SDockingArea> get_dock_area() override;
 
+		virtual std::shared_ptr<FTabManager::FLayoutNode> gather_persistent_layout() const override;
+
 		std::shared_ptr<FTabManager> get_tab_manager() const;
 
 		/*returns the window that this dock area resides in directly and also manages*/
@@ -73,6 +75,9 @@ namespace DoDo
 		* we also update the sidebar to account for major tabs, docking areas for major tabs do not have a sidebar
 		*/
 		void update_window_chrome_and_side_bar();
+
+	protected:
+		virtual SDockingNode::ECleanupRetVal clean_up_nodes() override;
 
 	private:
 		EVisibility target_cross_visibility() const;

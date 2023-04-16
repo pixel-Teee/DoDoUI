@@ -4,10 +4,13 @@
 
 #include "Slate/Widgets/Layout/SSplitter.h"
 
+#include "TabManager.h"//FTabManager::FLayoutNode depends on it
+
 namespace DoDo {
 
 	class SDockingSplitter;
 	class SDockingArea;
+	//class FTabManager::FLayoutNode;
 	/*
 	* a node in the docking/tabbing hierarchy
 	* any SDockingNode can be either a stack of tabs or a splitter
@@ -93,6 +96,23 @@ namespace DoDo {
 
 		/*set the coefficient size*/
 		void set_size_coefficient(float in_size_coefficient);
+
+		/*
+		* recursively build up an tree of FLayoutNodes that represents the persistent layout state of this docking node and all its descendants
+		* the result can be easily serialized to disk or used as history for restoring tabs to their previous locations
+		* 
+		* @return a pointer to persistent layout node, invalid pointer if this dock node had no tab layouts worth saving
+		*/
+		virtual std::shared_ptr<FTabManager::FLayoutNode> gather_persistent_layout() const = 0;
+
+		enum ECleanupRetVal
+		{
+			VisibleTabsUnderNode,
+			HistoryTabsUnderNode,
+			NoTabsUnderNode
+		};
+
+		virtual SDockingNode::ECleanupRetVal clean_up_nodes() { return NoTabsUnderNode; }
 	protected:
 
 		/*

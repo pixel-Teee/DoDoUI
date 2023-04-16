@@ -1234,7 +1234,7 @@ namespace DoDo
 	    const std::shared_ptr<SWindow>& window, bool b_ignore_enabled_status, int32_t user_index) const
     {
         //locate widget
-        const bool b_accepts_input = window->is_visible();//todo:check window accepts input
+        const bool b_accepts_input = window->is_visible() && window->accepts_input();//todo:check window accepts input
 
         //if(b_accepts_input && window->is)
         //note:screen_space_mouse_coordinate is in local space
@@ -1364,6 +1364,9 @@ namespace DoDo
         const glm::vec2 position = in_slate_window->get_initial_desired_position_in_screen();
         definition->x_desired_position_on_screen = position.x;
         definition->y_desired_position_on_screen = position.y;
+
+        definition->m_transparency_support = in_slate_window->get_transparency_support();
+        definition->m_opacity = in_slate_window->get_opacity();
 
         //todo:implement platform application's make window
         std::shared_ptr<Window> new_window = s_platform_application->make_window();
@@ -1604,6 +1607,49 @@ namespace DoDo
         //send out mouse leave events
         //if we are doing a drag and drop, we will send this event instead
         std::shared_ptr<FDragDropOperation> drag_drop_content = slate_user->get_drag_drop_content();
+        {
+            FDragDropEvent drag_drop_event(pointer_event, drag_drop_content);
+
+            for (int32_t widget_index = last_widgets_under_pointer.m_widgets.size() - 1; widget_index >= 0; --widget_index)
+            {
+                //guards for cases where widget index can become invalid due to mouse move being re-entrant
+                if (widget_index >= last_widgets_under_pointer.m_widgets.size())
+                {
+                    widget_index = last_widgets_under_pointer.m_widgets.size() - 1;
+                }
+
+                if (widget_index >= 0)
+                {
+                    const std::shared_ptr<SWidget>& some_widget_preivously_under_cursor = last_widgets_under_pointer.m_widgets[widget_index].lock();
+
+                    if (some_widget_preivously_under_cursor)
+                    {
+                        std::optional<FArrangedWidget> found_widget = widgets_under_pointer.find_arranged_widget(some_widget_preivously_under_cursor);
+                        const bool b_widget_no_longer_under_mouse = !found_widget.has_value();
+
+                        if (b_widget_no_longer_under_mouse)
+                        {
+                            //widget is no longer under cursor, so send a mouse leave
+                            //the widget might not even be in the hierarchy any more!
+                            //thus, we cannot translate the pointer position into the appropriate space for this event
+                            if (slate_user->is_drag_dropping_affected(pointer_event))
+                            {
+                                //note that the event's pointer position is not translated
+                                some_widget_preivously_under_cursor->On_Drag_Leave(drag_drop_event);
+
+                                //todo:reset the cursor
+                            }
+                            else
+                            {
+                                //only fire mouse leave events for widgets inside the captor path, or whoever if there is no captor path
+                               
+                                //todo:check mouse captor path
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         const bool b_is_drag_dropping_affected = slate_user->is_drag_dropping_affected(pointer_event);
 
@@ -1936,6 +1982,7 @@ namespace DoDo
                 FTabManager::new_stack()
 				->add_tab("starship widgets", ETabState::OpenedTab) //note:first parameter is tab type
 				->add_tab("test widget", ETabState::OpenedTab)
+                ->add_tab("test widget2", ETabState::OpenedTab)
                 ->set_foreground_tab(DoDoUtf8String("starship widgets"))
             )
 			//->split
@@ -1951,6 +1998,9 @@ namespace DoDo
     		.set_display_name("starship widgets");//todo:implement this function
         FGlobalTabmanager::get()->register_nomad_tab_spawner("test widget", FOnSpawnTab::CreateStatic(spawn_slider_widgets))
            .set_icon(FSlateIcon("CoreStyle", "Icons.tree-decidious-svgrepo-com"));//todo:this is use for SDockTab icon
+
+		FGlobalTabmanager::get()->register_nomad_tab_spawner("test widget2", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets))
+			.set_icon(FSlateIcon("CoreStyle", "Icons.tree-decidious-svgrepo-com"));//todo:this is use for SDockTab icon
 
         FGlobalTabmanager::get()->restore_from(layout, std::shared_ptr<SWindow>());
     }
@@ -2287,6 +2337,57 @@ namespace DoDo
 
         }
         return true;
+    }
+
+    FWindowActivateEvent::EActivationType translation_window_activation_message(const EWindowActivation activation_type)
+    {
+        FWindowActivateEvent::EActivationType result = FWindowActivateEvent::EA_Activate;
+
+        switch (activation_type)
+        {
+        case EWindowActivation::Activate:
+            result = FWindowActivateEvent::EA_Activate;
+            break;
+        case EWindowActivation::ActivateByMouse:
+            result = FWindowActivateEvent::EA_ActivateByMouse;
+            break;
+        case EWindowActivation::Deactive:
+            result = FWindowActivateEvent::EA_Deactivate;
+            break;
+        }
+
+        return result;
+    }
+
+	bool Application::process_window_activated_event(const FWindowActivateEvent& activate_event)
+	{
+        if (activate_event.get_activation_type() != FWindowActivateEvent::EA_Deactivate)
+        {
+            //todo:release all pointer capture
+
+            //note:the window is brought to front even when a modal window is active and this is not the modal window one of its children
+            //the reason for this is so that the slate window order is in sync with the os window order when a modal window is open
+            //this is important so that when the modal window closes the proper window receives input from slate
+            //if you change this be sure to test windows are activated properly and receive input when they are opened when a modal dialog is open
+            FSlateWindowHelper::bring_window_to_front(m_windows, activate_event.get_affected_window());
+        }
+
+        return true;
+	}
+
+    bool Application::On_Window_Activation_Changed(const std::shared_ptr<Window>& platform_window, const EWindowActivation activation_type)
+    {
+        std::shared_ptr<SWindow> window = FSlateWindowHelper::find_window_by_platform_window(m_windows, platform_window);
+
+        if (!window)
+        {
+            return false;
+        }
+
+        FWindowActivateEvent::EActivationType translate_activation_type = translation_window_activation_message(activation_type);
+        FWindowActivateEvent windowActivateEvent(translate_activation_type, window);
+
+        return process_window_activated_event(windowActivateEvent);
     }
 
     bool Application::On_Cursor_Set()
