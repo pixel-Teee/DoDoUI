@@ -209,6 +209,11 @@ namespace DoDo {
 		//todo:hide cross
 	}
 
+	const TSlotlessChildren<SDockTab>& SDockingTabStack::get_tabs() const
+	{
+		return m_tab_well->get_tabs();
+	}
+
 	FGeometry SDockingTabStack::get_tab_stack_geometry() const
 	{
 		return get_tick_space_geometry();
@@ -248,6 +253,11 @@ namespace DoDo {
 
 		return foreground_tab ? foreground_tab->get_content_area_brush() : FStyleDefaults::get_no_brush();
 	}
+	void SDockingTabStack::clear_reserved_space()
+	{
+		m_b_showing_title_bar_area = false;
+		m_title_bar_slot->set_padding(0.0f);//note:this clear padding is important
+	}
 	void SDockingTabStack::reserve_space_for_window_chrome(EChromeElement element, bool b_include_padding_for_menu_bar, bool b_only_minor_tabs)
 	{
 		static const float top_padding_for_menu_bar = 27.0f;
@@ -256,6 +266,7 @@ namespace DoDo {
 		const FMargin icon_padding = FMargin(b_include_padding_for_menu_bar ? left_padding_for_icon + 12.0f : 25.0f, b_only_minor_tabs ? 5.0f : 0.0f, 0.0f, 0.0f);
 		
 		//todo:add showing title bar area
+		m_b_showing_title_bar_area = true;
 		const FMargin current_padding = m_title_bar_slot->get_padding();
 		switch (element)
 		{
@@ -386,11 +397,42 @@ namespace DoDo {
 		{
 			//each live tab might want to save custom visual state
 			{
-				//const std::vector<std::shared_ptr<SDockTab>> my_tabs = this->get_tabs
+				const std::vector<std::shared_ptr<SDockTab>> my_tabs = this->get_tabs().as_array_copy();
+				for (int32_t tab_index = 0; tab_index < my_tabs.size(); ++tab_index)
+				{
+					//my_tabs[tab_index]->persist_visual_state();
+				}
 			}
+
+			//persist layout
+			std::shared_ptr<FTabManager::FStack> persistent_stack =
+				FTabManager::new_stack()
+				->set_size_coefficient(this->get_size_coefficient());//todo:add set hide tab well
+
+			std::shared_ptr<SDockTab> foreground_tab = m_tab_well->get_foreground_tab();
+
+			if (foreground_tab)
+			{
+				persistent_stack->set_foreground_tab(foreground_tab->get_layout_identifier());
+			}
+
+			for (int32_t tab_index = 0; tab_index < m_tabs.size(); ++tab_index)
+			{
+				//we do not persist document tabs, document tabs have a valid instance id in addition to a tab type
+				const bool b_is_tab_persistable = true;
+				if (b_is_tab_persistable)
+				{
+					persistent_stack->add_tab(m_tabs[tab_index]);
+				}
+			}
+
+			return persistent_stack;
+		}
+		else
+		{
+			return std::shared_ptr<FTabManager::FLayoutNode>();
 		}
 
-		return nullptr;
 	}
 
 	FReply SDockingTabStack::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event)

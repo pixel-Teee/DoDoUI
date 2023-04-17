@@ -60,6 +60,9 @@ namespace DoDo {
 
 		void add_tab_widget(const std::shared_ptr<SDockTab>& in_tab, int32_t at_location = -1, bool b_keep_inactive = false);
 
+		/*@return all child tabs in this node*/
+		const TSlotlessChildren<SDockTab>& get_tabs() const;
+
 		/*@return the last known geometry of this tab stack*/
 		FGeometry get_tab_stack_geometry() const;
 
@@ -84,6 +87,12 @@ namespace DoDo {
 			Icon,
 			Controls
 		};
+
+		/*
+		* remove all the space that might have been reserved for
+		* various window chrome elements (app icons, minimize, close, etc.)
+		*/
+		void clear_reserved_space();
 
 		/*
 		* add some extra padding so that the corresponding window chrome element

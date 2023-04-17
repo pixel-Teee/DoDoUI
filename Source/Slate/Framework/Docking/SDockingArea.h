@@ -76,6 +76,8 @@ namespace DoDo
 		*/
 		void update_window_chrome_and_side_bar();
 
+		void on_tab_found_new_home(const std::shared_ptr<SDockTab>& relocated_tab, const std::shared_ptr<SWindow>& new_owner_window);
+
 	protected:
 		virtual SDockingNode::ECleanupRetVal clean_up_nodes() override;
 

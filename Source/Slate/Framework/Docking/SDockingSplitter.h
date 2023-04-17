@@ -45,6 +45,9 @@ namespace DoDo {
 		/*gets an array of all child dock nodes*/
 		const std::vector<std::shared_ptr<SDockingNode>>& get_child_nodes() const;
 
+		/*gets an array of all child dock nodes and all of their child dock nodes and so on*/
+		std::vector<std::shared_ptr<SDockingNode>> get_child_nodes_recursively() const;
+
 		/*
 		* the tab stack which would be appropriate to use for showing the minimize/maxmize/close buttons
 		* on windows it is the upper right most, on mac the upper left most

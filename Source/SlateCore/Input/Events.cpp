@@ -12,4 +12,8 @@ namespace DoDo
 	{
 		return m_event_path->find_arranged_widget(widget_to_find).value_or(FArrangedWidget::get_null_widget()).m_geometry;
 	}
+	std::shared_ptr<SWindow> FInputEvent::get_window() const
+	{
+		return m_event_path->get_window();
+	}
 }

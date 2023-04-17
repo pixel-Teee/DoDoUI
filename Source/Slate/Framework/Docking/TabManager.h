@@ -12,7 +12,7 @@
 
 //#include "Slate/Widgets/Docking/SDockTab.h"
 
-//#include "Slate/Framework/Docking/SDockingArea.h"
+//#include "Slate/Framework/Docking/SDockingTabStack.h"//FTabMatcher
 
 #include "Core/Delegates/DelegateCombinations.h"
 
@@ -24,6 +24,7 @@ namespace DoDo
 	class SDockingNode;
 	class SDockingSplitter;
 	class SDockTab;
+	struct FTabMatcher;
 	struct FSidebarTabLists;
 
 	enum class ESidebarLocation : uint8_t
@@ -221,6 +222,12 @@ namespace DoDo
 				return std::static_pointer_cast<FStack>(shared_from_this());
 			}
 
+			std::shared_ptr<FStack> add_tab(const FTab& tab)
+			{
+				m_tabs.push_back(tab);
+				return std::static_pointer_cast<FStack>(shared_from_this());
+			}
+
 			std::shared_ptr<FStack> set_foreground_tab(const FTabId& tab_id)
 			{
 				m_foreground_tab_id = tab_id;
@@ -229,6 +236,12 @@ namespace DoDo
 
 			virtual std::shared_ptr<FStack> as_stack() override
 			{
+				return std::static_pointer_cast<FStack>(shared_from_this());
+			}
+
+			std::shared_ptr<FStack> set_size_coefficient(const float in_size_coefficient)
+			{
+				m_size_coefficient = in_size_coefficient;
 				return std::static_pointer_cast<FStack>(shared_from_this());
 			}
 
@@ -376,10 +389,15 @@ namespace DoDo
 
 			std::shared_ptr<SWindow> get_parent_window() const;
 
-			bool can_tab_leave_tab_well(const std::shared_ptr<const SDockTab>& tab_to_test) const;
+			void on_dock_area_created(const std::shared_ptr<SDockingArea>& newly_created_dock_area);
 
+			/*notify the tab manager that a tab has been relocated, if the tab now lives in a new window, the new owner window should be a valid pointer*/
+			bool can_tab_leave_tab_well(const std::shared_ptr<const SDockTab>& tab_to_test) const;
+			
 			void on_dock_area_closing(const std::shared_ptr<SDockingArea>& dock_area_that_is_closing);
 
+			void on_tab_relocated(const std::shared_ptr<SDockTab>& relocated_tab, const std::shared_ptr<SWindow>& new_owner_window);
+			/*notify the tab manager that a tab has been relocated, if the tab now lives in a new window, the new owner window should be a valid pointer*/
 		private:
 			FTabManager& m_tab_manager;
 		};
@@ -487,8 +505,24 @@ namespace DoDo
 		//note:change the tab state
 		void set_tabs_on(const std::shared_ptr<FTabManager::FLayoutNode>& some_node, const ETabState::Type new_tab_state, const ETabState::Type original_tab_state) const;
 
+		/*
+		* notify the tab manager that the new foreground tab was brought to front and the backgrounded tab was send to the background as a result
+		*/
+		virtual void on_tab_relocated(const std::shared_ptr<SDockTab>& relocated_tab, const std::shared_ptr<SWindow>& new_owner_window);
+
+		static std::shared_ptr<FTabManager::FStack> find_tab_under_node(const FTabMatcher& matcher, const std::shared_ptr<FTabManager::FLayoutNode>& node_to_search_under);
+
+		void remove_tab_from_collapsed_areas(const FTabMatcher& matcher);
 	protected:
 		FTabSpawner m_tab_spawner;//FTabSpawner is FTabSpawner entry map
+
+		std::vector<std::weak_ptr<SDockingArea>> m_dock_areas;
+
+		/*
+		* collapsed dock areas refers to areas that were closed (e.g., by the user)
+		* we save its location so they can be re-opened in the same location if the user opens thems again
+		*/
+		std::vector<std::shared_ptr<FTabManager::FArea>> m_collapsed_dock_areas;
 
 		std::shared_ptr<FTabSpawner> m_nomed_tab_spawner;
 

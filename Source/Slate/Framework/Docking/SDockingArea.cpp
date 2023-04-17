@@ -25,6 +25,7 @@ namespace DoDo
 	void SDockingArea::Construct(const FArguments& in_args, const std::shared_ptr<FTabManager>& in_tab_manager, const std::shared_ptr<FTabManager::FArea>& persistent_node)
 	{
 		m_my_tab_manager = in_tab_manager;
+		in_tab_manager->get_private_api().on_dock_area_created(std::static_pointer_cast<SDockingArea>(shared_from_this()));
 
 		m_b_is_overlay_visible = false;
 
@@ -179,7 +180,7 @@ namespace DoDo
 	}
 	std::shared_ptr<SWindow> SDockingArea::get_parent_window() const
 	{
-		return m_parent_window_ptr.expired() ? m_parent_window_ptr.lock() : std::shared_ptr<SWindow>();
+		return m_parent_window_ptr.lock() ? m_parent_window_ptr.lock() : std::shared_ptr<SWindow>();
 	}
 	void SDockingArea::set_parent_window(const std::shared_ptr<SWindow>& new_parent_window)
 	{
@@ -213,51 +214,85 @@ namespace DoDo
 	}
 	void SDockingArea::clean_up(ELayoutModification removal_method)
 	{
-		//const ECleanupRetVal cleanup_result = clean_up_nodes();
-		//
-		//if (cleanup_result != VisibleTabsUnderNode)
-		//{
-		//	m_b_is_center_target_visible = true;
-		//
-		//	//we may have a window to manage
-		//	std::shared_ptr<SWindow> parent_window = m_parent_window_ptr.lock();
-		//
-		//	//todo:add manager parent window bool variable check
-		//	if (parent_window)
-		//	{
-		//		if (removal_method == TabRemoval_Closed)
-		//		{
-		//			//m_my_tab_manager.lock()->get_private_api().on_close_area_closing()
-		//
-		//			parent_window->request_destroy_window();
-		//		}
-		//		else if (removal_method == TabRemoval_DraggedOut)
-		//		{
-		//			//we can't actually destroy this due to limitations of some platforms
-		//			//just hide the window, we will destroy when the drag and drop is done
-		//			//parent_window->request_destroy_window();
-		//		}
-		//	}
-		//}
-		//else
-		//{
-		//	m_b_is_center_target_visible = false;
-		//}
+		const ECleanupRetVal cleanup_result = clean_up_nodes();//note:this will keep the dock hierarchy
+		
+		if (cleanup_result != VisibleTabsUnderNode)
+		{
+			m_b_is_center_target_visible = true;
+		
+			//we may have a window to manage
+			std::shared_ptr<SWindow> parent_window = m_parent_window_ptr.lock();
+		
+			//todo:add manager parent window bool variable check
+			if (parent_window)
+			{
+				if (removal_method == TabRemoval_Closed)
+				{
+					m_my_tab_manager.lock()->get_private_api().on_dock_area_closing(std::static_pointer_cast<SDockingArea>(shared_from_this()));
+		
+					parent_window->request_destroy_window();
+				}
+				else if (removal_method == TabRemoval_DraggedOut)
+				{
+					//we can't actually destroy this due to limitations of some platforms
+					//just hide the window, we will destroy when the drag and drop is done
+					//parent_window->request_destroy_window();
+
+					m_my_tab_manager.lock()->get_private_api().on_dock_area_closing(std::static_pointer_cast<SDockingArea>(shared_from_this()));
+				}
+			}
+		}
+		else
+		{
+			m_b_is_center_target_visible = false;
+		}
 		//in some cases a dock area will control the window
 		//and we need to move some of the tabs out of the way to make room for window chrome
 		update_window_chrome_and_side_bar();
 	}
 	void SDockingArea::update_window_chrome_and_side_bar()
 	{
+		std::vector<std::shared_ptr<SDockingNode>> all_nodes = this->get_child_nodes_recursively();
 
-		//reserve some space for the minimize, restore, and close controls
-		std::shared_ptr<SDockingTabStack> window_control_housing = this->find_tab_stack_to_house_window_controls();
-		window_control_housing->reserve_space_for_window_chrome(SDockingTabStack::EChromeElement::Controls, false, false);
+		if (all_nodes.size() > 0)
+		{
+			//clean out all the reserved space
+			for (auto some_node : all_nodes)
+			{
+				if (some_node->get_node_type() == DockTabStack)
+				{
+					auto some_tab_stack = std::static_pointer_cast<SDockingTabStack>(some_node);
+					some_tab_stack->clear_reserved_space();
+				}
+			}
 
-		//reserve some space for the app icons
-		std::shared_ptr<SDockingTabStack> icon_housing = this->find_tab_stack_to_house_window_icon();
-		icon_housing->reserve_space_for_window_chrome(SDockingTabStack::EChromeElement::Icon, true, true);//todo:fix me
+			//todo:add b can have side bar
 
+			if (std::shared_ptr<SWindow> parent_window = get_parent_window())
+			{
+				//reserve some space for the minimize, restore, and close controls
+				std::shared_ptr<SDockingTabStack> window_control_housing = this->find_tab_stack_to_house_window_controls();
+				window_control_housing->reserve_space_for_window_chrome(SDockingTabStack::EChromeElement::Controls, false, false);
+
+				//reserve some space for the app icons
+				std::shared_ptr<SDockingTabStack> icon_housing = this->find_tab_stack_to_house_window_icon();
+				icon_housing->reserve_space_for_window_chrome(SDockingTabStack::EChromeElement::Icon, true, true);//todo:fix me
+			}
+		}
+		
+	}
+
+	void SDockingArea::on_tab_found_new_home(const std::shared_ptr<SDockTab>& relocated_tab, const std::shared_ptr<SWindow>& new_owner_window)
+	{
+		//the last tab has been successfully relocated else where
+		//destroy this window
+		std::shared_ptr<SWindow> parent_window = m_parent_window_ptr.lock();
+
+		if (parent_window != new_owner_window)
+		{
+			//todo:add set request destroy window override
+			parent_window->request_destroy_window();
+		}
 	}
 
 	SDockingNode::ECleanupRetVal SDockingArea::clean_up_nodes()

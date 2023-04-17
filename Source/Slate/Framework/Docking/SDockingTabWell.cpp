@@ -45,6 +45,11 @@ namespace DoDo {
 		return m_tabs.num();
 	}
 
+	const TSlotlessChildren<SDockTab>& SDockingTabWell::get_tabs() const
+	{
+		return m_tabs;
+	}
+
 	std::shared_ptr<SDockTab> SDockingTabWell::get_foreground_tab() const
 	{
 		if (m_tab_being_dragged_ptr)

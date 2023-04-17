@@ -532,6 +532,11 @@ namespace DoDo
 			return it - m_children.begin();
 		}
 
+		std::vector<std::shared_ptr<ChildType>> as_array_copy() const
+		{
+			return std::vector<std::shared_ptr<ChildType>>(m_children);
+		}
+
 		const std::shared_ptr<ChildType>& operator[](int32_t index) const { return m_children[index]; }
 		std::shared_ptr<ChildType>& operator[](int32_t index) { return m_children[index]; }
 

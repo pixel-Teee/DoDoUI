@@ -12,6 +12,8 @@
 
 #include "Slate/Widgets/Docking/SDockTab.h"//SDockTab depends on it
 
+#include "SDockingTabStack.h"//FTabMatcher depends on it
+
 namespace DoDo
 {
 	//------as function------
@@ -38,6 +40,23 @@ namespace DoDo
 		return FGlobalTabmanager::get()->get_root_window();
 	}
 
+	void FTabManager::FPrivateApi::on_dock_area_created(const std::shared_ptr<SDockingArea>& newly_created_dock_area)
+	{
+		//------clean up pointer array------
+		std::vector<std::weak_ptr<SDockingArea>> new_array;
+		for (int32_t i = 0; i < m_tab_manager.m_dock_areas.size(); ++i)
+		{
+			if (m_tab_manager.m_dock_areas[i].lock())
+			{
+				new_array.push_back(m_tab_manager.m_dock_areas[i]);
+			}
+
+			m_tab_manager.m_dock_areas = new_array;
+		}
+		//------clean up pointer array------
+		m_tab_manager.m_dock_areas.push_back(newly_created_dock_area);
+	}
+
 	bool FTabManager::FPrivateApi::can_tab_leave_tab_well(const std::shared_ptr<const SDockTab>& tab_to_test) const
 	{
 		return m_tab_manager.m_b_can_do_drag_operation;//todo:add check this tab is main non closeable tab
@@ -49,8 +68,13 @@ namespace DoDo
 
 		if (persistent_dock_area_layout)
 		{
-			//m_tab_manager.m_co
+			m_tab_manager.m_collapsed_dock_areas.push_back(persistent_dock_area_layout);
 		}
+	}
+
+	void FTabManager::FPrivateApi::on_tab_relocated(const std::shared_ptr<SDockTab>& relocated_tab, const std::shared_ptr<SWindow>& new_owner_window)
+	{
+		m_tab_manager.on_tab_relocated(relocated_tab, new_owner_window);
 	}
 
 	FTabManager::FPrivateApi& FTabManager::get_private_api()
@@ -615,6 +639,86 @@ namespace DoDo
 			{
 				set_tabs_on(as_splitter->m_child_nodes[child_index], new_tab_state, original_tab_state);//change state
 			}
+		}
+	}
+	void FTabManager::on_tab_relocated(const std::shared_ptr<SDockTab>& relocated_tab, const std::shared_ptr<SWindow>& new_owner_window)
+	{
+		//call relocated tab notify tab relocated
+
+		//------clean up pointer array------
+		std::vector<std::weak_ptr<SDockingArea>> new_array;
+		for (int32_t i = 0; i < m_dock_areas.size(); ++i)
+		{
+			if (m_dock_areas[i].lock())
+			{
+				new_array.push_back(m_dock_areas[i]);
+			}
+
+			m_dock_areas = new_array;
+		}
+		//------clean up pointer array------
+
+		remove_tab_from_collapsed_areas(FTabMatcher(relocated_tab->get_layout_identifier()));
+
+		for (int32_t dock_area_index = 0; dock_area_index < m_dock_areas.size(); ++dock_area_index)
+		{
+			m_dock_areas[dock_area_index].lock()->on_tab_found_new_home(relocated_tab, new_owner_window);
+		}
+
+		//todo:update main menu
+	}
+	std::shared_ptr<FTabManager::FStack> FTabManager::find_tab_under_node(const FTabMatcher& matcher, const std::shared_ptr<FTabManager::FLayoutNode>& node_to_search_under)
+	{
+		std::shared_ptr<FTabManager::FStack> node_as_stack = node_to_search_under->as_stack();
+
+		std::shared_ptr<FTabManager::FSplitter> node_as_splitter = node_to_search_under->as_splitter();
+
+		if (node_as_stack)
+		{
+			auto it = std::find_if(node_as_stack->m_tabs.begin(), node_as_stack->m_tabs.end(), matcher);
+
+			if (it != node_as_stack->m_tabs.end())
+			{
+				return node_as_stack;
+			}
+			else
+			{
+				return std::shared_ptr<FTabManager::FStack>();
+			}
+		}
+		else
+		{
+			std::shared_ptr<FTabManager::FStack> stack_with_tab;
+			for (int32_t child_index = 0; !stack_with_tab && child_index < node_as_splitter->m_child_nodes.size(); ++child_index)
+			{
+				stack_with_tab = find_tab_under_node(matcher, node_as_splitter->m_child_nodes[child_index]);
+			}
+
+			return stack_with_tab;
+		}
+	}
+	void FTabManager::remove_tab_from_collapsed_areas(const FTabMatcher& matcher)
+	{
+		for (int32_t collapsed_dock_area_index = 0; collapsed_dock_area_index < m_collapsed_dock_areas.size(); ++collapsed_dock_area_index)
+		{
+			const std::shared_ptr<FTabManager::FArea>& dock_area = m_collapsed_dock_areas[collapsed_dock_area_index];
+
+			std::shared_ptr<FTabManager::FStack> stack_with_matching_tab;
+
+			do {
+				stack_with_matching_tab = find_tab_under_node(matcher, dock_area);
+
+				if (stack_with_matching_tab)
+				{
+					auto it = std::find_if(stack_with_matching_tab->m_tabs.begin(), stack_with_matching_tab->m_tabs.end(), matcher);
+
+					if (it != stack_with_matching_tab->m_tabs.end())
+					{
+						stack_with_matching_tab->m_tabs.erase(it);
+					}
+				}
+			} 
+			while (stack_with_matching_tab);
 		}
 	}
 	const std::shared_ptr<FGlobalTabmanager>& FGlobalTabmanager::get()

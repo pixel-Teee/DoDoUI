@@ -31,6 +31,7 @@ namespace DoDo
 	 */
 	class SWidget;
 	struct FGeometry;
+	class SWindow;
 	struct FInputEvent
 	{
 	public:
@@ -73,6 +74,8 @@ namespace DoDo
 
 		/*the event path provides additional context for handling*/
 		FGeometry find_geometry(const std::shared_ptr<SWidget>& widget_to_find) const;
+
+		std::shared_ptr<SWindow> get_window() const;
 
 	protected:
 		//state of modifier keys when this event happened

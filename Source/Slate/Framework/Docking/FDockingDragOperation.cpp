@@ -124,7 +124,9 @@ namespace DoDo {
 		else
 		{
 			//the event was handled, so we have to have some window that we dropped into
-			//std::shared_ptr<SWindow> window_dropped_into = mouse_event.get_window();
+			std::shared_ptr<SWindow> window_dropped_into = mouse_event.get_window();
+
+			m_tab_owner_area_of_origin->get_tab_manager()->get_private_api().on_tab_relocated(m_tab_being_dragged, window_dropped_into);//note:this function will close window
 		}
 
 		//destroy the cursor decorator window by calling the base class implementation because we are relocating the content into a more permanent home

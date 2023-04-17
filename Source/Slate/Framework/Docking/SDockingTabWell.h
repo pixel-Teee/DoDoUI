@@ -41,6 +41,9 @@ namespace DoDo {
 		/*@return how many tabs there are*/
 		int32_t get_num_tabs() const;
 
+		/*@return all child tabs in this node*/
+		const TSlotlessChildren<SDockTab>& get_tabs() const;
+
 		/*gets the currently active tab (or the currently dragged tab), or a null pointer if no tab is active*/
 		std::shared_ptr<SDockTab> get_foreground_tab() const;
 

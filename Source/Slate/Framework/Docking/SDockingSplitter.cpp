@@ -51,7 +51,27 @@ namespace DoDo {
 	const std::vector<std::shared_ptr<SDockingNode>>& SDockingSplitter::get_child_nodes() const
 	{
 		return m_children;
-	} 
+	}
+	std::vector<std::shared_ptr<SDockingNode>> SDockingSplitter::get_child_nodes_recursively() const
+	{
+		std::vector<std::shared_ptr<SDockingNode>> child_nodes;
+
+		for (int32_t i = 0; i < m_children.size(); ++i)
+		{
+			const std::shared_ptr<SDockingNode>& child = m_children[i];
+
+			child_nodes.push_back(child);
+
+			if (child->get_node_type() == SDockingNode::DockSplitter || child->get_node_type() == SDockingNode::DockArea)
+			{
+				std::vector<std::shared_ptr<SDockingNode>> temp_nodes = std::static_pointer_cast<SDockingSplitter>(child)->get_child_nodes_recursively();
+				child_nodes.insert(child_nodes.end(), temp_nodes.begin(), temp_nodes.end());
+			}
+		}
+
+		return child_nodes;
+	}
+
 	std::shared_ptr<SDockingTabStack> SDockingSplitter::find_tab_stack_to_house_window_controls()
 	{
 		return std::static_pointer_cast<SDockingTabStack>(this->find_tab_stack(ETabStackToFind::UpperRight));
@@ -136,6 +156,7 @@ namespace DoDo {
 							remove_child_at(child_index);
 
 							//copy the child nodes up one level
+							//note:up level, keep the hierarchy
 							for (int32_t grand_child_index = 0; grand_child_index < child_as_splitter->m_children.size(); ++grand_child_index)
 							{
 								const std::shared_ptr<SDockingNode> grand_child_node = child_as_splitter->m_children[grand_child_index];
