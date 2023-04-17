@@ -30,7 +30,7 @@ namespace DoDo
 		
 		void unlock(VmaAllocator& allocator);
 
-		void resize_buffer(VmaAllocator& allocator, uint32_t new_size);
+		void resize_buffer(VkDevice& device, VmaAllocator& allocator, uint32_t new_size);
 
 		uint32_t get_buffer_size() const { return m_buffer_size; }
 

@@ -22,7 +22,7 @@ namespace DoDo
 
 		void unlock(VmaAllocator& allocator);
 
-		void resize_buffer(VmaAllocator& allocator, uint32_t num_indices);
+		void resize_buffer(VkDevice& device, VmaAllocator& allocator, uint32_t num_indices);
 
 		uint32_t get_max_num_indices() const { return m_max_num_indices; }
 

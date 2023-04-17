@@ -201,6 +201,12 @@ namespace DoDo
 			const FSlateVertexArray& final_vertex_data = in_batch_data.get_final_vertex_data();
 			const FSlateIndexArray& final_index_data = in_batch_data.get_final_index_data();
 
+			//-----get device------
+			Renderer* renderer = Application::get().get_renderer();
+			FSlateVulkanRenderer* vulkan_renderer = (FSlateVulkanRenderer*)(renderer);
+			VkDevice device = *(VkDevice*)(vulkan_renderer->m_logic_device->get_native_handle());
+			//-----get device------
+
 			if (!final_vertex_data.empty())
 			{
 				const uint32_t num_vertices = final_vertex_data.size();
@@ -209,7 +215,7 @@ namespace DoDo
 				if (num_vertices * sizeof(FSlateVertex) + m_last_vertex_buffer_offset > m_vertex_buffer.get_buffer_size())
 				{
 					uint32_t num_bytes_needed = (num_vertices + m_last_vertex_buffer_offset) * sizeof(FSlateVertex);
-					m_vertex_buffer.resize_buffer(allocator, num_bytes_needed + (num_vertices / 4) * sizeof(FSlateVertex));// extra 1/4 space
+					m_vertex_buffer.resize_buffer(device, allocator, num_bytes_needed + (num_vertices / 4) * sizeof(FSlateVertex));// extra 1/4 space
 				}
 			}
 
@@ -221,7 +227,7 @@ namespace DoDo
 
 				if (num_indices + last_offset > m_index_buffer.get_max_num_indices())
 				{
-					m_index_buffer.resize_buffer(allocator, num_indices + last_offset + (num_indices / 4));
+					m_index_buffer.resize_buffer(device, allocator, num_indices + last_offset + (num_indices / 4));
 				}
 			}
 

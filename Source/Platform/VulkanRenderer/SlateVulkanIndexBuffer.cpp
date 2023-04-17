@@ -73,7 +73,7 @@ namespace DoDo
 		vmaUnmapMemory(allocator, m_buffer.m_allocation);
 	}
 
-	void FSlateVulkanIndexBuffer::resize_buffer(VmaAllocator& allocator, uint32_t num_indices)
+	void FSlateVulkanIndexBuffer::resize_buffer(VkDevice& device, VmaAllocator& allocator, uint32_t num_indices)
 	{
 		//buffer should be created first
 
@@ -93,6 +93,8 @@ namespace DoDo
 
 				unlock(allocator);
 			}
+
+			vkDeviceWaitIdle(device);
 
 			vmaDestroyBuffer(allocator, m_buffer.m_buffer, m_buffer.m_allocation);
 			if (saved_indices)

@@ -76,7 +76,7 @@ namespace DoDo
 	}
 
 	/*resize the buffer to the passed in size, preserves internal data*/
-	void FSlateVulkanVertexBuffer::resize_buffer(VmaAllocator& allocator, uint32_t new_size)
+	void FSlateVulkanVertexBuffer::resize_buffer(VkDevice& device, VmaAllocator& allocator, uint32_t new_size)
 	{
 		//buffer should be created first
 
@@ -94,6 +94,8 @@ namespace DoDo
 
 				unlock(allocator);
 			}
+
+			vkDeviceWaitIdle(device);//todo:fix me
 
 			vmaDestroyBuffer(allocator, m_buffer.m_buffer, m_buffer.m_allocation);
 			if (saved_vertices)
