@@ -349,6 +349,9 @@ namespace DoDo
 		/*true if this is a pop up window*/
 		bool m_b_is_pop_up_window : 1;
 
+		/*true if this window has been shown yet*/
+		bool m_b_has_ever_been_shown : 1;
+
 		/*initial desired position of the window's content in screen space*/
 		glm::vec2 m_initial_desired_screen_position;
 

@@ -1372,6 +1372,8 @@ namespace DoDo
         std::shared_ptr<Window> new_window = s_platform_application->make_window();
 
         in_slate_window->set_native_window(new_window);
+        in_slate_window->set_cached_screen_position(position);
+        in_slate_window->set_cached_size(size);
 
         s_platform_application->initialize_window(new_window, definition, native_parent, b_show_immediately);
 

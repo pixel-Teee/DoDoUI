@@ -53,12 +53,13 @@ namespace DoDo {
 	}
 
 	SWindow::SWindow()
-		: m_opacity(1.0f)
-		, m_sizing_rule(ESizingRule::UserSized)
+		: m_sizing_rule(ESizingRule::UserSized)
+		, m_opacity(1.0f)
 		, m_transparency_support(EWindowTransparency::None)
+		, m_b_is_pop_up_window(false)
+		, m_b_has_ever_been_shown(false)
 		, m_initial_desired_screen_position(glm::vec2(0.0f))
 		, m_initial_desired_size(glm::vec2(0.0f, 0.0f))
-		, m_b_is_pop_up_window(false)
 		, m_size(glm::vec2(0.0f, 0.0f))
 		, m_view_port_size(glm::vec2(0.0f, 0.0f))
 		, m_title_bar_size(SWindowDefs::default_title_bar_size)
@@ -278,23 +279,34 @@ namespace DoDo {
 
 	void SWindow::show_window()
 	{
-		if(m_native_window)
+		//make sure the viewport is setup for this window
+		if(!m_b_has_ever_been_shown)
 		{
-			//we can only create a viewport after the window has been shown(otherwise the swap chain creation may fail)
-			Application::get().get_renderer()->create_view_port(std::static_pointer_cast<SWindow>(shared_from_this()));
+			if (m_native_window)
+			{
+				//we can only create a viewport after the window has been shown(otherwise the swap chain creation may fail)
+				Application::get().get_renderer()->create_view_port(std::static_pointer_cast<SWindow>(shared_from_this()));
+			}
+
+			//auto sized windows don't know their size until after their position is set
+			//repositioning the window on show with the new size solves this
+			if (m_sizing_rule == ESizingRule::AutoSized) //todo:check auto center
+			{
+				slate_prepass(1.0f);//todo:add get application scale and get dpi scale factor
+				const glm::vec2 window_desired_pixels = get_desired_size_desktop_pixels();
+				reshape_window(m_initial_desired_screen_position - (window_desired_pixels * 0.5f), window_desired_pixels);//todo:fix this
+			}
 		}
 
-		//auto sized windows don't know their size until after their position is set
-		//repositioning the window on show with the new size solves this
-		if (m_sizing_rule == ESizingRule::AutoSized) //todo:check auto center
-		{
-			slate_prepass(1.0f);//todo:add get application scale and get dpi scale factor
-			const glm::vec2 window_desired_pixels = get_desired_size_desktop_pixels();
-			reshape_window(m_initial_desired_screen_position - (window_desired_pixels * 0.5f), window_desired_pixels);
-		}
+		m_b_has_ever_been_shown = true;
+
+		//if(m_native_window)
+		//{
+		//	m_native_window->show();
+		//}
 
 		//reshape window, to set screen position and size, todo:fix me, don't use initial desired size
-		reshape_window(m_initial_desired_screen_position, m_initial_desired_size);//todo:fix me
+		//reshape_window(m_initial_desired_screen_position, m_initial_desired_size);//todo:fix me
 
 		//todo:add show and bring to front
 	}
