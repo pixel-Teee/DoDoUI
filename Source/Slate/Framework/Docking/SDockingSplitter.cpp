@@ -24,6 +24,55 @@ namespace DoDo {
 		m_children.erase(m_children.begin() + index_of_child_to_remove);
 		m_splitter->remove_at(index_of_child_to_remove);
 	}
+	void SDockingSplitter::place_node(const std::shared_ptr<SDockingNode>& node_to_place, SDockingNode::RelativeDirection direction, const std::shared_ptr<SDockingNode>& relative_to_me)
+	{
+		const bool b_direction_matches = does_direction_match_orientation(direction, this->m_splitter->get_orientation());
+		const bool b_has_one_child = (m_children.size() == 1);
+
+		if (!b_direction_matches)
+		{
+			//this splitter's direction doesn't match the user's request to make some room for a new tab stack
+			//but if we only have one child, so we can just re-orient this splitter!
+			const EOrientation new_orientation = (this->m_splitter->get_orientation() == Orient_Horizontal)
+				? Orient_Vertical
+				: Orient_Horizontal;
+
+			if (b_has_one_child)
+			{
+				//when we have just a single child, we can just re-orient ourselves
+				//no extra work necessary
+				this->m_splitter->set_orientation(new_orientation);
+			}
+			else
+			{
+				//our orientation is wrong
+				//we also have more than one child, so we must preserve the orientation of the child nodes
+				//we will do this by making a new splitter, and putting the two tab stacks involved with
+				//desired orientation in the new splitter
+				std::shared_ptr<SDockingSplitter> new_splitter = SNew(SDockingSplitter, FTabManager::new_splitter()->set_orientation(new_orientation));
+				this->replace_child(relative_to_me, new_splitter);
+				new_splitter->add_child_node(relative_to_me);
+				return new_splitter->place_node(node_to_place, direction, relative_to_me);
+			}
+		}
+
+		//find index relative to which we want to insert
+		auto it = std::find(m_children.begin(), m_children.end(), relative_to_me);
+		if (it != m_children.end())
+		{
+			const int32_t relative_to_me_index = it - m_children.begin();
+
+			//now actually drop in the new content
+			if (direction == LeftOf || direction == Above)
+			{
+				return this->add_child_node(node_to_place, relative_to_me_index);
+			}
+			else
+			{
+				return this->add_child_node(node_to_place, relative_to_me_index + 1);
+			}
+		}
+	}
 	void SDockingSplitter::add_child_node(const std::shared_ptr<SDockingNode>& in_child, int32_t in_location)
 	{
 		//TAttribute<float>(in_child, &SDockingNode::get_size_coefficient);
@@ -46,6 +95,27 @@ namespace DoDo {
 
 		//whatever node we added in, we are now its parent
 		in_child->set_parent_node(std::static_pointer_cast<SDockingSplitter>(shared_from_this()));
+	}
+
+	void SDockingSplitter::replace_child(const std::shared_ptr<SDockingNode>& in_child_to_replace, const std::shared_ptr<SDockingNode>& replacement)
+	{
+		//we want to replace this placeholder with whatever is being dragged
+		auto it = std::find(m_children.begin(), m_children.end(), in_child_to_replace);
+
+		int32_t index_to_parent_splitter = it - m_children.begin();
+
+		m_children[index_to_parent_splitter] = replacement;
+
+		replacement->set_size_coefficient(in_child_to_replace->get_size_coefficient());
+
+		SSplitter::FSlot& slot = m_splitter->slot_at(index_to_parent_splitter);
+		slot.set_size_value(TAttribute<float>(replacement, &SDockingSplitter::get_size_coefficient));
+		slot.on_slot_resized().BindSP(replacement, &SDockingNode::set_size_coefficient);
+		slot.set_sizing_rule(TAttribute<SSplitter::ESizeRule>(replacement, &SDockingSplitter::get_size_rule));
+
+		slot[replacement];
+
+		replacement->set_parent_node(std::static_pointer_cast<SDockingSplitter>(shared_from_this()));
 	}
 
 	const std::vector<std::shared_ptr<SDockingNode>>& SDockingSplitter::get_child_nodes() const
@@ -104,6 +174,11 @@ namespace DoDo {
 		}
 
 		return (b_have_layout_data) ? persistent_node : std::shared_ptr<FTabManager::FLayoutNode>();
+	}
+	bool SDockingSplitter::does_direction_match_orientation(SDockingNode::RelativeDirection in_direction, EOrientation in_orientation)
+	{
+		return ((in_direction == SDockingNode::LeftOf || in_direction == SDockingNode::RightOf) && in_orientation == Orient_Horizontal) ||
+			((in_direction == SDockingNode::Above || in_direction == SDockingNode::Below) && in_orientation == Orient_Vertical);
 	}
 	SDockingNode::ECleanupRetVal SDockingSplitter::most_responsibility(SDockingNode::ECleanupRetVal A, SDockingNode::ECleanupRetVal B)
 	{

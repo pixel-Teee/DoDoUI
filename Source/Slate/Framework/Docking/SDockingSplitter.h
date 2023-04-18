@@ -34,6 +34,16 @@ namespace DoDo {
 		void remove_child_at(int32_t index_of_child_to_remove);
 
 		/*
+		* inserts node to place next to relative to me
+		* next to means above, below, left or right of relative to me
+		* 
+		* @param node to place the node to insert
+		* @param direction where to insert relative to the other node
+		* @param relative to me insert relative to this node
+		*/
+		void place_node(const std::shared_ptr<SDockingNode>& node_to_place, SDockingNode::RelativeDirection direction, const std::shared_ptr<SDockingNode>& relative_to_me);
+
+		/*
 		* add a new child dock node at the desired location
 		* assumes this dock node is a splitter
 		* 
@@ -41,6 +51,14 @@ namespace DoDo {
 		* @param InLocation index at which to add, INDEX_NONE adds to the end of this list
 		*/
 		void add_child_node(const std::shared_ptr<SDockingNode>& in_child, int32_t in_location = -1);
+
+		/*
+		* replace the child in child to replace with replacement
+		* 
+		* @param InChildToReplace the child of this node to replace
+		* @param Replacement what to replace with
+		*/
+		void replace_child(const std::shared_ptr<SDockingNode>& in_child_to_replace, const std::shared_ptr<SDockingNode>& replacement);
 
 		/*gets an array of all child dock nodes*/
 		const std::vector<std::shared_ptr<SDockingNode>>& get_child_nodes() const;
@@ -62,6 +80,8 @@ namespace DoDo {
 
 		virtual std::shared_ptr<FTabManager::FLayoutNode> gather_persistent_layout() const override;
 	protected:
+		/*is the docking direction (left, right, above, below) match the orientation (horizontal vs. vertical)*/
+		static bool does_direction_match_orientation(SDockingNode::RelativeDirection in_direction, EOrientation in_orientation);
 
 		static SDockingNode::ECleanupRetVal most_responsibility(SDockingNode::ECleanupRetVal A, SDockingNode::ECleanupRetVal B);
 		//todo:implement these functions

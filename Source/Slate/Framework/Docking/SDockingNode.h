@@ -88,6 +88,16 @@ namespace DoDo {
 		/*gets the dock area that this resides in*/
 		virtual std::shared_ptr<SDockingArea> get_dock_area();
 
+		/*
+		* attempt to dock the tab widget from the drag drop event next to this node
+		* 
+		* @param direction where relative to this direction to dock the node, e.g to the right
+		* @param drag drop event drag and drop event that potentially carries
+		* 
+		* @return an FReply::Handled() if we suceessfully docked the content, FReply::Unhandled() otherwise
+		*/
+		virtual FReply on_user_attempting_dock(SDockingNode::RelativeDirection direction, const FDragDropEvent& drag_drop_event);
+
 		/*should this node auto-size or be a percentage of its parent size, this setting is usually determined by users*/
 		virtual SSplitter::ESizeRule get_size_rule() const { return SSplitter::FractionOfParent; }
 

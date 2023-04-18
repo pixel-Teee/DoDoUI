@@ -4,6 +4,10 @@
 
 #include "SlateCore/Widgets/Images/SImage.h"
 
+#include "SlateCore/Input/DragAndDrop.h"//FDragDropEvent depends on it
+
+#include "FDockingDragOperation.h"
+
 namespace DoDo {
 	static const FSlateBrush* border_brush_from_dock_direction(SDockingNode::RelativeDirection dock_direction)
 	{
@@ -72,7 +76,17 @@ namespace DoDo {
 	}
 	FReply SDockingTarget::On_Drop(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
 	{
-		return FReply::un_handled();
+		if (drag_drop_event.get_operation_as<FDockingDragOperation>())
+		{
+			std::shared_ptr<SDockingNode> pinned_owner_node = m_owner_node.lock();
+
+			//we are a direction node, so re-arrange layout as desired
+			return pinned_owner_node->on_user_attempting_dock(m_dock_direction, drag_drop_event);
+		}
+		else
+		{
+			return FReply::un_handled();
+		}
 	}
 	std::shared_ptr<SDockingNode> SDockingTarget::get_owner() const
 	{

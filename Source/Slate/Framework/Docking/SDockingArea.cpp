@@ -20,6 +20,8 @@
 
 #include "Slate/Framework/Docking/SDockingTarget.h"//SDockingNode depends on it
 
+#include "FDockingDragOperation.h"
+
 namespace DoDo
 {
 	void SDockingArea::Construct(const FArguments& in_args, const std::shared_ptr<FTabManager>& in_tab_manager, const std::shared_ptr<FTabManager::FArea>& persistent_node)
@@ -122,6 +124,61 @@ namespace DoDo
 		{
 			add_child_node(in_args._InitialContent);
 		}
+	}
+
+	void SDockingArea::On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
+	{
+		std::shared_ptr<FDockingDragOperation> drag_drop_operation = drag_drop_event.get_operation_as<FDockingDragOperation>();
+
+		if (drag_drop_operation)
+		{
+			if (drag_drop_operation->can_dock_in_node(std::static_pointer_cast<SDockingNode>(shared_from_this()), FDockingDragOperation::DockingViaTarget))
+			{
+				show_cross();
+			}
+		}
+	}
+
+	void SDockingArea::On_Drag_Leave(const FDragDropEvent& drag_drop_event)
+	{
+		if (drag_drop_event.get_operation_as<FDockingDragOperation>())
+		{
+			hide_cross();
+		}
+	}
+
+	FReply SDockingArea::on_user_attempting_dock(SDockingNode::RelativeDirection direction, const FDragDropEvent& drag_drop_event)
+	{
+		std::shared_ptr<FDockingDragOperation> drag_drop_operation = drag_drop_event.get_operation_as<FDockingDragOperation>();
+
+		if (drag_drop_operation)
+		{
+			if (direction == Center)
+			{
+				std::shared_ptr<SDockingTabStack> new_stack = SNew(SDockingTabStack, FTabManager::new_stack());
+				add_child_node(new_stack);
+				new_stack->open_tab(drag_drop_operation->get_tab_being_dragged());
+			}
+			else
+			{
+
+			}
+			return FReply::handled();
+		}
+		else
+		{
+			return FReply::un_handled();
+		}
+	}
+
+	void SDockingArea::show_cross()
+	{
+		m_b_is_overlay_visible = true;
+	}
+
+	void SDockingArea::hide_cross()
+	{
+		m_b_is_overlay_visible = false;
 	}
 
 	std::shared_ptr<SDockingArea> SDockingArea::get_dock_area()
@@ -317,6 +374,37 @@ namespace DoDo
 		return (m_b_is_overlay_visible && m_b_is_center_target_visible)
 			? EVisibility::visible
 			: EVisibility::Collapsed;
+	}
+
+	void SDockingArea::dock_from_outside(SDockingNode::RelativeDirection direction, const FDragDropEvent& drag_drop_event)
+	{
+		std::shared_ptr<FDockingDragOperation> drag_drop_operation = std::static_pointer_cast<FDockingDragOperation>(drag_drop_event.get_operation());
+
+		//
+		// dock from outside
+		//
+		const bool b_direction_matches = does_direction_match_orientation(direction, this->m_splitter->get_orientation());
+
+		if (!b_direction_matches && m_children.size() > 1)
+		{
+			//we have multiple children, but the user wants to add a new node that's perpendicular to their orientation
+		}
+
+		//add the new node
+		{
+			std::shared_ptr<SDockingTabStack> new_stack = SNew(SDockingTabStack, FTabManager::new_stack());
+
+			if (direction == LeftOf || direction == Above)
+			{
+				this->place_node(new_stack, direction, m_children[0]);
+			}
+			else
+			{
+				this->place_node(new_stack, direction, m_children.back());
+			}
+
+			new_stack->open_tab(drag_drop_operation->get_tab_being_dragged());
+		}
 	}
 
 }

@@ -11,6 +11,11 @@ namespace DoDo {
 		return m_parent_node_ptr.lock() != nullptr ? m_parent_node_ptr.lock()->get_dock_area() : std::shared_ptr<SDockingArea>();
 	}
 
+	FReply SDockingNode::on_user_attempting_dock(SDockingNode::RelativeDirection direction, const FDragDropEvent& drag_drop_event)
+	{
+		return FReply::un_handled();
+	}
+
 	float SDockingNode::get_size_coefficient() const
 	{
 		return m_size_coefficient;

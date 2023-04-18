@@ -85,6 +85,11 @@ namespace DoDo {
 		return m_orientation;
 	}
 
+	SSplitter::FSlot& SSplitter::slot_at(int32_t slot_index)
+	{
+		return m_children[slot_index];
+	}
+
 	void SSplitter::remove_at(int32_t index_to_remove)
 	{
 		m_children.remove_at(index_to_remove);

@@ -45,6 +45,18 @@ namespace DoDo
 
 		void Construct(const FArguments& in_args, const std::shared_ptr<FTabManager>& in_tab_manager, const std::shared_ptr<FTabManager::FArea>& persistent_node);
 
+		virtual void On_Drag_Enter(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
+
+		virtual void On_Drag_Leave(const FDragDropEvent& drag_drop_event) override;
+
+		virtual FReply on_user_attempting_dock(SDockingNode::RelativeDirection direction, const FDragDropEvent& drag_drop_event) override;
+
+		//show the dock-from-outside dock targets
+		void show_cross();
+
+		//hide the dock-from-outside dock targets
+		void hide_cross();
+
 		/*returns this dock area*/
 		virtual std::shared_ptr<SDockingArea> get_dock_area() override;
 
@@ -85,6 +97,10 @@ namespace DoDo
 		EVisibility target_cross_visibility() const;
 
 		EVisibility target_cross_center_visibility() const;
+
+		/*dock a tab along the outer edge of this dock area*/
+		void dock_from_outside(SDockingNode::RelativeDirection direction, const FDragDropEvent& drag_drop_event);
+
 		/*the tab manager that controls this dock area*/
 		std::weak_ptr<FTabManager> m_my_tab_manager;
 

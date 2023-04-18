@@ -174,7 +174,15 @@ public:
 
 		return *this;
 	}
-
+public:
+	/*
+	* binds a shared pointer-based member function delegate, shared pointer delegates keep a weak reference to your object, you can use execute_if_bound() to call them
+	*/
+	template<typename UserClass, typename... VarTypes>
+	inline void BindSP(const std::shared_ptr<UserClass>& in_user_object_ref, typename TMemFunPtrType<false, UserClass, RetValType(ParamTypes..., VarTypes...)>::Type in_func, VarTypes... Vars)
+	{
+		*this = CreateSP(in_user_object_ref, in_func, Vars...);
+	}
 public:
 
 	RetValType execute(ParamTypes... Params) const

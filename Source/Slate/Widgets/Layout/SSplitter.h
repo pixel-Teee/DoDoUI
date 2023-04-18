@@ -80,9 +80,39 @@ namespace DoDo {
 
 			void Construct(const FChildren& slot_owner, FSlotArguments&& in_args);
 
+			/*when the rule size is set to fraction of parent, the size of the slot is the value percentage of its parent size*/
+			void set_size_value(TAttribute<float> in_value)
+			{
+				m_size_value = std::move(in_value);
+			}
+
+			/*
+			* can the slot be resize by the user
+			* @see can be resized()
+			*/
+			void set_resizable(bool b_in_is_resizable)
+			{
+				m_b_is_resizable = b_in_is_resizable;
+			}
+
+			/*the size rule used by the slot*/
+			void set_sizing_rule(TAttribute<ESizeRule> in_size_rule)
+			{
+				m_sizing_rule = std::move(in_size_rule);
+			}
+
 			float get_min_size() const
 			{
 				return m_min_size_value.Get(0.0f);
+			}
+
+			/*
+			* callback when the slot is resized
+			* @see can be resized()
+			*/
+			FOnSlotResized& on_slot_resized()
+			{
+				return m_on_slot_resized_handler;
 			}
 
 		public:
@@ -169,6 +199,15 @@ namespace DoDo {
 		* return the current orientation of the splitter
 		*/
 		EOrientation get_orientation() const;
+
+		/*
+		* get the slot at the specified index
+		* 
+		* @param slot index replace the child at this index
+		* 
+		* @return slot at the index specified by slot index
+		*/
+		SSplitter::FSlot& slot_at(int32_t slot_index);
 
 		/*
 		* remove the child at index to remove
