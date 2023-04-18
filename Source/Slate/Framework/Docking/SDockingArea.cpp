@@ -109,6 +109,8 @@ namespace DoDo
 			]
 		];
 
+		m_b_clenup_upon_tab_relocation = false;
+
 		//if the owner window is set and bManageParentWindow is true, this docknode will close the window then its last tab is removed
 		if (in_args._ParentWindow)
 		{
@@ -237,6 +239,7 @@ namespace DoDo
 					//we can't actually destroy this due to limitations of some platforms
 					//just hide the window, we will destroy when the drag and drop is done
 					//parent_window->request_destroy_window();
+					m_b_clenup_upon_tab_relocation = true;
 
 					m_my_tab_manager.lock()->get_private_api().on_dock_area_closing(std::static_pointer_cast<SDockingArea>(shared_from_this()));
 				}
@@ -288,7 +291,7 @@ namespace DoDo
 		//destroy this window
 		std::shared_ptr<SWindow> parent_window = m_parent_window_ptr.lock();
 
-		if (parent_window != new_owner_window)
+		if (m_b_clenup_upon_tab_relocation && parent_window != new_owner_window)
 		{
 			//todo:add set request destroy window override
 			parent_window->request_destroy_window();

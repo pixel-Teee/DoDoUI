@@ -102,5 +102,8 @@ namespace DoDo
 
 		/*the center target is visible when the overlay is visible and there are no live tabs*/
 		bool m_b_is_center_target_visible;
+
+		/*true when the last tab has been pulled from this area, meaning that this dock area will not be necessary once that tab finds a new home*/
+		bool m_b_clenup_upon_tab_relocation;
 	};
 }

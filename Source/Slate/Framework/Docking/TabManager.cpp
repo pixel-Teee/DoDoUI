@@ -50,9 +50,8 @@ namespace DoDo
 			{
 				new_array.push_back(m_tab_manager.m_dock_areas[i]);
 			}
-
-			m_tab_manager.m_dock_areas = new_array;
 		}
+		m_tab_manager.m_dock_areas = new_array;
 		//------clean up pointer array------
 		m_tab_manager.m_dock_areas.push_back(newly_created_dock_area);
 	}
@@ -653,9 +652,8 @@ namespace DoDo
 			{
 				new_array.push_back(m_dock_areas[i]);
 			}
-
-			m_dock_areas = new_array;
 		}
+		m_dock_areas = new_array;
 		//------clean up pointer array------
 
 		remove_tab_from_collapsed_areas(FTabMatcher(relocated_tab->get_layout_identifier()));
