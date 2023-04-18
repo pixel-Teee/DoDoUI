@@ -138,7 +138,11 @@ namespace DoDo {
 
 	void SWindow::set_opacity(const float in_opacity)
 	{
-		m_opacity = in_opacity;
+		if(m_opacity != in_opacity)
+		{
+			m_opacity = in_opacity;
+			m_native_window->set_opacity(m_opacity);
+		}
 	}
 
 	float SWindow::get_opacity() const
