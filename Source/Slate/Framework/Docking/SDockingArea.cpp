@@ -65,7 +65,7 @@ namespace DoDo
 			.VAlign(VAlign_Fill)
 			[
 				SNew(SDockingTarget)
-				.Visibility(target_cross_visibility)
+				//.Visibility(target_cross_visibility)
 				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
 				.DockDirection(SDockingNode::LeftOf)
 			]
@@ -75,7 +75,7 @@ namespace DoDo
 			.VAlign(VAlign_Fill)
 			[
 				SNew(SDockingTarget)
-				.Visibility(target_cross_visibility)
+				//.Visibility(target_cross_visibility)
 				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
 				.DockDirection(SDockingNode::RightOf)
 			]
@@ -85,7 +85,7 @@ namespace DoDo
 			.VAlign(VAlign_Top)
 			[
 				SNew(SDockingTarget)
-				.Visibility(target_cross_visibility)
+				//.Visibility(target_cross_visibility)
 				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
 				.DockDirection(SDockingNode::Above)
 			]
@@ -95,7 +95,7 @@ namespace DoDo
 			.VAlign(VAlign_Bottom)
 			[
 				SNew(SDockingTarget)
-				.Visibility(target_cross_visibility)
+				//.Visibility(target_cross_visibility)
 				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
 				.DockDirection(SDockingNode::Below)
 			]
@@ -105,7 +105,7 @@ namespace DoDo
 			.VAlign(VAlign_Center)
 			[
 				SNew(SDockingTarget)
-				.Visibility(target_cross_visibility)
+				//.Visibility(target_cross_visibility)
 				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
 				.DockDirection(SDockingNode::Center)
 			]
@@ -161,7 +161,7 @@ namespace DoDo
 			}
 			else
 			{
-
+				dock_from_outside(direction, drag_drop_event);
 			}
 			return FReply::handled();
 		}
@@ -388,6 +388,30 @@ namespace DoDo
 		if (!b_direction_matches && m_children.size() > 1)
 		{
 			//we have multiple children, but the user wants to add a new node that's perpendicular to their orientation
+			//we need to nest our children into a child splitter so that we can re-orient ourselves
+			{
+				std::shared_ptr<SDockingSplitter> new_splitter = SNew(SDockingSplitter, FTabManager::new_splitter()->set_orientation(m_splitter->get_orientation()));
+
+				for (int32_t child_index = 0; child_index < m_children.size(); ++child_index)
+				{
+					new_splitter->add_child_node(m_children[child_index], -1);
+				}
+
+				//remove all our children
+				while (m_children.size() > 0)
+				{
+					remove_child_at(m_children.size() - 1);
+				}
+
+				add_child_node(new_splitter);
+			}
+
+			//re-orient ourselves
+			const EOrientation new_orientation = (this->m_splitter->get_orientation() == Orient_Horizontal)
+				? Orient_Vertical
+				: Orient_Horizontal;
+
+			this->set_orientation(new_orientation);
 		}
 
 		//add the new node
@@ -396,7 +420,7 @@ namespace DoDo
 
 			if (direction == LeftOf || direction == Above)
 			{
-				this->place_node(new_stack, direction, m_children[0]);
+				this->place_node(new_stack, direction, m_children[0]);//note:relative to first
 			}
 			else
 			{
@@ -405,6 +429,8 @@ namespace DoDo
 
 			new_stack->open_tab(drag_drop_operation->get_tab_being_dragged());
 		}
+
+		hide_cross();
 	}
 
 }

@@ -73,6 +73,10 @@ namespace DoDo {
 			}
 		}
 	}
+	void SDockingSplitter::set_orientation(EOrientation new_orientation)
+	{
+		m_splitter->set_orientation(new_orientation);
+	}
 	void SDockingSplitter::add_child_node(const std::shared_ptr<SDockingNode>& in_child, int32_t in_location)
 	{
 		//TAttribute<float>(in_child, &SDockingNode::get_size_coefficient);

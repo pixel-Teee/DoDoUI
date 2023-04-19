@@ -87,6 +87,7 @@ namespace DoDo {
 
 		/*gets the dock area that this resides in*/
 		virtual std::shared_ptr<SDockingArea> get_dock_area();
+		virtual std::shared_ptr<const SDockingArea> get_dock_area() const;
 
 		/*
 		* attempt to dock the tab widget from the drag drop event next to this node

@@ -43,6 +43,9 @@ namespace DoDo {
 		*/
 		void place_node(const std::shared_ptr<SDockingNode>& node_to_place, SDockingNode::RelativeDirection direction, const std::shared_ptr<SDockingNode>& relative_to_me);
 
+		/*sets the orientation of this splitter*/
+		void set_orientation(EOrientation new_orientation);
+
 		/*
 		* add a new child dock node at the desired location
 		* assumes this dock node is a splitter
