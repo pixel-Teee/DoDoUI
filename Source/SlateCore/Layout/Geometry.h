@@ -326,6 +326,19 @@ namespace DoDo
 		/*
 		* absolute coordinates could be either desktop or window space depending on what space the root of the widget hierarchy is in
 		* 
+		* @return true if the provided location in absolute coordinates is within the bounds of this geometry
+		*/
+		bool is_under_location(const glm::vec2& absolute_coordinate) const
+		{
+			//this render transform invert is a little expensive, we might consider caching it?
+			FSlateRotatedRect rect = transform_rect(get_accumulated_render_transform(), FSlateRotatedRect(FSlateRect(glm::vec2(0.0f, 0.0f), m_size)));
+
+			return rect.is_under_location(absolute_coordinate);
+		}
+
+		/*
+		* absolute coordinates could be either desktop or window space depending on what space the root of the widget hierarchy is in
+		* 
 		* @return transforms absolute coordinate into the local space of this geometry
 		*/
 		glm::vec2 absolute_to_local(glm::vec2 absolute_coordinate) const

@@ -19,6 +19,7 @@
 #include "SlateCore/Styling/SlateColor.h"//FSlateColor depends on it
 
 namespace DoDo {
+	SLATE_IMPLEMENT_WIDGET(SWidget)
 	//this function will be called at FSlateWidgetClassData construct
 	void SWidget::Private_Register_Attributes(FSlateAttributeInitializer& attribute_initializer)
 	{
@@ -260,6 +261,62 @@ namespace DoDo {
 		//------append a array to this array------
 	}
 
+	FGeometry SWidget::find_child_geometry(const FGeometry& my_geometry, std::shared_ptr<SWidget> widget_to_find) const
+	{
+		//we just need to find the one widget to find among our descendants
+		std::set<std::shared_ptr<SWidget>> widgets_to_find;
+
+		widgets_to_find.insert(widget_to_find);
+
+		std::map<std::shared_ptr<SWidget>, FArrangedWidget> result;
+
+		find_child_geometries(my_geometry, widgets_to_find, result);
+
+		//todo:check
+		auto it = result.find(widget_to_find);
+
+		return it->second.m_geometry;
+	}
+
+	bool SWidget::find_child_geometries(const FGeometry& my_geometry, const std::set<std::shared_ptr<SWidget>>& widgets_to_find, std::map<std::shared_ptr<SWidget>, FArrangedWidget>& out_result) const
+	{
+		find_child_geometries_helper(my_geometry, widgets_to_find, out_result);
+
+		return out_result.size() == widgets_to_find.size();
+	}
+
+	void SWidget::find_child_geometries_helper(const FGeometry& my_geometry, const std::set<std::shared_ptr<SWidget>>& widgets_to_find, std::map<std::shared_ptr<SWidget>, FArrangedWidget>& out_result) const
+	{
+		//perform a breadth first search!
+
+		FArrangedChildren arranged_children(EVisibility::visible);
+		this->Arrange_Children(my_geometry, arranged_children);
+		const int32_t num_children = arranged_children.num();
+
+		//see if we found any of the widgets on this level
+		for (int32_t child_index = 0; child_index < num_children; ++child_index)
+		{
+			const FArrangedWidget& cur_child = arranged_children[child_index];
+
+			if (widgets_to_find.find(cur_child.m_widget) != widgets_to_find.end())
+			{
+				//we found one of the widgets for which we need geometry!
+				out_result.insert({ cur_child.m_widget, cur_child });
+			}
+		}
+
+		//if we have not found all the widgets that we were looking for, descend
+		if (out_result.size() != widgets_to_find.size())
+		{
+			//look for widgets among the children
+			for (int32_t child_index = 0; child_index < num_children; ++child_index)
+			{
+				const FArrangedWidget& cur_child = arranged_children[child_index];
+				cur_child.m_widget->find_child_geometries_helper(cur_child.m_geometry, widgets_to_find, out_result);
+			}
+		}
+	}
+
 	int32_t SWidget::paint(const FPaintArgs& args, const FGeometry& allotted_geometry,
 		const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id,
 		const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
@@ -475,6 +532,10 @@ namespace DoDo {
 		int32_t child_index = 0;
 		my_children->for_each_widget([this, &child_index, in_layout_scale_multiplier](SWidget& child)
 		{
+			//if (child.get_visibility() == EVisibility::Collapsed)
+			//{
+			//	std::cout << "collapsed" << std::endl;
+			//}
 			//todo:update attributes
 			const bool b_update_attributes = child.Has_Registered_Slate_Attribute();//todo:add more check
 			if(b_update_attributes)

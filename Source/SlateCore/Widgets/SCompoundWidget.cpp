@@ -11,6 +11,7 @@ namespace DoDo {
 	{
 	}
 	*/
+	SLATE_IMPLEMENT_WIDGET(SCompoundWidget)
 	void SCompoundWidget::Private_Register_Attributes(FSlateAttributeInitializer& attribute_initializer)
 	{
 		SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(attribute_initializer, "SlotPadding", m_child_slot.m_slot_padding_attribute, EInvalidateWidgetReason::Layout);

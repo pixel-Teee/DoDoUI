@@ -10,6 +10,7 @@ namespace DoDo {
 
 	class SDockingSplitter;
 	class SDockingArea;
+	class SOverlay;
 	//class FTabManager::FLayoutNode;
 	/*
 	* a node in the docking/tabbing hierarchy
@@ -52,6 +53,7 @@ namespace DoDo {
 
 			/*the overlay widget that shows tab stack's content*/
 			//todo:implement SOverlay
+			std::shared_ptr<SOverlay> m_content_area_overlay;
 
 			/*true when we are showing the dock cross*/
 			bool m_b_showing_cross;

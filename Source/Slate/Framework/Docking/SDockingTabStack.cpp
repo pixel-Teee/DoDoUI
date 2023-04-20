@@ -16,6 +16,10 @@
 
 #include "Application/Application.h"//get app icon depends on it
 
+#include "SlateCore/Input/DragAndDrop.h"//FDragDropEvent depends on it
+
+#include "FDockingDragOperation.h"
+
 namespace DoDo {
 	void SDockingTabStack::on_last_tab_removed()
 	{
@@ -134,7 +138,7 @@ namespace DoDo {
 			.fill_height(1.0f)
 			[
 				//tab content area
-				SNew(SOverlay)
+				SAssignNew(m_overlay_managment.m_content_area_overlay, SOverlay)
 
 				+ SOverlay::Slot()
 				[
@@ -252,6 +256,27 @@ namespace DoDo {
 		std::shared_ptr<SDockTab> foreground_tab = m_tab_well->get_foreground_tab();
 
 		return foreground_tab ? foreground_tab->get_content_area_brush() : FStyleDefaults::get_no_brush();
+	}
+	void SDockingTabStack::show_cross()
+	{
+		const float dock_target_size = 32.0f;
+
+		if (!m_overlay_managment.m_b_showing_cross)
+		{
+			this->get_dock_area()->show_cross();
+
+			m_overlay_managment.m_b_showing_cross = true;
+			//m_overlay_managment.m_content_area_overlay->add_slot()
+		
+			//todo:show cross
+		}
+	}
+	void SDockingTabStack::hide_cross()
+	{
+		if (m_overlay_managment.m_b_showing_cross)
+		{
+			m_overlay_managment.m_b_showing_cross = false;
+		}
 	}
 	void SDockingTabStack::clear_reserved_space()
 	{
@@ -443,6 +468,49 @@ namespace DoDo {
 		//{
 		//
 		//}
+
+		return FReply::un_handled();
+	}
+	FReply SDockingTabStack::On_Drag_Over(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
+	{
+		std::shared_ptr<FDockingDragOperation> drag_drop_operation = drag_drop_event.get_operation_as<FDockingDragOperation>();
+
+		if (drag_drop_operation)
+		{
+			if (drag_drop_operation->can_dock_in_node(std::static_pointer_cast<SDockingNode>(shared_from_this()), FDockingDragOperation::DockingViaTarget))
+			{
+				FGeometry overlay_geometry = this->find_child_geometry(my_geometry, m_overlay_managment.m_content_area_overlay);
+
+				if (overlay_geometry.is_under_location(drag_drop_event.get_screen_space_position()))
+				{
+					show_cross();
+				}
+				else
+				{
+					hide_cross();
+				}
+
+				return FReply::handled();
+			}
+		}
+
+		return FReply::un_handled();
+	}
+	void SDockingTabStack::On_Drag_Leave(const FDragDropEvent& drag_drop_event)
+	{
+		if (drag_drop_event.get_operation_as<FDockingDragOperation>())
+		{
+			hide_cross();
+		}
+
+		//return FReply::un_handled();
+	}
+	FReply SDockingTabStack::On_Drop(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event)
+	{
+		if (drag_drop_event.get_operation_as<FDockingDragOperation>())
+		{
+			hide_cross();
+		}
 
 		return FReply::un_handled();
 	}

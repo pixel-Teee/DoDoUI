@@ -81,6 +81,12 @@ namespace DoDo {
 		/*what should the content area look like for the current tab?*/
 		const FSlateBrush* get_content_area_brush() const;
 
+		/*show the docking cross*/
+		void show_cross();
+
+		/*hide the docking cross*/
+		void hide_cross();
+
 		/*elements for which we might want to reserve space*/
 		enum class EChromeElement
 		{
@@ -110,6 +116,10 @@ namespace DoDo {
 	public:
 		/*SWidget interface*/
 		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+		virtual FReply On_Drag_Over(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
+		virtual void On_Drag_Leave(const FDragDropEvent& drag_drop_event) override;
+		virtual FReply On_Drop(const FGeometry& my_geometry, const FDragDropEvent& drag_drop_event) override;
+
 	private:
 		/*data that persists across sessions and when the widget associated with this node is removed*/
 		std::vector<FTabManager::FTab> m_tabs;//FTab don't have order need
@@ -127,6 +137,8 @@ namespace DoDo {
 		std::shared_ptr<SWidget> m_title_bar_content;
 
 		std::shared_ptr<SBorder> m_content_slot;
+
+		FOverlayManagement m_overlay_managment;
 
 		/*the tab well widget show all tabs, keeps track of the selected tab, allows tab rearranging, etc.*/
 		std::shared_ptr<SDockingTabWell> m_tab_well;

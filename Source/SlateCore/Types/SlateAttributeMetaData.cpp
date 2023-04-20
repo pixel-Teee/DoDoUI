@@ -295,12 +295,12 @@ namespace DoDo {
 			//ISlateMetaData have FGetterItem array(m_attributes)
 
 			//binary search
-			uint32_t l = 0, r = m_attributes.size() - 1;
+			int32_t l = 0, r = m_attributes.size() - 1;
 			while(l < r)
 			{
-				uint32_t mid = l + r >> 1;
+				int32_t mid = l + r >> 1;
 
-				uint32_t sort_order = m_attributes[mid].m_sort_order;//sort order
+				int32_t sort_order = m_attributes[mid].m_sort_order;//sort order
 
 				if (found_member_attribute->Get_Sort_Order() >= sort_order) r = mid;
 				else l = mid + 1;

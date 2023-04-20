@@ -192,7 +192,7 @@ namespace DoDo {
 	{
 		ECleanupRetVal this_node_purpose = NoTabsUnderNode;
 
-		for (int32_t child_index = 0; child_index < m_children.size(); ++child_index)
+		for (int32_t child_index = 0; child_index < m_children.size();) //note:keep hierarchy
 		{
 			const std::shared_ptr<SDockingNode>& child_node = m_children[child_index];
 

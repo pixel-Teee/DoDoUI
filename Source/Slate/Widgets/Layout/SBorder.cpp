@@ -14,6 +14,8 @@
 
 namespace DoDo
 {
+	//static DoDoUtf8String SBorderTypeName()
+	SLATE_IMPLEMENT_WIDGET(SBorder)
 	void SBorder::Private_Register_Attributes(FSlateAttributeInitializer&)
 	{
 		//todo:implement this function

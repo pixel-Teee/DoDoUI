@@ -22,6 +22,11 @@ namespace DoDo
 		return FInitializer::FAttributeEntry(*this, new_index);
 	}
 
+	void FSlateAttributeDescriptor::set_affect_visibility(FAttribute& attribute, bool b_update)
+	{
+		attribute.m_b_affect_visibility = b_update;//set every frame update
+	}
+
 	const FSlateAttributeDescriptor::FAttribute* FSlateAttributeDescriptor::find_member_attribute(
 		OffsetType attribute_offset) const
 	{
@@ -55,7 +60,10 @@ namespace DoDo
 		FInvalidateWidgetReasonAttribute reason)
 			: m_name(name)
 			, m_offset(offset)
+			, m_Sort_Order(offset * 100) //todo:add default sort order
 			, m_invalidation_reason(std::move(reason))
+			, m_attribute_type(SlateAttributePrivate::ESlateAttributeType::Member)
+			, m_b_affect_visibility(false)
 	{
 	}
 
@@ -76,7 +84,9 @@ namespace DoDo
 		const FSlateAttributeDescriptor& parent_descriptor)
 			: m_descriptor(in_descriptor)
 	{
-		//in_descriptor.m_attributes = parent_descriptor.m_attributes;//todo:add containers
+		//note:inherited attribute from parent class
+		in_descriptor.m_attributes = parent_descriptor.m_attributes;//todo:add containers
+		in_descriptor.m_containers = parent_descriptor.m_containers;
 	}
 
 	FSlateAttributeDescriptor::FInitializer::~FInitializer()
@@ -94,6 +104,10 @@ namespace DoDo
 	{
 		//todo:check descriptor's attributes is valid index
 		//call descriptor's set affect visibility
+		if (m_attribute_index >= 0 && m_attribute_index < m_descriptor.m_attributes.size())
+		{
+			m_descriptor.set_affect_visibility(m_descriptor.m_attributes[m_attribute_index], true);
+		}
 		return *this;
 	}
 

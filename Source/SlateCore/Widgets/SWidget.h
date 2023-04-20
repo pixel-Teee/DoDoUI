@@ -339,6 +339,35 @@ namespace DoDo
 		void SWidgetConstruct(const FSlateBaseNamedArgs& args);
 
 		/*
+		* find the geometry of descendant widget, this method assumes that widget to find is a descendant of this widget
+		* 
+		* @param MyGeometry the geometry of this widget
+		* @param WidgetToFind the widget whose geometry we wish to discover
+		* @return the geometry of widget to find
+		*/
+		FGeometry find_child_geometry(const FGeometry& my_geometry, std::shared_ptr<SWidget> widget_to_find) const;
+
+		/*
+		* find the geometry of a descendant widget. this method assumes that widgets to find are a descendants of this widget
+		* note that not all widgets are guaranteed to be found, out results will contain null entries for missing widgets
+		* 
+		* @param MyGeometry the geometry of this widget
+		* @param widgetstofind the widgets whose geometries we wish to discover
+		* @param OutResult a map of widget references to their respective geometries
+		* 
+		* @return true if all the widget geometries were found, false otherwise
+		*/
+		bool find_child_geometries(const FGeometry& my_geometry, const std::set<std::shared_ptr<SWidget>>& widgets_to_find, std::map<std::shared_ptr<SWidget>, FArrangedWidget>& out_result) const;
+
+		/*
+		* actual implementation of find child geometries
+		* 
+		* @param my geometry the geometry of this widget
+		* @param widgets to find the widgets whose geometries we wish to discover
+		* @param out result a map of widget references to their respective geometries
+		*/
+		void find_child_geometries_helper(const FGeometry& my_geometry, const std::set<std::shared_ptr<SWidget>>& widgets_to_find, std::map<std::shared_ptr<SWidget>, FArrangedWidget>& out_result) const;
+		/*
 		 * called to tell a widget to paint itself (and it's children)
 		 *
 		 * the widget should respond by populating the out draw elements array with FDrawElements

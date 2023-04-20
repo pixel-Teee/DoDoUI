@@ -39,7 +39,8 @@ namespace DoDo
 			using Arg1Type = const class SWidget&;
 
 			//delegate, return EInvalidateWidgetReason, parameter is Arg1Type
-			using FGetter = Delegate<EInvalidateWidgetReason(Arg1Type)>;
+			//using FGetter = Delegate<EInvalidateWidgetReason(Arg1Type)>;
+			DECLARE_DELEGATE_RetVal_OneParam(EInvalidateWidgetReason, FGetter, const class SWidget&)
 
 			FInvalidateWidgetReasonAttribute(const FInvalidateWidgetReasonAttribute&) = default;
 			FInvalidateWidgetReasonAttribute(FInvalidateWidgetReasonAttribute&&) = default;
@@ -53,21 +54,22 @@ namespace DoDo
 			}
 
 			//todo:in the future, add pay load to delegate
-			explicit FInvalidateWidgetReasonAttribute(FGetter::Static_Function_Type in_func_ptr)
+			template<typename... PayloadTypes>
+			explicit FInvalidateWidgetReasonAttribute(typename FGetter::template FStaticDelegate<PayloadTypes...>::FFuncPtr in_func_ptr, PayloadTypes&&... input_payload)
 				: m_reason(EInvalidateWidgetReason::None)
-				, m_getter(FGetter::Create(nullptr, in_func_ptr))
+				, m_getter(FGetter::CreateStatic(in_func_ptr, std::forward<PayloadTypes>(input_payload)...))
 			{
 				
 			}
 
 			bool Is_Bound() const
 			{
-				return m_getter.Is_Bound();
+				return m_getter.is_bound();
 			}
 
 			EInvalidateWidgetReason Get(const SWidget& widget) const
 			{
-				return Is_Bound() ? m_getter.Execute(widget) : m_reason;
+				return Is_Bound() ? m_getter.execute(widget) : m_reason;
 			}
 
 		private:
@@ -314,6 +316,8 @@ namespace DoDo
 		FAttribute* find_attribute(DoDoUtf8String attribute_name);
 
 		FInitializer::FAttributeEntry add_member_attribute(DoDoUtf8String attribute_name, OffsetType offset, FInvalidateWidgetReasonAttribute reason_getter);
+
+		void set_affect_visibility(FAttribute& attribute, bool b_update);
 	private:
 
 		std::vector<FAttribute> m_attributes;

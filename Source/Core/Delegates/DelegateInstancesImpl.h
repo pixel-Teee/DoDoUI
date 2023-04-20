@@ -176,12 +176,12 @@ public:
 	virtual RetValType execute(ParamTypes... params) const final
 	{
 		//pass extra parameter after function parameter
-		return std::apply(m_static_func_ptr, std::make_tuple(params...));//todo:need to handle extra parameter for pay load
+		return std::apply(m_static_func_ptr, std::forward_as_tuple(params...));//todo:need to handle extra parameter for pay load
 	}
 
 	bool execute_if_safe(ParamTypes... params) const final
 	{
-		std::apply(m_static_func_ptr, std::make_tuple(params...));
+		std::apply(m_static_func_ptr, std::forward_as_tuple(params...));
 
 		return true;
 	}

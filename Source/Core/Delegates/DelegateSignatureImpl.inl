@@ -33,6 +33,9 @@ public:
 	template<typename UserClass, typename... VarTypes> using TMethodPtr		 = typename TMemFunPtrType<false, UserClass, RetValType(ParamTypes..., VarTypes...)>::Type;
 	template<typename UserClass, typename... VarTypes> using TConstMethodPtr = typename TMemFunPtrType<true,  UserClass, RetValType(ParamTypes..., VarTypes...)>::Type;
 
+	///*declare the user's static function pointer delegate instance types*/
+	//template<typename... VarTypes> struct FStaticDelegate : TBaseStaticDelegateInstance<FuncType, UserPolicy, VarTypes...> { typedef TBaseStaticDelegateInstance<FuncType, UserPolicy, VarTypes...> Super; FStaticDelegate(typename Super::FFuncPtr in_func_ptr, VarTypes... vars) : Super(in_func_ptr, vars...) {} };
+
 	/*declare the user's shared pointer-based delegate instance types*/
 	template<typename UserClass>
 	struct TSPMethodDelegate : TBaseSPMethodDelegateInstance<false, UserClass, FuncType, UserPolicy>

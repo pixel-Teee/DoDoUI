@@ -65,7 +65,7 @@ namespace DoDo
 			.VAlign(VAlign_Fill)
 			[
 				SNew(SDockingTarget)
-				//.Visibility(target_cross_visibility)
+				.Visibility(target_cross_visibility)
 				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
 				.DockDirection(SDockingNode::LeftOf)
 			]
@@ -75,7 +75,7 @@ namespace DoDo
 			.VAlign(VAlign_Fill)
 			[
 				SNew(SDockingTarget)
-				//.Visibility(target_cross_visibility)
+				.Visibility(target_cross_visibility)
 				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
 				.DockDirection(SDockingNode::RightOf)
 			]
@@ -85,7 +85,7 @@ namespace DoDo
 			.VAlign(VAlign_Top)
 			[
 				SNew(SDockingTarget)
-				//.Visibility(target_cross_visibility)
+				.Visibility(target_cross_visibility)
 				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
 				.DockDirection(SDockingNode::Above)
 			]
@@ -95,7 +95,7 @@ namespace DoDo
 			.VAlign(VAlign_Bottom)
 			[
 				SNew(SDockingTarget)
-				//.Visibility(target_cross_visibility)
+				.Visibility(target_cross_visibility)
 				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
 				.DockDirection(SDockingNode::Below)
 			]
@@ -105,7 +105,7 @@ namespace DoDo
 			.VAlign(VAlign_Center)
 			[
 				SNew(SDockingTarget)
-				//.Visibility(target_cross_visibility)
+				.Visibility(target_cross_visibility)
 				.OwnerNode(std::static_pointer_cast<SDockingNode>(shared_from_this()))
 				.DockDirection(SDockingNode::Center)
 			]
@@ -143,7 +143,7 @@ namespace DoDo
 	{
 		if (drag_drop_event.get_operation_as<FDockingDragOperation>())
 		{
-			hide_cross();
+			//hide_cross();
 		}
 	}
 
