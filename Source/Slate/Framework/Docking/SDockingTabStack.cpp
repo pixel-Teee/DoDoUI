@@ -211,6 +211,14 @@ namespace DoDo {
 		m_tab_well->add_tab(in_tab, at_location, b_keep_inactive);
 
 		//todo:hide cross
+		//we just added a tab, so if there was a cross up we no longer need it
+		hide_cross();
+
+		std::shared_ptr<SDockingArea> parent_dock_area = get_dock_area();
+		if (parent_dock_area)
+		{
+			parent_dock_area->hide_cross();
+		}
 	}
 
 	const TSlotlessChildren<SDockTab>& SDockingTabStack::get_tabs() const

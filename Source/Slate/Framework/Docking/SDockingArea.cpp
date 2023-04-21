@@ -143,7 +143,7 @@ namespace DoDo
 	{
 		if (drag_drop_event.get_operation_as<FDockingDragOperation>())
 		{
-			//hide_cross();
+			hide_cross();
 		}
 	}
 
