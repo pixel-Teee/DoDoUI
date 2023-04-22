@@ -233,7 +233,12 @@ namespace DoDo
 			size_uv = glm::vec2(1.0f, 1.0f);
 			half_texel = glm::vec2(0.0f, 0.0f);
 		}
-	
+
+		const ESlateBrushTileType::Type tiling_rule = draw_element_pay_load.get_brush_tiling();
+		const bool b_tile_horizontal = (tiling_rule == ESlateBrushTileType::Both || tiling_rule == ESlateBrushTileType::Horizontal);
+		const bool b_tile_vertical = (tiling_rule == ESlateBrushTileType::Both || tiling_rule == ESlateBrushTileType::Vertical);
+
+		//todo:implement ESlateBrushMirrorType
 
 		//todo:add shader parameters for extra rounded box parameters
 		ESlateShader shader_type = ESlateShader::Default;
@@ -255,7 +260,10 @@ namespace DoDo
 		//todo:implement FSlateRenderBatch
 		FSlateRenderBatch& render_batch = create_render_batch(layer, shader_params, resource, ESlateDrawPrimitive::TriangleList, shader_type, in_draw_effects, draw_element);
 
-		glm::vec2 tiling(0.0f, 0.0f);
+		float horizontal_tiling = b_tile_horizontal ? local_size.x / texture_width : 1.0f;
+		float vertical_tiling = b_tile_vertical ? local_size.y / texture_height : 1.0f;
+
+		glm::vec2 tiling(horizontal_tiling, vertical_tiling);
 
 		//todo:implement batch flags
 

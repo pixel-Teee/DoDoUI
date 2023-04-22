@@ -70,6 +70,8 @@
 
 #include "AppFramework/Widgets/SColorPicker.h"//SColorPicker depends on it
 
+#include "Slate/Widgets/Colors/SColorBlock.h"//SColorBlock depends on it
+
 #include "SlateCore/Input/DragAndDrop.h"//FDragDropOperation depends on it
 
 namespace DoDo
@@ -1809,6 +1811,31 @@ namespace DoDo
         return FReply::handled();
     }
 
+    static std::shared_ptr<SDockTab> spawn_color_block(const FSpawnTabArgs& spawn_tab_args)
+    {
+        FLinearColor color = { 0.5f, 0.2f, 1.0f, 0.8f };
+
+        return SNew(SDockTab)
+               [
+                   SNew(SHorizontalBox)
+                   + SHorizontalBox::Slot()
+                   .auto_width()
+                   [
+					  SNew(SVerticalBox)
+                      + SVerticalBox::Slot()
+                      .auto_height()
+                      [
+                          SNew(SColorBlock)
+                          .Size(glm::vec2(128.0f, 32.0f))
+                          .CornerRadius(glm::vec4(3.0f, 3.0f, 3.0f, 3.0f))//todo:fix me
+                          .AlphaDisplayMode(EColorBlockAlphaDisplayMode::Separate)
+                          .ShowBackgroundForAlpha(true)
+                          .Color(color)
+                      ]
+                   ]
+               ];
+    }
+
     static std::shared_ptr<SDockTab> spawn_star_ship_widgets(const FSpawnTabArgs& spawn_tab_args)
     {
         std::vector<FLinearColor> colors2 = { {1.0f, 0.2f, 0.2f, 1.0f}, {0.55f, 0.77f, 0.98f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f} };
@@ -2001,7 +2028,7 @@ namespace DoDo
         FGlobalTabmanager::get()->register_nomad_tab_spawner("test widget", FOnSpawnTab::CreateStatic(spawn_slider_widgets))
            .set_icon(FSlateIcon("CoreStyle", "Icons.tree-decidious-svgrepo-com"));//todo:this is use for SDockTab icon
 
-		FGlobalTabmanager::get()->register_nomad_tab_spawner("test widget2", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets))
+		FGlobalTabmanager::get()->register_nomad_tab_spawner("test widget2", FOnSpawnTab::CreateStatic(spawn_color_block))
 			.set_icon(FSlateIcon("CoreStyle", "Icons.tree-decidious-svgrepo-com"));//todo:this is use for SDockTab icon
 
         FGlobalTabmanager::get()->restore_from(layout, std::shared_ptr<SWindow>());

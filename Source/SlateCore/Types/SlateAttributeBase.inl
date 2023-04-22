@@ -129,6 +129,23 @@ namespace SlateAttributePrivate
 			}
 		}
 
+		bool Assign(ContainerType& widget, const TAttribute<ObjectType>& other_attribute, ObjectType&& default_value)
+		{
+			//other_attribute bind a function
+			if (other_attribute.Is_Bound())
+			{
+				return Assign_Binding(widget, other_attribute.Get_Binding());
+			}//other_attribute does not bind a function, but assign a value
+			else if (other_attribute.Is_Set())
+			{
+				return Set(widget, other_attribute.Get());
+			}
+			else
+			{
+				return Set(widget, std::move(default_value));
+			}
+		}
+
 		//from TAttribute to construct TSlateAttributeBase
 		bool Assign(ContainerType& widget, TAttribute<ObjectType>&& other_attribute)
 		{

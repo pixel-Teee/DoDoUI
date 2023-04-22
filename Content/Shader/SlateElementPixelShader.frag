@@ -83,7 +83,7 @@ vec3 gamma_correct(vec3 in_color)
 
 vec4 get_default_element_color()
 {
-	return get_color(texcoords.xy + texcoords.zw);
+	return get_color(texcoords.xy * texcoords.zw);
 }
 
 float get_rounded_box_distance(vec2 pos, vec2 center, float radius, float inset)
@@ -127,7 +127,7 @@ vec4 get_rounded_box_element_color()
 	float fi = smoothstep(spread, -spread, din);
 
 	//alpha blend the external color
-	vec4 fill = get_default_element_color();
+	vec4 fill = get_color(texcoords.xy * texcoords.zw);
 	vec4 border = secondary_color;
 	vec4 OutColor = mix(border, fill, float(thickness > radius));
 	OutColor.a = 0.0;

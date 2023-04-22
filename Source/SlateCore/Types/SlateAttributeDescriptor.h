@@ -335,6 +335,7 @@ namespace DoDo
 	 * @param _Property the TSlateAttribute property
 	 * @param _Reason the EInvalidationWidgetReason or a static function/lambda that takes a const SWidget& and that returns the invalidation reason
 	 */
+
 #define SLATE_ADD_MEMBER_ATTRIBUTE_DEFINITION_WITH_NAME(_Initializer, _Name, _Property, _Reason) \
 	_Initializer.add_member_attribute(_Name, STRUCT_OFFSET(PrivateThisType, _Property), FSlateAttributeDescriptor::FInvalidateWidgetReasonAttribute{_Reason})
 }

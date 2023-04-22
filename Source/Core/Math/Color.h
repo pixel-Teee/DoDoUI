@@ -85,6 +85,17 @@ namespace DoDo
 			return this->R == color_b.R && this->G == color_b.G && this->B == color_b.B && this->A == color_b.A;
 		}
 
+		FLinearColor operator/(float scalar) const
+		{
+			const float inv_scalar = 1.0f / scalar;
+			return FLinearColor(
+				this->R * inv_scalar,
+				this->G * inv_scalar,
+				this->B * inv_scalar,
+				this->A * inv_scalar
+			);
+		}
+
 		bool init_from_string(const DoDoUtf8String& in_source_str)
 		{
 			R = G = B = 0.0f;

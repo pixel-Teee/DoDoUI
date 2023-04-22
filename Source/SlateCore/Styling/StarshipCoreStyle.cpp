@@ -473,6 +473,7 @@ namespace DoDo {
 	{
 		//SColorPicker defaults
 		{
+			style->set("ColorPicker.AlphaBackground", new FSlateImageBrush(style->root_to_content_dir("Common/Checker", ".png"), glm::vec2(8.0f, 32.0f), FLinearColor::White, ESlateBrushTileType::Both));
 			style->set("ColorPicker.Slider", FSliderStyle()
 				.set_normal_thumb_image(FSlateImageBrush(style->root_to_content_dir("Common/ColorPicker_SliderHandle", ".png"), glm::vec2(8.0f, 32.0f)))
 				.set_normal_thumb_image(FSlateImageBrush(style->root_to_content_dir("Common/ColorPicker_SliderHandle", ".png"), glm::vec2(8.0f, 32.0f)))
