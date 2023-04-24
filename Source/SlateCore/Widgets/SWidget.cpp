@@ -117,6 +117,11 @@ namespace DoDo {
 		set_desired_size(Compute_Desired_Size(in_layout_scale_multiplier));
 	}
 
+	float SWidget::Get_Relative_Layout_Scale(const int32_t child_index, float layout_scale_multiplier) const
+	{
+		return 1.0f;
+	}
+
 	void SWidget::Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children,
 	                               bool b_update_attributes) const
 	{

@@ -34,6 +34,11 @@ namespace DoDo {
 	{
 	}
 
+	float SNodePanel::get_zoom_amount() const
+	{
+		return 1.0f;//todo:fix me
+	}
+
 	void SNodePanel::paint_background_as_lines(const FSlateBrush* background_image, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t& draw_layer_id) const
 	{
 		const bool b_antialias = false;

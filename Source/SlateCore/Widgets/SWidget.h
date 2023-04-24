@@ -107,6 +107,9 @@ namespace DoDo
 		 */
 		virtual glm::vec2 Compute_Desired_Size(float Layout_Scale_Multiplier) const = 0;
 
+		/*what is the child's scale relative to this widget*/
+		virtual float Get_Relative_Layout_Scale(const int32_t child_index, float layout_scale_multiplier) const;
+
 		/*
 		 * non-virtual entry point for arrange children
 		 * arrange children function
