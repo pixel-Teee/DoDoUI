@@ -31,7 +31,24 @@ namespace DoDo {
 		}
 	}
 	SNodePanel::SNodePanel()
+		: m_children(this)
+		, m_visible_children(this)
 	{
+	}
+
+	void SNodePanel::On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const
+	{
+		//todo:implement this function
+	}
+
+	glm::vec2 SNodePanel::Compute_Desired_Size(float) const
+	{
+		return glm::vec2(160.0f, 160.0f);
+	}
+
+	FChildren* SNodePanel::Get_Children()
+	{
+		return &m_visible_children;
 	}
 
 	float SNodePanel::get_zoom_amount() const

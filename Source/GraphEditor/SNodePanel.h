@@ -373,7 +373,9 @@ namespace DoDo {
 		SNodePanel();
 
 		//SPanel interface
-		
+		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
+		virtual glm::vec2 Compute_Desired_Size(float) const override;
+		virtual FChildren* Get_Children() override;
 		//End of SPanel interface
 
 		//SWidget interface
@@ -388,5 +390,10 @@ namespace DoDo {
 		//paint the background as lines
 		void paint_background_as_lines(const FSlateBrush* background_image, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements,
 			int32_t& draw_layer_id) const;
+
+	protected:
+		/*the graph node widgets owned by this panel*/
+		TSlotlessChildren<SNode> m_children;
+		TSlotlessChildren<SNode> m_visible_children;
 	};
 }

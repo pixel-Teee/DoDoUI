@@ -21,6 +21,8 @@ file(GLOB_RECURSE Do_Do_UI_Source
 "Slate/Widgets/*.cpp"
 "Slate/Framework/*.h"
 "Slate/Framework/*.cpp"
+"EditorStyle/*.h"
+"EditorStyle/*.cpp"
 "GraphEditor/*.h"
 "GraphEditor/*.cpp"
 "Core/*.h"

@@ -2,9 +2,12 @@
 
 #include "SGraphPanel.h"
 
+#include "EditorStyle/EditorStyleSet.h"//FEditorStyle
+
 namespace DoDo {
 	void SGraphPanel::Construct(const FArguments& in_args)
 	{
+		SNodePanel::Construct();
 		m_cached_allotted_geometry_scaled_size = glm::vec2(160.0f, 160.0f);
 	}
 	SGraphPanel::~SGraphPanel()
