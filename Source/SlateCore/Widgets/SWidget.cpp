@@ -175,7 +175,7 @@ namespace DoDo {
 		return Application::get().does_widget_have_mouse_capture_by_user(shared_from_this(), user_index, pointer_index);
 	}
 
-	bool SWidget::is_child_widget_culled(const FSlateRect& my_culling_rect, const FArrangedChildren& arranged_children) const
+	bool SWidget::is_child_widget_culled(const FSlateRect& my_culling_rect, const FArrangedWidget& arranged_children) const
 	{
 		return true;
 	}

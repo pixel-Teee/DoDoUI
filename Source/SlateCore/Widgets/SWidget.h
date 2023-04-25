@@ -208,7 +208,7 @@ namespace DoDo
 		* @param MyCullingRect the culling rect of the widget currently doing the culling
 		* @param ArrangedChild the arranged widget in the widget currently attempting to cull children
 		*/
-		bool is_child_widget_culled(const FSlateRect& my_culling_rect, const FArrangedChildren& arranged_children) const;
+		bool is_child_widget_culled(const FSlateRect& my_culling_rect, const FArrangedWidget& arranged_children) const;
 			 
 	public:
 		/* @return whether or not this widget is enabled */

@@ -12,6 +12,10 @@
 
 #include "SlateCore/Layout/LayoutUtils.h"//AlignmentArrangeResult
 
+#include "SlateCore/Types/PaintArgs.h"
+
+#include "SlateCore/Styling/SlateColor.h"//FSlateColor depends on it
+
 namespace DoDo {
 	/*this class is designed to serve as the base class for a panel/canvas that contains interactive widgets
 	which can be selected and moved around by the user, it also manages zooming and panning, allowing a larger
@@ -212,11 +216,149 @@ namespace DoDo {
 				}
 			}
 
+			virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override
+			{
+				FArrangedChildren arranged_children(EVisibility::visible);
+				{
+					Arrange_Children(allotted_geometry, arranged_children);
+				}
+
+				int32_t max_layer_id = layer_id;
+
+				for(int32_t child_index = 0; child_index < arranged_children.num(); ++child_index)
+				{
+					const FArrangedWidget& cur_widget = arranged_children[child_index];
+
+					if(!is_child_widget_culled(my_culling_rect, cur_widget))
+					{
+						const int32_t cur_widgets_max_layer_id = cur_widget.m_widget->paint(args.with_new_parent(this), cur_widget.m_geometry, my_culling_rect, out_draw_elements,
+							layer_id, in_widget_style, should_be_enabled(b_parent_enabled));
+					}
+					else
+					{
+						//slate gi - remove content
+					}
+				}
+
+				return max_layer_id;
+			}
+
+			//end of SPanel interface
+			using FScopedWidgetSlotArguments = TPanelChildren<FNodeSlot>::FScopedWidgetSlotArguments;
+
+			FScopedWidgetSlotArguments get_or_add_slot(const ENodeZone::Type slot_id)
+			{
+				//return existing
+				int32_t insert_index = -1;
+				for (int32_t child_index = 0; child_index < m_children.num(); ++child_index)
+				{
+					if (m_children[child_index].m_zone == slot_id)
+					{
+						m_children.remove_at(child_index);
+						insert_index = child_index;
+					}
+				}
+
+				//add new
+				return FScopedWidgetSlotArguments{ std::make_unique<FNodeSlot>(slot_id), m_children, insert_index };
+			}
+
+			FNodeSlot* get_slot(const ENodeZone::Type slot_id)
+			{
+				FNodeSlot* result = nullptr;
+				//return existing
+				for(int32_t child_index = 0; child_index < m_children.num(); ++child_index)
+				{
+					if(m_children[child_index].m_zone == slot_id)
+					{
+						result = &m_children[child_index];
+						break;
+					}
+				}
+				return result;
+			}
+
+			void remove_slot(const ENodeZone::Type slot_id)
+			{
+				for(int32_t child_index = 0; child_index < m_children.num(); ++child_index)
+				{
+					if(m_children[child_index].m_zone == slot_id)
+					{
+						m_children.remove_at(child_index);
+						break;
+					}
+				}
+			}
+
+			/*
+			 * @param NewPosition the node should be relocated to this position in the graph panel
+			 * @param NodeFilter set of nodes to prevent movement on, after moving successfully a node is added to this set
+			 * @param bMarkDirty if we should mark nodes as dirty on move
+			 */
+			virtual void move_to(const glm::vec2& new_position, FNodeSet& node_filter, bool b_mark_dirty = true)
+			{
+				
+			}
+
+			/*@return the node's position within the graph*/
+			virtual glm::vec2 get_position() const
+			{
+				return glm::vec2(0.0f, 0.0f);
+			}
+
+			/*@return a user-specified comment on this node, the comments gets drawn in a bubble above the node*/
+			virtual DoDoUtf8String get_node_comment() const
+			{
+				return DoDoUtf8String();
+			}
+
+			//todo:return the backing object
+
+			/*@return the brush to use for drawing the shadow for this node*/
+			virtual const FSlateBrush* get_shadow_brush(bool b_selected) const
+			{
+				return nullptr;//todo:implement FEditorStyle to get graph.node.shadow selected
+			}
+
+			//todo:implement get node info popups
+
+			//todo:implement require second pass layout
+
+			void set_parent_panel(const std::shared_ptr<SNodePanel>& in_parent)
+			{
+				m_parent_panel_ptr = in_parent;
+			}
+		protected:
+			SNode()
+				: m_desired_size_scale(glm::vec2(1, 1))
+				, m_children(this)
+			{
+				//todo:add has relative layout scale
+			}
 		protected:
 			//SBorder Begin
+			TAttribute<const FSlateBrush*> m_border_image;
+			TAttribute<FSlateColor> m_border_background_color;
 			TAttribute<glm::vec2> m_desired_size_scale;
+			/*whether or not show the disabled effect when this border is disabled*/
+			TAttribute<bool> m_shadow_disabled_effect;
+			/*mouse event handler*/
+			FPointerEventHandler m_mouse_button_down_handler;
+			FPointerEventHandler m_mouse_button_up_handler;
+			FPointerEventHandler m_mouse_move_handler;
+			FPointerEventHandler m_mouse_double_click_handler;
 			//SBorder End
 
+			//SPanel Begin
+			/*the layout scale to apply to this widget's contents, useful for animation*/
+			TAttribute<glm::vec2> m_content_scale;
+
+			/*the color and opacity to this widget and all its descendants*/
+			TAttribute<FLinearColor> m_color_and_opacity;
+
+			/*optional foreground that will be inherited by all of this widget's contents*/
+			TAttribute<FSlateColor> m_foreground_color;
+			//SPanel End
 		private:
 
 			std::shared_ptr<SNodePanel> get_parent_panel() const
