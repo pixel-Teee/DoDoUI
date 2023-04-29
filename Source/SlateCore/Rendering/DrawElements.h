@@ -10,12 +10,18 @@
 
 #include "ElementBatcher.h"//FSlateWindowElementList depend on it
 
+#include "SlateCore/Types/PaintArgs.h"//FPaintArgs depend on it
+
+#include "SlateCore/Layout/Geometry.h"//FGeometry depends on it
+
 namespace DoDo
 {
 	struct FSlateFontInfo;
 	struct FPaintGeometry;
 	struct FSlateBrush;
 	struct FSlateDataPayload;
+	//struct FGeometry;
+	class FSlateRect;
 
 	//todo:add bit field
 	enum class EElementType
@@ -206,6 +212,36 @@ namespace DoDo
 		}
 
 		/*
+		* some widgets may want to paint their children after after another, loosely-related widget finished painting
+		* or they may want to paint "after everyone"
+		*/
+		struct FDeferredPaint
+		{
+		public:
+			FDeferredPaint(const std::shared_ptr<const SWidget>& in_widget_to_paint, const FPaintArgs& in_args, const FGeometry& in_allotted_geometry, const FWidgetStyle& in_widget_style,
+				bool in_parent_enabled);
+
+			int32_t execute_paint(int32_t layer_id, FSlateWindowElementList& out_draw_elements, const FSlateRect& my_culling_rect);
+		private:
+			//used for making copies
+			
+			const std::weak_ptr<const SWidget> m_widget_to_paint_ptr;
+			const FPaintArgs m_args;
+			const FGeometry m_allotted_geometry;
+			const FWidgetStyle m_widget_style;
+			const bool m_b_parent_enabled;
+		};
+
+		void queue_deferred_painting(const FDeferredPaint& in_deferred_paint);
+
+		int32_t paint_deferred(int32_t layer_id, const FSlateRect& my_culling_rect);
+
+		bool should_resolve_deferred() const { return m_b_needs_deferred_resolve; }
+
+		void begin_deferred_group();
+		void end_deferred_group();
+
+		/*
 		 * creates an uninitialized draw element
 		 */
 		FSlateDrawElement& add_uninitialized();
@@ -224,6 +260,15 @@ namespace DoDo
 		*/
 		std::weak_ptr<SWindow> m_weak_paint_window;
 		SWindow* m_raw_paint_window;
+
+		/*
+		* some widgets want their logical children to appear at a different "layer" in the physical hierarchy
+		* we accomplish this by deferring their painting
+		*/
+		std::vector<std::shared_ptr<FDeferredPaint>> m_deferred_paint_list;
+
+		bool m_b_needs_deferred_resolve;
+		std::vector<int32_t> m_resolve_to_deferred_index;
 
 		/*
 		 * the window to render to. this may be different from the paint window if we are displaying the contents of a window (or virtual window) onto another window

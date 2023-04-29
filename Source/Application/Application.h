@@ -20,6 +20,10 @@
 #include "SlateCore/Styling/SlateColor.h"//FSlateColor depends on it
 #include "SlateCore/Types/SlateEnums.h"//EOrientation depends on it
 
+#include "SlateCore/Input/PopupMethodReply.h"//EPopupMethod depends on it
+
+#include "Slate/Framework/Application/MenuStack.h"//FMenuStack depends on it
+
 namespace DoDo
 {
 	class RendererInstance;
@@ -34,6 +38,8 @@ namespace DoDo
 
 	struct FPointerEvent;
 
+	struct FPopupTransitionEffect;
+	class IMenu;
 	class STextBlock;//for test
 	class SBorder;//for test
 	class SImage;
@@ -385,6 +391,24 @@ namespace DoDo
 		std::shared_ptr<Window> make_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately);
 
 		/*
+		* creates a new menu and adds it to the menu stack
+		* menus are always auto-sized, use fixed-size content if a fixed size is required
+		* 
+		* @param InParentWidget the parent of the menu, if the stack isn't empty, push menu will attempt to determine the stack level for the new menu by looking of an open menu in the parent's path
+		* @param InOwnerPath optional full widget path of the parent if one is available, if an invalid path is given push menu will attempt to generate a path to the InParentWidget
+		* @param InContent the content to be placed inside the new menu
+		* @param SummonLocation the location where this menu should be summoned
+		* @param TransitionEffect animation to use when the popup appears
+		* @param bFocusImmediately should the popup steal focus when shown?
+		* @param SummonLocationSize an optional rect which descibes an area in which the menu may not appear
+		* @param Method an optional popup method override, if not set, the widgets in the InOwnerPath will be queried for this
+		* @param bIsCollapsedByParent is this menu collapsed when a parentg menu receives foucs/activation? if false, only focus/activation outside the entire stack will auto collapse it
+		*/
+		std::shared_ptr<IMenu> push_menu(const std::shared_ptr<SWidget>& in_parent_widget, const FWidgetPath& in_owner_path, const std::shared_ptr<SWidget>& in_content,
+			const glm::vec2& summon_location, const FPopupTransitionEffect& transition_effect, const bool b_focus_immediately = true, const glm::vec2& summon_location_size = glm::vec2(0.0f),
+			std::optional<EPopupMethod> method = std::optional<EPopupMethod>(), const bool b_is_collapsed_by_parent = true);
+
+		/*
 		* destroy an SWindow, removing it and all its children from the slate window list, notifies the native window to destroy itself and releases rendering resources
 		* 
 		* @param DestroyedWindow the window to destroy
@@ -505,6 +529,9 @@ namespace DoDo
 
 		/*these windows will be destroyed next tick*/
 		std::vector<std::shared_ptr<SWindow>> m_window_destroy_queue;
+
+		/*the stack of menus that are open*/
+		FMenuStack m_menu_stack;
 
 		/*
 		 * all users currently registered with slate

@@ -181,6 +181,9 @@ namespace DoDo {
 		/*whether or not to enable the alpha slider*/
 		bool b_user_alpha;
 
+		/*whether to open the color picker as a menu window*/
+		bool b_open_as_menu;
+
 		/*an array of FColors to target*/
 		const std::vector<FColor*>* m_color_array;
 

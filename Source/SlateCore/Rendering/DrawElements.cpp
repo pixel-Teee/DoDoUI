@@ -8,6 +8,8 @@
 
 #include "SlateCore/Fonts/SlateFontInfo.h"//FSlateFontInfo depends on it
 
+#include "SlateCore/Widgets/SWidget.h"
+
 namespace DoDo
 {
 	static bool should_cull(const FSlateWindowElementList& element_list, const FPaintGeometry& paint_geometry, const FSlateBrush* in_brush, const FLinearColor& in_tint)
@@ -204,6 +206,7 @@ namespace DoDo
 		, m_raw_paint_window(in_paint_window.get())
 		, m_window_size(glm::vec2(0.0f, 0.0f))
 		, m_render_target_window(nullptr)
+		, m_b_needs_deferred_resolve(false)
 	{
 		//todo:check in_paint_window is valid
 	}
@@ -211,6 +214,43 @@ namespace DoDo
 	FSlateWindowElementList::~FSlateWindowElementList()
 	{
 		
+	}
+
+	void FSlateWindowElementList::queue_deferred_painting(const FDeferredPaint& in_deferred_paint)
+	{
+		m_deferred_paint_list.push_back(std::make_shared<FDeferredPaint>(in_deferred_paint));
+	}
+
+	int32_t FSlateWindowElementList::paint_deferred(int32_t layer_id, const FSlateRect& my_culling_rect)
+	{
+		//todo:
+		m_b_needs_deferred_resolve = false;
+
+		int32_t resolve_index = m_resolve_to_deferred_index.back();
+
+		m_resolve_to_deferred_index.pop_back();
+
+		for (int32_t i = resolve_index; i < m_deferred_paint_list.size(); ++i)
+		{
+			layer_id = m_deferred_paint_list[i]->execute_paint(layer_id, *this, my_culling_rect);
+		}
+
+		for (int32_t i = m_deferred_paint_list.size() - 1; i >= resolve_index; --i)
+		{
+			m_deferred_paint_list.erase(m_deferred_paint_list.begin() + i);
+		}
+
+		return layer_id;
+	}
+
+	void FSlateWindowElementList::begin_deferred_group()
+	{
+		m_resolve_to_deferred_index.push_back(m_deferred_paint_list.size());
+	}
+
+	void FSlateWindowElementList::end_deferred_group()
+	{
+		m_b_needs_deferred_resolve = true;
 	}
 
 	FSlateDrawElement& FSlateWindowElementList::add_uninitialized()
@@ -241,5 +281,24 @@ namespace DoDo
 	FSlateBatchData& FSlateWindowElementList::get_batch_data()
 	{
 		return m_batch_data;
+	}
+	FSlateWindowElementList::FDeferredPaint::FDeferredPaint(const std::shared_ptr<const SWidget>& in_widget_to_paint, const FPaintArgs& in_args, const FGeometry& in_allotted_geometry, const FWidgetStyle& in_widget_style, bool in_parent_enabled)
+		: m_widget_to_paint_ptr(in_widget_to_paint)
+		, m_args(in_args)
+		, m_allotted_geometry(in_allotted_geometry)
+		, m_widget_style(in_widget_style)
+		, m_b_parent_enabled(in_parent_enabled)
+	{
+		//todo:FPaintArgs add set deferred paint
+	}
+	int32_t FSlateWindowElementList::FDeferredPaint::execute_paint(int32_t layer_id, FSlateWindowElementList& out_draw_elements, const FSlateRect& my_culling_rect)
+	{
+		std::shared_ptr<const SWidget> widget_to_paint = m_widget_to_paint_ptr.lock();
+		if (widget_to_paint)
+		{
+			return widget_to_paint->paint(m_args, m_allotted_geometry, my_culling_rect, out_draw_elements, layer_id, m_widget_style, m_b_parent_enabled);
+		}
+
+		return layer_id;
 	}
 }

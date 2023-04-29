@@ -18,6 +18,8 @@
 
 #include "SlateCore/Styling/SlateColor.h"//FSlateColor depends on it
 
+#include "SlateCore/Rendering/DrawElements.h"//FSlateWindowElementList
+
 namespace DoDo {
 	SLATE_IMPLEMENT_WIDGET(SWidget)
 	//this function will be called at FSlateWidgetClassData construct
@@ -379,6 +381,11 @@ namespace DoDo {
 		//paint the geometry of this widget
 		//content widget style will accumulate the opacity of parent widget
 		int32_t new_layer_id = On_Paint(updated_args, allotted_geometry, culling_bounds, out_draw_elements, layer_id, content_widget_style, b_parent_enabled);
+
+		if (out_draw_elements.should_resolve_deferred())
+		{
+			new_layer_id = out_draw_elements.paint_deferred(new_layer_id, my_culling_rect);
+		}
 
 		return new_layer_id;
 	}

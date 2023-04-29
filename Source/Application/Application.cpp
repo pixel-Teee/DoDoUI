@@ -1382,6 +1382,21 @@ namespace DoDo
         return new_window;
     }
 
+	std::shared_ptr<IMenu> Application::push_menu(const std::shared_ptr<SWidget>& in_parent_widget, const FWidgetPath& in_owner_path, const std::shared_ptr<SWidget>& in_content,
+		const glm::vec2& summon_location, const FPopupTransitionEffect& transition_effect, const bool b_focus_immediately, const glm::vec2& summon_location_size,
+		std::optional<EPopupMethod> method, const bool b_is_collapsed_by_parent)
+    {
+        //caller supplied a valid path? pass it to the menu stack
+        if (in_owner_path.is_valid())
+        {
+            return m_menu_stack.push(in_owner_path, in_content, summon_location, transition_effect, b_focus_immediately, summon_location, method, b_is_collapsed_by_parent);
+        }
+
+        //if the caller doesn't specify a valid event path we'll generate one from InParentWidget
+
+        return std::shared_ptr<IMenu>();
+    }
+
     void Application::private_destroy_window(const std::shared_ptr<SWindow>& destroyed_window)
     {
         //todo:add more handle

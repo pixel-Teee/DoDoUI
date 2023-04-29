@@ -23,6 +23,8 @@
 
 #include "SlateCore/Widgets/Images/SImage.h"//SImage depends on it
 
+#include "SlateCore/Rendering/DrawElements.h"
+
 namespace DoDo {
 	//SWindow::SWindow()
 	//{
@@ -173,6 +175,8 @@ namespace DoDo {
 	int32_t SWindow::paint_window(double current_time, float delta_time, FSlateWindowElementList& out_draw_elements, const FWidgetStyle& in_widget_style,
 	                              bool b_parent_enabled)
 	{
+		out_draw_elements.begin_deferred_group();
+
 		//todo:clear hittest grid
 		const bool hittest_cleared = m_hittest_grid->Set_Hittest_Area(get_position_in_screen(), get_view_port_size());
 
@@ -189,6 +193,13 @@ namespace DoDo {
 		//todo:implement culling bounds
 
 		FSlateInvalidationResult result = paint_invalidation_root(context);//call FSlateInvalidationRoot's function, to slow path
+
+		out_draw_elements.end_deferred_group();
+
+		if (out_draw_elements.should_resolve_deferred())
+		{
+			result.m_max_layer_id_painted = out_draw_elements.paint_deferred(result.m_max_layer_id_painted, context.m_culling_rect);
+		}
 
 		return result.m_max_layer_id_painted;
 	}

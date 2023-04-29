@@ -16,6 +16,8 @@
 
 #include "Slate/Widgets/Colors/SSimpleGradient.h"//SSimpleGradient depends on it
 
+#include "Slate/Framework/Application/IMenu.h"//IMenu, push_menu depends on it
+
 namespace DoDo {
 	/*a default window size for the color picker which looks nice*/
 	const glm::vec2 SColorPicker::default_window_size = glm::vec2(441, 537);
@@ -284,9 +286,24 @@ namespace DoDo {
 		if (!b_override_non_modal_creation)
 		{
 			//todo:non modal window
-
-			//modal window
-			window = SNew(SWindow)
+			if (args.b_open_as_menu && args.m_parent_widget)
+			{
+				window = Application::get().push_menu(
+					args.m_parent_widget,
+					FWidgetPath(),
+					window_content,
+					adjusted_summon_location,
+					FPopupTransitionEffect(FPopupTransitionEffect::None),
+					false,
+					glm::vec2(0.0f),
+					EPopupMethod::CreateNewWindow,
+					false
+				)->get_owned_window();
+			}
+			else
+			{
+				//modal window
+				window = SNew(SWindow)
 					.ScreenPosition(adjusted_summon_location)//todo:add auto center
 					.SizingRule(ESizingRule::AutoSized)
 					.ClientSize(glm::vec2(600.0f, 400.0f))
@@ -294,6 +311,7 @@ namespace DoDo {
 					[
 						window_content
 					];
+			}		
 		}
 
 		std::shared_ptr<SColorPicker> created_color_picker = SNew(SColorPicker)
