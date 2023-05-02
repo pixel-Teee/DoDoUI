@@ -22,6 +22,10 @@
 
 #include "Slate/Widgets/Layout/SPopup.h"//SPopup depends on it
 
+#include "ApplicationCore/GenericPlatform/GenericWindowDefinition.h"
+
+#include "SlateCore/Widgets/SWindow.h"
+
 namespace MenuStackInternal
 {
 	using namespace DoDo;
@@ -97,7 +101,7 @@ namespace DoDo {
 	{
 		return m_stack.size() > 0;
 	}
-	std::shared_ptr<IMenu> FMenuStack::push(const FWidgetPath& in_owner_path, const std::shared_ptr<SWidget>& in_content, const glm::vec2& summon_location, const FPopupTransitionEffect& transation_effect, const bool b_focus_immeidately, const glm::vec2& summon_location_size, std::optional<EPopupMethod> in_method, const bool b_enable_per_pixel_transparency)
+	std::shared_ptr<IMenu> FMenuStack::push(const FWidgetPath& in_owner_path, const std::shared_ptr<SWidget>& in_content, const glm::vec2& summon_location, const FPopupTransitionEffect& transation_effect, const bool b_focus_immeidately, const glm::vec2& summon_location_size, std::optional<EPopupMethod> in_method, const bool b_is_collapsed_by_parent, const bool b_enable_per_pixel_transparency)
 	{
 		//we want to ensure that when the window is restored to restore the current keyboard focus
 		//todo:implement SetWidgetToFocusOnActive
@@ -117,10 +121,10 @@ namespace DoDo {
 			//pushing a new root menu (leave parent menu invalid)
 
 			//the active method is determined when a new root menu is pushed
-			
+			//m_active_method = in_method.has_value() ? FPopupMethodReply::use_method(in_method.value()) : query_popup_method(in_owner_path);
 		}
 
-		return nullptr;
+		return push_internal(parent_menu, in_content, anchor, transation_effect, b_focus_immeidately, m_active_method.get_should_throttle(), b_is_collapsed_by_parent, b_enable_per_pixel_transparency);
 	}
 	std::shared_ptr<IMenu> FMenuStack::push_internal(const std::shared_ptr<IMenu>& in_parent_menu, const std::shared_ptr<SWidget>& in_content, FSlateRect anchor, const FPopupTransitionEffect& transition_effect, const bool b_focus_immeidately, EShouldThrottle should_throttle, const bool b_is_collapsed_by_parent, const bool b_enable_per_pixel_transparency)
 	{
@@ -138,9 +142,73 @@ namespace DoDo {
 		const FPrePushResults pre_push_results = pre_push(pre_push_args);
 
 		//menu object creation stage
-		
+		std::shared_ptr<FMenuBase> out_menu = m_active_method.get_popup_method() == EPopupMethod::CreateNewWindow
+			? push_new_window(in_parent_menu, pre_push_results, b_enable_per_pixel_transparency)
+			: push_popup(in_parent_menu, pre_push_results);
 
-		return nullptr;
+		//post-push stage
+		//updates the stack and content map member variables
+		const bool b_in_insert_after_dismiss = m_active_method.get_popup_method() == EPopupMethod::CreateNewWindow;
+		//post_push(in_parent_menu, out_menu, should_throttle, b_in_insert_after_dismiss);
+
+		return out_menu;
+	}
+	std::shared_ptr<FMenuBase> FMenuStack::push_popup(std::shared_ptr<IMenu> in_parent_menu, const FPrePushResults& in_pre_push_results)
+	{
+		return std::shared_ptr<FMenuBase>();
+	}
+	std::shared_ptr<FMenuBase> FMenuStack::push_new_window(std::shared_ptr<IMenu> in_parent_menu, const FPrePushResults& in_pre_push_results, const bool b_enable_per_pixel_transparency)
+	{
+		const EWindowTransparency transparency(in_pre_push_results.m_b_allow_animations ? EWindowTransparency::PerWindow : EWindowTransparency::None);
+
+		const float initial_window_opacity = in_pre_push_results.m_b_allow_animations ? 0.0f : 1.0f;
+		const float target_window_opacity = 1.0f;
+
+		//create a new window for the menu
+		std::shared_ptr<SWindow> new_menu_window = SNew(SWindow)
+							.Type(EWindowType::Menu)
+							.IsPopupWindow(true)
+							.SizingRule(ESizingRule::AutoSized)
+							.ScreenPosition(in_pre_push_results.m_anim_start_location)
+							.ClientSize(in_pre_push_results.m_expected_size)
+							.AdjustInitialSizeAndPositionForDPIScale(false)
+							.InitialOpacity(initial_window_opacity)
+							.SupportsTransparency(transparency)
+							[
+								in_pre_push_results.m_wrapped_content
+							];
+
+		m_pending_new_window = new_menu_window;
+
+		if (in_pre_push_results.m_b_focus_immediately && in_pre_push_results.m_widget_to_focus)
+		{
+			//todo:implement set widget to focus on activate
+		}
+
+		std::shared_ptr<FMenuInWindow> menu = std::make_shared<FMenuInWindow>(new_menu_window, in_pre_push_results.m_wrapped_content, in_pre_push_results.m_b_is_collapsed_by_parent);
+		m_pending_new_menu = menu;
+
+		std::shared_ptr<SWindow> parent_window;
+
+		if (in_parent_menu)
+		{
+			parent_window = in_parent_menu->get_parent_window();
+		}
+		else
+		{
+			parent_window = m_host_window;
+		}
+		
+		//todo:add window as native child
+
+		if (in_pre_push_results.m_b_allow_animations)
+		{
+
+		}
+
+		m_pending_new_window.reset();
+
+		return menu;
 	}
 	FMenuStack::FPrePushResults FMenuStack::pre_push(const FPrePushArgs& in_args)
 	{

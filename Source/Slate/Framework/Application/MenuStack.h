@@ -41,6 +41,7 @@ namespace DoDo {
 	class IMenu;
 	class FMenuBase;
 	class SWidget;
+	class SWindow;
 	class FWidgetPath;
 	//enum class EPopupMethod : uint8_t;
 	/*
@@ -104,7 +105,7 @@ namespace DoDo {
 		* @param bEnablePerPixelTransparency does the menu's content require per pixel transparency?
 		*/
 		std::shared_ptr<IMenu> push(const FWidgetPath& in_owner_path, const std::shared_ptr<SWidget>& in_content, const glm::vec2& summon_location, const FPopupTransitionEffect& transation_effect,
-			const bool b_focus_immeidately = true, const glm::vec2& summon_location_size = glm::vec2(0.0f), std::optional<EPopupMethod> in_method = std::optional<EPopupMethod>(), const bool b_enable_per_pixel_transparency = false);
+			const bool b_focus_immeidately = true, const glm::vec2& summon_location_size = glm::vec2(0.0f), std::optional<EPopupMethod> in_method = std::optional<EPopupMethod>(), const bool b_is_collapsed_by_parent = true, const bool b_enable_per_pixel_transparency = false);
 
 		/*
 		* this is the common code used during menu creation, this stage is not used by "hosted" menus
@@ -121,6 +122,28 @@ namespace DoDo {
 		*/
 		std::shared_ptr<IMenu> push_internal(const std::shared_ptr<IMenu>& in_parent_menu, const std::shared_ptr<SWidget>& in_content, FSlateRect anchor,
 			const FPopupTransitionEffect& transition_effect, const bool b_focus_immeidately, EShouldThrottle should_throttle, const bool b_is_collapsed_by_parent, const bool b_enable_per_pixel_transparency);
+
+		/*
+		* this is the actual menu object creation method for FMenuInPopup menus
+		* it creates a new FMenuInWindow and adds it into the overlay on the host window
+		* 
+		* @param InParentMenu the parent menu for this menu
+		* @param InPrePushResults the results of the pre-push stage
+		* 
+		* @return the newly created FMenuInPopup menu
+		*/
+		std::shared_ptr<FMenuBase> push_popup(std::shared_ptr<IMenu> in_parent_menu, const FPrePushResults& in_pre_push_results);
+
+		/*
+		* this is actual menu object creation method for FMenuInWindow menus
+		* it creates a new SWindow and new FMenuInWindow that uses it
+		* 
+		* @param InParentMenu the parent menu for this menu
+		* @param InPrePushResults the results of the pre-push stage
+		* 
+		* @return the newly created FMenuInWindow menu
+		*/
+		std::shared_ptr<FMenuBase> push_new_window(std::shared_ptr<IMenu> in_parent_menu, const FPrePushResults& in_pre_push_results, const bool b_enable_per_pixel_transparency);
 
 		/*
 		* this is the pre-push stage of menu creation
@@ -150,6 +173,12 @@ namespace DoDo {
 		*/
 		std::shared_ptr<IMenu> find_menu_in_widget_path(const FWidgetPath& path_to_query) const;
 
+		/*the popup method currently used by the whole stack, it can only use one at a time*/
+		FPopupMethodReply m_active_method;
+
+		/*the parent window of the root menu in the stack, not the actual menu window if it's a create new window*/
+		std::shared_ptr<SWindow> m_host_window;
+
 		/*guard to prevent the host window and host window popup panel being set reentrant*/
 		bool m_b_host_window_guard;
 
@@ -158,5 +187,11 @@ namespace DoDo {
 
 		/*maps top-level content widgets (should always be SMenuContentWrappers) to menus in the stack*/
 		std::map<std::shared_ptr<const SWidget>, std::shared_ptr<FMenuBase>> m_cached_content_map;
+
+		/*temporary ptr to a new window created during the menu creation process, nulled before the push() call returns, stops activation of the new window collapsing the stack*/
+		std::shared_ptr<SWindow> m_pending_new_window;
+
+		/*temporary ptr to a new menu created during the menu creation process, nulled before the push() call returns, stops it collapsing the stack when it gets foucs*/
+		std::shared_ptr<FMenuBase> m_pending_new_menu;
 	};
 }
