@@ -8,6 +8,18 @@
 
 namespace DoDo
 {
+	/*
+	* the different methods that can be used to determine what happens to text when it is longer that its allowed length
+	*/
+	enum class ETextOverflowPolicy : uint8_t
+	{
+		/*overflowing text will be clipped*/
+		Clip = 0,
+
+		/*overflowing text will be replaced with an ellipsis*/
+		Ellipsis
+	};
+
 	struct FTextBlockStyle : public FSlateWidgetStyle
 	{
 		FTextBlockStyle();
@@ -26,6 +38,10 @@ namespace DoDo
 		/*the color and opacity of this text*/
 		FSlateColor m_color_and_opacity;
 		FTextBlockStyle& set_color_and_opacity(const FSlateColor& in_color_and_opacity) { m_color_and_opacity = in_color_and_opacity; return *this; }
+
+		/*determines what happens to text that is clipped and doesn't fit within the clip rect of a text widget*/
+		ETextOverflowPolicy m_overflow_policy;
+		FTextBlockStyle& set_overflow_policy(const ETextOverflowPolicy& in_overflow_policy) { m_overflow_policy = in_overflow_policy; return *this; }
 	};
 
 	/*represents the appearance of an SButton*/

@@ -66,6 +66,7 @@ namespace DoDo
 	}
 
 	FTextBlockStyle::FTextBlockStyle()
+		: m_overflow_policy(ETextOverflowPolicy::Clip)
 	{
 	}
 

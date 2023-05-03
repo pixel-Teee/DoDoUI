@@ -10,6 +10,16 @@
 
 namespace DoDo
 {
+	enum class ETextOverflowDirection : uint8_t
+	{
+		//no overflow
+		NoOverflow,
+		//left justification overflow
+		LeftToRight,
+		//right justification overflow
+		RightToLeft
+	};
+
 	struct FSlateGradientStop
 	{
 		glm::vec2 m_position;
