@@ -165,6 +165,74 @@ namespace DoDo {
 
 		return utf8_sub_str(index, m_bytes_counts[index]);//index character
 	}
+
+	DoDoUtf8String DoDoUtf8String::utf8_at(size_t index) const
+	{
+		//todo:fix me
+		//to find index 
+		if (!m_need_update_lengths_cache)
+		{
+			const_cast<DoDoUtf8String*>(this)->calculate_lengths(m_buffer, const_cast<DoDoUtf8String*>(this)->m_bytes_counts);
+			const_cast<DoDoUtf8String*>(this)->m_need_update_lengths_cache = true;
+		}
+
+		return const_cast<DoDoUtf8String*>(this)->utf8_sub_str(index, m_bytes_counts[index]);//index character
+	}
+
+	uint32_t DoDoUtf8String::to_utf16_code_point(size_t index)
+	{
+		if (!m_need_update_lengths_cache)
+		{
+			const_cast<DoDoUtf8String*>(this)->calculate_lengths(m_buffer, const_cast<DoDoUtf8String*>(this)->m_bytes_counts);
+			const_cast<DoDoUtf8String*>(this)->m_need_update_lengths_cache = true;
+		}
+
+		DoDoUtf8String str = utf8_sub_str(index, m_bytes_counts[index]);
+
+		char* code = str.m_buffer;
+
+		//cover to unicode
+
+		uint32_t unicode = 0;
+
+		char c1, c2;
+		char tmp;
+
+		if (!(code[0] & 0x80)) //0xxxxxxx
+		{
+			unicode = code[0] & 0x7f;
+		}
+		else if ((uint8_t)(code[0]) <= 0xdf && str.m_count - 1 == 2) //110xxxxx
+		{
+			c1 = (code[0] >> 2) & 0x07;
+			c2 = (code[1] & 0x3f) | ((code[0] & 0x03) << 6);
+
+			unicode = ((((uint16_t)(c1) & 0x00ff) << 8) | ((uint16_t)(c2) & 0x00ff));
+		}
+		else if ((uint8_t)(code[0]) <= 0xef && str.m_count - 1 == 3) //1110xxxx
+		{
+			c1 = ((uint8_t)code[0] << 4) | ((code[1] >> 2) & 0x0f);
+			c2 = (((uint8_t)code[1] << 6) & 0xc0) | (code[2] & 0x3f);
+			
+			unicode = ((((uint16_t)(c1) & 0x00ff) << 8) | (uint16_t)(c2) & 0x00ff);
+		}
+
+		//covert unicode to utf-16 code
+
+		uint32_t utf16_code;
+		if (unicode < 0x10000)
+		{
+			utf16_code = (uint16_t)unicode;
+		}
+
+		//todo:handle this
+		//else
+		//{
+		//
+		//}
+
+		return utf16_code;
+	}
 	DoDoUtf8String DoDoUtf8String::utf8_sub_str(size_t pos, size_t buffer_count)
 	{
 		if (!m_need_update_lengths_cache)
@@ -176,7 +244,7 @@ namespace DoDo {
 		size_t prefix_sum = 0;
 		if (pos > 0)
 		{
-			for (size_t i = 0; i < m_bytes_counts[pos - 1]; ++i) //note:prefix sum
+			for (size_t i = 0; i < pos; ++i) //note:prefix sum
 			{
 				prefix_sum += m_bytes_counts[i];
 			}
@@ -252,21 +320,22 @@ namespace DoDo {
 		uint32_t len = -1;
 		while (m_buffer[temp_count] != '\0')
 		{
-			if (m_buffer[temp_count] <= 0x7f) { //ascii
+			uint8_t character = (uint8_t)m_buffer[temp_count];
+			if (character <= 0x7f) { //ascii
 				++total_length;
 				out_character_byte_counts.push_back(1);
 			}
-			else if (m_buffer[temp_count] >= 0xC0 && m_buffer[temp_count] <= 0xDF) //occupy 2 bytes
+			else if (character >= 0xC0 && character <= 0xDF) //occupy 2 bytes
 			{
 				flag = 1;
 				len = 2;
 			}
-			else if (m_buffer[temp_count] >= 0xE0 && m_buffer[temp_count] <= 0xEF) //occupy 3 bytes
+			else if (character >= 0xE0 && character <= 0xEF) //occupy 3 bytes
 			{
 				flag = 2;
 				len = 3;
 			}
-			else if (m_buffer[temp_count] >= 0xF0 && m_buffer[temp_count] <= 0xF7) //occupy 4 bytes
+			else if (character >= 0xF0 && character <= 0xF7) //occupy 4 bytes
 			{
 				flag = 3;
 				len = 4;

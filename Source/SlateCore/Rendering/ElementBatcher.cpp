@@ -502,9 +502,9 @@ namespace DoDo
 
 			for (uint32_t char_index = 0; char_index < num_chars; ++char_index)
 			{
-				const char current_char = draw_element_pay_load.get_text()[char_index];
+				DoDoUtf8String current_char = draw_element_pay_load.get_text().utf8_at(char_index);
 
-				const bool is_new_line = (current_char == '\n');
+				const bool is_new_line = (current_char.utf8_at(0) == DoDoUtf8String("\n"));
 
 				if (is_new_line)
 				{
@@ -547,7 +547,7 @@ namespace DoDo
 						inv_texture_size_y = 1.0f / font_atlas_texture->get_height();
 					}
 
-					const bool b_is_white_space = !entry.m_valid || current_char == 0;//todo:check
+					const bool b_is_white_space = !entry.m_valid || current_char.utf8_at(0) == 0;//todo:check
 
 					if (!b_is_white_space && previous_entry.m_valid)
 					{

@@ -28,7 +28,7 @@ namespace DoDo {
 
 			//default
 			{
-				APPEND_FONT(mutable_default_font->m_default_type_face, "Regular", "Roboto-Regular.ttf", EFontHinting::Default);
+				APPEND_FONT(mutable_default_font->m_default_type_face, "Regular", "STKAITI.TTF", EFontHinting::Default);
 			}
 
 #undef APPEND_FONT

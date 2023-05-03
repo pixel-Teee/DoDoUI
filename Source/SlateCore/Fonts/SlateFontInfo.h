@@ -7,6 +7,8 @@
 
 #include <glm/glm.hpp>//glm::vec4
 
+#include "Core/Math/Color.h"//FLinearColor depends on it
+
 namespace DoDo
 {
 	/*
@@ -29,9 +31,14 @@ namespace DoDo
 		int32_t m_outline_size;
 
 		/*the color of the outline for any character in this font*/
-		glm::vec4 m_outline_color;
+		FLinearColor m_outline_color;
 
 		static FFontOutlineSettings NoOutline;
+
+		FFontOutlineSettings()
+			: m_outline_size(0)
+			, m_outline_color(FLinearColor::Black)
+		{}
 
 		bool is_identical_to_for_caching(const FFontOutlineSettings& other) const
 		{

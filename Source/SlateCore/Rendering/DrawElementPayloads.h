@@ -132,7 +132,7 @@ namespace DoDo
 
 		const FSlateFontInfo& get_font_info() const { return m_font_info; }
 
-		const char* get_text() const { return m_immutable_text.c_str(); }
+		const DoDoUtf8String& get_text() const { return m_immutable_text; }
 
 		void set_text(const DoDoUtf8String& in_text, const FSlateFontInfo& in_font_info, int32_t in_start_index, int32_t in_end_index)
 		{

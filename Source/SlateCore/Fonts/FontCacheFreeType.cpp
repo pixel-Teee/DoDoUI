@@ -102,7 +102,7 @@ namespace DoDo
 		void apply_size_and_scale(FT_Face in_face, const int32_t in_font_size, const float in_font_scale)
 		{
 			//covert to fixed scale for maximum precision
-			const FT_F26Dot6 fixed_font_size = ConvertPixelTo26Dot26<FT_F26Dot6>(in_font_size);//to pixel size to dot size
+			const FT_F26Dot6 fixed_font_size = ConvertPixelTo26Dot26<FT_F26Dot6>(in_font_size);//from pixel size to dot size
 			const FT_Long fixed_font_scale = ConvertPixelTo16Dot16<FT_Long>(in_font_scale);//convert pixel size 
 
 			//convert the requested font size to a pixel size based on our render dpi and the requested scale

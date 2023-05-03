@@ -56,11 +56,12 @@ namespace DoDo
 		int32_t string_sizey = max_height;
 
 		//character from last frame
-		char previous_char = 0;//todo:need to fix this, because our utf8 string
+		DoDoUtf8String previous_char = 0;//todo:need to fix this, because our utf8 string
 
 		if(!does_start_at_beginning && include_kerning_with_preceding_char)
 		{
-			previous_char = text[start_index - 1];
+			//previous_char = text[start_index - 1];
+			previous_char = text.utf8_at(start_index - 1);//todo:fix me
 		}
 
 		int32_t final_pos_x = 0;
@@ -68,9 +69,10 @@ namespace DoDo
 		int32_t char_index;
 		for(char_index = start_index; char_index < end_index; ++char_index)
 		{
-			char current_char = text[char_index];
+			//char current_char = text[char_index];
+			DoDoUtf8String current_char = text.utf8_at(char_index);
 
-			const bool is_new_line = (current_char == '\n');
+			const bool is_new_line = (current_char == DoDoUtf8String("\n"));
 
 			if(is_new_line)
 			{

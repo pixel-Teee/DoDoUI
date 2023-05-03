@@ -172,7 +172,7 @@ namespace DoDo
 	struct FCharacterEntry
 	{
 		/*the character this entry is for*/
-		char character = 0;//todo:need to fix this
+		DoDoUtf8String character = 0;//todo:need to fix this
 		/*the index of the glyph from the FreeType face that this entry is for*/
 		uint32_t m_glyph_index = 0;
 		/*the raw font data this character was rendered with*/
@@ -230,7 +230,7 @@ namespace DoDo
 		 * @param MaxFontFallback the maximum fallback level that can be used when resolving glyphs
 		 * @return data about the character
 		 */
-		FCharacterEntry get_character(char character, const EFontFallback max_font_fall_back);
+		FCharacterEntry get_character(DoDoUtf8String character, const EFontFallback max_font_fall_back);
 
 		/*
 		 * @return the global max height for any character in this font
@@ -244,7 +244,7 @@ namespace DoDo
 		* @param character the character to check
 		* @param MaxFontFllback the maximum fallback level that can be used when resolving glyphs
 		*/
-		bool can_cache_character(char character, const EFontFallback max_font_fall_back) const;
+		bool can_cache_character(DoDoUtf8String character, const EFontFallback max_font_fall_back) const;
 
 		/*Maintains a fake shaped glyph for each character in the character list*/
 		struct FCharacterListEntry
@@ -269,15 +269,15 @@ namespace DoDo
 		 *
 		 * @param Character the character to cache
 		 */
-		FCharacterListEntry* cache_character(char character);
+		FCharacterListEntry* cache_character(DoDoUtf8String character);
 
 		/*
 		* convert the cached internal entry to the external data for the old non-shaped api
 		*/
-		FCharacterEntry make_character_entry(char character, const FCharacterListEntry& internal_entry) const;
+		FCharacterEntry make_character_entry(DoDoUtf8String character, const FCharacterListEntry& internal_entry) const;
 
 		/*entries for larger character sets to conserve memory*/
-		std::map<char, FCharacterListEntry> m_mapped_entries;
+		std::map<DoDoUtf8String, FCharacterListEntry> m_mapped_entries;
 
 		/*directly indexed entries for fast lookup*/
 		std::vector<FCharacterListEntry> m_direct_index_entries;

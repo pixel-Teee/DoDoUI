@@ -26,17 +26,17 @@ namespace DoDo
 	{
 	}
 
-	FCharacterEntry FCharacterList::get_character(char character, const EFontFallback max_font_fall_back)
+	FCharacterEntry FCharacterList::get_character(DoDoUtf8String character, const EFontFallback max_font_fall_back)
 	{
 		const FCharacterListEntry* internal_entry = nullptr;
-		const bool b_direct_index_char = character < m_max_direct_indexed_entries;
+		const bool b_direct_index_char = character.to_utf16_code_point(0) < m_max_direct_indexed_entries;
 
 		//first get a reference to the character, if it is already mapped (mapped does not mean cached though)
 		if(b_direct_index_char)
 		{
-			if(character >= 0 && character < m_direct_index_entries.size())
+			if(character.to_utf16_code_point(0) >= 0 && character.to_utf16_code_point(0) < m_direct_index_entries.size())
 			{
-				internal_entry = &m_direct_index_entries[character];
+				internal_entry = &m_direct_index_entries[character.to_utf16_code_point(0)];
 			}
 		}
 		else
@@ -70,8 +70,8 @@ namespace DoDo
 			if (b_direct_index_char)
 			{
 				//insert n elements
-				m_direct_index_entries.insert(m_direct_index_entries.end(), (character - m_direct_index_entries.size()) + 1, {});
-				internal_entry = &m_direct_index_entries[character];
+				m_direct_index_entries.insert(m_direct_index_entries.end(), (character.to_utf16_code_point(0) - m_direct_index_entries.size()) + 1, {});
+				internal_entry = &m_direct_index_entries[character.to_utf16_code_point(0)];
 			}
 			else
 			{
@@ -108,7 +108,7 @@ namespace DoDo
 		return m_max_height;
 	}
 
-	bool FCharacterList::can_cache_character(char character, const EFontFallback max_font_fall_back) const
+	bool FCharacterList::can_cache_character(DoDoUtf8String character, const EFontFallback max_font_fall_back) const
 	{
 		bool b_retuan_val = false;
 
@@ -121,14 +121,14 @@ namespace DoDo
 		return true;
 	}
 
-	FCharacterList::FCharacterListEntry* FCharacterList::cache_character(char character)
+	FCharacterList::FCharacterListEntry* FCharacterList::cache_character(DoDoUtf8String character)
 	{
 		const FSlateFontInfo& font_info = m_font_key.get_font_info();
 
 		//get the data needed to render this character
 		float sub_font_scaling_factor = 1.0f;
-		const FFontData* font_data_ptr = &m_font_cache.m_composite_font_cache->get_font_data_for_code_point(font_info, character, sub_font_scaling_factor);
-		FFreeTypeFaceGlyphData face_glyph_data = m_font_cache.m_font_renderer->get_font_face_for_code_point(*font_data_ptr, character, font_info.m_font_fallback);
+		const FFontData* font_data_ptr = &m_font_cache.m_composite_font_cache->get_font_data_for_code_point(font_info, character.to_utf16_code_point(0), sub_font_scaling_factor);
+		FFreeTypeFaceGlyphData face_glyph_data = m_font_cache.m_font_renderer->get_font_face_for_code_point(*font_data_ptr, character.to_utf16_code_point(0), font_info.m_font_fallback);
 		//note:this is internal struct to use for load the free type
 		if(face_glyph_data.m_face_and_memory->is_face_valid())
 		{
@@ -143,7 +143,7 @@ namespace DoDo
 
 			const bool b_is_white_space = false;//todo:check is white space
 
-			const uint32_t glyph_index = FT_Get_Char_Index(face_glyph_data.m_face_and_memory->get_face(), character);//to get the glyph index (glyph index can access character texture)
+			const uint32_t glyph_index = FT_Get_Char_Index(face_glyph_data.m_face_and_memory->get_face(), character.to_utf16_code_point(0));//to get the glyph index (glyph index can access character texture)
 
 			int16_t x_advance = 0;
 			{
@@ -174,15 +174,23 @@ namespace DoDo
 			{
 				m_font_cache.get_shaped_glyph_font_atlas_data(new_internal_entry.m_shaped_glyph_entry, m_font_key.get_font_outline_settings());
 
-				if(character < m_max_direct_indexed_entries)
+				if(character.to_utf16_code_point(0) < m_max_direct_indexed_entries)
 				{
-					m_direct_index_entries[character] = std::move(new_internal_entry);
-					return &m_direct_index_entries[character];
+					m_direct_index_entries[character.to_utf16_code_point(0)] = std::move(new_internal_entry);
+					return &m_direct_index_entries[character.to_utf16_code_point(0)];
 				}
 				else
 				{
-					auto it = m_mapped_entries.insert({ character, std::move(new_internal_entry) });
-					return &(it.first->second);
+					//auto it = m_mapped_entries.insert({ character, std::move(new_internal_entry) });
+					//it.first->second = new_internal_entry;
+					//return &(it.first->second);
+					auto it = m_mapped_entries.find(character);
+					if (it != m_mapped_entries.end())
+					{
+						it->second = new_internal_entry;
+					}
+
+					return  &(it->second);
 				}
 			}
 		}
@@ -190,7 +198,7 @@ namespace DoDo
 		return nullptr;
 	}
 
-	FCharacterEntry FCharacterList::make_character_entry(char character, const FCharacterListEntry& internal_entry) const
+	FCharacterEntry FCharacterList::make_character_entry(DoDoUtf8String character, const FCharacterListEntry& internal_entry) const
 	{
 		FCharacterEntry char_entry;//interms of FCharacterListEntry to construct a FCharacterEntry
 

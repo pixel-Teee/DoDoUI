@@ -30,12 +30,13 @@ namespace DoDo
 
 	uint16_t FSlateFontRenderer::get_max_height(const FSlateFontInfo& in_font_info, const float in_scale) const
 	{
-		char Char = 0;//todo:fix me, use utf8 str
+		DoDoUtf8String Char("\0");//todo:fix me, use utf8 str
 
 		//font_data is just font name and font file name
 		const FFontData& font_data = m_composite_font_cache->get_default_font_data(in_font_info);
 
-		const FFreeTypeFaceGlyphData face_glyph_data = get_font_face_for_code_point(font_data, Char, in_font_info.m_font_fallback);
+		//note:to get first code point
+		const FFreeTypeFaceGlyphData face_glyph_data = get_font_face_for_code_point(font_data, Char[0], in_font_info.m_font_fallback);
 
 		if (face_glyph_data.m_face_and_memory && face_glyph_data.m_face_and_memory->is_face_valid())
 		{
