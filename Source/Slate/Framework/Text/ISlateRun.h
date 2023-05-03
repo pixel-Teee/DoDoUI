@@ -30,9 +30,17 @@ namespace DoDo {
 		bool m_b_force_ellipsis_due_to_clipped_line;
 	};
 
+	class FPaintArgs;
+	struct FGeometry;
+	class FSlateRect;
+	class FSlateWindowElementList;
+	class FWidgetStyle;
 	class ISlateRun : public IRun
 	{
 	public:
-		//virtual int32_t On_Paint(const FPi)
+		virtual int32_t On_Paint(const FPaintArgs& paint_args, const FTextArgs& text_args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect,
+			FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const = 0;
+
+
 	};
 }

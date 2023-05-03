@@ -61,6 +61,7 @@ namespace DoDo {
 
 				const std::shared_ptr<ISlateRunRenderer> run_renderer = std::static_pointer_cast<ISlateRunRenderer>(block->get_renderer());
 
+				highest_run_layer_id = run->On_Paint(args, text_args, allotted_geometry, my_culling_rect, out_draw_elements, text_layer, in_widget_style, b_parent_enabled);
 
 				highest_block_layer_id = std::max(highest_block_layer_id, highest_run_layer_id);
 			}
