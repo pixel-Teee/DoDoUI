@@ -22,6 +22,8 @@ namespace DoDo {
 			return key_hash;
 		}
 
+		int32_t len() const { return m_end_index - m_begin_index; }
+
 		int32_t m_begin_index;
 		int32_t m_end_index;
 	};

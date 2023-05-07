@@ -414,6 +414,16 @@ namespace DoDo
 		//------create font atlas------
 	}
 
+	FShapedGlyphSequencePtr FSlateFontCache::shape_bidirectional_text(const DoDoUtf8String& in_text, const FSlateFontInfo& in_font_info, const float in_font_scale, const TextBiDi::ETextDirection in_base_direction, const ETextShapingMethod in_text_shaping_method) const
+	{
+		return FShapedGlyphSequencePtr();
+	}
+
+	FShapedGlyphSequencePtr FSlateFontCache::shape_bidirectional_text(const DoDoUtf8String& in_text, const int32_t in_text_start, const int32_t in_text_len, const FSlateFontInfo& in_font_info, const float in_font_scale, const TextBiDi::ETextDirection in_base_direction, const ETextShapingMethod in_text_shaping_method) const
+	{
+		return FShapedGlyphSequencePtr();
+	}
+
 	void FSlateFontCache::update_cache()
 	{
 		auto update_font_atlas_textures = [this](const std::vector<uint8_t>& font_atlas_indices)
@@ -520,6 +530,18 @@ namespace DoDo
 	int32_t FShapedGlyphSequence::get_measured_width() const
 	{
 		return m_sequence_width;
+	}
+	bool FShapedGlyphSequence::is_dirty() const
+	{
+		for (const auto& glyph_font_face : m_glyph_font_faces)
+		{
+			if (!glyph_font_face.lock())
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 	std::optional<int32_t> FShapedGlyphSequence::get_measured_width(const int32_t in_start_index, const int32_t in_end_index, const bool in_include_kerning_with_preceding_glyph) const
 	{

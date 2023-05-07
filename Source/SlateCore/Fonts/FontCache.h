@@ -13,6 +13,8 @@
 
 #include "SlateCore/Fonts/ShapedTextFwd.h"//FShapedGlyphSequencePtr depends on it
 
+#include "Core/Internationlization/Text.h"//TextBiDi depends on it
+
 namespace DoDo
 {
 	enum class EFontCacheAtlasDataType : uint8_t
@@ -243,6 +245,9 @@ namespace DoDo
 		* @return the measured width
 		*/
 		int32_t get_measured_width() const;
+
+		/*check to see whether this glyph sequence is dirty (ie, contains glyphs with invalid font pointers)*/
+		bool is_dirty() const;
 
 		/*
 		* get the measured width of the specified range of this shaped text
@@ -547,6 +552,23 @@ namespace DoDo
 		bool add_new_entry(const FShapedGlyphEntry& in_shaped_glyph, const FFontOutlineSettings& in_outline_settings, FShapedGlyphFontAtlasData& out_atlas_data);
 
 		bool add_new_entry(const FCharacterRenderData in_render_data, uint8_t& out_texture_index, uint16_t& out_glyph_x, uint16_t& out_glyph_y, uint16_t& out_glyph_width, uint16_t& out_glyph_height);
+
+		/*
+		* performs text shaping on the given string using the given font info, returns you the shaped text sequence to use for text rendering via FSlateDrawElement::MakeShapedText
+		* when using the version which takes a start point and length, the text outside of the given range won't be shaped, but will provide context information to allow the shaping to function correctly
+		* ShapeBidirectionalText is used when you have text that may contain a mixture of LTR and RTL text runs
+		* 
+		* @param InText the string to shape
+		* @param InTextStart the start position of the text to shape
+		* @param InTextLen the length of the text to shape
+		* @param InFontInfo information about the font that the string is drawn with
+		* @param InFontScale the scale to apply to the font
+		* @param InBaseDirection the overall reading direction of the text
+		* @param InTextShapingMethod the text shaping method to use
+		*/
+		FShapedGlyphSequencePtr shape_bidirectional_text(const DoDoUtf8String& in_text, const FSlateFontInfo& in_font_info, const float in_font_scale, const TextBiDi::ETextDirection in_base_direction, const ETextShapingMethod in_text_shaping_method) const;
+
+		FShapedGlyphSequencePtr shape_bidirectional_text(const DoDoUtf8String& in_text, const int32_t in_text_start, const int32_t in_text_len, const FSlateFontInfo& in_font_info, const float in_font_scale, const TextBiDi::ETextDirection in_base_direction, const ETextShapingMethod in_text_shaping_method) const;
 	public:
 		/*
 		 * updates the texture used for rendering
@@ -579,6 +601,9 @@ namespace DoDo
 
 		/*FreeType font renderer (owned by this font cache)*/
 		std::unique_ptr<FSlateFontRenderer> m_font_renderer;
+
+		/*harfbuzz text shaper (owned by this font cache)*/
+		std::unique_ptr<FSlateTextShaper> m_text_shaper;
 
 		/*mapping font keys to cached data*/
 		std::unordered_map<FSlateFontKey, std::unique_ptr<FCharacterList>> m_font_to_character_list_cache;

@@ -51,6 +51,18 @@ namespace DoDo {
 		FSlateFontInfo m_font_info;
 	};
 
+}
+
+template<>
+struct std::hash<DoDo::FCachedShapedTextKey>
+{
+	std::size_t operator()(const DoDo::FCachedShapedTextKey& key) const
+	{
+		return Get_Type_Hash(key);
+	}
+};
+
+namespace DoDo{
 	class FSlateFontCache;
 	/*a map of FShapedGlyphSequence*/
 	/*cache of shaped text*/
@@ -67,12 +79,46 @@ namespace DoDo {
 			: m_font_cache_ptr(in_font_cache)
 		{}
 
+		/*
+		* try and find an existing shaped text instance
+		* 
+		* @param InKey the key identifying the shaped text instance to find
+		* 
+		* @return the shaped text instance, or null if it wasn't found or was stale
+		*/
+		FShapedGlyphSequencePtr find_shaped_text(const FCachedShapedTextKey& in_key) const;
+
+		/*
+		* try and find an existing shaped text instance, or add a new entry to the cache if one cannot be found
+		* 
+		* @param InKey the key identifying the shaped text instance to find or add
+		* @param InText the text to shape if we can't find the shaped text in the cache, InKey may specify a sub-section of the entire text
+		* @param InTextDirection the text direction of all of the text to be shaped, if present we do a unidirectional shape, otherwise we do a bidirectional shape
+		* 
+		* @return the shaped text instance
+		*/
+		FShapedGlyphSequencePtr find_or_add_shaped_text(const FCachedShapedTextKey& in_key, const DoDoUtf8String& in_text);
+
+		/*
+		* add the given shaped text instance to the cache, or generate a new instance and add that based on the parameters provided
+		* 
+		* @param InKey the key identifying the shaped text instance to add
+		* @param InText the text to shape, InKey may specify a sub-section of the entire text
+		* @param InTextDirection the text direction of all of the text to be shaped, if present we do a unidirectional shape, otherwise we do a bidirectional shape
+		* @param InShapedText the shaped text instance to add
+		* 
+		* @return the shaped text instance
+		*/
+		FShapedGlyphSequencePtr add_shaped_text(const FCachedShapedTextKey& in_key, const DoDoUtf8String& in_text);
+
+		FShapedGlyphSequencePtr add_shaped_text(const FCachedShapedTextKey& in_key, FShapedGlyphSequencePtr in_shaped_text);
+
 	private:
 		/*font cache to use when shaping text*/
 		std::weak_ptr<FSlateFontCache> m_font_cache_ptr;
 
 		/*mapping between a cache key and the corresponding shaped text*/
-		std::map<FCachedShapedTextKey, FShapedGlyphSequencePtr> m_cached_shaped_text;
+		std::unordered_map<FCachedShapedTextKey, FShapedGlyphSequencePtr> m_cached_shaped_text;
 	};
 
 	/*utility functions that can provide efficient caching of common operations*/
