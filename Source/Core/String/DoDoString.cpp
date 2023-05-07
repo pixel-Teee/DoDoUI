@@ -195,7 +195,7 @@ namespace DoDo {
 
 		uint32_t unicode = 0;
 
-		char c1, c2;
+		char c1, c2, c3;
 		char tmp;
 
 		if (!(code[0] & 0x80)) //0xxxxxxx
@@ -216,6 +216,17 @@ namespace DoDo {
 			
 			unicode = ((((uint16_t)(c1) & 0x00ff) << 8) | (uint16_t)(c2) & 0x00ff);
 		}
+		else if ((uint8_t)(code[0]) <= 0xf7 && str.m_count - 1 == 4) //11110xxx
+		{
+			c1 = (((uint8_t)code[0] << 5) & 0xe0) | ((code[1] >> 4) & 0x03);//3 + 2 = 5 bits
+			c2 = (((uint8_t)code[1] << 4) & 0xf0) | ((code[2] >> 2) & 0x0f);//8 bits
+			c3 = (((uint8_t)code[2] << 6) & 0xc0) | (code[3] & 0x3f);//8 bits
+
+			uint32_t q1 = (((uint32_t)(c1) & 0x000000ff) << 16);
+			uint32_t q2 = ((uint32_t)(c2) & 0x000000ff << 8);
+			uint32_t q3 = ((uint32_t)(c3) & 0x000000ff);
+			unicode = (((uint32_t)(c1) & 0x000000ff) << 16) | (((uint32_t)(c2) & 0x000000ff) << 8) | ((uint32_t)(c3) & 0x000000ff);
+		}
 
 		//covert unicode to utf-16 code
 
@@ -223,6 +234,13 @@ namespace DoDo {
 		if (unicode < 0x10000)
 		{
 			utf16_code = (uint16_t)unicode;
+		}
+		else
+		{
+			uint32_t tmp = unicode - 0x10000;
+			uint32_t c1 = (uint32_t)((tmp >> 10) & 0x3ff) + 0xd800;
+			uint32_t c2 = (uint32_t)(tmp & 0x3ff) + 0xdc00;
+			utf16_code = (c1 << 16) | c2;
 		}
 
 		//todo:handle this

@@ -2039,7 +2039,7 @@ namespace DoDo
 
         FGlobalTabmanager::get()->register_nomad_tab_spawner("starship widgets", FOnSpawnTab::CreateStatic(spawn_star_ship_widgets))
             .set_icon(FSlateIcon("CoreStyle", "Icons.tree-decidious-svgrepo-com"))
-    		.set_display_name("你好呀!");//todo:implement this function
+    		.set_display_name(u8"你好呀!");//todo:implement this function
         FGlobalTabmanager::get()->register_nomad_tab_spawner("test widget", FOnSpawnTab::CreateStatic(spawn_slider_widgets))
            .set_icon(FSlateIcon("CoreStyle", "Icons.tree-decidious-svgrepo-com"));//todo:this is use for SDockTab icon
 
