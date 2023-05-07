@@ -9,6 +9,8 @@ namespace DoDo {
 	{
 		//get the shaped text for the entire run and try and make a sub-sequence from it - this can help minimize the amount of text shaping that needs to be done when drawing text
 		FShapedGlyphSequencePtr shaped_text = in_shaped_text_cache->find_or_add_shaped_text(in_run_key, in_text);
+
+		return nullptr;
 	}
 	FShapedGlyphSequencePtr FShapedTextCache::find_shaped_text(const FCachedShapedTextKey& in_key) const
 	{
@@ -41,6 +43,7 @@ namespace DoDo {
 			return std::make_shared<FShapedGlyphSequence>();
 		}
 
+		//note:this function is important, this will shape a text sequence
 		FShapedGlyphSequencePtr shaped_text = font_cache->shape_bidirectional_text(
 			in_text,
 			in_key.m_text_range.m_begin_index,

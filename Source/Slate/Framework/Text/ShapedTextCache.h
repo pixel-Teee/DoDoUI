@@ -10,6 +10,8 @@
 
 #include "ShapedTextCacheFwd.h"
 
+#include <unordered_map>
+
 namespace DoDo {
 	/*information representing a piece of shaped text*/
 	struct FCachedShapedTextKey
