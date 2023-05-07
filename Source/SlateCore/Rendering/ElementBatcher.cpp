@@ -147,6 +147,11 @@ namespace DoDo
 				add_text_element<ESlateVertexRounding::Disabled>(draw_element);
 				break;
 			}
+			case EElementType::ET_ShapedText:
+			{
+				add_shaped_text_element<ESlateVertexRounding::Disabled>(draw_element);
+				break;
+			}
 			case EElementType::ET_Gradient:
 			{
 				add_gradient_element<ESlateVertexRounding::Disabled>(draw_element);
@@ -611,6 +616,308 @@ namespace DoDo
 
 		//no outline, draw normally
 		build_font_geometry(FFontOutlineSettings::NoOutline, pack_vertex_color(base_tint), layer);
+	}
+
+	template<ESlateVertexRounding rounding>
+	void FSlateElementBatcher::build_shaped_text_sequence(const FShapedTextBuildContext& context)
+	{
+		const FShapedGlyphSequence* glyph_sequence_to_render = context.m_shaped_glyph_sequence;
+
+		FSlateShaderResourceManager& resource_manager = *m_rendering_policy->get_resource_manager();
+
+		float inv_texture_size_y = 0;
+		float inv_texture_size_x = 0;
+
+		FSlateRenderBatch* render_batch = nullptr;
+
+		int32_t font_texture_index = -1;
+		FSlateShaderResource* font_atlas_texture = nullptr;
+		FSlateShaderResource* font_shader_resource = nullptr;
+
+		float line_x = context.m_start_line_x;
+		float line_y = context.m_start_line_y;
+
+		FSlateRenderTransform render_transform = *context.m_render_transform;
+
+		FColor tint = FColor::White;
+
+		ETextOverflowDirection overflow_direction = context.m_overflow_direction;
+
+		float ellipsis_line_x = 0;
+		float ellipsis_line_y = 0;
+		bool b_need_ellipsis = false;
+		bool b_character_was_clipped = false;
+
+		//for left to right overflow direction - sum of total white space we're currently advancing through
+		//once a non-whitespace glyph is detected this will return to 0
+		float previous_white_space_advance = 0;
+
+		int32_t num_glyphs = glyph_sequence_to_render->get_glyphs_to_render().size();
+
+		const std::vector<FShapedGlyphEntry>& glyphs_to_render = glyph_sequence_to_render->get_glyphs_to_render();
+
+		for (int32_t glyph_index = 0; glyph_index < num_glyphs; ++glyph_index)
+		{
+			const FShapedGlyphEntry& glyph_to_render = glyphs_to_render[glyph_index];
+
+			const float bitmap_render_scale = glyph_to_render.get_bit_map_render_scale();
+			const float inv_bitmap_render_scale = 1.0f / bitmap_render_scale;
+
+			float x = 0;
+			float size_x = 0;
+			float y = 0;
+			float u = 0;
+			float v = 0;
+			float size_y = 0;
+			float size_u = 0;
+			float size_v = 0;
+
+			bool b_can_render_glyph = glyph_to_render.m_b_is_visible;
+			if (b_can_render_glyph)
+			{
+				//get sizing and atlas info
+				const FShapedGlyphFontAtlasData glyph_atlas_data = context.m_font_cache->get_shaped_glyph_font_atlas_data(glyph_to_render, *context.m_outline_settings);
+
+				if (glyph_atlas_data.m_valid && (!context.m_b_enable_outline || glyph_atlas_data.m_supports_outline))
+				{
+					x = line_x + glyph_atlas_data.m_horizontal_offset + glyph_to_render.m_x_offset;
+					//note posx, posy is the upper left corner of the bounding box representing the string, this computes the y position of the baseline where text will sit
+
+					//todo:add culling logic
+
+					if (font_atlas_texture == nullptr || glyph_atlas_data.m_texture_index != font_texture_index)
+					{
+						//font has a new texture for this glyph, refresh the batch we use and the index we are currently using
+						font_texture_index = glyph_atlas_data.m_texture_index;
+
+						ISlateFontTexture* slate_font_texture = context.m_font_cache->get_font_texture(font_texture_index);
+
+						font_atlas_texture = slate_font_texture->get_slate_texture();
+
+						font_shader_resource = resource_manager.get_font_shader_resource(font_texture_index, font_atlas_texture);
+
+						const bool b_is_gray_scale = slate_font_texture->is_gray_scale();
+						tint = b_is_gray_scale ? context.m_font_tint : FColor::White;
+
+						render_batch = &create_render_batch(context.m_layer_id, FShaderParams(), font_shader_resource, ESlateDrawPrimitive::TriangleList,
+							b_is_gray_scale ? ESlateShader::GrayScaleFont : ESlateShader::ColorFont, context.m_draw_element->get_draw_effects(), *context.m_draw_element);
+
+						//reserve memory for the glyphs, this isn't perfect as the text could contain spaces and we might not render the rest of the text in this batch but its better than resizing
+						//constantly
+						const int32_t glyphs_left = num_glyphs - glyph_index;
+						render_batch->reserve_vertices(glyphs_left * 4);
+						render_batch->reserve_indices(glyphs_left * 6);
+
+						inv_texture_size_x = 1.0f / font_atlas_texture->get_width();
+						inv_texture_size_y = 1.0f / font_atlas_texture->get_height();
+					}
+
+					y = line_y - glyph_atlas_data.m_vertical_offset + glyph_to_render.m_y_offset + ((context.m_max_height + context.m_text_base_line) * inv_bitmap_render_scale);
+					u = glyph_atlas_data.m_start_u * inv_texture_size_x;
+					v = glyph_atlas_data.m_start_v * inv_texture_size_y;
+					size_x = glyph_atlas_data.m_u_size * bitmap_render_scale;
+					size_y = glyph_atlas_data.m_v_size * bitmap_render_scale;
+					size_u = glyph_atlas_data.m_u_size * inv_texture_size_x;
+					size_v = glyph_atlas_data.m_v_size * inv_texture_size_y;
+				}
+				else
+				{
+					b_can_render_glyph = false;
+				}
+			}
+			else
+			{
+				x = line_x;
+				size_x = glyph_to_render.m_x_advance;
+			}
+
+			//overflow detection
+			//first figure out the size of the glyph, if the glyph contains multiple characters we have to measure all of them and if clicked
+			//this is common in complex languages with lots of diacritics
+			float overflow_test_width = size_x;
+			if (overflow_direction != ETextOverflowDirection::NoOverflow && (glyph_to_render.m_num_grapheme_clusters_in_glyph > 1 || glyph_to_render.m_num_characters_in_glyph > 1))
+			{
+				const int32_t start_index = glyph_index;
+				int32_t end_index = glyph_index;
+				int32_t next_index = glyph_index + 1;
+				const int32_t source_index = glyph_to_render.m_source_index;
+
+				while (next_index < num_glyphs && glyphs_to_render[next_index].m_source_index == source_index)
+				{
+					++end_index;
+					++next_index;
+				}
+
+				if (start_index < end_index)
+				{
+					overflow_test_width = glyph_sequence_to_render->get_measured_width(start_index, end_index).value_or(size_x);
+				}
+			}
+
+			//left to right overflow - if the current pen position + the ellipsis cannot fit, we have reached the end of the possible area for drawing this text
+			if (overflow_direction == ETextOverflowDirection::LeftToRight)
+			{
+				//if we are on the last glyph don't bother checking if the ellipsis can fit, if the last glyph can fit here is no need for ellipsis
+				float overflow_sequence_needed_size = glyph_index < num_glyphs - 1 ? context.m_overflow_glyph_sequence->get_measured_width() : 0;
+
+				if (x + overflow_test_width + overflow_sequence_needed_size >= context.m_local_clip_bounding_box_left)
+				{
+					b_need_ellipsis = true;
+
+					//todo:add more logic
+
+					break;
+				}
+			}
+			else if (overflow_direction == ETextOverflowDirection::RightToLeft)
+			{
+				bool b_clipped = false;
+
+				//todo:add more logic
+
+				b_can_render_glyph = !b_clipped;
+			}
+
+			if (b_can_render_glyph && render_batch)
+			{
+				const glm::vec2 upper_left(x, y);
+				const glm::vec2 upper_right(x + size_x, y);
+				const glm::vec2 lower_left(x, y + size_y);
+				const glm::vec2 lower_right(x + size_x, y + size_y);
+
+				//the start index of these vertices in the index buffer
+				const uint32_t index_start = render_batch->get_num_vertices();
+
+				float ut = 0.0f, vt = 0.0f, ut_max = 0.0f, vt_max = 0.0f;
+				
+				//add four vertices to the list of verts to be added to the vertex buffer
+				render_batch->add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(upper_left), glm::vec4(u, v, ut, vt), glm::vec2(0.0f, 0.0f), tint));
+				render_batch->add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(lower_right.x, upper_left.y), glm::vec4(u + size_u, v, ut_max, vt), glm::vec2(1.0f, 0.0f), tint));
+				render_batch->add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(upper_left.x, lower_right.y), glm::vec4(u, v + size_v, ut, vt_max), glm::vec2(0.0f, 1.0f), tint));
+				render_batch->add_vertex(FSlateVertex::Make<rounding>(render_transform, glm::vec2(lower_right), glm::vec4(u + size_u, v + size_v, ut_max, vt_max), glm::vec2(1.0f, 1.0f), tint));
+
+				render_batch->add_index(index_start + 0);
+				render_batch->add_index(index_start + 1);
+				render_batch->add_index(index_start + 2);
+				render_batch->add_index(index_start + 1);
+				render_batch->add_index(index_start + 3);
+				render_batch->add_index(index_start + 2);
+
+				//reset whitespace advance to 0, this is a visible character
+				previous_white_space_advance = 0;
+			}
+			else if (!glyph_to_render.m_b_is_visible)
+			{
+				//how much whitespace we are currently walking through
+				previous_white_space_advance += glyph_to_render.m_x_advance;
+			}
+
+			line_x += glyph_to_render.m_x_advance;
+			line_y += glyph_to_render.m_y_advance;
+
+		}
+
+		//todo::add ellipsis
+	}
+
+	template<ESlateVertexRounding rounding>
+	void FSlateElementBatcher::add_shaped_text_element(const FSlateDrawElement& draw_element)
+	{
+		const FSlateShapedTextPayload& draw_element_pay_load = draw_element.get_data_pay_load<FSlateShapedTextPayload>();
+
+		const FShapedGlyphSequence* shaped_glyph_sequence = draw_element_pay_load.get_shaped_glyph_sequence().get();
+
+		const FShapedGlyphSequence* overflow_glyph_sequence = draw_element_pay_load.m_overflow_args.m_overflow_text_ptr.get();
+
+		const FFontOutlineSettings& outline_settings = shaped_glyph_sequence->get_font_outline_settings();
+
+		const FColor base_tint = pack_vertex_color(draw_element_pay_load.get_tint());
+
+		FSlateFontCache& font_cache = *m_rendering_policy->get_font_cache();
+
+		const int16_t text_base_line = shaped_glyph_sequence->get_text_base_line();
+
+		const uint16_t max_height = shaped_glyph_sequence->get_max_text_height();
+
+		FShapedTextBuildContext build_context;
+
+		build_context.m_draw_element = &draw_element;
+		build_context.m_font_cache = &font_cache;
+		build_context.m_shaped_glyph_sequence = shaped_glyph_sequence;
+		build_context.m_overflow_glyph_sequence = overflow_glyph_sequence;
+		build_context.m_text_base_line = text_base_line;
+		build_context.m_max_height = max_height;
+
+		if (max_height)
+		{
+			//if the max text height is 0, we'll create NaN's further in the code, so avoid drawing text if this happens
+			return;
+		}
+
+		const int32_t layer = draw_element.get_layer();
+
+		//extract the layout transform from the draw element
+		FSlateLayoutTransform layout_transform(draw_element.get_scale(), draw_element.get_position());
+
+		//we don't just scale up fonts, we draw them in local space pre-scaled so we don't get scaling artifacts
+		//so we need to pull the layout scale out of the layout and render transform so we can apply them
+		//in local space with pre-scaled fonts
+		const float font_scale = layout_transform.get_scale();
+
+		const FSlateRenderTransform render_transform = concatenate(inverse(font_scale), draw_element.get_render_transform());
+
+		build_context.m_render_transform = &render_transform;
+
+		bool b_outline_font = outline_settings.m_outline_size > 0.0f;
+		const int32_t outline_size = outline_settings.m_outline_size;
+
+		auto build_geometry = [&](const FFontOutlineSettings& in_outline_settings, const FColor& in_tint, int32_t in_layer, float in_horizontal_offset)
+		{
+			glm::vec2 top_left(0, 0);
+
+			const float pos_x = top_left.x + in_horizontal_offset;
+			float pos_y = top_left.y;
+
+			build_context.m_outline_settings = &in_outline_settings;
+			build_context.m_start_line_x = pos_x;
+			build_context.m_start_line_y = pos_y;
+			build_context.m_layer_id = in_layer;
+			build_context.m_font_tint = in_tint;
+
+			build_context.m_b_enable_outline = in_outline_settings.m_outline_size > 0.0f;
+
+			//optimize by culling
+			build_context.m_b_enable_culling = false;
+			build_context.m_b_force_ellipsis = draw_element_pay_load.m_overflow_args.m_b_force_ellipsis_due_to_clipped_line;
+			build_context.m_overflow_direction = draw_element_pay_load.m_overflow_args.m_overflow_direction;
+
+			if (shaped_glyph_sequence->get_glyphs_to_render().size() > 200 || (overflow_glyph_sequence && build_context.m_overflow_direction != ETextOverflowDirection::NoOverflow))
+			{
+				//todo:add clip logic
+
+				//overflow not supported on non-identity transforms (except for 90-degree rotations)
+				build_context.m_overflow_direction = ETextOverflowDirection::NoOverflow;
+			}
+
+			build_shaped_text_sequence<rounding>(build_context);
+		};
+
+		if (b_outline_font)
+		{
+			//build geometry for the outline
+			build_geometry(outline_settings, pack_vertex_color(draw_element_pay_load.get_outline_tint()), layer, 0.0f);
+
+			//the fill area was measured without an outline so it must be shifted by the scaled outline size
+			const float horizontal_offset = outline_size * font_scale;
+
+			//build geometry for the base font which is always rendered on top of the outline
+			build_geometry(FFontOutlineSettings::NoOutline, base_tint, layer + 1, horizontal_offset);
+		}
+		else
+		{
+			//no outline
+			build_geometry(FFontOutlineSettings::NoOutline, base_tint, layer, 0.0f);
+		}
 	}
 
 	template<ESlateVertexRounding Rounding>

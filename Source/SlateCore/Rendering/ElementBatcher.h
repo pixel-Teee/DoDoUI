@@ -109,6 +109,33 @@ namespace DoDo
 			return in_linear_color.to_fcolor(m_b_srgb_vertex_color);
 		}
 
+		struct FShapedTextBuildContext
+		{
+			const class FShapedGlyphSequence* m_shaped_glyph_sequence;
+			const class FShapedGlyphSequence* m_overflow_glyph_sequence;
+
+			const struct FFontOutlineSettings* m_outline_settings;
+			const FSlateDrawElement* m_draw_element;
+			class FSlateFontCache* m_font_cache;
+			const FSlateRenderTransform* m_render_transform;
+			float m_text_base_line;
+			float m_max_height;
+			float m_start_line_x;
+			float m_start_line_y;
+
+			float m_local_clip_bounding_box_left = 0.0f;
+			float m_local_clip_bounding_box_right = 0.0f;
+			int32_t m_layer_id;
+			FColor m_font_tint;
+			ETextOverflowDirection m_overflow_direction;
+			bool m_b_enable_outline : 1;
+			bool m_b_enable_culling : 1;
+			bool m_b_force_ellipsis : 1;
+		};
+
+		template<ESlateVertexRounding rounding>
+		void build_shaped_text_sequence(const FShapedTextBuildContext& context);
+
 	private:
 		void add_elements_internal(const FSlateDrawElementArray& draw_elements, const glm::vec2& view_port_size);
 
@@ -123,6 +150,12 @@ namespace DoDo
 		 */
 		template<ESlateVertexRounding rounding>
 		void add_text_element(const FSlateDrawElement& draw_element);
+
+		/*
+		* creates vertices necessary to draw a shaped glyph sequence (one quad per glyph)
+		*/
+		template<ESlateVertexRounding rounding>
+		void add_shaped_text_element(const FSlateDrawElement& draw_element);
 
 		/*
 		 * creates vertices necessary to draw a gradient box (horizontal or vertical)

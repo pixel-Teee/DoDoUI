@@ -123,6 +123,19 @@ namespace DoDo
 		const FSlateFontInfo& in_font_info, ESlateDrawEffect in_draw_effects = ESlateDrawEffect::None, const FLinearColor& in_tint = FLinearColor::White);
 
 		/*
+		* creates a text element which displays a series of shaped glyphs on the screen
+		* 
+		* @param ElementList the list in which to add elements
+		* @param InLayer the layer to draw the element on
+		* @param PaintGeometry draw space position and dimensions, see FPaintGeometry
+		* @param InShapedGlyphSequence the shaped glyph sequence to draw
+		* @param InDrawEffects optional draw effects to apply
+		* @param InTint color to tint the element
+		*/
+		static void make_shaped_text(FSlateWindowElementList& element_list, int32_t in_layer, const FPaintGeometry& paint_geometry, const FShapedGlyphSequencePtr& in_shaped_glyph_sequence,
+			ESlateDrawEffect in_draw_effects, const FLinearColor& base_tint, const FLinearColor& outline_tint, FTextOverflowArgs text_overflow_args = FTextOverflowArgs());
+
+		/*
 		 * creates a gradient element
 		 *
 		 * @param ElementList the list in which to add elements

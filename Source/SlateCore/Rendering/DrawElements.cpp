@@ -10,6 +10,8 @@
 
 #include "SlateCore/Widgets/SWidget.h"
 
+#include "SlateCore/Fonts/FontCache.h"//FShapedGlyphSequence depends on it
+
 namespace DoDo
 {
 	static bool should_cull(const FSlateWindowElementList& element_list, const FPaintGeometry& paint_geometry, const FSlateBrush* in_brush, const FLinearColor& in_tint)
@@ -107,6 +109,33 @@ namespace DoDo
 		data_pay_load.set_text(in_text, in_font_info);
 
 		element.init(element_list, EElementType::ET_Text, in_layer, paint_geometry, in_draw_effects);
+	}
+
+	void FSlateDrawElement::make_shaped_text(FSlateWindowElementList& element_list, int32_t in_layer, const FPaintGeometry& paint_geometry, const FShapedGlyphSequencePtr& in_shaped_glyph_sequence, ESlateDrawEffect in_draw_effects, const FLinearColor& base_tint, const FLinearColor& outline_tint, FTextOverflowArgs text_overflow_args)
+	{
+		paint_geometry.commit_transforms_if_using_legacy_constructor();
+
+		if (in_shaped_glyph_sequence->get_glyphs_to_render().size() == 0)
+		{
+			return;
+		}
+
+		//todo:add should cull
+
+		//don't do anything if there the font would be completely transparent
+		if ((base_tint.A == 0 && in_shaped_glyph_sequence->get_font_outline_settings().m_outline_size == 0) || (base_tint.A == 0 && outline_tint.A == 0))
+		{
+			return;
+		}
+
+		FSlateDrawElement& element = element_list.add_uninitialized();
+
+		FSlateShapedTextPayload& data_pay_load = element_list.create_pay_load<FSlateShapedTextPayload>(element);
+		data_pay_load.set_tint(base_tint);
+		data_pay_load.set_shaped_text( in_shaped_glyph_sequence, outline_tint);
+		data_pay_load.set_overflow_args(text_overflow_args);
+
+		element.init(element_list, EElementType::ET_ShapedText, in_layer, paint_geometry, in_draw_effects);
 	}
 
 	void FSlateDrawElement::make_gradient(FSlateWindowElementList& element_list, uint32_t in_layer,

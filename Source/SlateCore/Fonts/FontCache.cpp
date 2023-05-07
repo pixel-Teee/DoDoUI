@@ -461,4 +461,99 @@ namespace DoDo
 		//m_key_hash = Hash_Combine(m_key_hash, Get_Type_Hash(m_outline_separate_fill_alpha));
 		m_key_hash = Hash_Combine(m_key_hash, Get_Type_Hash(m_glyph_index));
 	}
+	FShapedGlyphSequence::FShapedGlyphSequence(std::vector<FShapedGlyphEntry> in_glyphs_to_render, const int16_t in_text_base_line, const uint16_t in_max_text_height, const FFontOutlineSettings& in_outline_settings, const FSourceTextRange& in_source_text_range)
+		: m_glyphs_to_render(std::move(in_glyphs_to_render))
+		, m_text_base_line(in_text_base_line)
+		, m_max_text_height(in_max_text_height)
+		, m_outline_settings(in_outline_settings)
+		, m_sequence_width(0)
+		, m_source_indices_to_glyph_data(in_source_text_range)
+	{
+		const int32_t num_glyphs_to_render = m_glyphs_to_render.size();
+
+		for (int32_t current_glyph_index = 0; current_glyph_index < num_glyphs_to_render; ++current_glyph_index)
+		{
+			const FShapedGlyphEntry& current_glyph = m_glyphs_to_render[current_glyph_index];
+
+			//track unique font faces
+			if (current_glyph.m_font_face_data->m_font_face.lock())
+			{
+				//note:add unique
+				for (size_t j = 0; j < m_glyph_font_faces.size(); ++j)
+				{
+					if (m_glyph_font_faces[j].lock() == current_glyph.m_font_face_data->m_font_face.lock())
+					{
+						break;
+					}
+				}
+
+				//note:add unique
+				m_glyph_font_faces.push_back(current_glyph.m_font_face_data->m_font_face);
+			}
+
+			//update the measured width
+			m_sequence_width += current_glyph.m_x_advance;
+
+			//note:m_source_index is this glyph in original text position
+			FSourceIndexToGlyphData* source_index_to_glyph_data = m_source_indices_to_glyph_data.get_glyph_data(current_glyph.m_source_index);
+
+			//skip if index is invalid or hidden
+			if (!source_index_to_glyph_data)
+			{
+				//todo:add more logic
+			}
+
+			if (source_index_to_glyph_data->is_valid())
+			{
+				//if this data already exists then it means a single character produced multiple glyphs and we need to track it as an additional glyph(these are always within the same cluster block)
+				source_index_to_glyph_data->m_additional_glyph_indices.push_back(current_glyph_index);
+			}
+			else
+			{
+				*source_index_to_glyph_data = FSourceIndexToGlyphData(current_glyph_index);
+			}
+		}
+	}
+	FShapedGlyphSequence::~FShapedGlyphSequence()
+	{
+	}
+	int32_t FShapedGlyphSequence::get_measured_width() const
+	{
+		return m_sequence_width;
+	}
+	std::optional<int32_t> FShapedGlyphSequence::get_measured_width(const int32_t in_start_index, const int32_t in_end_index, const bool in_include_kerning_with_preceding_glyph) const
+	{
+		int32_t measured_width = 0;
+
+		if (in_include_kerning_with_preceding_glyph && in_start_index > 0)
+		{
+			const std::optional<int8_t> kerning = get_kerning(in_start_index - 1);
+
+			measured_width += kerning.value_or(0);
+		}
+
+		auto glyph_call_back = [&](const FShapedGlyphEntry& current_glyph, int32_t current_glyph_index)->bool
+		{
+			measured_width += current_glyph.m_x_advance;
+			return true;
+		};
+
+
+		//todo:add enumerate logical glyphs in source range
+		return measured_width;
+		
+		return std::optional<int32_t>();
+	}
+	std::optional<int8_t> FShapedGlyphSequence::get_kerning(const int32_t in_index) const
+	{
+		const FSourceIndexToGlyphData* source_index_to_glyph_data = m_source_indices_to_glyph_data.get_glyph_data(in_index);
+		if (source_index_to_glyph_data && source_index_to_glyph_data->is_valid())
+		{
+			const FShapedGlyphEntry& current_glyph = m_glyphs_to_render[source_index_to_glyph_data->m_glyph_index];
+			return current_glyph.m_kerning;
+		}
+
+		//if we got herte it means we couldn't find the glyph
+		return std::optional<int8_t>();
+	}
 }

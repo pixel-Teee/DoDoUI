@@ -8,7 +8,10 @@
 #include "SlateCore/Textures/TextureAtlas.h"//ISlateAtlasProvider depends on it
 
 #include "SlateFontRenderer.h"//FSlateFontCache depends on it
+
 #include "FontCacheCompositeFont.h"//FCompositeFontCache depends on it
+
+#include "SlateCore/Fonts/ShapedTextFwd.h"//FShapedGlyphSequencePtr depends on it
 
 namespace DoDo
 {
@@ -166,6 +169,176 @@ namespace DoDo
 		 * second index is the index of the thread dependent font cache, index 0 is the cache value for the game thread font cache, index 1 is the cached value for the render thread font cache
 		 */
 		mutable std::weak_ptr<FShapedGlyphFontAtlasData> m_cached_atlas_data[2][2];//EFontCacheAtlasDataType::Num
+	};
+
+	/*information for rendering a shaped text sequence*/
+	/*note:the array of FShapedGlyphEntry*/
+	class FShapedGlyphSequence
+	{
+	public:
+		struct FSourceTextRange
+		{
+			FSourceTextRange(const int32_t in_text_start, const int32_t in_text_len)
+				: m_text_start(in_text_start)
+				, m_text_len(in_text_len)
+			{}
+			int32_t m_text_start;
+			int32_t m_text_len;
+		};
+
+		explicit FShapedGlyphSequence()
+			: m_glyphs_to_render()
+			, m_text_base_line(0)
+			, m_max_text_height(0)
+			, m_outline_settings()
+			, m_sequence_width(0)
+			, m_glyph_font_faces()
+			, m_source_indices_to_glyph_data(FSourceTextRange(0, 0))
+		{}
+
+		FShapedGlyphSequence(std::vector<FShapedGlyphEntry> in_glyphs_to_render, const int16_t in_text_base_line, const uint16_t in_max_text_height, const FFontOutlineSettings& in_outline_settings,
+			const FSourceTextRange& in_source_text_range);
+
+		~FShapedGlyphSequence();
+
+		/*get the array of glyphs in this sequence, this data will be ordered so that you can iterate and draw left-to-right, which means it will be backwards for right-to-left languages*/
+		const std::vector<FShapedGlyphEntry>& get_glyphs_to_render() const
+		{
+			return m_glyphs_to_render;
+		}
+
+		/*get the font outline settings to use when rendering these glyphs*/
+		const FFontOutlineSettings& get_font_outline_settings() const
+		{
+			return m_outline_settings;
+		}
+
+		/*get the baseline to use when drawing the glyphs in this sequence*/
+		int16_t get_text_base_line() const
+		{
+			return m_text_base_line;
+		}
+
+		/*get the maximum height of any glyph in the font we're using*/
+		uint16_t get_max_text_height() const
+		{
+			return m_max_text_height;
+		}
+
+		/*
+		* get the measured width of the entire shaped text
+		* @return the measured width
+		*/
+		int32_t get_measured_width() const;
+
+		/*
+		* get the measured width of the specified range of this shaped text
+		* 
+		* @note the indices used here are relative to the start of the text we were shaped from, even if were only shaped from a sub-section of that text
+		* @return the measured width, or an unset value if the text couldn't be measured (eg, because you started or ended on a merged ligature, or because the range is out-of-bounds)
+		*/
+		std::optional<int32_t> get_measured_width(const int32_t in_start_index, const int32_t in_end_index, const bool in_include_kerning_with_preceding_glyph = true) const;
+
+		/*
+		* get the kerning value between the given entry and the next entry in the sequence
+		* 
+		* @note the index used here is relative to the start of the text we were shaped from, even if we were only shaped from a sub-section of that text
+		* @return the kerning, or an unset value if we couldn't get the kerning (eg, because you specified a merged ligature, or because the index is out-of-bounds)
+		*/
+		std::optional<int8_t> get_kerning(const int32_t in_index) const;
+	private:
+		/*contains the information needed when performing a reverse look-up from a source index to the corresponding shaped glyph*/
+		struct FSourceIndexToGlyphData
+		{
+			FSourceIndexToGlyphData()
+				: m_glyph_index(-1)
+				, m_additional_glyph_indices()
+			{}
+
+			explicit FSourceIndexToGlyphData(const int32_t in_glyph_index)
+				: m_glyph_index(in_glyph_index)
+				, m_additional_glyph_indices()
+			{}
+
+			bool is_valid() const
+			{
+				return m_glyph_index != -1;
+			}
+
+			int32_t get_lowest_glyph_index() const
+			{
+				return m_glyph_index;
+			}
+
+			int32_t get_highest_glyph_index() const
+			{
+				return (m_additional_glyph_indices.size() > 0) ? m_additional_glyph_indices.back() : m_glyph_index;
+			}
+
+			int32_t m_glyph_index;
+			std::vector<int32_t> m_additional_glyph_indices;
+		};
+
+		/*a map of source indices to their shaped glyph data indices, stored internally so we can perform a single allocation*/
+		struct FSouceIndicesToGlyphData
+		{
+		public:
+			explicit FSouceIndicesToGlyphData(const FSourceTextRange& in_source_text_range)
+				: m_source_text_range(in_source_text_range)
+				, m_glyph_data_array()
+			{
+				m_glyph_data_array.resize(in_source_text_range.m_text_len);
+			}
+
+			int32_t get_source_text_start_index() const
+			{
+				return m_source_text_range.m_text_start;
+			}
+
+			int32_t get_source_text_end_index() const
+			{
+				return m_source_text_range.m_text_start + m_source_text_range.m_text_len;
+			}
+
+			FSourceIndexToGlyphData* get_glyph_data(const int32_t in_source_text_index)
+			{
+				const int32_t internal_index = in_source_text_index - m_source_text_range.m_text_start;
+
+				return (internal_index >= 0 && internal_index < m_glyph_data_array.size()) ? &m_glyph_data_array[internal_index] : nullptr;
+			}
+
+			const FSourceIndexToGlyphData* get_glyph_data(const int32_t in_source_text_index) const
+			{
+				const int32_t internal_index = in_source_text_index - m_source_text_range.m_text_start;
+				return (internal_index >= 0 && internal_index < m_glyph_data_array.size()) ? &m_glyph_data_array[internal_index] : nullptr;
+			}
+
+			//todo:add allocated size
+		private:
+			FSourceTextRange m_source_text_range;
+			std::vector<FSourceIndexToGlyphData> m_glyph_data_array;
+		};
+
+		/*array of glyphs in this sequence, this data will be ordered so that you can iterate and draw left-to-right, which means it will be backwards for right-to-left languages*/
+		std::vector<FShapedGlyphEntry> m_glyphs_to_render;
+
+		/*the baseline to use when drawing the glyphs in this sequence*/
+		int16_t m_text_base_line;
+
+		/*the maximum height of any glyph in the font we're using*/
+		uint16_t m_max_text_height;
+
+		/*outline settings to use when rendering these glyphs*/
+		FFontOutlineSettings m_outline_settings;
+
+		/*the cached width of the entire sequence*/
+		int32_t m_sequence_width;
+		
+		/*the set of fonts being used by the glyphs within this sequence*/
+		std::vector<std::weak_ptr<FFreeTypeFace>> m_glyph_font_faces;
+
+		/*a map of source indices to their shaped glyph data indices - used to perform efficient reverse look-up*/
+		FSouceIndicesToGlyphData m_source_indices_to_glyph_data;
 	};
 
 	/*information for rendering one non-shaped character*/

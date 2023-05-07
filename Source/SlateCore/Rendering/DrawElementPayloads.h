@@ -8,6 +8,9 @@
 #include "SlateCore/Layout/Margin.h"//FSlatBoxPayload depends on it
 #include "SlateCore/Styling/SlateBrush.h"//FSlateBoxPayload depends on it
 
+
+#include "SlateCore/Fonts/ShapedTextFwd.h"//FShapedGlyphSequencePtr depends on it
+
 namespace DoDo
 {
 	enum class ETextOverflowDirection : uint8_t
@@ -153,6 +156,50 @@ namespace DoDo
 		{
 			m_font_info = in_font_info;
 			m_immutable_text = in_text;
+		}
+	};
+
+	struct FTextOverflowArgs
+	{
+		FTextOverflowArgs(FShapedGlyphSequencePtr& in_oveflow_text, ETextOverflowDirection in_overflow_direction)
+			: m_overflow_text_ptr(in_oveflow_text)
+			, m_overflow_direction(in_overflow_direction)
+			, m_b_force_ellipsis_due_to_clipped_line(false)
+		{}
+
+		FTextOverflowArgs()
+			: m_overflow_direction(ETextOverflowDirection::NoOverflow)
+			, m_b_force_ellipsis_due_to_clipped_line(false)
+		{}
+
+		/*sequence that represents the ellipsis glyph*/
+		FShapedGlyphSequencePtr m_overflow_text_ptr;
+		ETextOverflowDirection m_overflow_direction;
+		bool m_b_force_ellipsis_due_to_clipped_line;
+	};
+
+	struct FSlateShapedTextPayload : public FSlateDataPayload, public FSlateTintableElement
+	{
+		//shaped text data
+		FShapedGlyphSequencePtr m_shaped_glyph_sequence;
+
+		FLinearColor m_outline_tint;
+
+		FTextOverflowArgs m_overflow_args;
+
+		const FShapedGlyphSequencePtr& get_shaped_glyph_sequence() const { return m_shaped_glyph_sequence; }
+
+		FLinearColor get_outline_tint() const { return m_outline_tint; }
+
+		void set_shaped_text(const FShapedGlyphSequencePtr& in_shaped_glyph_sequence, const FLinearColor& in_outline_tint)
+		{
+			m_shaped_glyph_sequence = in_shaped_glyph_sequence;
+			m_outline_tint = in_outline_tint;
+		}
+
+		void set_overflow_args(const FTextOverflowArgs& in_args)
+		{
+			m_overflow_args = in_args;
 		}
 	};
 

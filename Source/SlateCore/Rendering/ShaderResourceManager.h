@@ -48,6 +48,8 @@ namespace DoDo {
 
 		virtual FSlateResourceHandle get_resource_handle(const FSlateBrush& brush, glm::vec2 local_size, float draw_scale);
 
+		virtual FSlateShaderResource* get_font_shader_resource(int32_t in_texture_atlas_index, FSlateShaderResource* font_texture_atlas) { return font_texture_atlas; }
+
 		//todo:add debug data
 
 		/*mapping of names to texture pointers*/
