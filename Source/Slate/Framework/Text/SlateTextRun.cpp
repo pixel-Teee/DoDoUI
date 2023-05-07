@@ -6,6 +6,20 @@
 
 #include "SlateCore/Layout/Geometry.h"//FGeometry depends on it
 
+#include "SlateCore/Rendering/DrawElements.h"//FSlateDrawElement depends on it
+
+#include "Slate/Framework/Text/DefaultLayoutBlock.h"//ILayoutBlock depends on it
+
+#include "SlateCore/Fonts/FontCache.h"//FSlateFontCache depends on it
+
+#include "Application/Application.h"
+
+#include "Renderer/Renderer.h"
+
+#include "SlateCore/Rendering/DrawElementPayloads.h"//FTextOverflowArgs depends on it
+
+#include "Slate/Framework/Text/ShapedTextCache.h"//ShapedTextCacheUtil depends on it
+
 namespace DoDo {
 	FSlateTextRun::~FSlateTextRun()
 	{
@@ -20,13 +34,50 @@ namespace DoDo {
 
 		const bool should_drop_shadow = false;//todo:add shadow 
 		//const glm::vec2 block_location_offset = block->get_location_offset();
-		//const FTextRange block_range = block->get_text_range();
+		const FTextRange block_range = block->get_text_range();
+		const FLayoutBlockTextContext block_text_context = block->get_text_context();
 
 		//the block size and offset values are pre-scaled, so we need to account for that when converting the block offsets into paint geometry
 		const float inverse_scale = inverse(allotted_geometry.m_scale);
 
 		//draw the text itself
 		//todo:implement make shaped text
+
+		//a negative shadow offset should be applied as a positive offset to the text to avoid clipping issues
+
+		//make sure we have up-to-date shaped text to work with
+		//we use the full line view range (rather than the run range) so that text that spans run will still be shaped correctly
+		FShapedGlyphSequencePtr shaped_text = ShapedTextCacheUtil::get_shaped_text_sub_sequence(
+			block_text_context.m_shaped_text_cache,
+			FCachedShapedTextKey(line.m_range, allotted_geometry.get_accumulated_layout_transform().get_scale(), block_text_context, m_style.m_font),
+			block_range,
+			*m_text,
+			block_text_context.m_text_direction
+		);
+
+		FTextOverflowArgs overflow_args;
+		if (text_args.m_overflow_policy == ETextOverflowPolicy::Ellipsis && text_args.m_overflow_direction != ETextOverflowDirection::NoOverflow)
+		{
+			std::shared_ptr<FSlateFontCache> font_cache = Application::get().get_renderer()->get_font_cache();
+			
+			//todo:add get over flow ellipsis text
+			overflow_args.m_overflow_direction = text_args.m_overflow_direction;
+			overflow_args.m_b_force_ellipsis_due_to_clipped_line = text_args.m_b_force_ellipsis_due_to_clipped_line;
+		}
+
+		//todo:draw the optional shadow
+
+		//draw the text itself
+		FSlateDrawElement::make_shaped_text(
+			out_draw_elements,
+			++layer_id,
+			allotted_geometry.to_paint_geometry(transform_vector(inverse_scale, block->get_size()), FSlateLayoutTransform(transform_point(inverse_scale, block->get_location_offset()))),
+			shaped_text,
+			draw_effects,
+			in_widget_style.get_color_and_opacity_tint() * m_style.m_color_and_opacity.get_color(in_widget_style),
+			in_widget_style.get_color_and_opacity_tint() * m_style.m_font.m_outline_settings.m_outline_color,
+			overflow_args
+		);
 
 		return layer_id;
 	}

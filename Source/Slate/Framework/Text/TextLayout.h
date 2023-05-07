@@ -6,6 +6,8 @@
 
 #include "Core/Internationlization/Text.h"//TextBiDi depends on it
 
+#include "Core/Containers/UnrealString.h"//FTextRange depends on it
+
 namespace DoDo {
 	class ILayoutBlock;
 
@@ -83,7 +85,7 @@ namespace DoDo {
 			glm::vec2 m_size;
 			float m_text_height;
 			float m_justification_width;
-			//FTextRange m_range;
+			FTextRange m_range;
 			//todo:implement TextBiDi
 			TextBiDi::ETextDirection m_text_base_direction;
 			int32_t m_model_index;

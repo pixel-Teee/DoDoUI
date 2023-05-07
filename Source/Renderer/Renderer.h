@@ -101,6 +101,14 @@ namespace DoDo
 			return m_slate_font_services->get_font_measure_service();
 		}
 
+		/*
+		* get the font cache to use for the current thread
+		*/
+		std::shared_ptr<FSlateFontCache> get_font_cache() const
+		{
+			return m_slate_font_services->get_font_cache();
+		}
+
 		static std::shared_ptr<Renderer> Create();//transfer owner ship
 
 	protected:

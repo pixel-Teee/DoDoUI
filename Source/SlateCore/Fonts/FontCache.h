@@ -27,6 +27,19 @@ namespace DoDo
 		Num
 	};
 
+	/*
+	* methods that can be used to shape text
+	* @note if you change this enum, make sure and update CVarDefaultTextShapingMethod and GetDefaultTextShapingMethod
+	*/
+	enum class ETextShapingMethod : uint8_t
+	{
+		Auto = 0,
+
+		KerningOnly,
+
+		FullShaping
+	};
+
 	/*the font atlas data for a single glyph in a shaped text sequence*/
 	struct FShapedGlyphFontAtlasData
 	{

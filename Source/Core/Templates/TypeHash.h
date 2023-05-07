@@ -58,4 +58,10 @@ namespace DoDo
 	{
 		return *(uint32_t*)&Value;
 	}
+
+	template<typename EnumType>
+	inline typename std::enable_if<std::is_enum<EnumType>::value, uint32_t>::type Get_Type_Hash(EnumType E)
+	{
+		return Get_Type_Hash(std::underlying_type<EnumType>::type(E));
+	}
 }
