@@ -51,6 +51,7 @@ namespace DoDo
 	class FSlateFontCache;
 	class FSlateFontInfo;
 	enum class ETextShapingMethod : uint8_t;
+	struct FShapedGlyphEntry;
 	class FSlateTextShaper
 	{
 	public:
@@ -58,6 +59,10 @@ namespace DoDo
 
 		FShapedGlyphSequencePtr shape_bidirectional_text(const DoDoUtf8String& in_text, const int32_t in_text_start, const int32_t in_text_len, const FSlateFontInfo& in_font_info,
 			const float in_font_scale, const TextBiDi::ETextDirection in_base_direction, const ETextShapingMethod text_shaping_method) const;
+
+	private:
+		void perform_text_shaping(const DoDoUtf8String& in_text, const int32_t in_text_start, const int32_t in_text_len, const FSlateFontInfo& in_font_info, const float in_font_scale,
+			const TextBiDi::ETextDirection in_text_direction, const ETextShapingMethod text_shaping_method, std::vector<FShapedGlyphEntry>& out_glyphs_to_render) const;
 	private:
 
 		FFreeTypeCacheDirectory* m_ft_cache_directory;
@@ -67,7 +72,7 @@ namespace DoDo
 
 		/*unicode bidi text detection*/
 		//todo:add TextBiDi::ITextBiDi
-
+		std::unique_ptr<TextBiDi::ITextBiDi> m_text_bidi_detection;
 		//todo:add IBreakIterator
 
 		/*harfbuzz font factory(using our cached functions rather that free type directly)*/
