@@ -15,14 +15,16 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 endif()
 
-# ------set vulkan------
+# ------set vulkan and icu------
 set(vulkan_include ${CMAKE_SOURCE_DIR}/ThirdParty/vulkan/include)
+set(icu_include ${CMAKE_SOURCE_DIR}/ThirdParty/icu/include)
 if(CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(vulkan_lib ${CMAKE_SOURCE_DIR}/ThirdParty/vulkan/lib/Win32/vulkan-1.lib)
+    set(icu_lib ${CMAKE_SOURCE_DIR}/ThirdParty/icu/win64/lib64/icuuc.lib ${CMAKE_SOURCE_DIR}/ThirdParty/icu/win64/lib64/icuin.lib)
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(vulkan_lib ${CMAKE_SOURCE_DIR}/ThirdParty/vulkan/lib/Linux/libvulkan.so.1)
 endif()
-# ------set vulkan------
+# ------set vulkan and icu------
 
 # source dir and binary dir
 add_subdirectory(Source Do_Do_UI)

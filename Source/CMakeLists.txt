@@ -90,7 +90,7 @@ endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
 	# link libraries
-	target_link_libraries(DoDoUI glfw ${vulkan_lib} freetype)
+	target_link_libraries(DoDoUI glfw ${vulkan_lib} freetype ${icu_lib})
 else()
 	find_package(game-activity REQUIRED CONFIG)
 	find_package(Vulkan)
@@ -100,7 +100,7 @@ else()
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Android")
-	target_include_directories(DoDoUI PRIVATE "." ${vulkan_include} "../ThirdParty/glm")
+	target_include_directories(DoDoUI PRIVATE "." ${vulkan_include} "../ThirdParty/glm" ${icu_include})
 else()
 	# message(${ANDROID_NDK}/sources/android/native_app_glue/)
 	target_include_directories(DoDoUI PRIVATE "." ${ANDROID_NDK}/sources/android/native_app_glue "../ThirdParty/glm")
