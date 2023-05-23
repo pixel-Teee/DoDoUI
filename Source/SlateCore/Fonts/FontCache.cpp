@@ -261,6 +261,7 @@ namespace DoDo
 		, m_composite_font_cache(new FCompositeFontCache(m_ft_library.get()))
 		, m_font_atlas_factory(in_font_atlas_factory)
 		, m_font_renderer(new FSlateFontRenderer(m_ft_library.get(), m_composite_font_cache.get()))
+		, m_text_shaper(new FSlateTextShaper(m_ft_cache_directory.get(), m_composite_font_cache.get(), m_font_renderer.get(), this))
 	{
 	}
 

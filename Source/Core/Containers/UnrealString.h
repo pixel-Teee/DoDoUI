@@ -8,6 +8,11 @@ namespace DoDo {
 	class DoDoUtf8String;
 	struct FTextRange
 	{
+		FTextRange()
+			: m_begin_index(-1)
+			, m_end_index(-1)
+		{}
+
 		FTextRange(int32_t in_begin_index, int32_t in_end_index)
 			: m_begin_index(in_begin_index)
 			, m_end_index(in_end_index)

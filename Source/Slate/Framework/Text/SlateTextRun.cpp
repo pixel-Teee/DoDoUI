@@ -28,10 +28,18 @@ namespace DoDo {
 	{
 		return std::make_shared<FSlateTextRun>(in_run_info, in_text, style);
 	}
+	std::shared_ptr<ILayoutBlock> FSlateTextRun::create_block(int32_t start_index, int32_t end_index, glm::vec2 size, const FLayoutBlockTextContext& text_context)
+	{
+		return FDefaultLayoutBlock::Create(shared_from_this(), FTextRange(start_index, end_index), size, text_context);
+	}
 	const std::vector<std::shared_ptr<SWidget>>& FSlateTextRun::get_children()
 	{
 		static std::vector<std::shared_ptr<SWidget>> no_children;
 		return no_children;
+	}
+	FTextRange FSlateTextRun::get_text_range() const
+	{
+		return m_range;
 	}
 	int32_t FSlateTextRun::On_Paint(const FPaintArgs& paint_args, const FTextArgs& text_args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{

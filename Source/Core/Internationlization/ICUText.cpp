@@ -44,11 +44,33 @@ namespace DoDo {
 			{
 				UErrorCode icu_status = U_ZERO_ERROR;
 
+				//todo:fix me
 				ubidi_setPara(in_icu_bidi, in_icu_string.getBuffer(), in_icu_string.length(), get_paragraph_direction(ETextDirection::LeftToRight), nullptr, &icu_status);
 
 				if (U_SUCCESS(icu_status))
 				{
-					return Internal::icu_to_ue(ubidi_getDirection(in_icu_bidi));
+					//return Internal::icu_to_ue(ubidi_getDirection(in_icu_bidi));
+
+					const ETextDirection return_direction = Internal::icu_to_ue(ubidi_getDirection(in_icu_bidi));
+
+					const int32_t run_count = ubidi_countRuns(in_icu_bidi, &icu_status);
+
+					out_text_direction_info.resize(run_count);
+
+					for (int32_t run_iundex = 0; run_iundex < run_count; ++run_iundex)
+					{
+						FTextDirectionInfo& cur_text_direction_info = out_text_direction_info[run_iundex];
+
+						int32_t internal_start_index = 0;
+						int32_t internal_length = 0;
+						cur_text_direction_info.m_text_direction = Internal::icu_to_ue(ubidi_getVisualRun(in_icu_bidi, run_iundex, &internal_start_index, &internal_length));
+
+						//adjust the index and length for what FString expects (icu always uses utf-16 indices internally, and FString might not be utf-16)
+						cur_text_direction_info.m_start_index = in_string_offset + internal_start_index;//todo:add get native string length
+						cur_text_direction_info.m_length = internal_length;
+					}
+
+					return return_direction;
 				}
 				else
 				{
@@ -99,7 +121,7 @@ namespace DoDo {
 		}
 		std::unique_ptr<TextBiDi::ITextBiDi> TextBiDi::create_text_bidi()
 		{
-			return std::unique_ptr<Internal::FICUTextBiDi>();
+			return std::make_unique<Internal::FICUTextBiDi>();
 		}
 	}
 	

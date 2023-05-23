@@ -10,13 +10,13 @@ namespace DoDo {
 		//get the shaped text for the entire run and try and make a sub-sequence from it - this can help minimize the amount of text shaping that needs to be done when drawing text
 		FShapedGlyphSequencePtr shaped_text = in_shaped_text_cache->find_or_add_shaped_text(in_run_key, in_text);
 
-		return nullptr;
+		return shaped_text;
 	}
 	FShapedGlyphSequencePtr FShapedTextCache::find_shaped_text(const FCachedShapedTextKey& in_key) const
 	{
 		auto it = m_cached_shaped_text.find(in_key);
 
-		if (it == m_cached_shaped_text.end() && !it->second->is_dirty())
+		if (it != m_cached_shaped_text.end() && !it->second->is_dirty())
 		{
 			return it->second;
 		}

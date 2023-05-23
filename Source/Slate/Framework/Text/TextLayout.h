@@ -56,22 +56,35 @@ namespace DoDo {
 	};
 
 	class IRun;
-	class FRunModel
-	{
-	public:
-		FRunModel(const std::shared_ptr<IRun>& in_run);
-
-		std::shared_ptr<IRun> get_run() const;
-
-	private:
-		std::shared_ptr<IRun> m_run;
-		std::vector<FTextRange> m_measured_ranges;
-		std::vector<glm::vec2> m_measured_range_sizes;
-	};
-
+	struct FLayoutBlockTextContext;
 	class FTextLayout : public std::enable_shared_from_this<FTextLayout>
 	{
 	public:
+
+		struct FBlockDefinition
+		{
+			/*range inclusive of trailing whitespace, as used to visually display and interact with the text*/
+			FTextRange m_actual_range;
+
+			/*the render to use with this run*/
+			//todo:add
+		};
+
+		class FRunModel
+		{
+		public:
+			FRunModel(const std::shared_ptr<IRun>& in_run);
+
+			std::shared_ptr<IRun> get_run() const;
+
+			FTextRange get_text_range() const;
+
+			std::shared_ptr<ILayoutBlock> create_block(const FTextLayout::FBlockDefinition& block_define, float in_scale, const FLayoutBlockTextContext& in_text_context) const;
+		private:
+			std::shared_ptr<IRun> m_run;
+			std::vector<FTextRange> m_measured_ranges;
+			std::vector<glm::vec2> m_measured_range_sizes;
+		};
 
 		virtual ~FTextLayout();
 
@@ -153,6 +166,11 @@ namespace DoDo {
 	private:
 
 		void flow_layout();
+
+		void flow_line_layout(const int32_t line_model_index, const float wrapping_draw_width, std::vector<std::shared_ptr<ILayoutBlock>>& soft_line);
+
+		void create_line_view_blocks(int32_t line_model_index, const int32_t stop_index, const float wrapped_line_width,
+			const std::optional<float>& justification_width, int32_t& out_run_index, int32_t& out_renderer_index, int32_t& out_previous_block_end, std::vector<std::shared_ptr<ILayoutBlock>>& out_soft_line);
 
 	protected:
 

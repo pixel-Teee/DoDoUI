@@ -15,6 +15,10 @@ namespace DoDo {
 		}
 		FStringConverterImpl_ConvertToUnicodeString::FStringConverterImpl_ConvertToUnicodeString()
 		{
+			UErrorCode icu_status = U_ZERO_ERROR;
+			m_icu_converter = ucnv_open("UTF-16LE", &icu_status);
+
+			//todo:check icu status
 		}
 		FStringConverterImpl_ConvertToUnicodeString::~FStringConverterImpl_ConvertToUnicodeString()
 		{

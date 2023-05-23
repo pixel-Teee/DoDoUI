@@ -31,6 +31,10 @@ namespace DoDo {
 		}
 
 		//todo:process any remaining string after the last new-line
+		if (line_begin_index <= input.get_length())
+		{
+			line_ranges.emplace_back(FTextRange(line_begin_index, input.get_length()));
+		}
 	}
 }
 

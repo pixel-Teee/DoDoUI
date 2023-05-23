@@ -106,13 +106,16 @@ namespace DoDo {
 		/*the reading direction of the text contained within this block*/
 		TextBiDi::ETextDirection m_text_direction;
 	};
-
+	struct FTextRange;
+	class ILayoutBlock;
 	class IRun
 	{
 	public:
 
 		virtual ~IRun() {}
 
+		virtual std::shared_ptr<ILayoutBlock> create_block(int32_t start_index, int32_t end_index, glm::vec2 size, const FLayoutBlockTextContext& text_context) = 0;
 
+		virtual FTextRange get_text_range() const = 0;
 	};
 }

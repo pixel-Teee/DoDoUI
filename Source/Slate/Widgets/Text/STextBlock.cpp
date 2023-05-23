@@ -94,7 +94,7 @@ namespace DoDo
 		else
 		{
 			//todo:user text layout cache
-			const glm::vec2 last_desired_size = m_text_layout_cache->get_desired_size();
+			const glm::vec2 last_desired_size = glm::vec2(20.0f, 20.0f);
 
 			//OnPaint will also update the text layout cache if required
 			layer_id = m_text_layout_cache->On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, should_be_enabled(b_parent_enabled));
@@ -138,7 +138,7 @@ namespace DoDo
 				m_text_style //todo:modify this as get computed text style
 			);
 
-			return text_size;//todo:add min desired width
+			return glm::vec2(20.0f, 20.0f);//todo:add min desired width
 		}
 	}
 
