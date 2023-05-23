@@ -19,6 +19,43 @@ namespace DoDo {
 		//todo:add FTextLayoutSize
 		return glm::vec2(1.0f, 1.0f);
 	}
+	void FTextLayout::set_scale(float value)
+	{
+		//todo:check value is nan
+
+		if (m_scale != value)
+		{
+			m_scale = value;
+
+			//todo:mark dirty
+		}
+	}
+
+	void FTextLayout::add_lines(const std::vector<FNewLineData>& new_lines)
+	{
+		for (const auto& new_line : new_lines)
+		{
+			FLineModel line_model(new_line.m_text);
+
+			//todo:transform text
+
+			for (const auto& run : new_line.m_runs)
+			{
+				line_model.m_runs.push_back(FRunModel(run));
+			}
+
+			m_line_models.push_back(line_model);
+		}
+	}
+
+	void FTextLayout::flow_layout()
+	{
+		//get_wrapping_draw_width()
+		const float wrapping_draw_width = 20.0f;
+
+		std::vector<std::shared_ptr<ILayoutBlock>> soft_line;
+		
+	}
 	ETextJustify::Type FTextLayout::calculate_line_view_visual_justification(const FLineView& line_view) const
 	{
 		//work out the visual justification to use for this line

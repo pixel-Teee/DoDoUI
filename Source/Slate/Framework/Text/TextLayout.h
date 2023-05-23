@@ -48,6 +48,13 @@ namespace DoDo {
 		RightToLeft
 	};
 
+	enum class ETextWrappingPolicy : uint8_t
+	{
+		DefaultWrapping = 0,
+
+		AllowPerCharacterWrapping
+	};
+
 	class IRun;
 	class FRunModel
 	{
@@ -70,6 +77,23 @@ namespace DoDo {
 
 		glm::vec2 get_size() const;
 
+		float get_scale() const { return m_scale; }
+		void set_scale(float value);
+
+		//const FTextBlockStyle& get_default_text_style() const;
+
+		struct FNewLineData
+		{
+			FNewLineData(std::shared_ptr<DoDoUtf8String> in_text, std::vector<std::shared_ptr<IRun>> in_runs)
+				: m_text(in_text)
+				, m_runs(std::move(in_runs))
+			{}
+			std::shared_ptr<DoDoUtf8String> m_text;
+			std::vector<std::shared_ptr<IRun>> m_runs;
+		};
+
+		void add_lines(const std::vector<FNewLineData>& new_lines);
+ 
 		struct ELineModelDirtyState
 		{
 			typedef uint8_t Flags;
@@ -126,6 +150,10 @@ namespace DoDo {
 		};
 
 		const std::vector<FTextLayout::FLineModel>& get_line_models() const { return m_line_models; }
+	private:
+
+		void flow_layout();
+
 	protected:
 
 		/*
@@ -141,6 +169,9 @@ namespace DoDo {
 
 		/*override for the text overflow policy, if unset, the style is used*/
 		std::optional<ETextOverflowPolicy> m_text_overflow_policy_override;
+
+		/*the scale to draw the text at*/
+		float m_scale;
 
 		/*how the text should be aligned with the margin*/
 		ETextJustify::Type m_justification;

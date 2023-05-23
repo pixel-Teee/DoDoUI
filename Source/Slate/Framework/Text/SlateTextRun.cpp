@@ -24,6 +24,10 @@ namespace DoDo {
 	FSlateTextRun::~FSlateTextRun()
 	{
 	}
+	std::shared_ptr<FSlateTextRun> FSlateTextRun::Create(const FRunInfo& in_run_info, const std::shared_ptr<DoDoUtf8String>& in_text, const FTextBlockStyle& style)
+	{
+		return std::make_shared<FSlateTextRun>(in_run_info, in_text, style);
+	}
 	const std::vector<std::shared_ptr<SWidget>>& FSlateTextRun::get_children()
 	{
 		static std::vector<std::shared_ptr<SWidget>> no_children;
@@ -85,5 +89,12 @@ namespace DoDo {
 		);
 
 		return layer_id;
+	}
+	FSlateTextRun::FSlateTextRun(const FRunInfo& in_run_info, const std::shared_ptr<const DoDoUtf8String>& in_text, const FTextBlockStyle& in_style)
+		: m_run_info(in_run_info)
+		, m_text(in_text)
+		, m_style(in_style)
+		, m_range(0, m_text->get_length())
+	{
 	}
 }

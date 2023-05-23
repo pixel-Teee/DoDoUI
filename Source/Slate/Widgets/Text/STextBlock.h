@@ -47,6 +47,9 @@ namespace DoDo
 
 			/*which text shaping method should we use?*/
 			SLATE_ARGUMENT(std::optional<ETextShapingMethod>, TextShapingMethod)
+
+			/*which text flow direction should we use?(unset to use the default returned by get default text flow direction)*/
+			SLATE_ARGUMENT(std::optional<ETextFlowDirection>, TextFlowDirection)
 		SLATE_END_ARGS()
 
 		/*Constructor*/
@@ -141,16 +144,17 @@ namespace DoDo
 		TSlateAttribute<bool> m_auto_wrap_text;
 
 		/*the wrapping policy we're using*/
-		//todo:implement ETextWrappingPolicy
+		TSlateAttribute<ETextWrappingPolicy> m_wrapping_policy;
 
 		/*the transform policy we're using*/
-		//todo:implement ETextTransformPolicy
+		TSlateAttribute<ETextTransformPolicy> m_transform_policy;
 
 		/*the amount of blank space left around the edges of text area*/
 		TSlateAttribute<FMargin> m_margin;
 
 		/*the amount to scale each lines height by*/
 		//todo:implement ETextJustify
+		TSlateAttribute<ETextJustify::Type> m_justification;
 
 		/*how the text should be aligned with the margin*/
 		TSlateAttribute<float> m_line_height_percentage;

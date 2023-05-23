@@ -20,6 +20,15 @@ namespace DoDo
 		Ellipsis
 	};
 
+	enum class ETextTransformPolicy : uint8_t
+	{
+		None = 0,
+
+		ToLower,
+
+		ToUpper
+	};
+
 	struct FTextBlockStyle : public FSlateWidgetStyle
 	{
 		FTextBlockStyle();

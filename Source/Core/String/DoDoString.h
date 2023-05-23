@@ -43,6 +43,8 @@ namespace DoDo {
 
 		uint32_t to_utf16_code_point(size_t index);
 
+		DoDoUtf8String sub_str(size_t pos, size_t len);
+
 		DoDoUtf8String utf8_sub_str(size_t pos, size_t buffer_count);
 
 		uint32_t utf8_code_at(size_t pos) const;

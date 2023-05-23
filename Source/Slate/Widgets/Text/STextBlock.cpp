@@ -10,6 +10,8 @@
 
 #include "SlateCore/Rendering/DrawElements.h"//FSlateDrawElement depends on it
 
+#include "Slate/Widgets/Text/PlainTextLayoutMarshaller.h"//PlainTextLayoutMarshaller depends on it
+
 namespace DoDo
 {
 	void STextBlock::Private_Register_Attributes(FSlateAttributeInitializer& attribute_initializer)
@@ -30,7 +32,10 @@ namespace DoDo
 		, m_highlight_text(*this)
 		, m_wrap_text_at(*this, 0.0f)
 		, m_auto_wrap_text(*this, false)
+		, m_wrapping_policy(*this, ETextWrappingPolicy::DefaultWrapping)
+		, m_transform_policy(*this)
 		, m_margin(*this)
+		, m_justification(*this)
 		, m_line_height_percentage(*this, 1.0f)
 		, m_min_desired_width(*this, 0.0f)
 		, m_b_simple_text_mode(false)//todo:modify this to false
@@ -53,7 +58,7 @@ namespace DoDo
 
 		set_color_and_opacity(in_args._ColorAndOpacity);
 
-		m_text_layout_cache = std::make_unique<FSlateTextBlockLayout>(this, FTextBlockStyle::get_default(), in_args._TextShapingMethod);
+		m_text_layout_cache = std::make_unique<FSlateTextBlockLayout>(this, FTextBlockStyle::get_default(), in_args._TextShapingMethod, in_args._TextFlowDirection, FPlainTextLayoutMarshaller::Create());
 	}
 
 	FSlateColor STextBlock::get_color_and_opacity() const
@@ -116,7 +121,24 @@ namespace DoDo
 		}
 		else
 		{
-			return glm::vec2(0.0f, 0.0f);
+			//compute desired size will also update the layout cache if required
+			const glm::vec2 text_size = m_text_layout_cache->Compute_Desired_Size(
+				FSlateTextBlockLayout::FWidgetDesiredSizeArgs(
+					m_bound_text.Get(),
+					m_highlight_text.Get(),
+					m_wrap_text_at.Get(),
+					m_auto_wrap_text.Get(),
+					m_wrapping_policy.Get(),
+					m_transform_policy.Get(),
+					m_margin.Get(),
+					m_line_height_percentage.Get(),
+					m_justification.Get()
+				),
+				Layout_Scale_Multiplier,
+				m_text_style //todo:modify this as get computed text style
+			);
+
+			return text_size;//todo:add min desired width
 		}
 	}
 

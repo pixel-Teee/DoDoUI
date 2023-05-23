@@ -26,6 +26,20 @@ namespace DoDo {
 		, m_children(in_owner, false)
 	{
 	}
+	const FTextBlockStyle& FSlateTextLayout::get_default_text_style() const
+	{
+		return m_default_text_style;
+	}
+	void FSlateTextLayout::update_if_needed()
+	{
+		update_layout();
+	}
+	void FSlateTextLayout::update_layout()
+	{
+		//todo:clear view
+
+	}
+
 	int32_t FSlateTextLayout::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
 		const ESlateDrawEffect draw_effects = b_parent_enabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect;

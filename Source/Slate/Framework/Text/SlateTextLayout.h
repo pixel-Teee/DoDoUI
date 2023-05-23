@@ -13,6 +13,12 @@ namespace DoDo {
 
 		FSlateTextLayout(SWidget* in_owner, FTextBlockStyle in_default_text_style);
 
+		const FTextBlockStyle& get_default_text_style() const;
+
+		virtual void update_if_needed();
+
+		virtual void update_layout();
+
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const;
 	protected:
 		/*default style used by the text layout*/
