@@ -33,8 +33,10 @@ namespace DoDo
 		, m_margin(*this)
 		, m_line_height_percentage(*this, 1.0f)
 		, m_min_desired_width(*this, 0.0f)
-		, m_b_simple_text_mode(true)//todo:modify this to false
+		, m_b_simple_text_mode(false)//todo:modify this to false
 	{
+
+
 	}
 
 	STextBlock::~STextBlock()
@@ -50,6 +52,8 @@ namespace DoDo
 		set_font(in_args._Font);
 
 		set_color_and_opacity(in_args._ColorAndOpacity);
+
+		m_text_layout_cache = std::make_unique<FSlateTextBlockLayout>(this, FTextBlockStyle::get_default(), in_args._TextShapingMethod);
 	}
 
 	FSlateColor STextBlock::get_color_and_opacity() const
@@ -85,6 +89,14 @@ namespace DoDo
 		else
 		{
 			//todo:user text layout cache
+			const glm::vec2 last_desired_size = m_text_layout_cache->get_desired_size();
+
+			//OnPaint will also update the text layout cache if required
+			layer_id = m_text_layout_cache->On_Paint(args, allotted_geometry, my_culling_rect, out_draw_elements, layer_id, in_widget_style, should_be_enabled(b_parent_enabled));
+
+			const glm::vec2 new_desired_size = m_text_layout_cache->get_desired_size();
+
+			//todo:add wrap logic
 		}
 
 		return layer_id;

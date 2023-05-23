@@ -160,7 +160,7 @@ namespace DoDo
 		/*
 		 * the reading direction of the text this glyph was shaped from
 		 */
-		//todo:add TextBiDi::ETextDirection
+		TextBiDi::ETextDirection m_text_direction = TextBiDi::ETextDirection::LeftToRight;
 
 		/*
 		 * true if this is a visible glyph that should be drawn
@@ -188,19 +188,19 @@ namespace DoDo
 
 	/*information for rendering a shaped text sequence*/
 	/*note:the array of FShapedGlyphEntry*/
+	struct FSourceTextRange
+	{
+		FSourceTextRange(const int32_t in_text_start, const int32_t in_text_len)
+			: m_text_start(in_text_start)
+			, m_text_len(in_text_len)
+		{}
+		int32_t m_text_start;
+		int32_t m_text_len;
+	};
+
 	class FShapedGlyphSequence
 	{
 	public:
-		struct FSourceTextRange
-		{
-			FSourceTextRange(const int32_t in_text_start, const int32_t in_text_len)
-				: m_text_start(in_text_start)
-				, m_text_len(in_text_len)
-			{}
-			int32_t m_text_start;
-			int32_t m_text_len;
-		};
-
 		explicit FShapedGlyphSequence()
 			: m_glyphs_to_render()
 			, m_text_base_line(0)

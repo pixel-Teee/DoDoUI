@@ -11,6 +11,10 @@
 
 #include "SlateCore/Widgets/DeclarativeSyntaxSupport.h"//FTextBlockStyle depends on it
 
+//#include "Slate/Framework/Text/SlateTextLayout.h"//FSlateTextBlockLayout depends on it
+
+#include "SlateTextBlockLayout.h"
+
 namespace DoDo
 {
 	struct FSlateBrush;
@@ -26,6 +30,7 @@ namespace DoDo
 			, _TextStyle(&FCoreStyle::get().get_widget_style<FTextBlockStyle>("NormalText"))
 			, _Font()
 			, _ColorAndOpacity()
+			, _TextShapingMethod()
 			{}
 
 			/*the text displayed in this text block*/
@@ -39,6 +44,9 @@ namespace DoDo
 
 			/*text color and opacity*/
 			SLATE_ATTRIBUTE(FSlateColor, ColorAndOpacity)
+
+			/*which text shaping method should we use?*/
+			SLATE_ARGUMENT(std::optional<ETextShapingMethod>, TextShapingMethod)
 		SLATE_END_ARGS()
 
 		/*Constructor*/
@@ -96,6 +104,7 @@ namespace DoDo
 		TSlateAttribute<DoDoUtf8String> m_bound_text;
 
 		//todo:implement FSlateTextBlockLayout, wrapped layout for this text block
+		std::unique_ptr<FSlateTextBlockLayout> m_text_layout_cache;
 
 		//todo:implement FTextBlockStyle, default style used by the TextLayout
 		/*default style used by the text layout*/

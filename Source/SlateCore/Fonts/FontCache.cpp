@@ -416,12 +416,12 @@ namespace DoDo
 
 	FShapedGlyphSequencePtr FSlateFontCache::shape_bidirectional_text(const DoDoUtf8String& in_text, const FSlateFontInfo& in_font_info, const float in_font_scale, const TextBiDi::ETextDirection in_base_direction, const ETextShapingMethod in_text_shaping_method) const
 	{
-		return FShapedGlyphSequencePtr();
+		return shape_bidirectional_text(in_text, 0, in_text.get_length(), in_font_info, in_font_scale, in_base_direction, in_text_shaping_method);
 	}
 
 	FShapedGlyphSequencePtr FSlateFontCache::shape_bidirectional_text(const DoDoUtf8String& in_text, const int32_t in_text_start, const int32_t in_text_len, const FSlateFontInfo& in_font_info, const float in_font_scale, const TextBiDi::ETextDirection in_base_direction, const ETextShapingMethod in_text_shaping_method) const
 	{
-		return FShapedGlyphSequencePtr();
+		return m_text_shaper->shape_bidirectional_text(in_text, in_text_start, in_text_len, in_font_info, in_font_scale, in_base_direction, in_text_shaping_method);
 	}
 
 	void FSlateFontCache::update_cache()

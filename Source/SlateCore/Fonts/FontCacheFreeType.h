@@ -53,6 +53,12 @@ namespace DoDo
 		* @note ApplySizeAndScale must have been called prior to this function to prepare the face
 		*/
 		FT_Pos get_scaled_height(FT_Face in_face, const EFontLayoutMethod in_layout_method);
+
+		/*
+		* get the descender of the given face under the given layout method (descenders are always scaled by the face scale)
+		* @note apply size and scale must have been called prior to this function to prepare the face
+		*/
+		FT_Pos get_descender(FT_Face in_face, const EFontLayoutMethod in_layout_method);
 	}
 	/*
 	 * wrapped around a free type library instance
@@ -92,8 +98,68 @@ namespace DoDo
 		const int32_t m_font_size;
 		const float m_font_scale;
 		std::map<uint32_t, FT_Fixed> m_advance_map;
-	};		
+	};
 
+	struct FKerningPair
+	{
+		FKerningPair(const uint32_t in_first_glyph_index, const uint32_t in_second_glyph_index)
+			: m_first_glyph_index(in_first_glyph_index)
+			, m_second_glyph_index(in_second_glyph_index)
+		{}
+
+		bool operator==(const FKerningPair& other) const
+		{
+			return m_first_glyph_index == other.m_first_glyph_index &&
+				m_second_glyph_index == other.m_second_glyph_index;
+		}
+
+		friend inline int32_t Get_Type_Hash(const FKerningPair& key)
+		{
+			uint32_t key_hash = 0;
+			key_hash = Hash_Combine(key_hash, key.m_first_glyph_index);
+			key_hash = Hash_Combine(key_hash, key.m_second_glyph_index);
+			return key_hash;
+		}
+		uint32_t m_first_glyph_index;
+		uint32_t m_second_glyph_index;
+	};
+}
+
+template<>
+struct std::hash<DoDo::FKerningPair>
+{
+	std::size_t operator()(const DoDo::FKerningPair& key) const
+	{
+		return Get_Type_Hash(key);
+	}
+};
+
+namespace DoDo {
+
+	/*provides low-level kerning-pair caching for a set of font parameters to avoid repeated calls to FT_Get_Kerning*/
+	class FFreeTypeKerningCache
+	{
+	public:
+		FFreeTypeKerningCache(FT_Face in_face, const int32_t in_kerning_flags, const int32_t in_font_size, const float in_font_scale);
+
+		/*
+		* retrieve the kerning vector for a given pair of glyphs
+		* 
+		* @param InFirstGlyphIndex the first (left) glyph index
+		* @param InSecondGlyphIndex the second (right) glyph index
+		* @param OutKerning the vector to fill out with kerning amounts
+		* 
+		* @return true if the kerning value was found
+		*/
+		bool find_or_cache(const uint32_t in_first_glyph_index, const uint32_t in_second_glyph_index, FT_Vector& out_kerning);
+	private:
+
+		FT_Face m_face;
+		const int32_t m_kerning_flags;
+		const int32_t m_font_size;
+		const float m_font_scale;
+		std::unordered_map<FKerningPair, FT_Vector> m_kerning_map;
+	};
 	//class FFreeTypeCacheDirectory::FFontKey;
 	class FFontKey
 	{
@@ -155,9 +221,16 @@ namespace DoDo {
 		*/
 		std::shared_ptr<FFreeTypeAdvanceCache> get_advance_cache(FT_Face in_face, const int32_t in_load_flags, const int32_t in_font_size, const float in_font_scale);
 		
+		/*
+		* retrieve the kerning cache for a given set of font parameters
+		* @return a pointer to the font kerning cache, invalid if the font does not perform kerning
+		*/
+		std::shared_ptr<FFreeTypeKerningCache> get_kerning_cache(FT_Face in_face, const int32_t in_kerning_flags, const int32_t in_font_size, const float in_font_scale);
 	private:
 
 		std::unordered_map<FFontKey, std::shared_ptr<FFreeTypeAdvanceCache>> m_advance_cache_map;
+
+		std::unordered_map<FFontKey, std::shared_ptr<FFreeTypeKerningCache>> m_kerning_cache_map;
 	};
 
 	/*
@@ -177,6 +250,11 @@ namespace DoDo {
 			//return FreeTypeUtils::get_bit_map_render_scale(m_ft_face);
 
 			return 1.0f;
+		}
+
+		FT_Pos get_descender() const
+		{
+			return FreeTypeUtils::get_descender(m_ft_face, m_layout_method);
 		}
 
 		FT_Pos get_scaled_height() const

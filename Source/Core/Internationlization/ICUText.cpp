@@ -12,6 +12,8 @@
 #include "unicode/ubidi.h"
 //------icu------
 
+#include "Core/String/DoDoString.h"//icu
+
 namespace DoDo {
 	namespace TextBiDi
 	{
@@ -101,4 +103,11 @@ namespace DoDo {
 		}
 	}
 	
+	bool DoDoUtf8String::is_white_space(const DoDoUtf8String& Char)
+	{
+		//tchar should either be utf-16 or utf-32, so we should be fine to cast it to a UChar32 for the whitespace
+		//check, since whitespace is never a pair of utf-16 characters
+		const UChar32 icu_char = const_cast<DoDoUtf8String&>(Char).to_utf16_code_point(0);
+		return u_isWhitespace(icu_char) != 0;
+	}
 }

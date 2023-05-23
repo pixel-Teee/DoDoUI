@@ -146,6 +146,7 @@ namespace DoDo {
 	{
 		return m_buffer;
 	}
+
 	size_t DoDoUtf8String::get_length() const
 	{
 		return m_len;
@@ -251,6 +252,7 @@ namespace DoDo {
 
 		return utf16_code;
 	}
+	
 	DoDoUtf8String DoDoUtf8String::utf8_sub_str(size_t pos, size_t buffer_count)
 	{
 		if (!m_need_update_lengths_cache)
@@ -276,6 +278,40 @@ namespace DoDo {
 		}
 
 		return DoDoUtf8String(str);//note:construct a substr copy
+	}
+	uint32_t DoDoUtf8String::utf8_code_at(size_t pos) const
+	{
+		if (!m_need_update_lengths_cache)
+		{
+			const_cast<DoDoUtf8String*>(this)->calculate_lengths(m_buffer, const_cast<DoDoUtf8String*>(this)->m_bytes_counts);
+			const_cast<DoDoUtf8String*>(this)->m_need_update_lengths_cache = true;
+		}
+
+		size_t prefix_sum = 0;
+		if (pos > 0)
+		{
+			for (size_t i = 0; i < pos; ++i) //note:prefix sum
+			{
+				prefix_sum += m_bytes_counts[i];
+			}
+		}
+
+		//std::string str;//todo:optimize me
+		//
+		//for (size_t i = prefix_sum; i < prefix_sum + buffer_count; ++i)
+		//{
+		//	str.push_back(m_buffer[i]);
+		//}
+
+		uint32_t utf8_code = 0;
+		for (size_t i = 0; i < m_bytes_counts[pos]; ++i)
+		{
+			utf8_code |= ((uint32_t)(m_buffer[prefix_sum + i]) << (m_bytes_counts[pos] - i)); //note:may be error
+		}
+
+		return utf8_code;
+
+		//return DoDoUtf8String(str);//note:construct a substr copy
 	}
 	DoDoUtf8String& DoDoUtf8String::operator=(const DoDoUtf8String& rhs)
 	{

@@ -537,6 +537,25 @@ namespace DoDo
 			return std::vector<std::shared_ptr<ChildType>>(m_children);
 		}
 
+		void empty(int32_t slack = 0)
+		{
+			for (int32_t child_index = 0; child_index < m_children.size(); ++child_index)
+			{
+				std::shared_ptr<SWidget> child = get_child_at(child_index);
+				if (child != SNullWidget::NullWidget)
+				{
+					child->conditionally_detach_parent_widget(&get_owner());
+				}
+			}
+
+			std::vector<std::shared_ptr<ChildType>> children_copy = std::move(m_children);
+
+			m_children.clear();
+
+			children_copy.resize(slack);
+			m_children = std::move(children_copy);
+		}
+
 		const std::shared_ptr<ChildType>& operator[](int32_t index) const { return m_children[index]; }
 		std::shared_ptr<ChildType>& operator[](int32_t index) { return m_children[index]; }
 

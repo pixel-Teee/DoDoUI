@@ -35,12 +35,13 @@ namespace DoDo {
 	class FSlateRect;
 	class FSlateWindowElementList;
 	class FWidgetStyle;
+	class SWidget;
 	class ISlateRun : public IRun
 	{
 	public:
 		virtual int32_t On_Paint(const FPaintArgs& paint_args, const FTextArgs& text_args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect,
 			FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const = 0;
 
-
+		virtual const std::vector<std::shared_ptr<SWidget>>& get_children() = 0;
 	};
 }

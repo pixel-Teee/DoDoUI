@@ -13,7 +13,19 @@
 #include "Slate/Framework/Text/ISlateRunRenderer.h"//ISlateRunRenderer depends on it
 
 namespace DoDo {
+	std::shared_ptr<FSlateTextLayout> FSlateTextLayout::Create(SWidget* in_owner, FTextBlockStyle in_default_text_style)
+	{
+		std::shared_ptr<FSlateTextLayout> layout = std::make_shared<FSlateTextLayout>(in_owner, std::move(in_default_text_style));
 
+		layout->aggregate_children();
+
+		return layout;
+	}
+	FSlateTextLayout::FSlateTextLayout(SWidget* in_owner, FTextBlockStyle in_default_text_style)
+		: m_default_text_style(std::move(in_default_text_style))
+		, m_children(in_owner, false)
+	{
+	}
 	int32_t FSlateTextLayout::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
 		const ESlateDrawEffect draw_effects = b_parent_enabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect;
@@ -72,5 +84,28 @@ namespace DoDo {
 		}
 
 		return highest_layer_id;
+	}
+	void FSlateTextLayout::aggregate_children()
+	{
+		m_children.empty();
+
+		const std::vector<FLineModel>& layout_line_models = get_line_models();
+		for (int32_t line_model_index = 0; line_model_index < layout_line_models.size(); ++line_model_index)
+		{
+			const FLineModel& line_model = layout_line_models[line_model_index];
+
+			for (int32_t run_index = 0; run_index < line_model.m_runs.size(); ++run_index)
+			{
+				const FRunModel& line_run = line_model.m_runs[run_index];
+				const std::shared_ptr<ISlateRun> slate_run = std::static_pointer_cast<ISlateRun>(line_run.get_run());
+
+				const std::vector<std::shared_ptr<SWidget>>& run_children = slate_run->get_children();
+				for (int32_t child_index = 0; child_index < run_children.size(); ++child_index)
+				{
+					const std::shared_ptr<SWidget>& child = run_children[child_index];
+					m_children.add(child);
+				}
+			}
+		}
 	}
 }

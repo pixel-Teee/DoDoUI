@@ -2,6 +2,8 @@
 
 #include "SlateCore/Styling/SlateColor.h"//FLinearColor depends on it
 
+#include "SlateCore/Fonts/SlateFontInfo.h"//FSlateFontInfo
+
 namespace DoDo {
 	struct FSlateBrush;
 	class FStyleDefaults
@@ -18,6 +20,8 @@ namespace DoDo {
 		* @return - the default FLinearColor
 		*/
 		static const FLinearColor& get_color();
+
+		static const FSlateFontInfo get_font_info(uint16_t size = 10);
 
 	private:
 

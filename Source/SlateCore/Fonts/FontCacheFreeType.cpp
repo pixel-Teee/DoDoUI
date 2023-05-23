@@ -144,6 +144,18 @@ namespace DoDo
 			}
 			return 0;
 		}
+		FT_Pos get_descender(FT_Face in_face, const EFontLayoutMethod in_layout_method)
+		{
+			if (FT_IS_SCALABLE(in_face))
+			{
+				return FT_MulFix((in_layout_method == EFontLayoutMethod::Metrics) ? in_face->descender : in_face->bbox.yMin, in_face->size->metrics.y_scale);
+			}
+			else if (FT_HAS_FIXED_SIZES(in_face))
+			{
+				return FT_MulFix(in_face->size->metrics.descender, in_face->size->metrics.y_scale);
+			}
+			return 0;
+		}
 	}
 	
 	FFreeTypeAdvanceCache::FFreeTypeAdvanceCache(FT_Face in_face, const int32_t in_load_flags, const int32_t in_font_size, const float in_font_scale)
@@ -197,6 +209,73 @@ namespace DoDo
 		}
 
 		return it->second;
+	}
+
+	std::shared_ptr<FFreeTypeKerningCache> FFreeTypeCacheDirectory::get_kerning_cache(FT_Face in_face, const int32_t in_kerning_flags, const int32_t in_font_size, const float in_font_scale)
+	{
+		if (in_face && FT_HAS_KERNING(in_face))
+		{
+			const FFontKey key(in_face, FT_KERNING_DEFAULT, in_font_size, in_font_scale);
+
+			auto it = m_kerning_cache_map.find(key);
+
+			if (it == m_kerning_cache_map.end())
+			{
+				auto res = m_kerning_cache_map.insert({ key, std::make_shared<FFreeTypeKerningCache>(in_face, FT_KERNING_DEFAULT, in_font_size, in_font_scale) });
+				return res.first->second;
+			}
+
+			return it->second;
+		}
+
+		return nullptr;
+	}
+
+	FFreeTypeKerningCache::FFreeTypeKerningCache(FT_Face in_face, const int32_t in_kerning_flags, const int32_t in_font_size, const float in_font_scale)
+		: m_face(in_face)
+		, m_kerning_flags(in_kerning_flags)
+		, m_font_size(in_font_size)
+		, m_font_scale(in_font_scale)
+	{
+	}
+
+	bool FFreeTypeKerningCache::find_or_cache(const uint32_t in_first_glyph_index, const uint32_t in_second_glyph_index, FT_Vector& out_kerning)
+	{
+		const FKerningPair kerning_pair(in_first_glyph_index, in_second_glyph_index);
+
+		//try and find the kerning from the cache
+		{
+			auto it = m_kerning_map.find(kerning_pair);
+			if (it != m_kerning_map.end())
+			{
+				out_kerning = it->second;
+				return true;
+			}
+		}
+
+		FreeTypeUtils::apply_size_and_scale(m_face, m_font_size, m_font_scale);
+
+		//no cached data, go ahead and add an entry for it
+		const FT_Error error = FT_Get_Kerning(m_face, in_first_glyph_index, in_second_glyph_index, m_kerning_flags, &out_kerning);
+
+		if (error == 0)
+		{
+			if (m_kerning_flags != FT_KERNING_UNSCALED)
+			{
+				if (!FT_IS_SCALABLE(m_face) && FT_HAS_FIXED_SIZES(m_face))
+				{
+					//fixed size fonts don't support scaling, but we calculated the scale to use for the glyph in apply size and scale
+					out_kerning.x = FT_MulFix(out_kerning.x, m_face->size->metrics.x_scale);
+					out_kerning.y = FT_MulFix(out_kerning.y, m_face->size->metrics.y_scale);
+				}
+			}
+
+			m_kerning_map.insert({ kerning_pair, out_kerning });
+
+			return true;
+		}
+
+		return false;
 	}
 
 }

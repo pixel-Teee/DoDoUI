@@ -8,6 +8,8 @@
 
 #include "Core/Containers/UnrealString.h"//FTextRange depends on it
 
+#include "ShapedTextCacheFwd.h"
+
 namespace DoDo {
 	class ILayoutBlock;
 
@@ -37,9 +39,36 @@ namespace DoDo {
 		};
 	}
 
+	enum class ETextFlowDirection : uint8_t
+	{
+		Auto = 0,
+
+		LeftToRight,
+
+		RightToLeft
+	};
+
+	class IRun;
+	class FRunModel
+	{
+	public:
+		FRunModel(const std::shared_ptr<IRun>& in_run);
+
+		std::shared_ptr<IRun> get_run() const;
+
+	private:
+		std::shared_ptr<IRun> m_run;
+		std::vector<FTextRange> m_measured_ranges;
+		std::vector<glm::vec2> m_measured_range_sizes;
+	};
+
 	class FTextLayout : public std::enable_shared_from_this<FTextLayout>
 	{
 	public:
+
+		virtual ~FTextLayout();
+
+		glm::vec2 get_size() const;
 
 		struct ELineModelDirtyState
 		{
@@ -62,8 +91,13 @@ namespace DoDo {
 			std::shared_ptr<DoDoUtf8String> m_text;
 			//todo:add FShapedTextCacheRef and TextBiDi
 
-			//todo:add FRunModel FBreakCandidate, FTextRunRenderer, FTextLineHighlight
+			FShapedTextCachePtr m_shaped_text_cache;
 
+			TextBiDi::ETextDirection m_text_base_direction;
+
+			//std::vector<FRunModel> 
+			//todo:add FRunModel FBreakCandidate, FTextRunRenderer, FTextLineHighlight
+			std::vector<FRunModel> m_runs;
 		};
 
 		struct FLineViewHighLight
@@ -90,12 +124,17 @@ namespace DoDo {
 			TextBiDi::ETextDirection m_text_base_direction;
 			int32_t m_model_index;
 		};
+
+		const std::vector<FTextLayout::FLineModel>& get_line_models() const { return m_line_models; }
 	protected:
 
 		/*
 		* calculates the visual justification for the given line view
 		*/
 		ETextJustify::Type calculate_line_view_visual_justification(const FLineView& line_view) const;
+
+		/*the models for the lines of text, a line model represents a single string with no manual breaks*/
+		std::vector<FLineModel> m_line_models;
 
 		/*the views for the lines of text, a line view represents a single visual line of text, multiple line views can map to the same line model, if for example wrapping occurs*/
 		std::vector<FLineView> m_line_views;

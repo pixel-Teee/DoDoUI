@@ -2,6 +2,10 @@
 
 #include "SlateTypes.h"
 
+#include "SlateCore/Styling/SlateDefaults.h"
+
+#include "SlateCore/Styling/SlateDefaults.h"
+
 namespace DoDo
 {
 	const DoDoUtf8String FButtonStyle::TypeName("FButtonStyle");
@@ -68,6 +72,19 @@ namespace DoDo
 	FTextBlockStyle::FTextBlockStyle()
 		: m_overflow_policy(ETextOverflowPolicy::Clip)
 	{
+	}
+
+	const FTextBlockStyle& FTextBlockStyle::get_default()
+	{
+		static std::shared_ptr<FTextBlockStyle> Default;
+
+		if (!Default)
+		{
+			Default = std::make_shared<FTextBlockStyle>();
+			Default->m_font = FStyleDefaults::get_font_info();
+		}
+
+		return *Default.get();
 	}
 
 	void FTextBlockStyle::get_resources(std::vector<const FSlateBrush*>& out_brushes) const

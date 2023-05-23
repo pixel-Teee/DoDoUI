@@ -28,6 +28,11 @@ namespace DoDo {
 
 		~DoDoUtf8String();
 
+		/*
+		* check to see if the given character is considered whitespace by the current culture
+		*/
+		static bool is_white_space(const DoDoUtf8String& Char);//note:this function is defined in the icu class cpp file
+
 		size_t get_length() const;
 
 		size_t get_count() const;
@@ -39,6 +44,8 @@ namespace DoDo {
 		uint32_t to_utf16_code_point(size_t index);
 
 		DoDoUtf8String utf8_sub_str(size_t pos, size_t buffer_count);
+
+		uint32_t utf8_code_at(size_t pos) const;
 
 		//return c style string
 		const char* c_str() const;

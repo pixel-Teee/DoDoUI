@@ -24,6 +24,8 @@ namespace DoDo
 	{
 		FTextBlockStyle();
 
+		static const FTextBlockStyle& get_default();
+
 		virtual ~FTextBlockStyle() {}
 
 		virtual void get_resources(std::vector<const FSlateBrush*>& out_brushes) const override;

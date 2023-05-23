@@ -6,8 +6,26 @@
 
 #include "SlateCore/Fonts/ShapedTextFwd.h"
 
+//#include "FontCache.h"//FShapedGlyphSequence depends on it
+
 namespace DoDo
 {
+	struct FKerningOnlyTextSequenceEntry
+	{
+		int32_t m_text_start_index;
+		int32_t m_text_length;
+		const FFontData* m_font_data_ptr;
+		std::shared_ptr<FFreeTypeFace> m_face_and_memory;
+		float m_sub_font_scaling_factor;
+
+		FKerningOnlyTextSequenceEntry(const int32_t in_text_start_index, const int32_t in_text_length, const FFontData* in_font_data_ptr, std::shared_ptr<FFreeTypeFace> in_face_and_memory, const float in_sub_font_scaling_factor)
+			: m_text_start_index(in_text_start_index)
+			, m_text_length(in_text_length)
+			, m_font_data_ptr(in_font_data_ptr)
+			, m_face_and_memory(std::move(in_face_and_memory))
+			, m_sub_font_scaling_factor(in_sub_font_scaling_factor)
+		{}
+	};
 	/*
 	 * internal class used to hold the FreeType data within the shaped glyph sequence
 	 */
@@ -49,9 +67,11 @@ namespace DoDo
 	class FCompositeFontCache;
 	class FSlateFontRenderer;
 	class FSlateFontCache;
-	class FSlateFontInfo;
+	struct FSlateFontInfo;
 	enum class ETextShapingMethod : uint8_t;
 	struct FShapedGlyphEntry;
+	//class FShapedGlyphSequence::FSourceTextRange;
+	struct FSourceTextRange;
 	class FSlateTextShaper
 	{
 	public:
@@ -63,6 +83,11 @@ namespace DoDo
 	private:
 		void perform_text_shaping(const DoDoUtf8String& in_text, const int32_t in_text_start, const int32_t in_text_len, const FSlateFontInfo& in_font_info, const float in_font_scale,
 			const TextBiDi::ETextDirection in_text_direction, const ETextShapingMethod text_shaping_method, std::vector<FShapedGlyphEntry>& out_glyphs_to_render) const;
+
+		FShapedGlyphSequencePtr finalize_text_shaping(std::vector<FShapedGlyphEntry> in_glyphs_to_render, const FSlateFontInfo& in_font_info, const float in_font_scale, const FSourceTextRange& in_source_text_range) const;
+
+		void perform_kerning_only_text_shaping(const DoDoUtf8String& in_text, const int32_t in_text_start, const int32_t in_text_len, const FSlateFontInfo& in_font_info, const float in_font_scale,
+			std::vector<FShapedGlyphEntry>& out_glyphs_to_render) const;
 	private:
 
 		FFreeTypeCacheDirectory* m_ft_cache_directory;

@@ -24,6 +24,11 @@ namespace DoDo {
 	FSlateTextRun::~FSlateTextRun()
 	{
 	}
+	const std::vector<std::shared_ptr<SWidget>>& FSlateTextRun::get_children()
+	{
+		static std::vector<std::shared_ptr<SWidget>> no_children;
+		return no_children;
+	}
 	int32_t FSlateTextRun::On_Paint(const FPaintArgs& paint_args, const FTextArgs& text_args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
 		const ESlateDrawEffect draw_effects = b_parent_enabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect;
