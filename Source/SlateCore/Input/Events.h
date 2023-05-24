@@ -134,6 +134,37 @@ namespace DoDo
 	};
 
 	/*
+	* FCharacterEvent describes a keyboard action where the utf8 code is given, used for on key char messages
+	*/
+	struct FCharacterEvent : public FInputEvent
+	{
+	public:
+		FCharacterEvent()
+			: FInputEvent(FModifierKeyState(), 0, false)
+			, m_character("")//0
+		{}
+
+		FCharacterEvent(const DoDoUtf8String in_character, const FModifierKeyState& in_modifier_keys, const uint32_t in_user_index, const bool b_in_is_repeat)
+			: FInputEvent(in_modifier_keys, in_user_index, b_in_is_repeat)
+			, m_character(in_character)
+		{}
+
+		/*
+		* returns the character for this event
+		* 
+		* @return Character
+		*/
+		DoDoUtf8String get_character() const
+		{
+			return m_character;
+		}
+
+	private:
+		//the character that was pressed
+		DoDoUtf8String m_character;
+	};
+
+	/*
 	 * FPointerEvent describes a mouse or touch action (e.g. Press, Release, Move, etc)
 	 * it is passed to event handlers dealing with pointer-based input
 	 */
