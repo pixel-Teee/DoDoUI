@@ -12,6 +12,24 @@ namespace DoDo {
 
 		return shaped_text;
 	}
+	glm::vec2 ShapedTextCacheUtil::measure_shaped_text(const FShapedTextCachePtr& in_shaped_text_cache, const FCachedShapedTextKey& in_run_key, const FTextRange& in_measure_range, const DoDoUtf8String& in_text)
+	{
+		//get the shaped text for the entire run and try and take a sub-measurement from it - this can help minimize the amout of text shaping needs to be done when measuring text
+		FShapedGlyphSequencePtr shaped_text = in_shaped_text_cache->find_or_add_shaped_text(in_run_key, in_text);
+
+		std::optional<int32_t> measured_width = shaped_text->get_measured_width(in_measure_range.m_begin_index, in_measure_range.m_end_index);
+
+		if (!measured_width.has_value())
+		{
+			FCachedShapedTextKey measure_key = in_run_key;
+			measure_key.m_text_range = in_measure_range;
+
+			shaped_text = in_shaped_text_cache->find_or_add_shaped_text(measure_key, in_text);
+			measured_width = shaped_text->get_measured_width();
+		}
+
+		return glm::vec2(measured_width.value(), shaped_text->get_max_text_height());
+	}
 	FShapedGlyphSequencePtr FShapedTextCache::find_shaped_text(const FCachedShapedTextKey& in_key) const
 	{
 		auto it = m_cached_shaped_text.find(in_key);

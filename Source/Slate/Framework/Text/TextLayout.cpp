@@ -15,13 +15,17 @@
 #include "Slate/Framework/Text/DefaultLayoutBlock.h"
 
 namespace DoDo {
+	FTextLayout::FTextLayout()
+		: m_wrapping_width(0)
+	{
+	}
 	FTextLayout::~FTextLayout()
 	{
 	}
 	glm::vec2 FTextLayout::get_size() const
 	{
 		//todo:add FTextLayoutSize
-		return glm::vec2(1.0f, 1.0f);
+		return m_text_layout_size.get_draw_size() * inverse(m_scale);
 	}
 	void FTextLayout::set_scale(float value)
 	{
@@ -45,7 +49,7 @@ namespace DoDo {
 
 			for (const auto& run : new_line.m_runs)
 			{
-				line_model.m_runs.push_back(FRunModel(run));
+				line_model.m_runs.push_back(FRunModel(run)); //construct FRunModel
 			}
 
 			m_line_models.push_back(line_model);
@@ -71,13 +75,18 @@ namespace DoDo {
 			const int32_t first_new_line_view_index = m_line_views.size() + 1;
 
 			std::vector<std::shared_ptr<ILayoutBlock>> soft_line;
-			flow_line_layout(line_model_index, 20.0f, soft_line);//todo:add get_wrapping_draw_width
+			flow_line_layout(line_model_index, get_wrapping_draw_width(), soft_line);//todo:add get_wrapping_draw_width
 
 			//apply the current margin to the newly added lines
 			{
 
 			}
 		}
+	}
+
+	float FTextLayout::get_wrapping_draw_width() const
+	{
+		return std::max(0.01f, (m_wrapping_width)); //todo:add margin
 	}
 
 	void FTextLayout::flow_layout()
@@ -102,9 +111,20 @@ namespace DoDo {
 		//	
 		//}
 
-		//then iterate over all of its runs
-		create_line_view_blocks(line_model_index, -1, 0.0f, std::optional<float>(), current_run_index, current_renderer_index, previous_block_end, soft_line);
-		soft_line.clear();
+		const bool is_wrapping = m_wrapping_width > 0.0f;
+
+		//if the line doesn't have any break candidates, or we're not wrapping text
+		if (!is_wrapping) //todo:add break candidates
+		{
+			//then iterate over all of its runs
+			create_line_view_blocks(line_model_index, -1, 0.0f, std::optional<float>(), /*out*/current_run_index, /*out*/current_renderer_index, /*out*/previous_block_end, soft_line);
+			soft_line.clear();
+		}
+		else
+		{
+
+		}
+		
 	}
 	void FTextLayout::create_line_view_blocks(int32_t line_model_index, const int32_t stop_index, const float wrapped_line_width, const std::optional<float>& justification_width, int32_t& out_run_index, int32_t& out_renderer_index, int32_t& out_previous_block_end, std::vector<std::shared_ptr<ILayoutBlock>>& out_soft_line)
 	{
@@ -124,7 +144,7 @@ namespace DoDo {
 		int32_t current_line_end = stop_index;
 		if (current_line_end == -1)
 		{
-			current_line_end = (line_model.m_runs.size() > 0) ? line_model.m_runs.back().get_text_range().m_end_index : 0;
+			current_line_end = (line_model.m_runs.size() > 0) ? line_model.m_runs.back().get_text_range().m_end_index : 0; 
 		}
 
 		//kerning only shaping implies ltr only text, so we can skip the bidirectional detection and splitting
@@ -133,6 +153,7 @@ namespace DoDo {
 		
 		//todo:add compute text direction
 
+		//ensure there is at least one directional block, this can happen when using kerning only shaping (since we skip the bidirectional detection), or for empty strings that are run through the bidirectional detection
 		if (text_direction_infos.size() == 0)
 		{
 			TextBiDi::FTextDirectionInfo text_direction_info;
@@ -142,6 +163,8 @@ namespace DoDo {
 			text_direction_infos.push_back(std::move(text_direction_info));
 		}
 
+		//we always add the runs to the line in ascending index order, so re-order a copy of text direction data so we can iterater it forwards by ascending indedx
+		//we'll re-sort the line into the correct visual order once we've finished generating the blocks
 		int32_t current_sorted_text_direction_info_index = 0;
 		std::vector<TextBiDi::FTextDirectionInfo> sorted_text_direction_info = text_direction_infos;
 		std::sort(sorted_text_direction_info.begin(), sorted_text_direction_info.end(), [](const TextBiDi::FTextDirectionInfo& in_first,
@@ -149,7 +172,7 @@ namespace DoDo {
 			return in_first.m_start_index < in_second.m_start_index;
 		});
 
-		FTextRange soft_line_range = FTextRange((int32_t)0x7fffffff, (int32_t)0x80000000);
+		FTextRange soft_line_range = FTextRange((int32_t)0x7fffffff, (int32_t)0x80000000); //max_int32 and min_int32
 		for (; out_run_index < line_model.m_runs.size();)
 		{
 			const FRunModel& run = line_model.m_runs[out_run_index];
@@ -189,27 +212,61 @@ namespace DoDo {
 				FBlockDefinition block_define;
 				block_define.m_actual_range = FTextRange(block_begin_index, block_stop_index);
 			
-
+				//call FRunModel's create block 
 				out_soft_line.push_back(run.create_block(block_define, m_scale, FLayoutBlockTextContext(run_text_context, block_text_direction)));
 
+				//update the soft line bounds based on this new block (needed within this loop due to bi-directional text, as the extends of the line array are not always the start and end of the range)
 				const FTextRange& block_range = out_soft_line.back()->get_text_range(); //note:this is important
 				soft_line_range.m_begin_index = std::min(soft_line_range.m_begin_index, block_range.m_begin_index);
 				soft_line_range.m_end_index = std::max(soft_line_range.m_end_index, block_range.m_end_index);
 			}
 
+			//get the base line and flip it's sign, baselines are generally negative
+			const int16_t base_line = -(run.get_base_line(m_scale));
+
+			//for the height of the slice we need to take into account the largest value below and above the baseline and add those together
+			max_above_base_line = std::max(max_above_base_line, (int16_t)(run.get_max_height(m_scale) - base_line));
+			max_below_base_line = std::max(max_below_base_line, base_line);
+
 			if (block_stop_index == run_range.m_end_index)
 			{
 				++out_run_index;
+			}
+
+			if (is_last_block)
+			{
+				break;
 			}
 		}
 
 		glm::vec2 line_size(0.0f, 0.0f);
 
 		//use a negative scroll offset since positive scrolling moves things negatively in screen space
-		glm::vec2 current_offset(0.0f, 0.0f);
+		glm::vec2 current_offset(0.0f, 0.0f);//todo:fix me
 
 		{
+			float current_horizontal_pos = 0.0f;
+
+			for (int32_t index = 0; index < out_soft_line.size(); ++index)
+			{
+				const std::shared_ptr<ILayoutBlock> block = out_soft_line[index];
+				const std::shared_ptr<IRun> run = block->get_run();
+
+				const int16_t block_base_line = run->get_base_line(m_scale);
+				const int16_t vertical_offset = max_above_base_line - block->get_size().y - block_base_line;
+				//const int8_t block_kerning = run->
+
+				//todo:add kerning
+
+				block->set_location_offset(glm::vec2(current_offset.x + current_horizontal_pos, current_offset.y + vertical_offset));
+
+				current_horizontal_pos += block->get_size().x;
+			}
+
 			const float unscale_line_height = max_above_base_line + max_below_base_line;
+
+			line_size.x = current_horizontal_pos;
+			line_size.y = unscale_line_height;//todo:add line height percentage
 
 			FTextLayout::FLineView line_view;
 			line_view.m_offset = current_offset;
@@ -221,7 +278,7 @@ namespace DoDo {
 			line_view.m_model_index = line_model_index;
 			//line_view.m_blocks.push_back(out_soft_line);
 
-			for (size_t i = 0; i < out_soft_line.size(); ++i)
+			for (size_t i = 0; i < out_soft_line.size(); ++i) //note:append
 			{
 				line_view.m_blocks.push_back(out_soft_line[i]);
 			}
@@ -269,12 +326,20 @@ namespace DoDo {
 	{
 		return m_run->get_text_range();
 	}
+	int16_t FTextLayout::FRunModel::get_base_line(float scale) const
+	{
+		return m_run->get_base_line(scale);
+	}
+	int16_t FTextLayout::FRunModel::get_max_height(float scale) const
+	{
+		return m_run->get_max_height(scale);
+	}
 	std::shared_ptr<ILayoutBlock> FTextLayout::FRunModel::create_block(const FBlockDefinition& block_define, float in_scale, const FLayoutBlockTextContext& in_text_context) const
 	{
 		const FTextRange& size_range = block_define.m_actual_range;
 
 		FTextRange run_range = m_run->get_text_range();
 		return m_run->create_block(block_define.m_actual_range.m_begin_index, block_define.m_actual_range.m_end_index,
-			glm::vec2(20.0f, 20.0f), in_text_context);//todo:add renderer
+			m_run->measure(size_range.m_begin_index, size_range.m_end_index, in_scale, in_text_context), in_text_context);//todo:add renderer
 	}
 }

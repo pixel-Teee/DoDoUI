@@ -337,6 +337,15 @@ namespace DoDo
 			std::vector<FSourceIndexToGlyphData> m_glyph_data_array;
 		};
 
+		/*
+		* enumerate all of the glyphs within the given source index range (enumerates either visually or logically)
+		* @note the indices used here are relative to the start of the text we were shaped from, even if we were only shaped from a sub-section of that text
+		* @return enumeration complete if we found the start and end point and enumerate the glyphs, enumeration abored if the callback returned false
+		*/
+		enum class EEnumerateGlyphsResult : uint8_t { EnumerationFailed, EnumerationAborted, EnumerationComplete };
+		typedef std::function<bool(const FShapedGlyphEntry&, int32_t)> FForEachShapedGlyphEntryCallback;
+		EEnumerateGlyphsResult enumerate_logical_glyphs_in_source_range(const int32_t in_start_index, const int32_t in_end_index, const FForEachShapedGlyphEntryCallback& in_glyph_call_back) const;
+
 		/*array of glyphs in this sequence, this data will be ordered so that you can iterate and draw left-to-right, which means it will be backwards for right-to-left languages*/
 		std::vector<FShapedGlyphEntry> m_glyphs_to_render;
 
@@ -428,6 +437,13 @@ namespace DoDo
 		 */
 		uint16_t get_max_height() const;
 
+		/*
+		* returns the baseline for the font used by this character
+		* 
+		* @return the offset from the bottom of the max character height to the baseline, be aware that the value will be negative
+		*/
+		int16_t get_base_line() const;
+
 	private:
 		/*
 		* returns whether the specified character is valid for caching (i.e. whether it matches the font fall back level)
@@ -484,6 +500,9 @@ namespace DoDo
 
 		/*the global max height for any character in this font*/
 		mutable uint16_t m_max_height;
+
+		/*the offset from the bottom of the max character height to the baseline*/
+		mutable uint16_t m_base_line;
 	};
 	
 }
@@ -569,6 +588,7 @@ namespace DoDo
 		FShapedGlyphSequencePtr shape_bidirectional_text(const DoDoUtf8String& in_text, const FSlateFontInfo& in_font_info, const float in_font_scale, const TextBiDi::ETextDirection in_base_direction, const ETextShapingMethod in_text_shaping_method) const;
 
 		FShapedGlyphSequencePtr shape_bidirectional_text(const DoDoUtf8String& in_text, const int32_t in_text_start, const int32_t in_text_len, const FSlateFontInfo& in_font_info, const float in_font_scale, const TextBiDi::ETextDirection in_base_direction, const ETextShapingMethod in_text_shaping_method) const;
+
 	public:
 		/*
 		 * updates the texture used for rendering
@@ -584,6 +604,16 @@ namespace DoDo
 		 * @return the largest character height
 		 */
 		uint16_t get_max_character_height(const FSlateFontInfo& in_font_info, float font_scale) const;
+
+		/*
+		* returns the baseline for the specified font
+		* 
+		* @param InFontInfo a descriptor of the font to get character size for
+		* @param FontScale the scale to apply to the font
+		* 
+		* @return the offset from the bottom of the max character height to the baseline
+		*/
+		int16_t get_base_line(const FSlateFontInfo& in_font_info, float font_scale) const;
 	private:
 		/*
 		* clears all cached data from the cache

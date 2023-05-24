@@ -23,6 +23,20 @@ namespace DoDo
 
 	}
 
+	int16_t FSlateFontMeasure::get_base_line(const FSlateFontInfo& in_font_info, float font_scale) const
+	{
+		FCharacterList& character_list = m_font_cache->get_character_list(in_font_info, font_scale);
+
+		return character_list.get_base_line();
+	}
+
+	uint16_t FSlateFontMeasure::get_max_character_height(const FSlateFontInfo& in_font_info, float font_scale) const
+	{
+		FCharacterList& character_list = m_font_cache->get_character_list(in_font_info, font_scale);
+
+		return character_list.get_max_height();
+	}
+
 	glm::vec2 FSlateFontMeasure::measure_string_internal(const DoDoUtf8String& text, int32_t start_index,
 		int32_t end_index, const FSlateFontInfo& in_font_info, bool include_kerning_with_preceding_char,
 		float font_scale, int32_t stop_after_horizontal_offset, ELastCharacterIndexFormat char_index_format,

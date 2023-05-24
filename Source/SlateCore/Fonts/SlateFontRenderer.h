@@ -56,6 +56,11 @@ namespace DoDo
 		uint16_t get_max_height(const FSlateFontInfo& in_font_info, const float in_scale) const;
 
 		/*
+		* @return the baseline for any character in the default font
+		*/
+		int16_t get_base_line(const FSlateFontInfo& in_font_info, const float in_scale) const;
+
+		/*
 		* creates render data for a specific character
 		* 
 		* @param InFontData raw font data to render the character with

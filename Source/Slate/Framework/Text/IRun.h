@@ -117,5 +117,9 @@ namespace DoDo {
 		virtual std::shared_ptr<ILayoutBlock> create_block(int32_t start_index, int32_t end_index, glm::vec2 size, const FLayoutBlockTextContext& text_context) = 0;
 
 		virtual FTextRange get_text_range() const = 0;
+		virtual int16_t get_base_line(float scale) const = 0;
+		virtual int16_t get_max_height(float scale) const = 0;
+
+		virtual glm::vec2 measure(int32_t start_index, int32_t end_index, float scale, const FRunTextContext& text_context) const = 0;
 	};
 }

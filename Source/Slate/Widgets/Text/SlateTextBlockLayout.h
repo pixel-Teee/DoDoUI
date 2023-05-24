@@ -25,8 +25,8 @@ namespace DoDo {
 				const DoDoUtf8String& in_highlight_text,
 				const float in_wrap_text_at,
 				const bool in_auto_wrap_text,
-				const ETextWrappingPolicy in_wrapping_policy,
-				const ETextTransformPolicy in_transform_policy,
+				const ETextWrappingPolicy in_wrapping_policy, //wrap policy
+				const ETextTransformPolicy in_transform_policy, //upper or lower
 				const FMargin& in_margin,
 				const float in_line_height_percentage,
 				const ETextJustify::Type in_justification

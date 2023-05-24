@@ -18,6 +18,12 @@ namespace DoDo {
 
 		virtual FTextRange get_text_range() const override;
 
+		virtual int16_t get_base_line(float scale) const override;
+
+		virtual int16_t get_max_height(float scale) const override;
+
+		virtual glm::vec2 measure(int32_t start_index, int32_t end_index, float scale, const FRunTextContext& text_context) const override;
+
 		virtual int32_t On_Paint(const FPaintArgs& paint_args, const FTextArgs& text_args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect,
 			FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
 

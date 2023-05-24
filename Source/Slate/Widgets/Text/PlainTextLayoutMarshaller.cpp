@@ -22,7 +22,7 @@ namespace DoDo {
 		const FTextBlockStyle& default_text_style = static_cast<FSlateTextLayout&>(target_text_layout).get_default_text_style();
 
 		std::vector<FTextRange> line_ranges;
-		FTextRange::calculate_line_ranges_from_string(source_string, line_ranges);
+		FTextRange::calculate_line_ranges_from_string(source_string, line_ranges); //interms of \r\n to split one line string to multiple string, record in FTextRange
 
 		std::vector<FTextLayout::FNewLineData> lines_to_add;
 		lines_to_add.reserve(line_ranges.size());
@@ -31,6 +31,7 @@ namespace DoDo {
 		{
 			const FTextRange& line_range = line_ranges[line_index];
 
+			//get one line
 			std::shared_ptr<DoDoUtf8String> line_text = std::make_shared<DoDoUtf8String>(const_cast<DoDoUtf8String&>(source_string).sub_str(line_range.m_begin_index, line_range.len()));
 
 			std::vector<std::shared_ptr<IRun>> runs;

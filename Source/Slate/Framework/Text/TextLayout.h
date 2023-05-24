@@ -39,6 +39,10 @@ namespace DoDo {
 		};
 	}
 
+	/*
+	* the different directions that text can flow within a paragraph of text
+	* @note if you change this enum, make sure and update CVarDefaultTextFlowDirection and GetDefaultTextFlowDirection
+	*/
 	enum class ETextFlowDirection : uint8_t
 	{
 		Auto = 0,
@@ -48,10 +52,15 @@ namespace DoDo {
 		RightToLeft
 	};
 
+	/*
+	* the different methods that can be used if a word is too long to be broken by the default line-break iterator
+	*/
 	enum class ETextWrappingPolicy : uint8_t
 	{
+		/*no fallback, just use the given line-break iterator*/
 		DefaultWrapping = 0,
 
+		/*fallback to per-character wrapping a word is too long*/
 		AllowPerCharacterWrapping
 	};
 
@@ -60,6 +69,7 @@ namespace DoDo {
 	class FTextLayout : public std::enable_shared_from_this<FTextLayout>
 	{
 	public:
+		FTextLayout();
 
 		struct FBlockDefinition
 		{
@@ -78,6 +88,10 @@ namespace DoDo {
 			std::shared_ptr<IRun> get_run() const;
 
 			FTextRange get_text_range() const;
+
+			int16_t get_base_line(float scale) const;
+
+			int16_t get_max_height(float scale) const;
 
 			std::shared_ptr<ILayoutBlock> create_block(const FTextLayout::FBlockDefinition& block_define, float in_scale, const FLayoutBlockTextContext& in_text_context) const;
 		private:
@@ -164,6 +178,7 @@ namespace DoDo {
 
 		const std::vector<FTextLayout::FLineModel>& get_line_models() const { return m_line_models; }
 	private:
+		float get_wrapping_draw_width() const;
 
 		void flow_layout();
 
@@ -173,6 +188,33 @@ namespace DoDo {
 			const std::optional<float>& justification_width, int32_t& out_run_index, int32_t& out_renderer_index, int32_t& out_previous_block_end, std::vector<std::shared_ptr<ILayoutBlock>>& out_soft_line);
 
 	protected:
+		struct FTextLayoutSize
+		{
+			FTextLayoutSize()
+				: m_draw_width(0.0f)
+				, m_wrapped_width(0.0f)
+				, m_height(0.0f)
+			{}
+
+			glm::vec2 get_draw_size() const
+			{
+				return glm::vec2(m_draw_width, m_height);
+			}
+
+			glm::vec2 get_wrapped_size() const
+			{
+				return glm::vec2(m_wrapped_width, m_height);
+			}
+
+			/*width of text layout, including any lines which extend beyond the wrapping boundaries (eg, lines with lots of trailing whitespace, or lines with no break candidates)*/
+			float m_draw_width;
+
+			/*width of text layout after the text has been wrapped, and including the first piece of trailing whitespace for any given soft-wrapped line*/
+			float m_wrapped_width;
+
+			/*height of the text layout*/
+			float m_height;
+		};
 
 		/*
 		* calculates the visual justification for the given line view
@@ -191,7 +233,13 @@ namespace DoDo {
 		/*the scale to draw the text at*/
 		float m_scale;
 
+		/*the width that the text should be wrap at, if 0 or negative no wrapping occurs*/
+		float m_wrapping_width;
+
 		/*how the text should be aligned with the margin*/
 		ETextJustify::Type m_justification;
+
+		/*the final size of the text layout on screen*/
+		FTextLayoutSize m_text_layout_size;
 	};
 }

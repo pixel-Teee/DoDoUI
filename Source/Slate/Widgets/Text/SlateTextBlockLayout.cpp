@@ -13,7 +13,14 @@ namespace DoDo {
 	FSlateTextBlockLayout::FSlateTextBlockLayout(SWidget* in_owner, FTextBlockStyle in_default_text_style, const std::optional<ETextShapingMethod> in_text_shaping_method, const std::optional<ETextFlowDirection> in_text_flow_direction, std::shared_ptr<ITextLayoutMarshaller> in_marshaller)
 		: m_text_layout(FSlateTextLayout::Create(in_owner, std::move(in_default_text_style)))
 		, m_marshaller(std::move(in_marshaller))
+		, m_cache_wrap_text_at(0)
+		, m_cached_auto_wrap_text(false)
 	{
+		//todo:add set text shaping method
+
+		//todo:add set text flow direction
+
+		//todo:add set line break iterator
 	}
 	glm::vec2 FSlateTextBlockLayout::get_desired_size() const
 	{
@@ -58,6 +65,6 @@ namespace DoDo {
 		
 		//todo:clear
 
-		m_marshaller->set_text(in_text, *m_text_layout);
+		m_marshaller->set_text(in_text, *m_text_layout); //note:populate the line model and line view
 	}
 }

@@ -34,4 +34,9 @@ namespace DoDo {
 		return m_location_offset;
 	}
 
+	void FDefaultLayoutBlock::set_location_offset(const glm::vec2& in_location_offset)
+	{
+		m_location_offset = in_location_offset;
+	}
+
 }

@@ -24,6 +24,10 @@ namespace DoDo
 
 		FSlateFontMeasure(const std::shared_ptr<FSlateFontCache>& in_font_cache);
 
+		int16_t get_base_line(const FSlateFontInfo& in_font_info, float font_scale) const;
+
+		uint16_t get_max_character_height(const FSlateFontInfo& in_font_info, float font_scale) const;
+
 	private:
 		enum ELastCharacterIndexFormat
 		{

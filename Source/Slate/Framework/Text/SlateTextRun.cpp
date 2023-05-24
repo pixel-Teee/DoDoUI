@@ -20,6 +20,8 @@
 
 #include "Slate/Framework/Text/ShapedTextCache.h"//ShapedTextCacheUtil depends on it
 
+#include "SlateCore/Fonts/FontMeasure.h"//FSlateFontMeasure depends on it
+
 namespace DoDo {
 	FSlateTextRun::~FSlateTextRun()
 	{
@@ -40,6 +42,27 @@ namespace DoDo {
 	FTextRange FSlateTextRun::get_text_range() const
 	{
 		return m_range;
+	}
+	int16_t FSlateTextRun::get_base_line(float scale) const
+	{
+		const std::shared_ptr<FSlateFontMeasure> font_measure = Application::get().get_renderer()->get_font_measure_service();
+		return font_measure->get_base_line(m_style.m_font, scale);//todo:add shadow offset
+	}
+	int16_t FSlateTextRun::get_max_height(float scale) const
+	{
+		const std::shared_ptr<FSlateFontMeasure> font_measure = Application::get().get_renderer()->get_font_measure_service();
+		return font_measure->get_max_character_height(m_style.m_font, scale);
+	}
+	glm::vec2 FSlateTextRun::measure(int32_t start_index, int32_t end_index, float scale, const FRunTextContext& text_context) const
+	{
+		if (end_index - start_index == 0)
+		{
+			return glm::vec2(0, get_max_height(scale));
+		}
+
+		//use the full text range (rather than the run range), so that text that spans will still be shaped correctly
+		return ShapedTextCacheUtil::measure_shaped_text(text_context.m_shaped_text_cache, FCachedShapedTextKey(FTextRange(0, m_text->get_length()), scale, text_context, m_style.m_font),
+			FTextRange(start_index, end_index), *m_text);
 	}
 	int32_t FSlateTextRun::On_Paint(const FPaintArgs& paint_args, const FTextArgs& text_args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{

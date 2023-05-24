@@ -36,6 +36,8 @@ namespace DoDo {
 
 		virtual glm::vec2 get_location_offset() const override;
 
+		virtual void set_location_offset(const glm::vec2& in_location_offset) override;
+
 	private:
 		std::shared_ptr<IRun> m_run;
 

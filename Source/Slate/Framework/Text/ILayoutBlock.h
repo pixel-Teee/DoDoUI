@@ -28,5 +28,7 @@ namespace DoDo {
 		virtual std::shared_ptr<IRunRenderer> get_renderer() const = 0;
 
 		virtual glm::vec2 get_location_offset() const = 0;
+
+		virtual void set_location_offset(const glm::vec2& in_location_offset) = 0;
 	};
 }
