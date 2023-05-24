@@ -201,7 +201,7 @@ namespace DoDo {
 				}
 			};
 
-			const int32_t text_end_index = in_text_start + in_text_len;
+			const int32_t text_end_index = in_text_start + in_text_len - 1; //todo:skip \0
 			for (; running_text_index < text_end_index; ++running_text_index)
 			{
 				DoDoUtf8String current_char = in_text.utf8_at(running_text_index); //todo:fix me, use const
@@ -244,7 +244,7 @@ namespace DoDo {
 
 		//step 2) now we use the font cache to get the size for each character, and kerning for each character pair
 		{
-			out_glyphs_to_render.resize(out_glyphs_to_render.size() + in_text_len);
+			//out_glyphs_to_render.resize(out_glyphs_to_render.size() + in_text_len);
 
 			for (const FKerningOnlyTextSequenceEntry& kerning_only_text_sequence_entry : kerning_only_text_sequence)
 			{

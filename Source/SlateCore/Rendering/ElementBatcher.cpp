@@ -848,7 +848,7 @@ namespace DoDo
 		build_context.m_text_base_line = text_base_line;
 		build_context.m_max_height = max_height;
 
-		if (max_height)
+		if (max_height == 0)
 		{
 			//if the max text height is 0, we'll create NaN's further in the code, so avoid drawing text if this happens
 			return;

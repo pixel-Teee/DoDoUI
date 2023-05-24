@@ -57,6 +57,8 @@ namespace DoDo
 		{
 			m_constant_buffers[i].create(allocator);//create buffer, todo:destroy buffer
 		}
+
+		m_texture_manager = in_texture_manager;
 	}
 
 	FSlateVulkanRenderingPolicy::~FSlateVulkanRenderingPolicy()
