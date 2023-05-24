@@ -40,4 +40,5 @@ namespace DoDo {
 		*/
 		std::unique_ptr<ITextBiDi> create_text_bidi();
 	}
+
 }

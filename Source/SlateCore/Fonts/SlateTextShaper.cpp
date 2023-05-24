@@ -244,7 +244,7 @@ namespace DoDo {
 
 		//step 2) now we use the font cache to get the size for each character, and kerning for each character pair
 		{
-			//out_glyphs_to_render.resize(out_glyphs_to_render.size() + in_text_len);
+			out_glyphs_to_render.reserve(out_glyphs_to_render.size() + in_text_len);
 
 			for (const FKerningOnlyTextSequenceEntry& kerning_only_text_sequence_entry : kerning_only_text_sequence)
 			{
@@ -294,7 +294,7 @@ namespace DoDo {
 							}
 						}
 
-						out_glyphs_to_render.emplace_back();
+						out_glyphs_to_render.push_back(FShapedGlyphEntry());
 
 						const int32_t current_glyph_entry_index = out_glyphs_to_render.size() - 1;
 

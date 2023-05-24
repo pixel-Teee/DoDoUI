@@ -77,6 +77,8 @@ namespace DoDo {
 		glm::vec2 Compute_Desired_Size(const FWidgetDesiredSizeArgs& in_widget_args, const float in_scale, const FTextBlockStyle& in_text_style);
 	private:
 
+		/*calculate the wrapping width based on the given fixed wrap width, and whether we're auto-wrapping*/
+		float calculate_wrapping_width() const;
 
 		/*updates the text layout to contain the given text*/
 		void update_text_layout(const DoDoUtf8String& in_text);
@@ -86,6 +88,9 @@ namespace DoDo {
 
 		/*the marshaller used to get/set the text to/from the text layout*/
 		std::shared_ptr<ITextLayoutMarshaller> m_marshaller;
+
+		/*the last known size of the layout from the previous on paint, used to guess to an auto-wrapping width in compute desired size*/
+		glm::vec2 m_cached_size;
 
 		/*cache where to wrap text at?*/
 		float m_cache_wrap_text_at;

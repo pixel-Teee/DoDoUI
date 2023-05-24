@@ -20,5 +20,14 @@ namespace DoDo {
 		* populate the string from the text layout
 		*/
 		virtual void get_text(const DoDoUtf8String& source_string, FTextLayout& source_text_layout) = 0;
+
+		/*
+		* mark this text layout as dirty (eg, because some settings have changed)
+		*/
+		virtual void make_dirty() = 0;
+
+		virtual void clear_dirty() = 0;
+
+		virtual bool is_dirty() const = 0;
 	};
 }

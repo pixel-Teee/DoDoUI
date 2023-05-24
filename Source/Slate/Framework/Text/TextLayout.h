@@ -107,7 +107,15 @@ namespace DoDo {
 		float get_scale() const { return m_scale; }
 		void set_scale(float value);
 
+		float get_wrapping_width() const { return m_wrapping_width; }
+		void set_wrapping_width(float value);
+
+		ETextTransformPolicy get_transform_policy() const { return m_transform_policy; }
+		void set_transform_policy(ETextTransformPolicy value);
+
 		//const FTextBlockStyle& get_default_text_style() const;
+
+		void clear_lines();
 
 		struct FNewLineData
 		{
@@ -139,10 +147,10 @@ namespace DoDo {
 		public:
 			FLineModel(const std::shared_ptr<DoDoUtf8String>& in_text);
 
-			std::shared_ptr<DoDoUtf8String> m_text;
+			std::shared_ptr<DoDoUtf8String> m_text; 
 			//todo:add FShapedTextCacheRef and TextBiDi
 
-			FShapedTextCachePtr m_shaped_text_cache;
+			FShapedTextCachePtr m_shaped_text_cache;//note:this is important, FLineModel holds the life time of this
 
 			TextBiDi::ETextDirection m_text_base_direction;
 
@@ -177,6 +185,11 @@ namespace DoDo {
 		};
 
 		const std::vector<FTextLayout::FLineModel>& get_line_models() const { return m_line_models; }
+	protected:
+		/*
+		* clears the current layout view information
+		*/
+		void clear_view();
 	private:
 		float get_wrapping_draw_width() const;
 
@@ -226,6 +239,10 @@ namespace DoDo {
 
 		/*the views for the lines of text, a line view represents a single visual line of text, multiple line views can map to the same line model, if for example wrapping occurs*/
 		std::vector<FLineView> m_line_views;
+
+		ETextWrappingPolicy m_wrapping_policy;
+
+		ETextTransformPolicy m_transform_policy;
 
 		/*override for the text overflow policy, if unset, the style is used*/
 		std::optional<ETextOverflowPolicy> m_text_overflow_policy_override;

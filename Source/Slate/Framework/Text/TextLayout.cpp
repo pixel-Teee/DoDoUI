@@ -17,6 +17,10 @@
 namespace DoDo {
 	FTextLayout::FTextLayout()
 		: m_wrapping_width(0)
+		, m_transform_policy(ETextTransformPolicy::None)
+		, m_wrapping_policy(ETextWrappingPolicy::DefaultWrapping)
+		, m_scale(1.0f)
+		, m_justification(ETextJustify::Left)
 	{
 	}
 	FTextLayout::~FTextLayout()
@@ -37,6 +41,33 @@ namespace DoDo {
 
 			//todo:mark dirty
 		}
+	}
+
+	void FTextLayout::set_wrapping_width(float value)
+	{
+		const bool was_wrapping = m_wrapping_width > 0.0f;
+		const bool is_wrapping = value > 0.0f;
+
+		if (m_wrapping_width != value)
+		{
+			m_wrapping_width = value;
+
+			//todo:mark dirty
+		}
+	}
+
+	void FTextLayout::set_transform_policy(ETextTransformPolicy value)
+	{
+		if (m_transform_policy != value)
+		{
+			m_transform_policy = value;
+		}
+	}
+
+	void FTextLayout::clear_lines()
+	{
+		m_line_models.clear();
+		clear_view();
 	}
 
 	void FTextLayout::add_lines(const std::vector<FNewLineData>& new_lines)
@@ -82,6 +113,12 @@ namespace DoDo {
 
 			}
 		}
+	}
+
+	void FTextLayout::clear_view()
+	{
+		m_text_layout_size = FTextLayoutSize();
+		m_line_views.clear();
 	}
 
 	float FTextLayout::get_wrapping_draw_width() const
@@ -287,6 +324,10 @@ namespace DoDo {
 		}
 
 		//todo:modify text layout size
+
+		m_text_layout_size.m_draw_width = std::max(m_text_layout_size.m_draw_width, line_size.x);//draw width is the size of the longest line + the margin
+		m_text_layout_size.m_wrapped_width = std::max(m_text_layout_size.m_wrapped_width, (stop_index == -1) ? line_size.x : m_wrapping_width);//wrapped width is the size of the longest line + any trailing whitespace width
+		m_text_layout_size.m_height += line_size.y;//height is the total height of all lines
 	}
 	ETextJustify::Type FTextLayout::calculate_line_view_visual_justification(const FLineView& line_view) const
 	{

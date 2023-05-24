@@ -310,9 +310,22 @@ namespace DoDo
 			}
 		}
 
+
+
 		//not cached on the glyph, so create a key for to look up this glyph, as it may
 		//have already been cached by another shaped text sequence
 		const FShapedGlyphEntryKey glyph_key(*in_shaped_glyph.m_font_face_data, in_shaped_glyph.m_graph_index, in_outline_settings);
+
+		//has the atlas data already been cached by another shaped text sequence?
+		auto it = m_shaped_glyph_to_atlas_data.find(glyph_key);
+		if (it != m_shaped_glyph_to_atlas_data.end())
+		{
+			const std::shared_ptr<FShapedGlyphFontAtlasData> found_atlas_data = it->second;
+
+			in_shaped_glyph.m_cached_atlas_data[cached_type_index][cached_atlas_data_thread_index] = found_atlas_data;
+			return *found_atlas_data;
+		}
+
 		{
 			//not cached at all... create a new entry
 			std::shared_ptr<FShapedGlyphFontAtlasData> new_atlas_data = std::make_shared<FShapedGlyphFontAtlasData>();

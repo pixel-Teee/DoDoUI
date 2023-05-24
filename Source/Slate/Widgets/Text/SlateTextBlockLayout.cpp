@@ -40,7 +40,14 @@ namespace DoDo {
 
 		//set the layout information
 		m_text_layout->set_scale(in_scale);
+		m_text_layout->set_wrapping_width(calculate_wrapping_width());
 		//todo:set wrapping width
+
+		//has the transform policy changed? if so we need a full refresh as that is destructive to the model text
+		if (previous_transform_policy != m_text_layout->get_transform_policy())
+		{
+			m_marshaller->make_dirty();
+		}
 
 		{
 			bool b_requires_text_update = true;
@@ -48,7 +55,7 @@ namespace DoDo {
 			
 			//todo:add FTextSnapShot
 
-			if (b_requires_text_update)
+			if (b_requires_text_update || m_marshaller->is_dirty())
 			{
 				update_text_layout(text_to_set);
 			}
@@ -59,10 +66,22 @@ namespace DoDo {
 
 		return m_text_layout->get_size();
 	}
+	float FSlateTextBlockLayout::calculate_wrapping_width() const
+	{
+		float wrapping_width = m_cache_wrap_text_at;
+
+		if (m_cached_auto_wrap_text && m_cached_size.x >= 1.0f)
+		{
+			wrapping_width = (wrapping_width >= 1.0f) ? std::min(wrapping_width, m_cached_size.x) : m_cached_size.x;
+		}
+
+		return std::max(0.0f, wrapping_width);
+	}
 	void FSlateTextBlockLayout::update_text_layout(const DoDoUtf8String& in_text)
 	{
 		//update_text_layout(in_text);
-		
+		m_marshaller->clear_dirty();
+		m_text_layout->clear_lines();
 		//todo:clear
 
 		m_marshaller->set_text(in_text, *m_text_layout); //note:populate the line model and line view
