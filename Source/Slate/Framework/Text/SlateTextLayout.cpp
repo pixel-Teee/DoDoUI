@@ -26,6 +26,10 @@ namespace DoDo {
 		, m_children(in_owner, false)
 	{
 	}
+	void FSlateTextLayout::set_default_text_style(FTextBlockStyle in_default_text_style)
+	{
+		m_default_text_style = std::move(in_default_text_style);
+	}
 	const FTextBlockStyle& FSlateTextLayout::get_default_text_style() const
 	{
 		return m_default_text_style;

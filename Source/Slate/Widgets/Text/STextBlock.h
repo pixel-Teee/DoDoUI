@@ -103,6 +103,9 @@ namespace DoDo
 		/*gets the current font*/
 		FSlateFontInfo get_font() const;
 	private:
+		/*gets the computed text style to use with the text marshaller*/
+		FTextBlockStyle get_computed_text_style() const;
+
 		/*the text displayed in this text block*/
 		TSlateAttribute<DoDoUtf8String> m_bound_text;
 

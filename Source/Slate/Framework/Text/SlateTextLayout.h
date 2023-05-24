@@ -13,6 +13,8 @@ namespace DoDo {
 
 		FSlateTextLayout(SWidget* in_owner, FTextBlockStyle in_default_text_style);
 
+		void set_default_text_style(FTextBlockStyle in_default_text_style);
+
 		const FTextBlockStyle& get_default_text_style() const;
 
 		virtual void update_if_needed();

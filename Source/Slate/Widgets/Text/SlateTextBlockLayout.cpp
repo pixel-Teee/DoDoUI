@@ -49,6 +49,9 @@ namespace DoDo {
 			m_marshaller->make_dirty();
 		}
 
+		//has the style used for this text block changed?
+		m_text_layout->set_default_text_style(in_text_style);
+
 		{
 			bool b_requires_text_update = true;
 			const DoDoUtf8String& text_to_set = in_widget_args.m_text;

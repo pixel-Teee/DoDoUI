@@ -135,7 +135,7 @@ namespace DoDo
 					m_justification.Get()
 				),
 				Layout_Scale_Multiplier,
-				m_text_style //todo:modify this as get computed text style
+				get_computed_text_style() //todo:modify this as get computed text style
 			);
 
 			return glm::vec2(text_size.x, text_size.y);//todo:add min desired width
@@ -165,5 +165,14 @@ namespace DoDo
 	FSlateFontInfo STextBlock::get_font() const
 	{
 		return m_b_is_attribute_font_set ? m_font.Get() : m_text_style.m_font;
+	}
+	FTextBlockStyle STextBlock::get_computed_text_style() const
+	{
+		FTextBlockStyle computed_style = m_text_style;
+		computed_style.set_font(get_font());
+
+		computed_style.set_color_and_opacity(get_color_and_opacity());
+		
+		return computed_style;
 	}
 }
