@@ -354,11 +354,11 @@ namespace DoDo {
 		char* new_buffer = new char[m_count + character.m_count - 1];//new buffer
 
 		//copy original 
-		memcpy(new_buffer, m_buffer, index - 1);//todo:may be error
+		memcpy(new_buffer, m_buffer, index);
 
-		memcpy(new_buffer, character.m_buffer, character.m_count - 1);
+		memcpy(new_buffer + index, character.m_buffer, character.m_count - 1);
 
-		memcpy(new_buffer, m_buffer + index + character.m_count, m_count - index);
+		memcpy(new_buffer + index + character.m_count, m_buffer + index + character.m_count, m_count - index);
 
 		delete m_buffer;
 		m_len = 0;

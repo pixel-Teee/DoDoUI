@@ -149,6 +149,40 @@ namespace DoDo
 	};
 
 	/*
+	* FFocusEvent is used when notifying widgets about keyboard focus changes
+	* it is passed to event handlers dealing with keyboard focus
+	*/
+	struct FFocusEvent
+	{
+	public:
+		FFocusEvent()
+			: m_cause(EFocusCause::SetDirectly)
+			, m_user_index(0)
+		{}
+
+		FFocusEvent(const EFocusCause in_cause, uint32_t in_user_index)
+			: m_cause(in_cause)
+			, m_user_index(in_user_index)
+		{}
+
+		EFocusCause get_cause() const
+		{
+			return m_cause;	
+		}
+
+		uint32_t get_user() const
+		{
+			return m_user_index;
+		}
+	private:
+		/*the cause of the focus change*/
+		EFocusCause m_cause;
+
+		/*user that is changing focus*/
+		uint32_t m_user_index;
+	};
+
+	/*
 	* FCharacterEvent describes a keyboard action where the utf8 code is given, used for on key char messages
 	*/
 	struct FCharacterEvent : public FInputEvent

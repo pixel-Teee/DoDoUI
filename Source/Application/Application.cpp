@@ -74,7 +74,7 @@
 
 #include "SlateCore/Input/DragAndDrop.h"//FDragDropOperation depends on it
 
-#include "Slate/Widgets/Input/SEditableText.h"
+#include "Slate/Widgets/Input/SEditableTextBox.h"
 
 namespace DoDo
 {
@@ -85,6 +85,8 @@ namespace DoDo
     const uint32_t Application::m_cursor_pointer_index = 10;
 
     const uint32_t Application::m_cursor_user_index = 0;
+
+	std::shared_ptr<SEditableTextBox> m_test_widget;
 
     class FEventRouter
     {
@@ -973,6 +975,8 @@ namespace DoDo
     void Application::Tick()
     {
         const float delta_time = get_delta_time();
+
+		set_user_focus(0, m_test_widget, EFocusCause::SetDirectly);
         //todo:implement TickPlatform
         //TickPlatform is just something to handle message
         tick_platform(delta_time);
@@ -1869,10 +1873,59 @@ namespace DoDo
     {
         //todo:Add more logic
 
+        //get the old widget information
+        const FWeakWidgetPath old_focused_widget_path = user.get_weak_focus_path();
+        std::shared_ptr<SWidget> old_focused_widget = old_focused_widget_path.is_valid() ? old_focused_widget_path.get_last_widget().lock() : std::shared_ptr<SWidget>();
+
+        //get the new widget information by finding the first widget in the path that supports focus
+        FWidgetPath new_focused_widget_path;
+        std::shared_ptr<SWidget> new_focused_widget;
+
+        if (in_focus_path.is_valid())
+        {
+            for (int32_t widget_index = in_focus_path.m_widgets.num() - 1; widget_index >= 0; --widget_index)
+            {
+                const FArrangedWidget& widget_to_focus = in_focus_path.m_widgets[widget_index];
+
+                //check supports key board focus
+                if (widget_to_focus.m_widget->supports_key_board_focus())
+                {
+                    //is we aren't changing focus then simply return
+                    if (widget_to_focus.m_widget == old_focused_widget)
+                    {
+                        return false;
+                    }
+
+                    new_focused_widget = widget_to_focus.m_widget;
+                    new_focused_widget_path = in_focus_path.get_path_down_to(new_focused_widget);
+                    break;
+                }
+            }
+        }
+
+        FFocusEvent focus_event(in_cause, user.get_user_index());
+
         //store a weak widget path to the widget that's taking focus
-        user.set_focus_path(in_focus_path, in_cause, false);
+        user.set_focus_path(new_focused_widget_path, in_cause, true);//todo:fix me
+
+        //let the new widget know that it's received keyboard focus
+        if (new_focused_widget)
+        {
+            std::shared_ptr<SWindow> focused_window = new_focused_widget_path.get_window();
+
+            const FArrangedWidget& widget_to_focus = new_focused_widget_path.m_widgets.last();
+
+            FReply reply = new_focused_widget->On_Focus_Received(widget_to_focus.m_geometry, focus_event);
+
+            if (reply.is_event_handled())
+            {
+                process_reply(in_focus_path, reply, nullptr, nullptr, user.get_user_index());
+            }
+        }
 
         //todo:call on_focus_received, this will set focus on FReply
+
+        return true;
     }
 
     DoDoUtf8String Application::calculate_frame_per_second() const
@@ -2080,11 +2133,16 @@ namespace DoDo
                           ]
                           + SConstraintCanvas::Slot()
                           .Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
-                          .Offset(FMargin(0.0f, 0.0f, 200.0f, 80.0f))//position and size
+                          .Offset(FMargin(300.0f, 0.0f, 200.0f, 80.0f))//position and size
                           .Alignment(glm::vec2(0.5f, 0.5f))
                           .AutoSize(false)//todo:use fix size
                           [
-                              SNew(SEditableText)
+                              SAssignNew(m_test_widget, SEditableTextBox)
+                              .Text(u8"测试")
+							  //SNew(SSlider)
+							  //.MaxValue(1.0f)
+							  //.MinValue(0.0f)
+							  //.IndentHandle(true)
                           ]
                       ]
                    ]
@@ -2314,9 +2372,12 @@ namespace DoDo
         //set focus if requested
         std::shared_ptr<SWidget> requested_focus_recepient = the_reply.get_user_focus_recepient();
 
-        //if(the_reply)
+        if (requested_focus_recepient)
+        {
+            slate_user->set_focus(requested_focus_recepient, the_reply.get_focus_cause());
+        }
 
-        slate_user->set_focus(requested_focus_recepient, the_reply.get_focus_cause());
+        //if(the_reply)        
     }
 
     void Application::set_cursor_pos(const glm::vec2 mouse_coordinate)
@@ -2452,7 +2513,8 @@ namespace DoDo
 
     bool Application::On_Key_Char(const DoDoUtf8String character, const bool is_repeat)
     {
-        FCharacterEvent character_event(character, s_platform_application->get_modifier_keys(), 0, is_repeat);
+        //todo:modify this user index
+        FCharacterEvent character_event(character, s_platform_application->get_modifier_keys(), get_cursor_user()->get_user_index(), is_repeat);
 
         return process_key_char_event(character_event);
     }

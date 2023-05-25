@@ -98,6 +98,17 @@ namespace DoDo
 			return m_array.clear();
 		}
 
+		/*reverse the order of the arranged children*/
+		void reverse()
+		{
+			int32_t last_element_index = m_array.size() - 1;
+			for (int32_t widget_index = 0; widget_index < m_array.size() / 2; ++widget_index)
+			{
+				//m_array.swap(widget_index, last_element_index - widget_index);
+				std::swap(m_array[widget_index], m_array[last_element_index - widget_index]);//todo:fix me
+			}
+		}
+
 		template<typename PredicateType>
 		int32_t index_of_by_predicate(const PredicateType& pred) const
 		{

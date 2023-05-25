@@ -61,6 +61,10 @@ namespace DoDo {
 	void SEditableText::On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const
 	{
 	}
+	bool SEditableText::supports_key_board_focus() const
+	{
+		return true;
+	}
 	std::shared_ptr<SWidget> SEditableText::get_slate_widget()
 	{
 		return shared_from_this();

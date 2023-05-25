@@ -113,6 +113,8 @@ namespace DoDo
 		FWidgetPath get_captor_path(uint32_t pointer_index, FWeakWidgetPath::EInterruptedPathHandling::Type interrupted_path_handling = FWeakWidgetPath::EInterruptedPathHandling::Truncate, const FPointerEvent* pointer_event = nullptr);
 		FWidgetPath get_cursor_captor_path(FWeakWidgetPath::EInterruptedPathHandling::Type interrupted_path_handling = FWeakWidgetPath::EInterruptedPathHandling::Truncate,
 			const FPointerEvent* pointer_event = nullptr);
+
+		const FWeakWidgetPath& get_weak_focus_path() const { return m_weak_focus_path; }
 	private:
 		
 		void update_pointer_position(uint32_t pointer_index, const glm::vec2& position);

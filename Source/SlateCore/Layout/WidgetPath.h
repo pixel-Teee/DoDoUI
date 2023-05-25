@@ -10,9 +10,26 @@
 
 #include "SlateCore/Input/Events.h"//FVirtualPointerPosition
 
+#include "SlateCore/Types/SlateEnums.h"//EUINavigation depends on it
+
 namespace DoDo
 {
 	class SWindow;
+
+	/*matches widgets against in widget*/
+	struct FWidgetMatcher
+	{
+		FWidgetMatcher(const std::shared_ptr<const SWidget> in_widget)
+			: m_widget_to_find(in_widget)
+		{}
+
+		bool is_match(const std::shared_ptr<const SWidget>& in_widget) const
+		{
+			return m_widget_to_find == in_widget;
+		}
+
+		std::shared_ptr<const SWidget> m_widget_to_find;
+	};
 	/*
 	 * a widget path is a vertical slice through the tree
 	 * the canonical form for widget paths is "leafmost last", the top-level window always resides at index 0
@@ -79,10 +96,50 @@ namespace DoDo
 		{
 			const FArrangedWidget& last_widget = m_widgets.last();
 
-			//FArrangedChildren extension = generate_path_to_widget(matcher, last_widget, )
+			FArrangedChildren extension = generate_path_to_widget(matcher, last_widget, EUINavigation::Next, visibility_filter);
 
-			return true;
+			for (int32_t widget_index = 0; widget_index < extension.num(); ++widget_index)
+			{
+				this->m_widgets.add_widget(extension[widget_index]);
+			}
+
+			return extension.num() > 0;
 		}
+
+		/*
+		* generate a path from From Widget to Widget To Find, the path will not include from widget
+		* 
+		* @param Matcher some struct that has a "bool is_match(const std::shared_ptr<const SWidget>& in_widget) const" method
+		* @param from widget widget from which we a building a path, add item
+		* @param visibility filter widgets must have this type of visibility to be included the path
+		* @return a path from from widget to widget to find, will not include from widget
+		*/
+		template<typename MatcherType>
+		FArrangedChildren generate_path_to_widget(const MatcherType& matcher, const FArrangedWidget& from_widget,
+			EUINavigation navigation_type = EUINavigation::Next, EVisibility visibility_filter = EVisibility::visible)
+		{
+			FArrangedChildren path_result(visibility_filter);
+
+			if (navigation_type == EUINavigation::Next)
+			{
+				search_for_widget_recursively(matcher, from_widget, path_result, visibility_filter);
+			}
+			else
+			{
+				//todo:fix this
+			}
+
+			//reverse the list of widgets we found, canonical from is leaf most last
+			path_result.reverse();
+
+			return path_result;
+		}
+	private:
+		/*
+		* utility function to search recursively through a widget hierarchy for a specific widget
+		*/
+		template<typename MatchRuleType>
+		static bool search_for_widget_recursively(const MatchRuleType& match_rule, const FArrangedWidget& in_candidate, FArrangedChildren& out_reversed_path, EVisibility visibility_filter = EVisibility::visible);
 	public:
 		/*the widgets that make up the widget path, the first item is the root widget, the end is the widget this path was built for*/
 		FArrangedChildren m_widgets;
@@ -160,4 +217,31 @@ namespace DoDo
 
 		std::weak_ptr<SWindow> m_window;
 	};
+
+	//todo:add widget path impl
+	template<typename MatchRuleType>
+	inline bool FWidgetPath::search_for_widget_recursively(const MatchRuleType& match_rule, const FArrangedWidget& in_candidate, FArrangedChildren& out_reversed_path, EVisibility visibility_filter)
+	{
+		const bool b_allow_3d_widgets = true;
+		const bool b_update_visibility_attributes = true;
+		FArrangedChildren arranged_children(visibility_filter, b_allow_3d_widgets);
+		in_candidate.m_widget->Arrange_Children(in_candidate.m_geometry, arranged_children, b_update_visibility_attributes);
+
+		for (int32_t child_index = 0; child_index < arranged_children.num(); ++child_index)
+		{
+			const FArrangedWidget& some_child = arranged_children[child_index];
+			if(match_rule.is_match(some_child.m_widget))
+			{
+				out_reversed_path.add_widget(some_child);
+				return true;
+			}
+			else if (search_for_widget_recursively(match_rule, some_child, out_reversed_path, visibility_filter))
+			{
+				out_reversed_path.add_widget(some_child);
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

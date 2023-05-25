@@ -134,6 +134,13 @@ namespace DoDo
 		virtual FChildren* Get_Children() = 0;
 
 		/*
+		* checks to see if this widget supports keyboard focus, override this in derived classes
+		* 
+		* @return true if this widget can take keyboard focus
+		*/
+		virtual bool supports_key_board_focus() const;
+
+		/*
 		 * compute the geometry of all the children and add populate the arranged children list with their values
 		 * each type of layout panel should arrange children based on desired behaviour
 		 *
@@ -386,6 +393,8 @@ namespace DoDo
 		 * @return the maximum layer id attained by this widget or any of it's children
 		 */
 		int32_t paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const;
+
+		virtual FReply On_Focus_Received(const FGeometry& my_geometry, const FFocusEvent& in_focus_event);
 
 		/*
 		* called after a character is entered while this widget has keyboard focus

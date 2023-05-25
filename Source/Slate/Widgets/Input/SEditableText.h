@@ -67,6 +67,8 @@ namespace DoDo {
 
 		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
 
+		virtual bool supports_key_board_focus() const override;
+
 		virtual std::shared_ptr<SWidget> get_slate_widget() override;
 
 	protected:

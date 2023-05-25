@@ -94,12 +94,12 @@ namespace DoDo
 			FWidgetPath path_to_widget(current_window, just_window);
 
 			//attempt to extend it to the desired child widget, essentially a full-window search for in widget
-			//if ((current_window == in_widget || path_to_widget.extend_path_to(, visibility_filter))) //todo:Add matcher
-			//{
-			//	out_widget_path = path_to_widget;
-			//
-			//	b_found_widget = true;
-			//}
+			if ((current_window == in_widget || path_to_widget.extend_path_to(FWidgetMatcher(in_widget), visibility_filter))) //todo:Add matcher
+			{
+				out_widget_path = path_to_widget;
+
+				b_found_widget = true;
+			}
 			
 			//todo:child windows
 		}

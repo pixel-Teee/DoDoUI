@@ -136,6 +136,11 @@ namespace DoDo {
 		On_Arrange_Children(allotted_geometry, arranged_children);
 	}
 
+	bool SWidget::supports_key_board_focus() const
+	{
+		return false;
+	}
+
 	void SWidget::set_visibility(TAttribute<EVisibility> in_visibility)
 	{
 		m_Visibility_Attribute.Assign(*this, std::move(in_visibility));
@@ -388,6 +393,11 @@ namespace DoDo {
 		}
 
 		return new_layer_id;
+	}
+
+	FReply SWidget::On_Focus_Received(const FGeometry& my_geometry, const FFocusEvent& in_focus_event)
+	{
+		return FReply::un_handled();
 	}
 
 	FReply SWidget::On_Key_Char(const FGeometry& my_geometry, const FCharacterEvent& in_character_event)
