@@ -115,6 +115,49 @@ namespace DoDo {
 		}
 	}
 
+	bool FTextLayout::insert_at(const FTextLocation& location, DoDoUtf8String character)
+	{
+		const int32_t insert_location = location.get_offset();
+		const int32_t line_index = location.get_line_index();
+
+		if (!(line_index >= 0 && line_index < m_line_models.size()))
+		{
+			return false;
+		}
+
+		FLineModel& line_model = m_line_models[line_index];
+
+		line_model.m_text->insert_at(insert_location, character);
+		//todo:add dirty mark
+
+		bool run_is_after_insert_location = false;
+		for (int32_t run_index = 0; run_index < line_model.m_runs.size(); ++run_index)
+		{
+			FRunModel& run_model = line_model.m_runs[run_index];
+
+			const FTextRange& run_range = run_model.get_text_range();
+
+			const bool b_is_last_run = run_index == line_model.m_runs.size() - 1;
+
+			if (run_range.contains(insert_location) || (b_is_last_run && !run_is_after_insert_location))
+			{
+				run_is_after_insert_location = true;
+
+				run_model.set_text_range(FTextRange(run_range.m_begin_index, run_range.m_end_index + 1));
+
+				//todo:add more logic
+			}
+			else if(run_is_after_insert_location)
+			{
+				FTextRange new_range = run_range;
+				new_range.offset(1);
+				run_model.set_text_range(new_range);
+			}
+		}
+
+		return true;
+	}
+
 	void FTextLayout::clear_view()
 	{
 		m_text_layout_size = FTextLayoutSize();
@@ -366,6 +409,10 @@ namespace DoDo {
 	FTextRange FTextLayout::FRunModel::get_text_range() const
 	{
 		return m_run->get_text_range();
+	}
+	void FTextLayout::FRunModel::set_text_range(const FTextRange& value)
+	{
+		m_run->set_text_range(value);
 	}
 	int16_t FTextLayout::FRunModel::get_base_line(float scale) const
 	{

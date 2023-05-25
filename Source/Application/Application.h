@@ -290,6 +290,14 @@ namespace DoDo
 		bool process_mouse_button_up_event(const FPointerEvent& mouse_event);
 
 		/*
+		* called when a character is entered
+		* 
+		* @param InCharacterEvent character event
+		* @return was this event handled by the slate application?
+		*/
+		bool process_key_char_event(const FCharacterEvent& in_character_event);
+
+		/*
 		* called by the native application in response to an activation or deactivation
 		* 
 		* @param ActivateEvent information about the window activation/deactivation
@@ -360,7 +368,9 @@ namespace DoDo
 
 		virtual bool On_Mouse_Up(const EMouseButtons::Type button, const glm::vec2 cursor_pos) override;
 
-		virtual bool On_Size_Changed(const std::shared_ptr<Window>& window, const int32_t width, const int32_t height, bool b_was_minimized = false);
+		virtual bool On_Key_Char(const DoDoUtf8String character, const bool is_repeat) override;
+
+		virtual bool On_Size_Changed(const std::shared_ptr<Window>& window, const int32_t width, const int32_t height, bool b_was_minimized = false) override;
 
 		virtual bool On_Window_Activation_Changed(const std::shared_ptr<Window>& window, const EWindowActivation activation_type) override;
 
@@ -407,6 +417,19 @@ namespace DoDo
 		std::shared_ptr<IMenu> push_menu(const std::shared_ptr<SWidget>& in_parent_widget, const FWidgetPath& in_owner_path, const std::shared_ptr<SWidget>& in_content,
 			const glm::vec2& summon_location, const FPopupTransitionEffect& transition_effect, const bool b_focus_immediately = true, const glm::vec2& summon_location_size = glm::vec2(0.0f),
 			std::optional<EPopupMethod> method = std::optional<EPopupMethod>(), const bool b_is_collapsed_by_parent = true);
+
+		/*
+		* sets speified user focus to the swidget passed in
+		* 
+		* @param user index index of the user to change focus for
+		* 
+		* @param widget to focus the widget to set focus on
+		* 
+		* @param reason focus is changing the contextual reason for the focus change
+		*/
+		bool set_user_focus(uint32_t user_index, const std::shared_ptr<SWidget>& widget_to_focus, EFocusCause reason_focus_is_changing = EFocusCause::SetDirectly);
+
+		void clear_user_focus(uint32_t user_index, EFocusCause reason_focus_is_changing = EFocusCause::SetDirectly);
 
 		/*
 		* destroy an SWindow, removing it and all its children from the slate window list, notifies the native window to destroy itself and releases rendering resources
@@ -493,6 +516,8 @@ namespace DoDo
 		//holds a pointer to the platform application
 		static std::shared_ptr<GenericApplication> s_platform_application;
 	private:
+
+		bool set_user_focus(FSlateUser& user, const FWidgetPath& in_focus_path, const EFocusCause in_cause);
 
 		/*delegate for pre slate tick*/
 		FSlateTickEvent m_pre_tick_event;

@@ -4,10 +4,15 @@
 
 #include <vector>
 
+#include "SlateCore/Layout/Visibility.h"//EVisibility
+
 namespace DoDo
 {
 	class SWindow;
 	class Window;
+	class SWidget;
+	class FWidgetPath;
+	struct EVisibility;
 	/*implements a manager for slate windows*/
 	class FSlateWindowHelper
 	{
@@ -45,6 +50,18 @@ namespace DoDo
 		* @param BringMeToFront the window to bring to front
 		*/
 		static void bring_window_to_front(std::vector<std::shared_ptr<SWindow>>& windows, const std::shared_ptr<SWindow>& bring_me_to_front);
+
+		/*
+		* searches for the specified widget and generates a full path to it
+		* 
+		* note: this is a relatively slow operation!
+		* 
+		* @param in widget widget to generate a path to
+		* @param OutWidgetPath the generated widget path
+		* @param VisibilityFilter widgets must have this type of visibility to be included the path
+		* @return true if the widget was found
+		*/
+		static bool find_path_to_widget(const std::vector<std::shared_ptr<SWindow>>& windows_to_search, std::shared_ptr<const SWidget> in_widget, FWidgetPath& out_widget_path, EVisibility visibility_filter = EVisibility::visible);
 
 	private:
 		/*

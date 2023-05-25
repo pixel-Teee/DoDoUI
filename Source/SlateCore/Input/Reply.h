@@ -4,6 +4,8 @@
 
 #include "Core/InputCore/InputCoreTypes.h"//FKey depends on it
 
+#include "Events.h"//EFocusCause
+
 namespace DoDo {
 	/*
 	* a reply is something that a slate event returns to the system to notify it about certain aspect of how an event was handled
@@ -97,6 +99,18 @@ namespace DoDo {
 
 		/*@return the mouse button for which we are detecting a drag*/
 		FKey get_detect_drag_request_button() const { return m_detect_drag_for_mouse_button; }
+
+		/*when not nullptr, user focus has been requested to be set on the FocusRecipient*/
+		std::shared_ptr<SWidget> get_user_focus_recepient() const { return m_focus_recipient.lock(); }
+
+		/*an event should return FReply::Handled().SetUserFocus(some widget) as a means of asking the system to set users focus to the provided widget*/
+		FReply& set_user_focus(std::shared_ptr<SWidget> give_me_focus, EFocusCause reason_focus_is_changing = EFocusCause::SetDirectly, bool b_in_all_users = false);
+
+		/*an event should return FReply::Handled().ClearUserFocus() to ask the system to clear user focus*/
+		FReply& clear_user_focus(EFocusCause reason_focus_is_changing, bool b_in_all_users);
+
+		/*get the reason that a focus change is being requested*/
+		EFocusCause get_focus_cause() const { return m_focus_change_reason; }
 	private:
 		/*
 		* hidden default constructor
@@ -105,15 +119,20 @@ namespace DoDo {
 			: TReplyBase<FReply>(b_Is_Handled)
 			, m_b_release_mouse_capture(false)
 			, m_b_end_drag_drop(false)
+			, m_b_set_user_focus(false)
+			, m_focus_change_reason(EFocusCause::SetDirectly)
 		{
 			//todo:m_mouse_captor is nullptr
 		}
 
 		std::weak_ptr<SWidget> m_mouse_captor;
+		std::weak_ptr<SWidget> m_focus_recipient;
 		std::weak_ptr<SWidget> m_detect_drag_for_widget;
+		EFocusCause m_focus_change_reason;
 		FKey m_detect_drag_for_mouse_button;
 		std::shared_ptr<FDragDropOperation> m_drag_drop_content;
 		uint32_t m_b_release_mouse_capture : 1;
 		uint32_t m_b_end_drag_drop : 1;
+		uint32_t m_b_set_user_focus : 1;
 	};
 }

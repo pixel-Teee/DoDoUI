@@ -49,6 +49,8 @@ namespace DoDo {
 
 		uint32_t utf8_code_at(size_t pos) const;
 
+		void insert_at(int32_t index, DoDoUtf8String character);//insert one character
+
 		//return c style string
 		const char* c_str() const;
 

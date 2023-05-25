@@ -162,6 +162,70 @@ namespace DoDo {
 		}
 	}
 
+	DoDoUtf8String utf32_to_utf8(uint32_t code_point)
+	{
+		static const uint32_t range[] = {
+			0x80,		// U+00000000 - U+0000007F
+			0x800,		// U+00000080 - U+000007FF
+			0x10000,	// U+00000800 - U+0000FFFF
+			0x200000	// U+00010000 - U+001FFFFF
+		};
+
+		uint32_t i = 0;
+		for (i = 0; i < 4; ++i)//0 1 2 3
+		{
+			if (code_point < range[i]) break;
+		}
+
+		if (i == 4) return DoDoUtf8String("");
+
+		std::string u8_str;
+
+		if (i == 0)
+		{
+			//7 bit
+			u8_str.push_back((uint8_t)(code_point));
+		}
+		else if (i == 1)
+		{
+			u8_str.push_back(0x80 | (uint8_t)((0xfc0 & code_point) >> 6));
+			u8_str.push_back(0x80 | (uint8_t)(0x3f & code_point));
+		}
+		else if (i == 2)
+		{
+			//uint8_t temp = (uint8_t)(0x3f | (uint8_t)code_point);
+			u8_str.push_back(0xe0 | (uint8_t)((0xf000 & code_point) >> 12));
+			u8_str.push_back(0x80 | (uint8_t)((0xfc0 & code_point) >> 6));
+			u8_str.push_back(0x80 | (uint8_t)(0x3f & code_point));
+		}
+		else //i == 3
+		{
+			u8_str.push_back(0xf0 | (uint8_t)((0x1c0000 & code_point) >> 18));
+			u8_str.push_back(0x80 | (uint8_t)((0xf000 & code_point) >> 12));
+			u8_str.push_back(0x80 | (uint8_t)((0xfc0 & code_point) >> 6));
+			u8_str.push_back(0x80 | (uint8_t)(0x3f & code_point));
+		}
+
+		//std::reverse(u8_str.begin(), u8_str.end());
+		return DoDoUtf8String(u8_str);
+	}
+
+	static void character_callback(GLFWwindow* native_window, unsigned int code_point)
+	{
+		GLFWApplication* application = (GLFWApplication*)glfwGetWindowUserPointer(native_window);
+
+		//find window
+		const std::shared_ptr<WindowsWindow> window = find_window_by_glfw_window(application->get_native_windows(), native_window);
+
+		//code_point is utf-32 code point
+		if (window)
+		{
+			//convert the code_point to DoDoUtf8String
+
+			application->get_message_handler()->On_Key_Char(utf32_to_utf8(code_point), false);
+		}
+	}
+
 	GLFWApplication::GLFWApplication()
 		: GenericApplication(std::make_shared<FWindowsCursor>())
 	{
@@ -205,6 +269,8 @@ namespace DoDo {
 		glfwSetWindowCloseCallback(native_window_handle, window_close_callback);
 
 		glfwSetWindowFocusCallback(native_window_handle, window_focus_window);
+
+		glfwSetCharCallback(native_window_handle, character_callback);
 	}
 
 	int32_t GLFWApplication::process_message()

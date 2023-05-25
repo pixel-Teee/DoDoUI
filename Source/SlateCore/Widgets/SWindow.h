@@ -237,6 +237,12 @@ namespace DoDo
 		/*@return the desired size in desktop pixels*/
 		glm::vec2 get_desired_size_desktop_pixels() const;
 
+		/*get the geometry that descibes this window, windows in slate are unique in that they know their own geometry*/
+		FGeometry get_window_geometry_in_screen() const;
+
+		/*@return the transform from local space to screen space (desktop space)*/
+		FSlateLayoutTransform get_local_to_screen_transform() const;
+
 		/*
 		 * @return the size of the window in screen space
 		 */

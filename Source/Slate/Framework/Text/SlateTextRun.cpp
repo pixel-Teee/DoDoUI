@@ -53,6 +53,10 @@ namespace DoDo {
 		const std::shared_ptr<FSlateFontMeasure> font_measure = Application::get().get_renderer()->get_font_measure_service();
 		return font_measure->get_max_character_height(m_style.m_font, scale);
 	}
+	void FSlateTextRun::set_text_range(const FTextRange& value)
+	{
+		m_range = value;
+	}
 	glm::vec2 FSlateTextRun::measure(int32_t start_index, int32_t end_index, float scale, const FRunTextContext& text_context) const
 	{
 		if (end_index - start_index == 0)

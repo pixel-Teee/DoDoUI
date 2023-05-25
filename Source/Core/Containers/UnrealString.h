@@ -33,6 +33,8 @@ namespace DoDo {
 		}
 
 		int32_t len() const { return m_end_index - m_begin_index; }
+		bool contains(int32_t index) const { return index >= m_begin_index && index < m_end_index; }
+		void offset(int32_t amount) { m_begin_index += amount; m_begin_index = std::max(0, m_begin_index); m_end_index += amount; m_end_index = std::max(0, m_end_index); }
 
 		int32_t m_begin_index;
 		int32_t m_end_index;

@@ -259,6 +259,18 @@ namespace DoDo {
 		return this->get_desired_size();
 	}
 
+	FGeometry SWindow::get_window_geometry_in_screen() const
+	{
+		FSlateLayoutTransform local_to_screen = get_local_to_screen_transform();
+		return FGeometry::make_root(transform_vector(inverse(local_to_screen), m_size), local_to_screen);
+	}
+
+	FSlateLayoutTransform SWindow::get_local_to_screen_transform() const
+	{
+		//todo:fix this, use dpi
+		return FSlateLayoutTransform(1.0f, m_screen_position);
+	}
+
 	glm::vec2 SWindow::get_size_in_screen() const
 	{
 		return m_size;//window size

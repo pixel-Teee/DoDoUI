@@ -119,6 +119,7 @@ namespace DoDo {
 		virtual FTextRange get_text_range() const = 0;
 		virtual int16_t get_base_line(float scale) const = 0;
 		virtual int16_t get_max_height(float scale) const = 0;
+		virtual void set_text_range(const FTextRange& value) = 0;
 
 		virtual glm::vec2 measure(int32_t start_index, int32_t end_index, float scale, const FRunTextContext& text_context) const = 0;
 	};

@@ -388,6 +388,17 @@ namespace DoDo
 		int32_t paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const;
 
 		/*
+		* called after a character is entered while this widget has keyboard focus
+		* 
+		* @param MyGeometry the geometry of the widget receiving the event
+		* 
+		* @param InCharacterEvent character event
+		* 
+		* @return returns whether the event was handled, along with other possible actions
+		*/
+		virtual FReply On_Key_Char(const FGeometry& my_geometry, const FCharacterEvent& in_character_event);
+
+		/*
 		 * called after a key is pressed when this widget has focus(this event bubbles if not handled)
 		 *
 		 * @param MyGeometry the geometry of the widget receiving the event

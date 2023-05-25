@@ -22,6 +22,8 @@ namespace DoDo {
 
 		virtual int16_t get_max_height(float scale) const override;
 
+		virtual void set_text_range(const FTextRange& value) override;
+
 		virtual glm::vec2 measure(int32_t start_index, int32_t end_index, float scale, const FRunTextContext& text_context) const override;
 
 		virtual int32_t On_Paint(const FPaintArgs& paint_args, const FTextArgs& text_args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect,

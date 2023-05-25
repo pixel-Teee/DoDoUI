@@ -64,8 +64,46 @@ namespace DoDo {
 		AllowPerCharacterWrapping
 	};
 
+	/*location within the text model*/
+	struct FTextLocation
+	{
+	public:
+		FTextLocation(const int32_t in_line_index = 0, const int32_t in_offset = 0)
+			: m_line_index(in_line_index)
+			, m_offset(in_offset)
+		{}
+
+		FTextLocation(const FTextLocation& in_location, const int32_t in_offset)
+			: m_line_index(in_location.get_line_index())
+			, m_offset(std::max(in_location.get_offset() + in_offset, 0))
+		{}
+
+		bool operator==(const FTextLocation& other) const
+		{
+			return m_line_index == other.m_line_index && m_offset == other.m_offset;
+		}
+
+		bool operator!=(const FTextLocation& other) const
+		{
+			return m_line_index != other.m_line_index && m_offset != other.m_offset;
+		}
+
+		bool operator<(const FTextLocation& other) const
+		{
+			return this->m_line_index < other.m_line_index || (this->m_line_index == other.m_line_index && this->m_offset < other.m_offset);
+		}
+
+		int32_t get_line_index() const { return m_line_index; }
+		int32_t get_offset() const { return m_offset; }
+		bool is_valid() const { return m_line_index != -1 && m_offset != -1; }
+	private:
+		int32_t m_line_index;
+		int32_t m_offset;
+	};
+
 	class IRun;
 	struct FLayoutBlockTextContext;
+	struct FTextLocation;
 	class FTextLayout : public std::enable_shared_from_this<FTextLayout>
 	{
 	public:
@@ -88,6 +126,8 @@ namespace DoDo {
 			std::shared_ptr<IRun> get_run() const;
 
 			FTextRange get_text_range() const;
+
+			void set_text_range(const FTextRange& value);
 
 			int16_t get_base_line(float scale) const;
 
@@ -128,6 +168,8 @@ namespace DoDo {
 		};
 
 		void add_lines(const std::vector<FNewLineData>& new_lines);
+
+		bool insert_at(const FTextLocation& location, DoDoUtf8String character);
  
 		struct ELineModelDirtyState
 		{

@@ -390,6 +390,11 @@ namespace DoDo {
 		return new_layer_id;
 	}
 
+	FReply SWidget::On_Key_Char(const FGeometry& my_geometry, const FCharacterEvent& in_character_event)
+	{
+		return FReply::un_handled();
+	}
+
 	FReply SWidget::On_Key_Down(const FGeometry& my_geometry, const FKeyEvent& in_key_event)
 	{
 		//todo:implement support focus

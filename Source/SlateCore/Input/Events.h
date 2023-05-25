@@ -9,6 +9,21 @@
 
 namespace DoDo
 {
+	/*context for focus change*/
+	enum class EFocusCause : uint8_t
+	{
+		Mouse,
+
+		Navigation,
+
+		SetDirectly,
+
+		Cleared,
+
+		OtherWidgetLostFocus,
+
+		WindowActivate
+	};
 	/*represents the current and last cursor position in a "virtual window" for events that are routed to widgets transformed in a 3D scene*/
 	struct FVirtualPointerPosition
 	{

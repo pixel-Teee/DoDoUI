@@ -74,6 +74,8 @@
 
 #include "SlateCore/Input/DragAndDrop.h"//FDragDropOperation depends on it
 
+#include "Slate/Widgets/Input/SEditableText.h"
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -176,6 +178,19 @@ namespace DoDo
             int32_t m_widget_index;
             const FWidgetPath& m_routing_path;
 		};
+
+        /*
+        * route an event along a focus path (as opposed to pointer path)
+        * 
+        * focus paths are used focus devices (e.g. keyboard or game pads)
+        * focus paths change when the user navigates focus (e.g. tab or
+        * shift tab, clicks on focusable widget, or navigation with keyboard/game pad)
+        */
+        template<typename RoutingPolicyType, typename FuncType, typename EventType>
+        static FReply Route_Along_Focus_Path(Application* this_application, RoutingPolicyType routing_policy, EventType key_event_copy, const FuncType& lambda)
+        {
+            return Route<FReply>(this_application, routing_policy, key_event_copy, lambda);
+        }
 
         class FToLeafmostPolicy
         {
@@ -1322,6 +1337,34 @@ namespace DoDo
         return b_handled;
     }
 
+    bool Application::process_key_char_event(const FCharacterEvent& in_character_event)
+    {
+        FReply reply = FReply::un_handled();
+
+        //bubble the key event
+        std::shared_ptr<FSlateUser> user = get_or_create_user(in_character_event);
+
+        std::shared_ptr<FWidgetPath> event_path_ptr = user->get_focus_path();//todo:add this
+
+        const FWidgetPath& event_path = *event_path_ptr;
+
+        {
+            reply = FEventRouter::Route_Along_Focus_Path(this, FEventRouter::FBubblePolicy(event_path), in_character_event, [](const FArrangedWidget& some_widget_getting_event, const FCharacterEvent& event)
+            {
+                if (some_widget_getting_event.m_widget->Is_Enabled())
+                {
+                    const FReply temp_reply = some_widget_getting_event.m_widget->On_Key_Char(some_widget_getting_event.m_geometry, event);
+
+                    return temp_reply;
+                }
+
+                return FReply::un_handled();
+            });
+        }
+
+        return reply.is_event_handled();
+    }
+
     std::shared_ptr<SWindow> Application::add_window(std::shared_ptr<SWindow> in_slate_window, const bool b_show_immediately)
     {
         /*
@@ -1395,6 +1438,27 @@ namespace DoDo
         //if the caller doesn't specify a valid event path we'll generate one from InParentWidget
 
         return std::shared_ptr<IMenu>();
+    }
+
+    bool Application::set_user_focus(uint32_t user_index, const std::shared_ptr<SWidget>& widget_to_focus, EFocusCause reason_focus_is_changing)
+    {
+        std::shared_ptr<FSlateUser> current_user = get_user(user_index);
+
+        FWidgetPath path_to_widget;
+
+        const bool b_found = FSlateWindowHelper::find_path_to_widget(m_windows, widget_to_focus, path_to_widget);
+
+        if (b_found)
+        {
+            return set_user_focus(*current_user, path_to_widget, reason_focus_is_changing);
+        }
+
+        return false;
+    }
+
+    void Application::clear_user_focus(uint32_t user_index, EFocusCause reason_focus_is_changing)
+    {
+        //set_user_focus(user_index, FWidgetPath(), reason_focus_is_changing);
     }
 
     void Application::private_destroy_window(const std::shared_ptr<SWindow>& destroyed_window)
@@ -1801,6 +1865,16 @@ namespace DoDo
             .Visibility(visibility);
     }
 
+    bool Application::set_user_focus(FSlateUser& user, const FWidgetPath& in_focus_path, const EFocusCause in_cause)
+    {
+        //todo:Add more logic
+
+        //store a weak widget path to the widget that's taking focus
+        user.set_focus_path(in_focus_path, in_cause, false);
+
+        //todo:call on_focus_received, this will set focus on FReply
+    }
+
     DoDoUtf8String Application::calculate_frame_per_second() const
     {
         return DoDoUtf8String(std::string("FPS:") + std::to_string(m_last_frame_count));
@@ -2003,6 +2077,14 @@ namespace DoDo
                                   .IndentHandle(true)
                               ]
                              
+                          ]
+                          + SConstraintCanvas::Slot()
+                          .Anchors(FAnchors(0.5f, 0.5f, 0.5f, 0.5f))//middle
+                          .Offset(FMargin(0.0f, 0.0f, 200.0f, 80.0f))//position and size
+                          .Alignment(glm::vec2(0.5f, 0.5f))
+                          .AutoSize(false)//todo:use fix size
+                          [
+                              SNew(SEditableText)
                           ]
                       ]
                    ]
@@ -2228,6 +2310,13 @@ namespace DoDo
                 the_reply.get_detect_drag_request_button(),
                 transformed_pointer_event.get_screen_space_position());//start location
         }
+
+        //set focus if requested
+        std::shared_ptr<SWidget> requested_focus_recepient = the_reply.get_user_focus_recepient();
+
+        //if(the_reply)
+
+        slate_user->set_focus(requested_focus_recepient, the_reply.get_focus_cause());
     }
 
     void Application::set_cursor_pos(const glm::vec2 mouse_coordinate)
@@ -2359,6 +2448,13 @@ namespace DoDo
         );
 
         return process_mouse_button_up_event(mouse_event);
+    }
+
+    bool Application::On_Key_Char(const DoDoUtf8String character, const bool is_repeat)
+    {
+        FCharacterEvent character_event(character, s_platform_application->get_modifier_keys(), 0, is_repeat);
+
+        return process_key_char_event(character_event);
     }
 
     bool Application::On_Size_Changed(const std::shared_ptr<Window>& native_window, const int32_t width, const int32_t height,

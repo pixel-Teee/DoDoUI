@@ -349,6 +349,29 @@ namespace DoDo {
 
 		//return DoDoUtf8String(str);//note:construct a substr copy
 	}
+	void DoDoUtf8String::insert_at(int32_t index, DoDoUtf8String character)
+	{
+		char* new_buffer = new char[m_count + character.m_count - 1];//new buffer
+
+		//copy original 
+		memcpy(new_buffer, m_buffer, index - 1);//todo:may be error
+
+		memcpy(new_buffer, character.m_buffer, character.m_count - 1);
+
+		memcpy(new_buffer, m_buffer + index + character.m_count, m_count - index);
+
+		delete m_buffer;
+		m_len = 0;
+		m_count = 0;
+
+		m_buffer = new_buffer;//control the life time
+
+		//if (!m_need_update_lengths_cache)
+		m_bytes_counts.clear();
+
+		calculate_lengths(m_buffer, m_bytes_counts);
+		m_need_update_lengths_cache = true;
+	}
 	DoDoUtf8String& DoDoUtf8String::operator=(const DoDoUtf8String& rhs)
 	{
 		if (m_buffer != nullptr)

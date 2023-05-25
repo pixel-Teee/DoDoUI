@@ -2,6 +2,8 @@
 
 #include "glm/vec2.hpp"
 
+#include "Core/String/DoDoString.h"
+
 namespace DoDo
 {
 	class Window;
@@ -103,6 +105,11 @@ namespace DoDo
 		}
 
 		virtual bool On_Size_Changed(const std::shared_ptr<Window>& window, const int32_t width, const int32_t height, bool b_was_minimized = false)
+		{
+			return false;
+		}
+
+		virtual bool On_Key_Char(const DoDoUtf8String character, const bool is_repeat)
 		{
 			return false;
 		}

@@ -116,6 +116,15 @@ namespace DoDo
 		return widget_path;
 	}
 
+	std::shared_ptr<FWidgetPath> FWeakWidgetPath::to_widget_path_ptr(EInterruptedPathHandling::Type interrupted_path_handling, const FPointerEvent* pointer_event, const EVisibility visibility_filter) const
+	{
+		std::shared_ptr<FWidgetPath> widget_path = std::make_shared<FWidgetPath>();
+
+		to_widget_path(*widget_path, interrupted_path_handling, pointer_event, visibility_filter);
+
+		return widget_path;
+	}
+
 	FWeakWidgetPath::EPathResolutionResult::Result FWeakWidgetPath::to_widget_path(FWidgetPath& widget_path,
 		EInterruptedPathHandling::Type interrupted_path_handling, const FPointerEvent* pointer_event,
 		const EVisibility visiblity_filter) const

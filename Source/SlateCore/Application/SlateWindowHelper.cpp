@@ -4,6 +4,10 @@
 
 #include "SlateCore/Widgets/SWindow.h"
 
+#include "SlateCore/Layout/ArrangedChildren.h"//FArrangedChildren depends on it
+
+#include "SlateCore/Layout/WidgetPath.h"//FWidgetPath
+
 namespace DoDo
 {
 	void FSlateWindowHelper::arrange_window_to_front(std::vector<std::shared_ptr<SWindow>>& windows, const std::shared_ptr<SWindow>& window_to_bring_to_front)
@@ -71,6 +75,36 @@ namespace DoDo
 		const std::shared_ptr<SWindow> top_level_window_to_reorder = bring_to_front_in_parent(bring_me_to_front);
 
 		FSlateWindowHelper::arrange_window_to_front(windows, top_level_window_to_reorder);
+	}
+	bool FSlateWindowHelper::find_path_to_widget(const std::vector<std::shared_ptr<SWindow>>& windows_to_search, std::shared_ptr<const SWidget> in_widget, FWidgetPath& out_widget_path, EVisibility visibility_filter)
+	{
+		//iterate over our top level windows
+		bool b_found_widget = false;
+
+		for (int32_t window_index = 0; !b_found_widget && window_index < windows_to_search.size(); ++window_index)
+		{
+			//make a widget path that contains just the top-level window
+			std::shared_ptr<SWindow> current_window = windows_to_search[window_index];
+
+			FArrangedChildren just_window(visibility_filter);
+			{
+				just_window.add_widget(FArrangedWidget(current_window, current_window->get_window_geometry_in_screen()));
+			}
+
+			FWidgetPath path_to_widget(current_window, just_window);
+
+			//attempt to extend it to the desired child widget, essentially a full-window search for in widget
+			//if ((current_window == in_widget || path_to_widget.extend_path_to(, visibility_filter))) //todo:Add matcher
+			//{
+			//	out_widget_path = path_to_widget;
+			//
+			//	b_found_widget = true;
+			//}
+			
+			//todo:child windows
+		}
+
+		return b_found_widget;
 	}
 	std::shared_ptr<SWindow> FSlateWindowHelper::bring_to_front_in_parent(const std::shared_ptr<SWindow>& window_to_bring_to_front)
 	{

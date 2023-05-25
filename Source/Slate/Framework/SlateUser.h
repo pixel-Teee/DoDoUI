@@ -23,6 +23,12 @@ namespace DoDo
 	public:
 		virtual ~FSlateUser();
 
+		bool set_focus(const std::shared_ptr<SWidget>& widget_to_focus, EFocusCause reason_focus_is_changing = EFocusCause::SetDirectly);
+
+		void clear_focus(EFocusCause reason_focus_is_changing = EFocusCause::SetDirectly);
+
+		void set_focus_path(const FWidgetPath& new_focus_path, EFocusCause in_focus_casue, bool b_in_show_focus);
+
 		bool has_any_capture() const;
 
 		bool has_cursor_capture() const;
@@ -91,6 +97,16 @@ namespace DoDo
 
 		static std::shared_ptr<FSlateUser> Create(int32_t in_user_index, std::shared_ptr<ICursor> in_cursor);
 
+		std::shared_ptr<FWidgetPath> get_focus_path() const
+		{
+			if (!m_strong_focus_path)
+			{
+				m_strong_focus_path = m_weak_focus_path.to_widget_path_ptr();
+			}
+
+			return m_strong_focus_path;
+		}
+
 		FSlateUser(int32_t in_user_index, std::shared_ptr<ICursor> in_cursor);//todo:move to private scope
 
 		//todo:implement this function
@@ -110,6 +126,12 @@ namespace DoDo
 		/*the cursor widget and window to render that cursor for the current software cursor*/
 		std::weak_ptr<SWindow> m_cursor_window_ptr;
 		std::weak_ptr<SWidget> m_cursor_widget_ptr;
+
+		/*a weak path to widget currently focused by a user, if any*/
+		FWeakWidgetPath m_weak_focus_path;
+
+		/*a strong widget path to the focused widget, if any, this is cleared after the end of pumping messages*/
+		mutable std::shared_ptr<FWidgetPath> m_strong_focus_path;
 
 		/*the os or actions taken by the user may require we refresh the current state of the cursor*/
 		bool m_b_query_cursor_requested = false;

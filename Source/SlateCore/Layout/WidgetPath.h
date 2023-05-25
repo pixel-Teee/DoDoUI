@@ -64,6 +64,25 @@ namespace DoDo
 		{
 			return m_virtual_pointer_positions[index];
 		}
+
+		/*
+		* extend the current path such that it reaches some widget that qualifies as a Match
+		* the widget to match must be a descendant of the last widget currently in the path
+		* 
+		* @param Matcher some struct that has a "bool is_match(const std::shared_ptr<const SWidget>& in_widget) const" method
+		* @param visibility filter widgets must have this type of visibility to be included the path
+		* 
+		* @return true if succcessful
+		*/
+		template<typename MatcherType>
+		bool extend_path_to(const MatcherType& matcher, EVisibility visibility_filter = EVisibility::visible)
+		{
+			const FArrangedWidget& last_widget = m_widgets.last();
+
+			//FArrangedChildren extension = generate_path_to_widget(matcher, last_widget, )
+
+			return true;
+		}
 	public:
 		/*the widgets that make up the widget path, the first item is the root widget, the end is the widget this path was built for*/
 		FArrangedChildren m_widgets;
@@ -110,6 +129,9 @@ namespace DoDo
 		* @param InterruptedPathHandling should interrupted paths result in a truncated path or an invalid path
 		*/
 		FWidgetPath to_widget_path(EInterruptedPathHandling::Type interrupted_path_handling = EInterruptedPathHandling::Truncate, const FPointerEvent* pointer_event = nullptr,
+			const EVisibility visibility_filter = EVisibility::visible) const;
+
+		std::shared_ptr<FWidgetPath> to_widget_path_ptr(EInterruptedPathHandling::Type interrupted_path_handling = EInterruptedPathHandling::Truncate, const FPointerEvent* pointer_event = nullptr,
 			const EVisibility visibility_filter = EVisibility::visible) const;
 
 		/*
