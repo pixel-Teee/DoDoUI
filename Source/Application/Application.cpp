@@ -906,6 +906,12 @@ namespace DoDo
         return get_cursor_user()->get_previous_cursor_position();
 	}
 
+    std::shared_ptr<SWidget> Application::get_keyboard_focused_widget() const
+    {
+        std::shared_ptr<const FSlateUser> keyboard_user = get_user(0);//todo:fix this
+        return keyboard_user ? keyboard_user->get_focused_widget() : nullptr;
+    }
+
     glm::vec2 Application::calculate_popup_window_position(const FSlateRect& in_anchor, const glm::vec2& in_size, bool b_auto_adjust_for_dpi_scale, const glm::vec2& in_proposed_placement, const EOrientation orientation) const
     {
         glm::vec2 calculated_pop_up_window_position(0.0f, 0.0f);

@@ -135,6 +135,8 @@ namespace DoDo
 
 		virtual glm::vec2 get_last_cursor_pos() const override;
 
+		virtual std::shared_ptr<SWidget> get_keyboard_focused_widget() const;
+
 		std::shared_ptr<ICursor> get_platform_cursor()
 		{
 			return s_platform_application->m_cursor;

@@ -10,13 +10,31 @@ namespace DoDo {
 	}
 	void SEditableTextBox::Construct(const FArguments& in_args)
 	{
+		set_style(in_args._Style);
+
 		SBorder::Construct(SBorder::FArguments()
+			.BorderImage(this, &SEditableTextBox::get_border_image)
 			.ColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
 			[
 				SAssignNew(m_editable_text, SEditableText)
 				.Text(in_args._Text)
 			]
 		);
+	}
+	void SEditableTextBox::set_style(const FEditableTextBoxStyle* in_style)
+	{
+		m_style = in_style;
+
+		if (m_style == nullptr)
+		{
+			FArguments defaults;
+			m_style = defaults._Style;
+		}
+
+		m_border_image_normal = &m_style->m_background_image_normal;
+		m_border_image_hovered = &m_style->m_background_image_hovered;
+		m_border_image_focused = &m_style->m_background_image_focused;
+		m_border_image_read_only = &m_style->m_background_image_read_only;
 	}
 	bool SEditableTextBox::supports_key_board_focus() const
 	{
@@ -33,5 +51,25 @@ namespace DoDo {
 		}
 
 		return reply;
+	}
+	const FSlateBrush* SEditableTextBox::get_border_image() const
+	{
+		//todo:check is text read only
+
+		if (m_editable_text->has_keyboard_focus())
+		{
+			return m_border_image_focused;
+		}
+		else
+		{
+			if (m_editable_text->is_hovered())
+			{
+				return m_border_image_hovered;
+			}
+			else
+			{
+				return m_border_image_normal;
+			}
+		}
 	}
 }

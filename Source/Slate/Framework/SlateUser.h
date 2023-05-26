@@ -23,6 +23,8 @@ namespace DoDo
 	public:
 		virtual ~FSlateUser();
 
+		std::shared_ptr<SWidget> get_focused_widget() const;
+
 		bool set_focus(const std::shared_ptr<SWidget>& widget_to_focus, EFocusCause reason_focus_is_changing = EFocusCause::SetDirectly);
 
 		void clear_focus(EFocusCause reason_focus_is_changing = EFocusCause::SetDirectly);

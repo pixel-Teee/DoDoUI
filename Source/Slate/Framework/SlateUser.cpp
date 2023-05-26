@@ -18,6 +18,11 @@ namespace DoDo
 	{
 	}
 
+	std::shared_ptr<SWidget> FSlateUser::get_focused_widget() const
+	{
+		return m_weak_focus_path.is_valid() ? m_weak_focus_path.get_last_widget().lock() : nullptr;
+	}
+
 	bool FSlateUser::set_focus(const std::shared_ptr<SWidget>& widget_to_focus, EFocusCause reason_focus_is_changing)
 	{
 		return Application::get().set_user_focus(m_user_index, widget_to_focus, reason_focus_is_changing);

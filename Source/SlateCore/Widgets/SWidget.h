@@ -141,6 +141,13 @@ namespace DoDo
 		virtual bool supports_key_board_focus() const;
 
 		/*
+		* checks to see if this widget currently has the keyboard focus
+		* 
+		* @return true if this widget has keyboard focus
+		*/
+		virtual bool has_keyboard_focus() const;
+
+		/*
 		 * compute the geometry of all the children and add populate the arranged children list with their values
 		 * each type of layout panel should arrange children based on desired behaviour
 		 *

@@ -54,6 +54,7 @@ namespace DoDo {
 
 		const FMargin pressed_button_margins(12.0f, 2.5f, 12.0f, 0.5f);
 
+		const float input_focus_radius = 4.0f;
 		const float input_focus_thickness = 1.0f;
 	}
 }

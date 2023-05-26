@@ -321,6 +321,23 @@ namespace DoDo {
 		{
 			style->set("DarkEditableTextBox", dark_editable_text_box_style);
 		}
+
+		//SEditableTextBox defaults...
+		const FEditableTextBoxStyle normal_editable_text_box_style = FEditableTextBoxStyle()
+			.set_background_image_normal(FSlateRoundedBoxBrush(FStyleColors::Input, input_focus_radius, FStyleColors::InputOutline, input_focus_thickness))
+			.set_background_image_hovered(FSlateRoundedBoxBrush(FStyleColors::Input, input_focus_radius, FStyleColors::Hover, input_focus_thickness))
+			.set_background_image_focused(FSlateRoundedBoxBrush(FStyleColors::Input, input_focus_radius, FStyleColors::Primary, input_focus_thickness))
+			.set_background_image_read_only(FSlateRoundedBoxBrush(FStyleColors::Header, input_focus_radius, FStyleColors::InputOutline, input_focus_thickness))
+			.set_font(style_fonts.m_normal)
+			.set_padding(FMargin(8.0f, 3.0f, 8.0f, 4.0f))
+			.set_foreground_color(FStyleColors::Foreground)
+			.set_background_color(FStyleColors::White)
+			.set_readonly_foreground_color(FSlateColor::use_foreground())
+			.set_focused_foreground_color(FStyleColors::White);
+
+		{
+			style->set("NormalEditableTextBox", normal_editable_text_box_style);
+		}
 	}
 
 	void FStarshipCoreStyle::set_up_button_styles(std::shared_ptr<FStyle>& style)

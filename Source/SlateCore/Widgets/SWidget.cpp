@@ -141,6 +141,11 @@ namespace DoDo {
 		return false;
 	}
 
+	bool SWidget::has_keyboard_focus() const
+	{
+		return Application::get().get_keyboard_focused_widget().get() == this;
+	}
+
 	void SWidget::set_visibility(TAttribute<EVisibility> in_visibility)
 	{
 		m_Visibility_Attribute.Assign(*this, std::move(in_visibility));
