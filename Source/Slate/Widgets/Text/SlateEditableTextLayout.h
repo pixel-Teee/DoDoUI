@@ -56,6 +56,8 @@ namespace DoDo {
 		*/
 		bool set_editable_text(const DoDoUtf8String& text_to_set, const bool b_force = false);
 
+		void cache_desired_size(float layout_scale_multiplier);
+
 		FChildren* Get_Children();
 	private:
 		/*pointer to the interface for our owner widget*/

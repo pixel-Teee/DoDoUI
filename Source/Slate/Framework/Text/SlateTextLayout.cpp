@@ -34,15 +34,15 @@ namespace DoDo {
 	{
 		return m_default_text_style;
 	}
-	void FSlateTextLayout::update_if_needed()
-	{
-		update_layout();
-	}
-	void FSlateTextLayout::update_layout()
-	{
-		//todo:clear view
-
-	}
+	//void FSlateTextLayout::update_if_needed()
+	//{
+	//	update_layout();
+	//}
+	//void FSlateTextLayout::update_layout()
+	//{
+	//	//todo:clear view
+	//	
+	//}
 
 	FChildren* FSlateTextLayout::Get_Children()
 	{

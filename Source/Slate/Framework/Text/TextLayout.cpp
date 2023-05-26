@@ -158,6 +158,18 @@ namespace DoDo {
 		return true;
 	}
 
+	void FTextLayout::update_if_needed()
+	{
+		update_layout();
+	}
+
+	void FTextLayout::update_layout()
+	{
+		clear_view();
+
+		flow_layout();
+	}
+
 	void FTextLayout::clear_view()
 	{
 		m_text_layout_size = FTextLayoutSize();
@@ -172,9 +184,16 @@ namespace DoDo {
 	void FTextLayout::flow_layout()
 	{
 		//get_wrapping_draw_width()
-		const float wrapping_draw_width = 20.0f;
+		const float wrapping_draw_width = get_wrapping_draw_width();
 
 		std::vector<std::shared_ptr<ILayoutBlock>> soft_line;
+
+		for (int32_t line_model_index = 0; line_model_index < m_line_models.size(); ++line_model_index)
+		{
+			FLineModel& line_model = m_line_models[line_model_index];
+
+			flow_line_layout(line_model_index, wrapping_draw_width, soft_line);
+		}
 		
 	}
 	void FTextLayout::flow_line_layout(const int32_t line_model_index, const float wrapping_draw_width, std::vector<std::shared_ptr<ILayoutBlock>>& soft_line)

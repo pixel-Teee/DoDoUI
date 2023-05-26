@@ -17,9 +17,9 @@ namespace DoDo {
 
 		const FTextBlockStyle& get_default_text_style() const;
 
-		virtual void update_if_needed();
-
-		virtual void update_layout();
+		//virtual void update_if_needed();
+		//
+		//virtual void update_layout();
 
 		FChildren* Get_Children();
 

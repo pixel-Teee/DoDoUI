@@ -69,4 +69,11 @@ namespace DoDo {
 	{
 		return shared_from_this();
 	}
+	void SEditableText::cache_desired_size(float in_layout_scale_multiplier)
+	{
+		//todo:synchronize text style
+		m_editable_text_layout->cache_desired_size(in_layout_scale_multiplier);
+
+		SWidget::cache_desired_size(in_layout_scale_multiplier);
+	}
 }

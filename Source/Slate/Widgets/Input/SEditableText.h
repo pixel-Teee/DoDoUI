@@ -71,6 +71,8 @@ namespace DoDo {
 
 		virtual std::shared_ptr<SWidget> get_slate_widget() override;
 
+		virtual void cache_desired_size(float in_layout_scale_multiplier) override;
+
 	protected:
 		/*text marshaller used by the editable text layout*/
 		std::shared_ptr<FPlainTextLayoutMarshaller> m_plain_text_marshaller;

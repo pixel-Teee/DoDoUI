@@ -170,6 +170,13 @@ namespace DoDo {
 		void add_lines(const std::vector<FNewLineData>& new_lines);
 
 		bool insert_at(const FTextLocation& location, DoDoUtf8String character);
+
+		/*
+		* updates the TextLayout's if any changes have occurred since the last update
+		*/
+		virtual void update_if_needed();
+
+		virtual void update_layout();
  
 		struct ELineModelDirtyState
 		{

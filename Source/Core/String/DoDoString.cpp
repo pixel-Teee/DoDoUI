@@ -354,11 +354,18 @@ namespace DoDo {
 		char* new_buffer = new char[m_count + character.m_count - 1];//new buffer
 
 		//copy original 
-		memcpy(new_buffer, m_buffer, index);
+		
+		size_t tmp_size = 0;
+		for (int32_t i = 0; i <= index - 1; ++i)
+		{
+			tmp_size += m_bytes_counts[i];
+		}
 
-		memcpy(new_buffer + index, character.m_buffer, character.m_count - 1);
+		memcpy(new_buffer, m_buffer, tmp_size);//copy original
 
-		memcpy(new_buffer + index + character.m_count, m_buffer + index + character.m_count, m_count - index);
+		memcpy(new_buffer + tmp_size, character.m_buffer, character.m_count - 1);
+
+		memcpy(new_buffer + tmp_size + character.m_count - 1, m_buffer + tmp_size, m_count - tmp_size);//store '\0'
 
 		delete m_buffer;
 		m_len = 0;
@@ -370,6 +377,12 @@ namespace DoDo {
 		m_bytes_counts.clear();
 
 		calculate_lengths(m_buffer, m_bytes_counts);
+		m_len = m_bytes_counts.size();//len 
+		for (size_t i = 0; i < m_bytes_counts.size(); ++i)
+		{
+			m_count += m_bytes_counts[i];
+		}
+		++m_count;
 		m_need_update_lengths_cache = true;
 	}
 	DoDoUtf8String& DoDoUtf8String::operator=(const DoDoUtf8String& rhs)

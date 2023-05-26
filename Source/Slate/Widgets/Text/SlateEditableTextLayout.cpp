@@ -118,6 +118,12 @@ namespace DoDo {
 
 		return true;
 	}
+	void FSlateEditableTextLayout::cache_desired_size(float layout_scale_multiplier)
+	{
+		//todo:add more logic
+
+		m_text_layout->update_if_needed();
+	}
 	FChildren* FSlateEditableTextLayout::Get_Children()
 	{
 		return m_text_layout->Get_Children();
