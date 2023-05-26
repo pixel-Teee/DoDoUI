@@ -4,6 +4,10 @@
 
 #include "SEditableText.h"//SEditableText depends on it
 
+#include "SlateCore/Widgets/SBoxPanel.h"//SHorizontalBox
+
+#include "Slate/Widgets/Layout/SBox.h"//SBox depends on it
+
 namespace DoDo {
 	SEditableTextBox::SEditableTextBox()
 	{
@@ -12,12 +16,26 @@ namespace DoDo {
 	{
 		set_style(in_args._Style);
 
+		m_on_text_committed = in_args._OnTextCommitted;
+
 		SBorder::Construct(SBorder::FArguments()
 			.BorderImage(this, &SEditableTextBox::get_border_image)
-			.ColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
+			//.ColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
+			.Padding(0.0f)
 			[
-				SAssignNew(m_editable_text, SEditableText)
-				.Text(in_args._Text)
+				SAssignNew(m_box, SHorizontalBox)
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Fill)
+				.HAlign(HAlign_Fill)
+				[
+					SAssignNew(m_padding_box, SBox)
+					.Padding(this, &SEditableTextBox::determine_padding)
+					.VAlign(VAlign_Center)
+					[
+						SAssignNew(m_editable_text, SEditableText)
+						.Text(in_args._Text)
+					]
+				]
 			]
 		);
 	}
@@ -51,6 +69,12 @@ namespace DoDo {
 		}
 
 		return reply;
+	}
+	void SEditableTextBox::on_editable_text_committed(const DoDoUtf8String& in_text, ETextCommit::Type in_commit_type)
+	{
+		//todo:check on verify text changed
+
+		m_on_text_committed.execute_if_bound(in_text, in_commit_type);
 	}
 	const FSlateBrush* SEditableTextBox::get_border_image() const
 	{

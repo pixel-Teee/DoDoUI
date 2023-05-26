@@ -88,4 +88,22 @@ namespace DoDo
 		/*orient vertically, top to bottom*/
 		Orient_Vertical
 	};
+
+	/*
+	* additional information about a text committal
+	*/
+	namespace ETextCommit
+	{
+		enum Type
+		{
+			/*losing focus or similar event caused implicit commit*/
+			Default,
+			/*user committed via the enter key*/
+			OnEnter,
+			/*user committed via tabbing away or moving focus explicitly away*/
+			OnUserMovedFocus,
+			/*keyboard focus was explicityly cleared via the escape key or other similar action*/
+			OnCleared
+		};
+	}
 }

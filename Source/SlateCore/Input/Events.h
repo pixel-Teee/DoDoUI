@@ -92,6 +92,17 @@ namespace DoDo
 
 		std::shared_ptr<SWindow> get_window() const;
 
+	public:
+		/*
+		* returns whether or not this character is an auto-repeated keystroke
+		* 
+		* @return true if this character is a repeat
+		*/
+		bool is_repeat() const
+		{
+			return m_b_is_repeat;
+		}
+
 	protected:
 		//state of modifier keys when this event happened
 		FModifierKeyState m_modifier_keys;//shift tab caps lock
@@ -137,6 +148,16 @@ namespace DoDo
 		, m_character_code(in_character_code)
 		, m_key_code(in_key_code)
 		{}
+
+		/*
+		* returns the name of the key for this event
+		* 
+		* @return key name
+		*/
+		FKey get_key() const
+		{
+			return m_key;
+		}
 	private:
 		//name of the key that was pressed
 		FKey m_key;

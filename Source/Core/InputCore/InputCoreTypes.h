@@ -27,6 +27,8 @@ namespace DoDo
 	{
 		static const FKey Invalid;
 
+		static const FKey Enter;
+
 		static const FKey LeftMouseButton;
 		static const FKey RightMouseButton;
 		static const FKey MiddleMouseButton;

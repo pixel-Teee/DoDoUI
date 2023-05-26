@@ -94,6 +94,40 @@ namespace DoDo {
 		m_cursor_info.set_cursor_location_and_calculate_alignment(*m_text_layout, final_cursor_location);
 		return true;
 	}
+	FReply FSlateEditableTextLayout::handle_key_down(const FKeyEvent& in_key_event)
+	{
+		FReply reply = FReply::un_handled();
+
+		const FKey key = in_key_event.get_key();
+
+		if (key == EKeys::Enter) //todo:check is read only
+		{
+			handle_carriage_return(in_key_event.is_repeat());
+
+			reply = FReply::handled();
+		}
+
+		return reply;
+	}
+	bool FSlateEditableTextLayout::handle_carriage_return(bool is_repeat)
+	{
+		//todo:check read only
+
+		if (is_repeat)
+		{
+			//skip committing text on a repeat enter key
+			return false;
+		}
+		else
+		{
+			const DoDoUtf8String edited_text = get_editable_text();
+
+			//when enter is pressed text is committed, let anyone interested know about it
+			m_owner_widget->on_text_committed(edited_text, ETextCommit::OnEnter);
+		}
+
+		return true;
+	}
 	int32_t FSlateEditableTextLayout::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled)
 	{
 		m_cached_size = glm::vec2(allotted_geometry.get_local_size());
@@ -117,6 +151,13 @@ namespace DoDo {
 		m_marshaller->set_text(text_to_set, *m_text_layout);
 
 		return true;
+	}
+	DoDoUtf8String FSlateEditableTextLayout::get_editable_text() const
+	{
+		DoDoUtf8String edited_text;
+		m_marshaller->get_text(edited_text, *m_text_layout);
+
+		return edited_text;
 	}
 	void FSlateEditableTextLayout::cache_desired_size(float layout_scale_multiplier)
 	{

@@ -11,6 +11,8 @@ namespace DoDo {
 	}
 	void SEditableText::Construct(const FArguments& in_args)
 	{
+		m_on_text_committed_callback = in_args._OnTextCommitted;
+
 		m_plain_text_marshaller = FPlainTextLayoutMarshaller::Create();
 
 		m_editable_text_layout = std::make_unique<FSlateEditableTextLayout>(*this, in_args._Text, *(in_args._Style), in_args._TextShapingMethod, in_args._TextFlowDirection, m_plain_text_marshaller);
@@ -42,11 +44,22 @@ namespace DoDo {
 	}
 	FReply SEditableText::On_Key_Down(const FGeometry& my_geometry, const FKeyEvent& in_key_event)
 	{
+		FReply reply = FReply::un_handled();
+
+		if (!reply.is_event_handled())
+		{
+			reply = m_editable_text_layout->handle_key_down(in_key_event);
+
+			if (!reply.is_event_handled())
+			{
+				reply = SWidget::On_Key_Down(my_geometry, in_key_event);
+			}
+		}
 		//FKey key = in_key_event.get_key();
 
 		//todo:add more logic
 
-		return FReply::un_handled();
+		return reply;
 	}
 	glm::vec2 SEditableText::Compute_Desired_Size(float Layout_Scale_Multiplier) const
 	{
@@ -75,5 +88,9 @@ namespace DoDo {
 		m_editable_text_layout->cache_desired_size(in_layout_scale_multiplier);
 
 		SWidget::cache_desired_size(in_layout_scale_multiplier);
+	}
+	void SEditableText::on_text_committed(const DoDoUtf8String& in_text, const ETextCommit::Type in_text_action)
+	{
+		m_on_text_committed_callback.execute_if_bound(in_text, in_text_action);
 	}
 }

@@ -40,6 +40,12 @@ namespace DoDo {
 		/*called to handle a typing a character on the current selection or at the cursor position*/
 		bool handle_type_char(const DoDoUtf8String& in_char);
 
+		/*called to handle an OnKeyDown event from our parent widget*/
+		FReply handle_key_down(const FKeyEvent& in_key_event);
+
+		/*called to handle a carriage return action on the current selection or at the cursor position*/
+		bool handle_carriage_return(bool is_repeat);
+
 		int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled);
 
 		glm::vec2 Compute_Desired_Size(float layout_scale_multiplier) const;
@@ -55,6 +61,12 @@ namespace DoDo {
 		* @return true if the text was updated, false if the text wasn't update
 		*/
 		bool set_editable_text(const DoDoUtf8String& text_to_set, const bool b_force = false);
+
+		/*
+		* gets the current editable text for this text block
+		* note:we don't restore text in this form (it's stored as lines in th text layout) so every call to this function has to reconstruct it
+		*/
+		DoDoUtf8String get_editable_text() const;
 
 		void cache_desired_size(float layout_scale_multiplier);
 

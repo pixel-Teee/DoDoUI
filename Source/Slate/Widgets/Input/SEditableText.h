@@ -16,6 +16,8 @@
 
 #include "SlateCore/Styling/SlateTypes.h"//FCoreStyle
 
+#include "Slate/Framework/SlateDelegates.h"//FOnTextCommitted depends on it
+
 namespace DoDo {
 	/*
 	* editable text widget
@@ -30,17 +32,20 @@ namespace DoDo {
 			, _TextFlowDirection()
 		{}
 
-		/*sets the text content for this editable text widget*/
-		SLATE_ATTRIBUTE(DoDoUtf8String, Text)
+			/*sets the text content for this editable text widget*/
+			SLATE_ATTRIBUTE(DoDoUtf8String, Text)
 
-		/*the style of the text block, which dictates the font, color*/
-		SLATE_STYLE_ARGUMENT(FTextBlockStyle, Style) //todo:modify this to FTextBlockStyle
+			/*the style of the text block, which dictates the font, color*/
+			SLATE_STYLE_ARGUMENT(FTextBlockStyle, Style) //todo:modify this to FTextBlockStyle
 
-		/*which text shaping method should we use? (unset to use the default returned by get default text shaping method)*/
-		SLATE_ARGUMENT(std::optional<ETextShapingMethod>, TextShapingMethod)
+			/*which text shaping method should we use? (unset to use the default returned by get default text shaping method)*/
+			SLATE_ARGUMENT(std::optional<ETextShapingMethod>, TextShapingMethod)
 
-		/*which text flow direction should we use?(unset to use the default return by get default text flow direction)*/
-		SLATE_ARGUMENT(std::optional<ETextFlowDirection>, TextFlowDirection)
+			/*which text flow direction should we use?(unset to use the default return by get default text flow direction)*/
+			SLATE_ARGUMENT(std::optional<ETextFlowDirection>, TextFlowDirection)
+
+			/*called whenever the text is committed, this happens when the user presses enter or the text box loses focus*/
+			SLATE_EVENT(FOnTextCommitted, OnTextCommitted)
 		SLATE_END_ARGS()
 
 		SEditableText();
@@ -73,11 +78,16 @@ namespace DoDo {
 
 		virtual void cache_desired_size(float in_layout_scale_multiplier) override;
 
+		virtual void on_text_committed(const DoDoUtf8String& in_text, const ETextCommit::Type in_text_action) override;
+
 	protected:
 		/*text marshaller used by the editable text layout*/
 		std::shared_ptr<FPlainTextLayoutMarshaller> m_plain_text_marshaller;
 
 		/*the text layout that deals with the editable text*/
 		std::unique_ptr<FSlateEditableTextLayout> m_editable_text_layout;
+
+		/*called whenever the text is committed, this happens when the user presses enter or the text box loses focus*/
+		FOnTextCommitted m_on_text_committed_callback;
 	};
 }
