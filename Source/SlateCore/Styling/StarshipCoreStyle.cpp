@@ -311,6 +311,16 @@ namespace DoDo {
 
 		//STextBlock defaults...
 		style->set("NormalText", normal_text);
+
+		const FEditableTextBoxStyle dark_editable_text_box_style = FEditableTextBoxStyle()
+			.set_background_image_normal(FSlateBoxBrush("Common/TextBox_Dark", FMargin(4.0f / 16.0f)))
+			.set_background_image_hovered(FSlateBoxBrush("Common/TextBox_Hovered_Dark", FMargin(4.0f / 16.0f)))
+			.set_background_image_focused(FSlateBoxBrush("Common/TextBox_Hovered_Dark", FMargin(4.0f / 16.0f)))
+			.set_background_image_read_only(FSlateBoxBrush("Common/TextBox_Hovered_Dark", FMargin(4.0f / 16.0f)));
+
+		{
+			style->set("DarkEditableTextBox", dark_editable_text_box_style);
+		}
 	}
 
 	void FStarshipCoreStyle::set_up_button_styles(std::shared_ptr<FStyle>& style)

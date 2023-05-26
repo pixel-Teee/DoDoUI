@@ -276,6 +276,78 @@ namespace DoDo
 	};
 
 	/*
+	* represents the appearance of an SEditableTextBox
+	*/
+	struct FEditableTextBoxStyle : public FSlateWidgetStyle
+	{
+		FEditableTextBoxStyle();
+
+		virtual ~FEditableTextBoxStyle();
+
+		virtual void get_resources(std::vector<const FSlateBrush*>& out_brushes) const override;
+
+		static const DoDoUtf8String TypeName;
+
+		virtual const DoDoUtf8String get_type_name() const override { return TypeName; }
+
+		static const FEditableTextBoxStyle& get_default();
+
+		/*
+		* border background image when the box is not hovered or focused
+		*/
+		FSlateBrush m_background_image_normal;
+		FEditableTextBoxStyle& set_background_image_normal(const FSlateBrush& in_background_image_normal) { m_background_image_normal = in_background_image_normal; return *this; }
+
+		/*
+		* border background image when the box is hovered
+		*/
+		FSlateBrush m_background_image_hovered;
+		FEditableTextBoxStyle& set_background_image_hovered(const FSlateBrush& in_background_image_hovered) { m_background_image_hovered = in_background_image_hovered; return *this; }
+
+		/*border background image when the box is focused*/
+		FSlateBrush m_background_image_focused;
+		FEditableTextBoxStyle& set_background_image_focused(const FSlateBrush& in_background_image_focused) { m_background_image_focused = in_background_image_focused; return *this; }
+
+		/*border background image when the box is read-only*/
+		FSlateBrush m_background_image_read_only;
+		FEditableTextBoxStyle& set_background_image_read_only(const FSlateBrush& in_background_image_read_only) { m_background_image_read_only = in_background_image_read_only; return *this; }
+
+		/*padding*/
+		FMargin m_padding;
+		FEditableTextBoxStyle& set_padding(const FMargin& in_padding) { m_padding = in_padding; return *this; }
+
+		/*font family and size to be used when displaying this text*/
+		FSlateFontInfo m_font;
+		FEditableTextBoxStyle& set_font(const FSlateFontInfo& in_font) { m_font = in_font; return *this; }
+		FEditableTextBoxStyle& set_font(const DoDoUtf8String& in_font_name, uint16_t in_size) { m_font = FSlateFontInfo(in_font_name, in_size); return *this; } //todo:fix this
+
+		/*the foreground color of text*/
+		FSlateColor m_foreground_color;
+		FEditableTextBoxStyle& set_foreground_color(const FSlateColor& in_foreground_color) { m_foreground_color = in_foreground_color; return *this; }
+
+		/*the background color applied to the active background image*/
+		FSlateColor m_background_color;
+		FEditableTextBoxStyle& set_background_color(const FSlateColor& in_background_color) { m_background_color = in_background_color; return *this; }
+
+		/*the read-only foreground color of text in read-only mode*/
+		FSlateColor m_readonly_foreground_color;
+		FEditableTextBoxStyle& set_readonly_foreground_color(const FSlateColor& in_readonly_foreground_color) { m_readonly_foreground_color = in_readonly_foreground_color; return *this; }
+
+		/*the foreground color of text when the edit box has keyboard focus*/
+		FSlateColor m_focused_foreground_color;
+		FEditableTextBoxStyle& set_focused_foreground_color(const FSlateColor& in_focused_foreground_color) { m_focused_foreground_color = in_focused_foreground_color; return *this; }
+
+		/*
+		* unlinks all colors in this style
+		* @see FSlateColor::UnLink
+		*/
+		void unlink_colors()
+		{
+			//todo:add more logic
+		}
+	};
+
+	/*
 	* represents the appearance of an SWindow
 	*/
 	struct FWindowStyle : public FSlateWidgetStyle

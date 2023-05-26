@@ -102,6 +102,15 @@ namespace DoDo
 		FSlateFontInfo(std::shared_ptr<const FCompositeFont> in_composite_font, const int32_t in_size, const DoDoUtf8String& in_type_face_font_name = "",
 			const FFontOutlineSettings& in_outline_settings = FFontOutlineSettings());
 
+		/*
+		* deprecated - creates and initializes a new instance with the specified font name and size
+		* 
+		* @param InFontName the name of the font
+		* @param InSize the size of the font
+		* @param InHinting the type of hinting to use for the font
+		*/
+		FSlateFontInfo(const DoDoUtf8String& in_font_name, uint16_t in_size, EFontHinting in_hinting = EFontHinting::Default);
+
 		bool is_identical_to_for_caching(const FSlateFontInfo& other) const
 		{
 			//todo:ignore composite font

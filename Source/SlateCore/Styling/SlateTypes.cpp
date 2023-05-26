@@ -152,6 +152,44 @@ namespace DoDo
 		return Default;
 	}
 
+	FEditableTextBoxStyle::FEditableTextBoxStyle()
+		: m_background_image_normal()
+		, m_background_image_hovered()
+		, m_background_image_focused()
+		, m_background_image_read_only()
+		, m_padding(FMargin(4.0f, 2.0f))
+		, m_font(FStyleDefaults::get_font_info(9))
+		, m_foreground_color(FSlateColor::use_foreground())
+		, m_background_color(FLinearColor::White)
+		, m_readonly_foreground_color(FSlateColor::use_foreground())
+		, m_focused_foreground_color(FSlateColor::use_foreground())
+	{
+	}
+
+	FEditableTextBoxStyle::~FEditableTextBoxStyle()
+	{
+	}
+
+	const DoDoUtf8String FEditableTextBoxStyle::TypeName("FEditableTextBoxStyle");
+
+	void FEditableTextBoxStyle::get_resources(std::vector<const FSlateBrush*>& out_brushes) const
+	{
+		out_brushes.push_back(&m_background_image_normal);
+		out_brushes.push_back(&m_background_image_hovered);
+		out_brushes.push_back(&m_background_image_focused);
+		out_brushes.push_back(&m_background_image_read_only);
+
+		//todo:add scroll bar style
+	}
+
+	const FEditableTextBoxStyle& FEditableTextBoxStyle::get_default()
+	{
+		static FEditableTextBoxStyle Default;
+		return Default;
+	}
+
+	
+
 	//const FSplitterStyle& FSplitterStyle::get_default()
 	//{
 	//	static FSplitterStyle default;

@@ -28,5 +28,14 @@ namespace DoDo
 		, m_size(in_size)
 	{
 	}
+	FSlateFontInfo::FSlateFontInfo(const DoDoUtf8String& in_font_name, uint16_t in_size, EFontHinting in_hinting)
+		: m_font_object(nullptr)
+		, m_font_material(nullptr)
+		, m_composite_font()
+		, m_type_face_font_name()
+		, m_size(in_size)
+	{
+		//todo:update composite font
+	}
 	//static data member
 }
