@@ -40,6 +40,11 @@ namespace DoDo
 			return 0 != (m_Value & VISPRIVATE_SelfHitTestVisible);
 		}
 
+		bool is_visible() const
+		{
+			return 0 != (m_Value & VIS_Visible);
+		}
+
 	public:
 		bool operator==(const EVisibility& other) const
 		{
