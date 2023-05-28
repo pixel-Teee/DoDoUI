@@ -49,6 +49,47 @@ namespace DoDo {
 		}
 	}
 
+	SGridPanel::SGridPanel()
+		: m_slots(this, "Slots")
+	{
+		//todo:add set can tick
+		//set_can_tick(false);
+	}
+
+	void SGridPanel::Construct(const FArguments& in_args)
+	{
+		m_total_desired_sizes = glm::vec2(0.0f);
+
+		//populate the slots such that they are sorted by layer (order preserved within layers)
+		//also determine the grid size
+		m_slots.reserve(in_args._Slots.size());
+
+		for (int32_t slot_index = 0; slot_index < in_args._Slots.size(); ++slot_index)
+		{
+			int32_t slot_location = find_insert_slot_location(in_args._Slots[slot_index].get_slot());
+			if (slot_location == -1)
+			{
+				slot_location = m_slots.add_slot(std::move(const_cast<FSlot::FSlotArguments&>(in_args._Slots[slot_index])));
+			}
+			else
+			{
+				m_slots.insert_slot(std::move(const_cast<FSlot::FSlotArguments&>(in_args._Slots[slot_index])), slot_location);
+			}
+
+			FSlot& new_slot = m_slots[slot_location];
+			new_slot.m_panel = std::static_pointer_cast<SGridPanel>(shared_from_this());
+			notify_slot_changed(&new_slot);
+		}
+
+		m_col_fill_coefficients = in_args.m_col_fill_coefficients;
+		m_row_fill_coefficients = in_args.m_row_fill_coefficients;
+	}
+
+	SGridPanel::FSlot::FSlotArguments SGridPanel::Slot(int32_t column, int32_t row, Layer in_layer)
+	{
+		return FSlot::FSlotArguments(std::make_unique<FSlot>(column, row, in_layer.m_the_layer));
+	}
+
 	int32_t SGridPanel::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
 		FArrangedChildren arranged_children(EVisibility::All);
@@ -160,6 +201,7 @@ namespace DoDo {
 			final_rows[final_rows.size() - 1] = 0.0f;
 		}
 
+		//populate final_columns and final_rows
 		calculate_stretched_cell_sizes(final_columns, allotted_geometry.get_local_size().x, m_columns, m_col_fill_coefficients);
 		calculate_stretched_cell_sizes(final_rows, allotted_geometry.get_local_size().y, m_rows, m_row_fill_coefficients);
 
@@ -228,6 +270,18 @@ namespace DoDo {
 	FChildren* SGridPanel::Get_Children()
 	{
 		return &m_slots;
+	}
+	int32_t SGridPanel::find_insert_slot_location(const FSlot* in_slot)
+	{
+		//insert the slot in the list such that slots are sorted by layer offset
+		for (int32_t slot_index = 0; slot_index < m_slots.num(); ++slot_index)
+		{
+			if (in_slot->get_layer() < this->m_slots[slot_index].get_layer())
+			{
+				return slot_index;
+			}
+		}
+		return -1;
 	}
 	void SGridPanel::compute_desired_cell_sizes(std::vector<float>& out_columns, std::vector<float>& out_rows) const
 	{

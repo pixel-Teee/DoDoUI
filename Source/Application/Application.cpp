@@ -76,6 +76,8 @@
 
 #include "Slate/Widgets/Input/SEditableTextBox.h"
 
+#include "Slate/Widgets/Layout/SGridPanel.h"//SGridPanel depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -2104,6 +2106,7 @@ namespace DoDo
 
     static std::shared_ptr<SDockTab> spawn_slider_widgets(const FSpawnTabArgs& spawn_tab_args)
     {
+        /*
         return SNew(SDockTab)
                //.ContentPadding(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
                .ForegroundColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
@@ -2158,6 +2161,30 @@ namespace DoDo
                         SNew(SToolTip)
                         .Text("Your are the boy!")
                     ]
+               ];
+        */
+
+        return SNew(SDockTab)
+               [
+                   SNew(SGridPanel)
+                   .fill_column(0, 0)
+                   + SGridPanel::Slot(0, 0)
+                   [
+                       SNew(SBox)
+                       .MinDesiredWidth(200.0f)
+                       .MinDesiredHeight(200.0f)
+                       [
+						   SNew(SSlider)
+						   .MaxValue(1.0f)
+			               .MinValue(0.0f)
+			               .IndentHandle(true)
+                       ]					   
+                   ]
+                   + SGridPanel::Slot(1, 0)
+                   [
+					   SAssignNew(m_test_widget, SEditableTextBox)
+					   .Text(u8"测试")
+                   ]
                ];
     }
 

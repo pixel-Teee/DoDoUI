@@ -178,12 +178,39 @@ namespace DoDo {
 			/*specify a column to stretch instead of sizing to content*/
 			FArguments& fill_column(int32_t column_id, const TAttribute<float>& coefficient)
 			{
-				
+				while (m_col_fill_coefficients.size() <= column_id)
+				{
+					m_col_fill_coefficients.push_back(0);
+				}
+				m_col_fill_coefficients[column_id] = coefficient;
+				return Me();
 			}
+
+			/*specify a row to stretch instead of sizing to content*/
+			FArguments& fill_row(int32_t row_id, const TAttribute<float>& coefficient)
+			{
+				while (m_row_fill_coefficients.size() <= row_id)
+				{
+					m_row_fill_coefficients.push_back(0);
+				}
+				m_row_fill_coefficients[row_id] = coefficient;
+				return Me();
+			}
+			/*coefficients for columns that need to stretch instead of size to content*/
+			std::vector<TAttribute<float>> m_col_fill_coefficients;
+
+			/*coefficients for rows that need to stretch instead of size to content*/
+			std::vector<TAttribute<float>> m_row_fill_coefficients;
 		SLATE_END_ARGS()
 
 		SGridPanel();
 
+		void Construct(const FArguments& in_args);
+
+		/*
+		* used by declarative syntax to create a slot in the specified column, row and layer
+		*/
+		static FSlot::FSlotArguments Slot(int32_t column, int32_t row, Layer in_layer = Layer(0));
 
 	public:
 		//swidget interface
@@ -196,6 +223,14 @@ namespace DoDo {
 		virtual glm::vec2 Compute_Desired_Size(float Layout_Scale_Multiplier) const override;
 
 		virtual FChildren* Get_Children() override;
+
+		/*
+		* find the index where the given slot should be inserted into the list of slots based on its layer param, such that slots are sorted by layer
+		* 
+		* @param the newly-allocated slot to insert
+		* @return the index where the slot shoul be inserted
+		*/
+		int32_t find_insert_slot_location(const FSlot* in_slot);
 
 		/*compute the sizes of columns and rows needed to fit all the slots in this grid*/
 		void compute_desired_cell_sizes(std::vector<float>& out_columns, std::vector<float>& out_rows) const;
