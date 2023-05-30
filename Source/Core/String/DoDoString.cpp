@@ -273,7 +273,7 @@ namespace DoDo {
 		size_t len_sum = 0;
 		if (len > 0)
 		{
-			for (size_t i = pos; i < (pos + len - 1); ++i) //note:may be error
+			for (size_t i = pos; i < (pos + len); ++i) //note:may be error
 			{
 				len_sum += m_bytes_counts[i];
 			}
