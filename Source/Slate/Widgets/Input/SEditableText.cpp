@@ -61,6 +61,14 @@ namespace DoDo {
 
 		return reply;
 	}
+	FReply SEditableText::On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& in_mouse_event)
+	{
+		return m_editable_text_layout->handle_mouse_button_down(my_geometry, in_mouse_event);
+	}
+	FReply SEditableText::On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& in_mouse_event)
+	{
+		return m_editable_text_layout->handle_mouse_button_up(my_geometry, in_mouse_event);
+	}
 	glm::vec2 SEditableText::Compute_Desired_Size(float Layout_Scale_Multiplier) const
 	{
 		glm::vec2 text_layout_size = m_editable_text_layout->Compute_Desired_Size(Layout_Scale_Multiplier);

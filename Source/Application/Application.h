@@ -334,6 +334,8 @@ namespace DoDo
 		* @return the icon
 		*/
 		virtual const FSlateBrush* get_app_icon() const;
+
+		virtual float get_application_scale() const { return m_scale; }
 	public:
 		/*
 		* destroy the native and slate windows in the array provided
@@ -486,6 +488,13 @@ namespace DoDo
 		*/
 		virtual bool does_widget_have_mouse_capture_by_user(const std::shared_ptr<const SWidget> widget, int32_t user_index, std::optional<int32_t> pointer_index) const;
 
+		/*
+		* gets whether or not a particular widget has any user focus, and if so the type of focus (first one found)
+		* 
+		* @return the optional will be set with the focus cause, if unset this widget doesn't have focus
+		*/
+		virtual std::optional<EFocusCause> has_any_user_focus(const std::shared_ptr<const SWidget> widget) const;
+
 		virtual std::shared_ptr<SWidget> make_window_title_bar(const FWindowTitleBarArgs& in_args, std::shared_ptr<IWindowTitleBar>& out_title_bar) const;
 
 		/*
@@ -514,6 +523,9 @@ namespace DoDo
 		static std::shared_ptr<Application> s_current_application;
 
 		std::set<FKey> m_pressed_mouse_buttons;//note:what it is?
+
+		/*application-wide scale for supporting montiors of varying pixel density*/
+		float m_scale;
 
 		//holds a pointer to the platform application
 		static std::shared_ptr<GenericApplication> s_platform_application;

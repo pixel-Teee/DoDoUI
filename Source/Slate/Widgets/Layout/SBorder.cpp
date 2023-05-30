@@ -151,4 +151,8 @@ namespace DoDo
 		                                 in_widget_style,
 		                                 b_parent_enabled);
 	}
+	glm::vec2 SBorder::Compute_Desired_Size(float layout_scale_multiplier) const
+	{
+		return m_desired_size_scale_attribute.Get() * Super::Compute_Desired_Size(layout_scale_multiplier);
+	}
 }

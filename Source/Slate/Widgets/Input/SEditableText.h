@@ -66,6 +66,10 @@ namespace DoDo {
 
 		virtual FReply On_Key_Down(const FGeometry& my_geometry, const FKeyEvent& in_key_event) override;
 
+		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& in_mouse_event) override;
+
+		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& in_mouse_event) override;
+	
 		virtual glm::vec2 Compute_Desired_Size(float Layout_Scale_Multiplier) const override;
 
 		virtual FChildren* Get_Children() override;

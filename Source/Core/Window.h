@@ -33,6 +33,12 @@ namespace DoDo {
 		/*native windows should implement this function by asking the os to destroy os-specific resource associated with the window*/
 		virtual void destroy();
 
+		/*
+		* @return ratio of pixels to slate units in this window
+		* e.g. dpi scale of 2.0 means there is 2x2 pixel square for evey 1x1 slateunit
+		*/
+		virtual float get_dpi_scale_factor() const;
+
 	protected:
 		std::shared_ptr<FGenericWindowDefinition> m_definition;
 	};

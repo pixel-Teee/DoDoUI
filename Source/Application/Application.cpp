@@ -341,7 +341,8 @@ namespace DoDo
     }
 
     Application::Application()
-	    : m_drag_trigger_distance(0.0f)
+	    : m_scale(1.0f)
+        , m_drag_trigger_distance(0.0f)
 		, m_hit_testing(this)
 		, m_last_tick_time(0.0f)
         , m_current_time(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count())
@@ -984,7 +985,7 @@ namespace DoDo
     {
         const float delta_time = get_delta_time();
 
-		set_user_focus(0, m_test_widget, EFocusCause::SetDirectly);
+		//set_user_focus(0, m_test_widget, EFocusCause::SetDirectly);
         //todo:implement TickPlatform
         //TickPlatform is just something to handle message
         tick_platform(delta_time);
@@ -1186,7 +1187,7 @@ namespace DoDo
         {
 	        //todo:process window invalidation
             {
-                window_to_prepass->slate_prepass(1.0f);//todo:pass dpi scale
+                window_to_prepass->slate_prepass(Application::get().get_application_scale() * window_to_prepass->get_native_window()->get_dpi_scale_factor());//todo:pass dpi scale
             }
 
             //note:auto sizing rule window will check window size every frame
@@ -1590,6 +1591,20 @@ namespace DoDo
             return temp_reply;
         });
 
+        //when we perform a touch begin, we need to also send a mouse enter as if it were a cursor
+
+
+        for (int32_t widget_index = widgets_under_pointer.m_widgets.num() - 1; widget_index >= 0; --widget_index)
+        {
+            const FArrangedWidget& cur_widget = widgets_under_pointer.m_widgets[widget_index];
+            if (cur_widget.m_widget->supports_key_board_focus())
+            {
+                FWidgetPath new_focused_widget_path = widgets_under_pointer.get_path_down_to(cur_widget.m_widget);
+                //set_user_focus(pointer_event.get_user_index(), new_focused_widget_path, EFocusCause::Mouse);
+                break;
+            }
+        }
+
         return reply;
     }
 
@@ -1827,6 +1842,21 @@ namespace DoDo
         }
 
         return false;
+    }
+
+    std::optional<EFocusCause> Application::has_any_user_focus(const std::shared_ptr<const SWidget> widget) const
+    {
+        std::optional<EFocusCause> focus_cause;
+        for (const std::shared_ptr<FSlateUser>& user : m_users)
+        {
+            focus_cause = user ? user->has_focus(widget) : std::optional<EFocusCause>();
+            if (focus_cause.has_value())
+            {
+                break;
+            }
+        }
+
+        return focus_cause;
     }
 
     std::shared_ptr<SWidget> Application::make_window_title_bar(const FWindowTitleBarArgs& in_args, std::shared_ptr<IWindowTitleBar>& out_title_bar) const

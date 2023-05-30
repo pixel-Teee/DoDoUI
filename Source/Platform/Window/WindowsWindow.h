@@ -35,6 +35,11 @@ namespace DoDo {
 		virtual void set_opacity(const float in_opacity) override;
 
 		virtual void destroy() override;
+
+		virtual float get_dpi_scale_factor() const override
+		{
+			return m_dpi_scale_factor;
+		}
 	private:
 		//windows window owner this lifetime
 		/*the window's handle*/
@@ -48,6 +53,7 @@ namespace DoDo {
 		int32_t m_region_height;
 
 		//static bool m_is_initialized_glfw;
+		float m_dpi_scale_factor;
 	};
 }
 

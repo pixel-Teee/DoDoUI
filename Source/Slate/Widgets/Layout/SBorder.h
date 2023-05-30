@@ -106,6 +106,7 @@ namespace DoDo
 	public:
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const override;
 
+		virtual glm::vec2 Compute_Desired_Size(float) const override;
 	private:
 		//todo:implement FSlateBrush
 		TSlateAttribute<const FSlateBrush*> m_border_image_attribute;

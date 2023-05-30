@@ -43,6 +43,12 @@ namespace DoDo {
 		/*called to handle an OnKeyDown event from our parent widget*/
 		FReply handle_key_down(const FKeyEvent& in_key_event);
 
+		/*called to handle an OnMouseButtonDown event from our parent widget*/
+		FReply handle_mouse_button_down(const FGeometry& my_geometry, const FPointerEvent& in_mouse_event);
+
+		/*called to handle an OnMouseButtonUp event from our parent widget*/
+		FReply handle_mouse_button_up(const FGeometry& my_geometry, const FPointerEvent& in_mouse_event);
+
 		/*called to handle a carriage return action on the current selection or at the cursor position*/
 		bool handle_carriage_return(bool is_repeat);
 

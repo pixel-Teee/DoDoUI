@@ -15,6 +15,8 @@
 
 #include "Platform/Application/GLFWApplication.h"
 
+#include "Platform/Application/WindowsPlatformApplicationMisc.h"
+
 namespace DoDo {
     //------todo:fix me, move this to glfw application------
     extern std::shared_ptr<GLFWApplication> window_application;
@@ -28,6 +30,7 @@ namespace DoDo {
     }
 
 	WindowsWindow::WindowsWindow()
+        : m_dpi_scale_factor(1.0)
 	{
         ////------init glfw------
         //m_p_window = nullptr;
@@ -97,6 +100,8 @@ namespace DoDo {
         int32_t window_y = m_definition->y_desired_position_on_screen;
         int32_t window_width = m_definition->m_width_desired_on_screen;//todo:need to trunc to int
         int32_t window_height = m_definition->m_height_desired_on_screen;
+
+        m_dpi_scale_factor = FPlatformApplicationMisc::get_dpi_scale_factor_at_point(window_x, window_y);
 
 		//glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 		glfwWindowHint(GLFW_DECORATED, GL_FALSE);

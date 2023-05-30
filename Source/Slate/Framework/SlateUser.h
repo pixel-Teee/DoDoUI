@@ -31,6 +31,9 @@ namespace DoDo
 
 		void set_focus_path(const FWidgetPath& new_focus_path, EFocusCause in_focus_casue, bool b_in_show_focus);
 
+		/*returns the cause for which the provided widget was focused, or nothing if the given widget is not the current focus target*/
+		std::optional<EFocusCause> has_focus(std::shared_ptr<const SWidget> widget) const;
+
 		bool has_any_capture() const;
 
 		bool has_cursor_capture() const;
@@ -136,6 +139,9 @@ namespace DoDo
 
 		/*a strong widget path to the focused widget, if any, this is cleared after the end of pumping messages*/
 		mutable std::shared_ptr<FWidgetPath> m_strong_focus_path;
+
+		/*reason a widget was focused by a user, if any*/
+		EFocusCause m_focus_cause = EFocusCause::Cleared;
 
 		/*the os or actions taken by the user may require we refresh the current state of the cursor*/
 		bool m_b_query_cursor_requested = false;

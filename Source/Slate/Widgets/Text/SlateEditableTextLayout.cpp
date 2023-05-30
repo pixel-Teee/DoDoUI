@@ -109,6 +109,69 @@ namespace DoDo {
 
 		return reply;
 	}
+	FReply FSlateEditableTextLayout::handle_mouse_button_down(const FGeometry& my_geometry, const FPointerEvent& in_mouse_event)
+	{
+		FReply reply = FReply::un_handled();
+
+		//if the mouse is already captured, then don't allow a new action to be taken
+		if (!m_owner_widget->get_slate_widget()->has_mouse_capture())
+		{
+			if (in_mouse_event.get_effecting_button() == EKeys::LeftMouseButton ||
+				in_mouse_event.get_effecting_button() == EKeys::RightMouseButton)
+			{
+				//am i getting foucs right now?
+				const bool b_is_getting_focus = !m_owner_widget->get_slate_widget()->has_any_user_focus().has_value();
+
+				if (b_is_getting_focus)
+				{
+
+				}
+				else
+				{
+					//todo:show virtual key board interms of platform
+				}
+
+				if (in_mouse_event.get_effecting_button() == EKeys::LeftMouseButton)
+				{
+					
+				}
+				else if (in_mouse_event.get_effecting_button() == EKeys::RightMouseButton)
+				{
+
+				}
+
+				//right clicking to summon context menu, but we'll do that on mouse-up
+				reply = FReply::handled();
+				reply.capture_mouse(m_owner_widget->get_slate_widget());
+				reply.set_user_focus(m_owner_widget->get_slate_widget(), EFocusCause::Mouse);
+			}
+		}
+
+		return reply;
+	}
+	FReply FSlateEditableTextLayout::handle_mouse_button_up(const FGeometry& my_geometry, const FPointerEvent& in_mouse_event)
+	{
+		FReply reply = FReply::un_handled();
+
+		//the mouse must have been captured by either left or right button down before we'll process mouse ups
+		if (m_owner_widget->get_slate_widget()->has_mouse_capture())
+		{
+			if (in_mouse_event.get_effecting_button() == EKeys::LeftMouseButton)
+			{
+				//release mouse capture
+				reply = FReply::handled();
+				reply.release_mouse_capture();
+			}
+			else if (in_mouse_event.get_effecting_button() == EKeys::RightMouseButton)
+			{
+				//release mouse capture
+				reply = FReply::handled();
+				reply.release_mouse_capture();
+			}
+		}
+
+		return reply;
+	}
 	bool FSlateEditableTextLayout::handle_carriage_return(bool is_repeat)
 	{
 		//todo:check read only
@@ -162,7 +225,7 @@ namespace DoDo {
 	void FSlateEditableTextLayout::cache_desired_size(float layout_scale_multiplier)
 	{
 		//todo:add more logic
-
+		m_text_layout->set_scale(layout_scale_multiplier);
 		m_text_layout->update_if_needed();
 	}
 	FChildren* FSlateEditableTextLayout::Get_Children()

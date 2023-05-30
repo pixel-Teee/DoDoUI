@@ -148,6 +148,13 @@ namespace DoDo
 		virtual bool has_keyboard_focus() const;
 
 		/*
+		* gets whether or not any users have this widget focused, and if so the type of focus (first one found)
+		* 
+		* @return the optional will be set with the focus cause, if unset this widget doesn't have focus
+		*/
+		std::optional<EFocusCause> has_any_user_focus() const;
+
+		/*
 		 * compute the geometry of all the children and add populate the arranged children list with their values
 		 * each type of layout panel should arrange children based on desired behaviour
 		 *
@@ -202,6 +209,7 @@ namespace DoDo
 				InComparePredicate>::TSlateMemberAttribute;
 		};
 
+	public:
 		/*
 		* checks to see if this widget is the current mouse captor
 		* 

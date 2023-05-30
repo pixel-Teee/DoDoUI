@@ -4,6 +4,7 @@
 	#include "Platform/Window/WindowsWindow.h"
 #else
 	#include "Platform/Window/AndroidWindow.h"
+#include "Window.h"
 #endif
 
 namespace DoDo {
@@ -41,5 +42,9 @@ namespace DoDo {
 	void Window::destroy()
 	{
 
+	}
+	float Window::get_dpi_scale_factor() const
+	{
+		return 1.0f;
 	}
 }

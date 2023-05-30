@@ -33,12 +33,17 @@ namespace DoDo
 		Application::get().clear_user_focus(m_user_index, reason_focus_is_changing);
 	}
 
-	void FSlateUser::set_focus_path(const FWidgetPath& new_focus_path, EFocusCause in_focus_casue, bool b_in_show_focus)
+	void FSlateUser::set_focus_path(const FWidgetPath& new_focus_path, EFocusCause in_focus_cause, bool b_in_show_focus)
 	{
 		//todo:add more logic
 		m_weak_focus_path = new_focus_path;
-		//m_focus_cause = in_focus_cause;
+		m_focus_cause = in_focus_cause;
 		
+	}
+
+	std::optional<EFocusCause> FSlateUser::has_focus(std::shared_ptr<const SWidget> widget) const
+	{
+		return widget && get_focused_widget() == widget ? m_focus_cause : std::optional<EFocusCause>();
 	}
 
 	bool FSlateUser::has_any_capture() const
