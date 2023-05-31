@@ -11,6 +11,8 @@ namespace DoDo
 	class ISlateEditableTextWidget
 	{
 	public:
+		/*is the text currently read-only?*/
+		virtual bool is_text_read_only() const = 0;
 
 		virtual std::shared_ptr<SWidget> get_slate_widget() = 0;
 

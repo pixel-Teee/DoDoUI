@@ -191,6 +191,29 @@ namespace DoDo {
 
 		return true;
 	}
+	void FSlateEditableTextLayout::update_cursor_highlight()
+	{
+		const bool b_has_keyboard_focus = m_owner_widget->get_slate_widget()->has_any_user_focus().has_value();
+
+		const bool b_is_read_only = m_owner_widget->is_text_read_only();
+
+		//todo:add more logic
+
+		if (b_has_keyboard_focus && !b_is_read_only)
+		{
+			//the cursor mode uses the literal position rather than the interaction position
+			const FTextLocation cursor_position = m_cursor_info.get_cursor_location();
+
+			const std::vector<FTextLayout::FLineModel>& lines = m_text_layout->get_line_models();
+
+			if (cursor_position.get_line_index() >= 0 && cursor_position.get_line_index() < lines.size())
+			{
+				//ensure the cursor is sitting on a valid graph me
+				//const FTextLocation cursor_selection = m_text_layout->get_graph_me_at(cursor_position);
+
+			}
+		}
+	}
 	int32_t FSlateEditableTextLayout::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled)
 	{
 		m_cached_size = glm::vec2(allotted_geometry.get_local_size());

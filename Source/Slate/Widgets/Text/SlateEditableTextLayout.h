@@ -52,6 +52,9 @@ namespace DoDo {
 		/*called to handle a carriage return action on the current selection or at the cursor position*/
 		bool handle_carriage_return(bool is_repeat);
 
+		/*update the active cursor highlight based on the state of the text layout*/
+		void update_cursor_highlight();
+
 		int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled);
 
 		glm::vec2 Compute_Desired_Size(float layout_scale_multiplier) const;

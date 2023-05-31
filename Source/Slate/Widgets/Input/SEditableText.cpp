@@ -11,11 +11,17 @@ namespace DoDo {
 	}
 	void SEditableText::Construct(const FArguments& in_args)
 	{
+		m_b_is_read_only = in_args._IsReadOnly;
+
 		m_on_text_committed_callback = in_args._OnTextCommitted;
 
 		m_plain_text_marshaller = FPlainTextLayoutMarshaller::Create();
 
 		m_editable_text_layout = std::make_unique<FSlateEditableTextLayout>(*this, in_args._Text, *(in_args._Style), in_args._TextShapingMethod, in_args._TextFlowDirection, m_plain_text_marshaller);
+	}
+	void SEditableText::set_is_read_only(TAttribute<bool> in_is_read_only)
+	{
+		m_b_is_read_only = in_is_read_only;
 	}
 	int32_t SEditableText::On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const
 	{
@@ -100,5 +106,9 @@ namespace DoDo {
 	void SEditableText::on_text_committed(const DoDoUtf8String& in_text, const ETextCommit::Type in_text_action)
 	{
 		m_on_text_committed_callback.execute_if_bound(in_text, in_text_action);
+	}
+	bool SEditableText::is_text_read_only() const
+	{
+		return m_b_is_read_only.Get(false);//todo:modify this
 	}
 }

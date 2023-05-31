@@ -25,6 +25,12 @@ namespace DoDo {
 				, m_last_cursor_interation_time(0)
 			{}
 
+			/*get the literal position of the cursor (note:this may not be the correct place to insert text to, use get cursor interaction location for that)*/
+			FTextLocation get_cursor_location() const
+			{
+				return m_cursor_position;
+			}
+
 			/*get the interaction position of the cursor (where to insert, delete, etc, text from/to)*/
 			FTextLocation get_cursor_interaction_location() const
 			{

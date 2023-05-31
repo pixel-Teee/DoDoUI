@@ -24,6 +24,8 @@ namespace DoDo {
 		FChildren* Get_Children();
 
 		virtual int32_t On_Paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const;
+	
+		FTextLocation get_graphe_me_at(const FTextLocation& location) const;
 	protected:
 		/*default style used by the text layout*/
 		FTextBlockStyle m_default_text_style;

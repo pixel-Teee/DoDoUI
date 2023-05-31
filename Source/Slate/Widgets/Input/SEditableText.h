@@ -28,6 +28,7 @@ namespace DoDo {
 		SLATE_BEGIN_ARGS(SEditableText)
 			: _Text()
 			, _Style(&FCoreStyle::get().get_widget_style<FTextBlockStyle>("NormalText"))
+			, _IsReadOnly(false)
 			, _TextShapingMethod()
 			, _TextFlowDirection()
 		{}
@@ -37,6 +38,9 @@ namespace DoDo {
 
 			/*the style of the text block, which dictates the font, color*/
 			SLATE_STYLE_ARGUMENT(FTextBlockStyle, Style) //todo:modify this to FTextBlockStyle
+
+			/*sets whether this text box can actually be modified interactively by the user*/
+			SLATE_ATTRIBUTE(bool, IsReadOnly)
 
 			/*which text shaping method should we use? (unset to use the default returned by get default text shaping method)*/
 			SLATE_ARGUMENT(std::optional<ETextShapingMethod>, TextShapingMethod)
@@ -56,6 +60,9 @@ namespace DoDo {
 		* construct this widget
 		*/
 		void Construct(const FArguments& in_args);
+
+		/*see the IsReadOnly attribute*/
+		void set_is_read_only(TAttribute<bool> in_is_read_only);
 
 	protected:
 
@@ -84,12 +91,20 @@ namespace DoDo {
 
 		virtual void on_text_committed(const DoDoUtf8String& in_text, const ETextCommit::Type in_text_action) override;
 
+	public:
+		// ISlateEditableTextWidget interface
+		virtual bool is_text_read_only() const override;
+		// ISlateEditableTextWidget interface
+
 	protected:
 		/*text marshaller used by the editable text layout*/
 		std::shared_ptr<FPlainTextLayoutMarshaller> m_plain_text_marshaller;
 
 		/*the text layout that deals with the editable text*/
 		std::unique_ptr<FSlateEditableTextLayout> m_editable_text_layout;
+
+		/*sets whether this text box can actually be modified interactively by the user*/
+		TAttribute<bool> m_b_is_read_only;
 
 		/*called whenever the text is committed, this happens when the user presses enter or the text box loses focus*/
 		FOnTextCommitted m_on_text_committed_callback;

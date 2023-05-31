@@ -305,6 +305,9 @@ namespace DoDo {
 		/*how the text should be aligned with the margin*/
 		ETextJustify::Type m_justification;
 
+		/*the iterator to use to detect graphme cluster boundaries*/
+
+
 		/*the final size of the text layout on screen*/
 		FTextLayoutSize m_text_layout_size;
 	};

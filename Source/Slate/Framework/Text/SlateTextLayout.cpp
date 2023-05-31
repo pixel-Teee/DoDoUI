@@ -108,6 +108,20 @@ namespace DoDo {
 
 		return highest_layer_id;
 	}
+	FTextLocation FSlateTextLayout::get_graphe_me_at(const FTextLocation& location) const
+	{
+		const int32_t line_index = location.get_line_index();
+		const int32_t offset = location.get_offset();
+
+		if (line_index >= 0 && line_index < m_line_models.size())
+		{
+			return FTextLocation();
+		}
+
+		const FLineModel& line_model = m_line_models[line_index];
+
+
+	}
 	void FSlateTextLayout::aggregate_children()
 	{
 		m_children.empty();
