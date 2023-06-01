@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+
 #include "IBreakIterator.h"
 
 #include <unicode/brkiter.h>//icu::BreakIterator depends on it
@@ -31,9 +33,15 @@ namespace DoDo {
 	class FICUBreakIterator : public IBreakIterator
 	{
 	public:
-		FICUBreakIterator(std::weak_ptr<icu::BreakIterator>& in_icu_break_iterator);
+		FICUBreakIterator(std::weak_ptr<icu::BreakIterator> in_icu_break_iterator);
 
 		virtual ~FICUBreakIterator();
+
+		virtual void set_string(DoDoUtf8String in_string) override;
+
+	protected:
+		std::shared_ptr<icu::BreakIterator> get_internal_break_iterator() const;
+
 	private:
 		std::weak_ptr<icu::BreakIterator> m_icu_break_iterator_handle;
 	};

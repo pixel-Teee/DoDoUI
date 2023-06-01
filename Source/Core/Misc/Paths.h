@@ -25,5 +25,10 @@ namespace DoDo {
 		* @return engine content directory
 		*/
 		static DoDoUtf8String engine_content_dir();
+
+		/*
+		* returns true if this directory was found, false otherwise
+		*/
+		static bool directory_exists(const DoDoUtf8String& in_path);
 	};
 }

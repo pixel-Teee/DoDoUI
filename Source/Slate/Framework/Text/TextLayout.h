@@ -12,6 +12,7 @@
 
 namespace DoDo {
 	class ILayoutBlock;
+	class IBreakIterator;
 
 	namespace ETextJustify
 	{
@@ -306,6 +307,7 @@ namespace DoDo {
 		ETextJustify::Type m_justification;
 
 		/*the iterator to use to detect graphme cluster boundaries*/
+		std::shared_ptr<IBreakIterator> m_grapheme_break_iterator;
 
 
 		/*the final size of the text layout on screen*/

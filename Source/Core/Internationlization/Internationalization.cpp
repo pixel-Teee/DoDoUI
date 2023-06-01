@@ -11,6 +11,13 @@ namespace DoDo {
 		singleton.initialize();
 		return singleton;
 	}
+	FInternationalization::FInternationalization()
+		: m_implementation(std::make_unique<FImplementation>(this))
+	{
+	}
+	FInternationalization::~FInternationalization()
+	{
+	}
 	void FInternationalization::initialize()
 	{
 		static bool is_initializing = false;
@@ -26,6 +33,6 @@ namespace DoDo {
 			~FInitializingGuard() { is_initializing = false; }
 		} initializing_guard;
 
-		//m_b_is_initialized = 
+		m_b_is_initialized = m_implementation->initialize();
 	}
 }

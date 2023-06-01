@@ -12,6 +12,8 @@
 
 #include "Slate/Framework/Text/ISlateRunRenderer.h"//ISlateRunRenderer depends on it
 
+#include "Core/Internationlization/ICUBreakIterator.h"//ICUBreakIterator depends on it
+
 namespace DoDo {
 	std::shared_ptr<FSlateTextLayout> FSlateTextLayout::Create(SWidget* in_owner, FTextBlockStyle in_default_text_style)
 	{
@@ -120,7 +122,7 @@ namespace DoDo {
 
 		const FLineModel& line_model = m_line_models[line_index];
 
-
+		m_grapheme_break_iterator->set_string(*line_model.m_text);
 	}
 	void FSlateTextLayout::aggregate_children()
 	{

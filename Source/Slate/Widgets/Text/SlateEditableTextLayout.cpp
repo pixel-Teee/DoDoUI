@@ -209,7 +209,7 @@ namespace DoDo {
 			if (cursor_position.get_line_index() >= 0 && cursor_position.get_line_index() < lines.size())
 			{
 				//ensure the cursor is sitting on a valid graph me
-				//const FTextLocation cursor_selection = m_text_layout->get_graph_me_at(cursor_position);
+				const FTextLocation cursor_selection = m_text_layout->get_graphe_me_at(cursor_position);
 
 			}
 		}

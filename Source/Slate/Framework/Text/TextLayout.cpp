@@ -14,6 +14,8 @@
 
 #include "Slate/Framework/Text/DefaultLayoutBlock.h"
 
+#include "Core/Internationlization/BreakIterator.h"
+
 namespace DoDo {
 	FTextLayout::FTextLayout()
 		: m_wrapping_width(0)
@@ -21,6 +23,7 @@ namespace DoDo {
 		, m_wrapping_policy(ETextWrappingPolicy::DefaultWrapping)
 		, m_scale(1.0f)
 		, m_justification(ETextJustify::Left)
+		, m_grapheme_break_iterator(FBreakIterator::create_character_boundary_iterator())
 	{
 	}
 	FTextLayout::~FTextLayout()
