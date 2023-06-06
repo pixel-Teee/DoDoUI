@@ -12,6 +12,10 @@
 
 #include "Core/Misc/CoreGlobals.h"
 
+#include "Editor/EditorEngine.h"
+
+#include "Launch/Launch.h"
+
 #ifdef WIN32
 #include "Platform/Application/WindowsPlatformApplicationMisc.h"
 #endif
@@ -129,28 +133,11 @@ int main()
     //DoDo::DoDoUtf8String default_engine_dir("../../../Content/");
     //DoDo::DoDoUtf8String dir_to_try = default_engine_dir / default_engine_dir;
 
-    DoDo::FPlatformApplicationMisc::platform_pre_init();//todo:need to put at the app init function
-
-    DoDo::Application::Create();//initialize platform application
-
-    std::shared_ptr<DoDo::Renderer> pRenderer = DoDo::Renderer::Create();
-
-    DoDo::Application::get().Initialize_Renderer(pRenderer);//initialize renderer
-
-    DoDo::FGlobalTabmanager::get()->set_application_title("my app");
-
-    DoDo::Application::get().set_exit_requested_handler(DoDo::FSimpleDelegate::CreateStatic(&DoDo::request_engine_exit));
-
-    DoDo::Application::get().test_create_widget();
-
-    //tick
-    //todo:add exit global variable
-	while (!DoDo::is_engine_exit_requested())
-	{
-		DoDo::Application::get().Tick();
-	}
-
-    DoDo::Application::shut_down();//todo:in the future, put this at exit function
+    DoDo::FEngineLoop::pre_init();
+    
+    DoDo::FEngineLoop::loop();
+    
+    DoDo::FEngineLoop::destroy();
 
     //DoDo::Application::get().Tick();
 #endif

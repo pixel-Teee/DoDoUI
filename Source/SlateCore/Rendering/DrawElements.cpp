@@ -153,6 +153,15 @@ namespace DoDo
 		element.init(element_list, EElementType::ET_Gradient, in_layer, paint_geometry, in_draw_effects);
 	}
 
+	void FSlateDrawElement::make_viewport(FSlateWindowElementList& element_list, uint32_t in_layer, const FPaintGeometry& paint_geometry, std::shared_ptr<const ISlateViewport> viewport, ESlateDrawEffect in_draw_effects, const FLinearColor& in_tint)
+	{
+		paint_geometry.commit_transforms_if_using_legacy_constructor();
+
+		//todo:add cull
+
+		FSlateDrawElement& element = element_list.add_uninitialized();
+	}
+
 	void FSlateDrawElement::init(FSlateWindowElementList& element_list, EElementType in_element_type, uint32_t in_layer,
 	                             const FPaintGeometry& paint_geometry, ESlateDrawEffect in_draw_effects)
 	{

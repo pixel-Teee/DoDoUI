@@ -43,6 +43,7 @@ namespace DoDo
 		ET_Count
 	};
 
+	class ISlateViewport;
 	/*
 	 * FSlateDrawElement is the building block for slate's rendering interface
 	 * slate describes it's visual output as an ordered list of FSlateDrawElement s
@@ -147,6 +148,20 @@ namespace DoDo
 		 */
 		static void make_gradient(FSlateWindowElementList& element_list, uint32_t in_layer, const FPaintGeometry& paint_geometry, std::vector<FSlateGradientStop> in_gradient_stops,
 			EOrientation in_gradient_type, ESlateDrawEffect in_draw_effects = ESlateDrawEffect::None, glm::vec4 corner_radius = glm::vec4(0.0f));
+
+		/*
+		* creates a viewport element which is useful for rendering custom data in a texture into slate
+		* 
+		* @param ElementList the list in which to add elements
+		* @param InLayer the layer to draw the element to
+		* @param PaintGeometry draw space position and dimensions, see FPaintGeometry
+		* @param Viewport interface for drawing the viewport
+		* @param InSlate draw scale to apply to the entire element
+		* @param InDrawEffects optional draw effects to apply
+		* @param InTint color to tint the element
+		*/
+		static void make_viewport(FSlateWindowElementList& element_list, uint32_t in_layer, const FPaintGeometry& paint_geometry, std::shared_ptr<const ISlateViewport> viewport,
+			ESlateDrawEffect in_draw_effects = ESlateDrawEffect::None, const FLinearColor& in_tint = FLinearColor::White);
 
 		glm::vec2 get_position() const { return m_position; }
 	private:
