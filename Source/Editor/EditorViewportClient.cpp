@@ -18,5 +18,8 @@ namespace DoDo {
 	void FEditorViewportClient::Draw(FSceneViewport* in_viewport)
 	{
 		//todo:get renderer and draw viewport
+		
+		//from in_viewport to get render target and draw
+
 	}
 }

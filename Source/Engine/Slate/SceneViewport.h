@@ -5,6 +5,7 @@
 namespace DoDo {
 	class SViewport;
 	class FViewportClient;
+	class FSlateRenderTargetRHI;
 	/*
 	* a viewport for use with slate SViewport widgets
 	*/
@@ -35,6 +36,7 @@ namespace DoDo {
 		FViewportClient* m_viewport_client;
 
 	private:
+		FSlateRenderTargetRHI* m_slate_texture;//holds this life time
 
 		/*the slate viewport widget where this viewport is drawn*/
 		std::weak_ptr<SViewport> m_viewport_widget;
