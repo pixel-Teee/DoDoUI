@@ -10,4 +10,7 @@ namespace DoDo {
 	void SListPanel::Construct(const FArguments& in_args)
 	{
 	}
+	void SListPanel::On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const
+	{
+	}
 }

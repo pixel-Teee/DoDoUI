@@ -53,6 +53,7 @@ namespace DoDo {
 
 	public:
 
+		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
 
 	protected:
 		/*the uniform item width used to arrange the children, only relevant for tile views*/

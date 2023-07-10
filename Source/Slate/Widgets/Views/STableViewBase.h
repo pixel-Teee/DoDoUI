@@ -31,6 +31,20 @@ namespace DoDo {
 		FOnTableViewScrolled,
 		double
 	);//scroll offset from the beginning of the list in items
+
+	/*abstracts away the need to distinguish between X or Y when calculating table layout elements*/
+	struct FTableViewDimensions
+	{
+
+		EOrientation m_orientation = Orient_Vertical;
+
+		/*the dimension along the scrolling axis of the table view (Y when oriented vertically, X when horizontal)*/
+		float m_scroll_axis = 0.0f;
+
+		/*the dimension along to the scroll axis, along which lines of items are created, only really relevant for tile views*/
+		float m_line_axis = 0.0f;
+	};
+
 	/*
 	* Contains ListView functionality that does not depend on the type of data being observed by the ListView
 	*/
