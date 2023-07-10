@@ -9,6 +9,7 @@
 namespace DoDo
 {
 	class DoDoUtf8String;
+	class ITableRow;
 	//DECLARE_DELEGATE_RetVal(
 	//	FReply,
 	//	FOnClicked
@@ -33,4 +34,23 @@ namespace DoDo
 	* the second parameter contains information about how the text was committed
 	*/
 	DECLARE_DELEGATE_TwoParams(FOnTextCommitted, const DoDoUtf8String&, ETextCommit::Type)
+
+	template<typename ArgumentType>
+	class TSlateDelegates
+	{
+		/*
+		* the advanced version of OnGenerateWidget
+		* you are given the reference to the owning list/tree and asked to return the appropriate container widget
+		*/
+
+		DECLARE_DELEGATE_RetVal_TwoParams(
+			/* return: the widget visualization of the item*/
+			std::shared_ptr<ITableRow>,
+			FOnGenerateRow,
+			/*param: an item to visualize*/
+			ArgumentType,
+			/*param: the owning widget*/
+			const std::shared_ptr<class STableViewBase>&
+		);
+	};
 }
