@@ -363,6 +363,10 @@ namespace DoDo {
 		FWidgetStyle content_widget_style = FWidgetStyle(in_widget_style)
 			.blend_opacity(m_render_opacity);//note:just blend this widget and parent widget opacity
 
+		{
+			mutable_this->Tick(desktop_space_geometry, args.get_current_time(), args.get_delta_time());
+		}
+
 		if(paint_parent_ptr)
 		{
 			m_persistent_state.m_paint_parent = paint_parent_ptr->shared_from_this();//todo:fix me?
@@ -403,6 +407,10 @@ namespace DoDo {
 		}
 
 		return new_layer_id;
+	}
+
+	void SWidget::Tick(const FGeometry& allotted_geometry, const double in_current_time, const float in_delta_time)
+	{
 	}
 
 	FReply SWidget::On_Focus_Received(const FGeometry& my_geometry, const FFocusEvent& in_focus_event)

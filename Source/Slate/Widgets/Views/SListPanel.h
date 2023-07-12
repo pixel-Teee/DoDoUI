@@ -51,10 +51,34 @@ namespace DoDo {
 		*/
 		void Construct(const FArguments& in_args);
 
-	public:
+		/*@return the uniform desired item dimensions used when arranging children*/
+		FTableViewDimensions get_desired_item_dimensions() const;
 
+		/*@return the horizontal padding applied to each tile item*/
+		float get_item_padding(const FGeometry& allotted_geometry, const EListItemAlignment list_item_alignment) const;
+
+		/*@return the horizontal padding applied to all the items on a line*/
+		float get_line_padding(const FGeometry& allotted_geometry, const int32_t line_start_index) const;
+
+		/*@return the uniform item width used when arraning children*/
+		FTableViewDimensions get_item_size(const FGeometry& allotted_geometry, const EListItemAlignment list_item_alignment) const;
+
+		FTableViewDimensions get_item_size(const FGeometry& allotted_geometry) const;
+	protected:
+		/*@return true if this panel should arrange items as tiles placed alongside one another in each line*/
+		bool should_arrange_as_tiles() const;
+
+	public:
+		//swidget interface
+		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
+		virtual glm::vec2 Compute_Desired_Size(float) const override;
+		virtual FChildren* Get_Children() override;
+		//swidget interface
 
 	protected:
+		/*the children being arranged by this panel*/
+		TPanelChildren<FSlot> m_children;
+
 		/*the uniform item width used to arrange the children, only relevant for tile views*/
 		TAttribute<float> m_item_width;
 
@@ -63,5 +87,23 @@ namespace DoDo {
 
 		/*total number of items that the tree wants to visualize*/
 		TAttribute<int32_t> m_num_desired_items;
+
+		/*
+		* the offset of the view area from the top of the list in item heights
+		* translate to physical units based on first line in list
+		*/
+		float m_first_line_scroll_offset = 0.0f;
+
+		/*amount scrolled past beginning/end of list in slate units*/
+		float m_over_scroll_amount = 0.0f;
+
+		/*how should be horizontally aligned? only relevant for tile views*/
+		TAttribute<EListItemAlignment> m_item_alignment;
+
+		/*overall orientation of the list for layout and scrolling, only relevant for tile views*/
+		EOrientation m_orientation;
+
+		/*the preferred number of lines that this widget should have orthogonal to the scroll axis, only relevant for tile views*/
+		int32_t m_preferred_num_lines = 1;
 	};
 }

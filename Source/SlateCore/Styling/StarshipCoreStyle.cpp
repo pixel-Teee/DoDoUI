@@ -102,6 +102,17 @@ namespace DoDo {
 
 		set_up_colors(style);
 
+		//SSScrollBar defaults...
+		const FScrollBarStyle scroll_bar = FScrollBarStyle()
+			.set_normal_thumb_image(FSlateRoundedBoxBrush(FStyleColors::Hover, 4.0f))
+			.set_dragged_thumb_image(FSlateRoundedBoxBrush(FStyleColors::Hover2, 4.0f))
+			.set_hovered_thumb_image(FSlateRoundedBoxBrush(FStyleColors::Hover2, 4.0f))
+			.set_thickness(8.0f);
+
+		{
+			style->set("Scrollbar", scroll_bar);
+		}
+
 		const FStyleFonts& style_fonts = FStyleFonts::get();
 
 		set_up_text_styles(style);

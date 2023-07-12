@@ -38,6 +38,7 @@ namespace DoDo
 	template<typename ArgumentType>
 	class TSlateDelegates
 	{
+	public:
 		/*
 		* the advanced version of OnGenerateWidget
 		* you are given the reference to the owning list/tree and asked to return the appropriate container widget

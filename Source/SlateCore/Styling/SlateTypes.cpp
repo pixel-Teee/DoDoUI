@@ -4,7 +4,7 @@
 
 #include "SlateCore/Styling/SlateDefaults.h"
 
-#include "SlateCore/Styling/SlateDefaults.h"
+#include "SlateCore/Brushes/SlateNoResource.h"
 
 namespace DoDo
 {
@@ -188,7 +188,40 @@ namespace DoDo
 		return Default;
 	}
 
-	
+	const DoDoUtf8String FScrollBarStyle::TypeName("FScrollBarStyle");
+
+	FScrollBarStyle::FScrollBarStyle()
+		: m_horizontal_background_image(FSlateNoResource())
+		, m_vertical_background_image(FSlateNoResource())
+		, m_vertical_top_slot_image(FSlateNoResource())
+		, m_horizontal_top_slot_image(FSlateNoResource())
+		, m_vertical_bottom_slot_image(FSlateNoResource())
+		, m_horizontal_bottom_slot_image(FSlateNoResource())
+		, m_normal_thumb_image(FSlateNoResource())
+		, m_hovered_thumb_image(FSlateNoResource())
+		, m_dragged_thumb_image(FSlateNoResource())
+		, m_thickness(16.0f)
+	{
+	}
+
+	void FScrollBarStyle::get_resources(std::vector<const FSlateBrush*>& out_brushes) const
+	{
+		out_brushes.push_back(&m_horizontal_background_image);
+		out_brushes.push_back(&m_vertical_background_image);
+		out_brushes.push_back(&m_vertical_top_slot_image);
+		out_brushes.push_back(&m_horizontal_top_slot_image);
+		out_brushes.push_back(&m_vertical_bottom_slot_image);
+		out_brushes.push_back(&m_horizontal_bottom_slot_image);
+		out_brushes.push_back(&m_normal_thumb_image);
+		out_brushes.push_back(&m_hovered_thumb_image);
+		out_brushes.push_back(&m_dragged_thumb_image);
+	}
+
+	const FScrollBarStyle& FScrollBarStyle::get_default()
+	{
+		static FScrollBarStyle Default;
+		return Default;
+	}
 
 	//const FSplitterStyle& FSplitterStyle::get_default()
 	//{

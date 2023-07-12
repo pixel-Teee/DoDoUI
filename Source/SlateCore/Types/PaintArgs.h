@@ -44,6 +44,16 @@ namespace DoDo
 			return m_current_grid;
 		}
 
+		double get_current_time() const
+		{
+			return m_current_time;
+		}
+
+		float get_delta_time() const
+		{
+			return m_delta_time;
+		}
+
 		//todo:implement other set and get functions
 	private:
 		/*the root most grid, only the window should set this and only invalidation panels should modify it*/

@@ -78,6 +78,8 @@
 
 #include "Slate/Widgets/Layout/SGridPanel.h"//SGridPanel depends on it
 
+#include "Slate/Widgets/Views/SListView.h"//SListView depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -2128,6 +2130,11 @@ namespace DoDo
 								  //    ]
 								  //]
                               ]	
+                          ]
+                          + SSplitter::Slot()
+                          [
+                              SNew(SListView<std::shared_ptr<DoDoUtf8String>>)
+                    
                           ]
                       ]
                    ]			  

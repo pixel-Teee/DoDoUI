@@ -433,4 +433,60 @@ namespace DoDo
 		FWindowStyle& set_border_padding(FMargin in_border_padding) { m_broder_padding = in_border_padding; return *this; }
 	};
 
+	/*
+	* represents the appearance of an SScrollBar
+	*/
+	struct FScrollBarStyle : public FSlateWidgetStyle
+	{
+		FScrollBarStyle();
+
+		virtual ~FScrollBarStyle() {}
+
+		virtual void get_resources(std::vector<const FSlateBrush*>& out_brushes) const override;
+
+		static const DoDoUtf8String TypeName;
+
+		virtual const DoDoUtf8String get_type_name() const override { return TypeName; }
+
+		static const FScrollBarStyle& get_default();
+
+		/*background image to use when the scrollbar is oriented horizontally*/
+		FSlateBrush m_horizontal_background_image;
+		FScrollBarStyle& set_horizontal_background_image(const FSlateBrush& in_horizontal_background_image) { m_horizontal_background_image = in_horizontal_background_image; return *this; }
+
+		/*background image to use when the scrollbar is oriented vertically*/
+		FSlateBrush m_vertical_background_image;
+		FScrollBarStyle& set_vertical_background_image(const FSlateBrush& in_vertical_background_image) { m_vertical_background_image = in_vertical_background_image; return *this; }
+
+		/*the image to use to represent the track above the thumb when the scrollbar is oriented vertically*/
+		FSlateBrush m_vertical_top_slot_image;
+		FScrollBarStyle& set_vertical_top_slot_image(const FSlateBrush& value) { m_vertical_top_slot_image = value; return *this; }
+
+		/*the image to use to represent the track above the thumb when the scrollbar is oriented horizontally*/
+		FSlateBrush m_horizontal_top_slot_image;
+		FScrollBarStyle& set_horizontal_top_slot_image(const FSlateBrush& value) { m_horizontal_top_slot_image = value; return *this; }
+
+		/*the image to use to represent the track below the thumb when the scrollbar is oriented vertically*/
+		FSlateBrush m_vertical_bottom_slot_image;
+		FScrollBarStyle& set_vertical_bottom_slot_image(const FSlateBrush& value) { m_vertical_bottom_slot_image = value; return *this; }
+
+		/*the image to use to represent the track below the thumb when the scrollbar is oriented horizontally*/
+		FSlateBrush m_horizontal_bottom_slot_image;
+		FScrollBarStyle& set_horizontal_bottom_slot_image(const FSlateBrush& value) { m_horizontal_bottom_slot_image = value; return *this; }
+
+		/*image to use when the scrollbar thumb is in its normal state*/
+		FSlateBrush m_normal_thumb_image;
+		FScrollBarStyle& set_normal_thumb_image(const FSlateBrush& in_normal_thumb_image) { m_normal_thumb_image = in_normal_thumb_image; return *this; }
+
+		/*image to use when the scrollbar thumb is in its hovered state*/
+		FSlateBrush m_hovered_thumb_image;
+		FScrollBarStyle& set_hovered_thumb_image(const FSlateBrush& in_hovered_thumb_image) { m_hovered_thumb_image = in_hovered_thumb_image; return *this; }
+
+		/*image to use when the scrollbar thumb is in its dragged state*/
+		FSlateBrush m_dragged_thumb_image;
+		FScrollBarStyle& set_dragged_thumb_image(const FSlateBrush& in_dragged_thumb_image) { m_dragged_thumb_image = in_dragged_thumb_image; return *this; }
+
+		float m_thickness;
+		FScrollBarStyle& set_thickness(float in_thickness) { m_thickness = in_thickness; return *this; }
+	};
 }

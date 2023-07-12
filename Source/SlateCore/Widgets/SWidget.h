@@ -409,6 +409,15 @@ namespace DoDo
 		 */
 		int32_t paint(const FPaintArgs& args, const FGeometry& allotted_geometry, const FSlateRect& my_culling_rect, FSlateWindowElementList& out_draw_elements, int32_t layer_id, const FWidgetStyle& in_widget_style, bool b_parent_enabled) const;
 
+		/*
+		* ticks this widget with geometry, override in derived classes, but always call the parent implementation
+		* 
+		* @param AllottedGeometry the space allotted for this widget
+		* @param InCurrentTime current absolute real time
+		* @param InDeltaTime real time passed since last tick
+		*/
+		virtual void Tick(const FGeometry& allotted_geometry, const double in_current_time, const float in_delta_time);
+
 		virtual FReply On_Focus_Received(const FGeometry& my_geometry, const FFocusEvent& in_focus_event);
 
 		/*
