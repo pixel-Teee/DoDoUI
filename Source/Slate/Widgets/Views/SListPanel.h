@@ -75,6 +75,8 @@ namespace DoDo {
 		virtual FChildren* Get_Children() override;
 		//swidget interface
 
+		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
+
 	protected:
 		/*the children being arranged by this panel*/
 		TPanelChildren<FSlot> m_children;

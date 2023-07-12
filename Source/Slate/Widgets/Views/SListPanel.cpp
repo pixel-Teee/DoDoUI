@@ -218,4 +218,7 @@ namespace DoDo {
 	{
 		return &m_children;
 	}
+	void SListPanel::On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const
+	{
+	}
 }
