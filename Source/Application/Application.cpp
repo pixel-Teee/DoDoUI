@@ -2018,10 +2018,25 @@ namespace DoDo
                ];
     }
 
+    static std::shared_ptr<ITableRow> make_list_view_widget(std::shared_ptr<DoDoUtf8String> item, const std::shared_ptr<STableViewBase>& owner_table)
+    {
+        return SNew(STableRow<std::shared_ptr<DoDoUtf8String>>, owner_table)
+        [
+            SNew(STextBlock)
+            .Text(*item)
+        ];
+    }
+
     static std::shared_ptr<SDockTab> spawn_star_ship_widgets(const FSpawnTabArgs& spawn_tab_args)
     {
         std::vector<FLinearColor> colors2 = { {1.0f, 0.2f, 0.2f, 1.0f}, {0.55f, 0.77f, 0.98f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f} };
         std::vector<FLinearColor> colors = { {0.51f, 0.99f, 0.73f, 1.0f}, {1.0f, 0.98f, 0.49f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f}, {0.4f, 0.76f, 0.2f, 1.0f} };
+
+        static std::vector<std::shared_ptr<DoDoUtf8String>> strings; //todo:fix me
+
+        strings.push_back(std::make_shared<DoDoUtf8String>(u8"hello"));
+        strings.push_back(std::make_shared<DoDoUtf8String>(u8"next time, i will see you"));
+
         return SNew(SDockTab)
                //.ContentPadding(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
                .ForegroundColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f))
@@ -2134,7 +2149,8 @@ namespace DoDo
                           + SSplitter::Slot()
                           [
                               SNew(SListView<std::shared_ptr<DoDoUtf8String>>)
-                    
+                              .ListItemSource(&strings)
+                              .OnGenerateRow_Static(&make_list_view_widget)
                           ]
                       ]
                    ]			  

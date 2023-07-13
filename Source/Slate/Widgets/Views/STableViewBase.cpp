@@ -10,6 +10,8 @@
 
 #include "Slate/Widgets/Layout/SScrollBar.h"
 
+#include "ITableRow.h"
+
 namespace DoDo {
 	void STableViewBase::ConstructChildren(const TAttribute<float>& in_item_width, const TAttribute<float>& in_item_height, const TAttribute<EListItemAlignment>& in_item_alignment, const std::shared_ptr<SHeaderRow>& in_header_row, const std::shared_ptr<SScrollBar>& in_scroll_bar, EOrientation in_scroll_orientation, const FOnTableViewScrolled& in_on_table_view_scrolled,
 		const FScrollBarStyle* in_scroll_bar_style)
@@ -66,6 +68,53 @@ namespace DoDo {
 			list_and_scroll_bar
 		];
 	}
+	void STableViewBase::clear_widgets()
+	{
+		m_items_panel->clear_items();
+	}
+	void STableViewBase::append_widget(const std::shared_ptr<ITableRow>& widget_to_append)
+	{
+		m_items_panel->add_slot()
+		[
+			widget_to_append->as_widget()
+		];
+	}
+	void STableViewBase::insert_widget(const std::shared_ptr<ITableRow>& widget_to_insert)
+	{
+		m_items_panel->add_slot(0)
+		[
+			widget_to_insert->as_widget()
+		];
+	}
+	int32_t STableViewBase::get_num_items_per_line() const
+	{
+		return 1;
+	}
+	void STableViewBase::Tick(const FGeometry& allotted_geometry, const double in_current_time, const float in_delta_time)
+	{
+		if (m_items_panel)
+		{
+			FGeometry panel_geometry = find_child_geometry(allotted_geometry, m_items_panel);
+
+			if (m_panel_geometry_try_last_tick.get_local_size() != panel_geometry.get_local_size())
+			{
+				m_panel_geometry_try_last_tick = panel_geometry;
+
+				const int32_t num_items_per_line = get_num_items_per_line();
+
+				const EScrollIntoViewResult scroll_into_view_result = scroll_into_view(panel_geometry);
+
+				double target_scroll_offset = get_target_scroll_offset();
+
+				m_current_scroll_offset = target_scroll_offset;
+
+				const FReGenerateResults re_generate_results = re_generate_items(panel_geometry);
+				//m_last_generate_results = 
+				
+				//todo:add more logic
+			}
+		}
+	}
 	glm::vec2 STableViewBase::get_scroll_distance()
 	{
 		return glm::vec2(0, m_scroll_bar->distance_from_top());
@@ -81,6 +130,10 @@ namespace DoDo {
 	STableViewBase::STableViewBase(ETableViewMode::Type in_table_view_mode)
 		: m_table_view_mode(in_table_view_mode)
 	{
+	}
+	double STableViewBase::get_target_scroll_offset() const
+	{
+		return m_desired_scroll_offset;
 	}
 	FTableViewDimensions::FTableViewDimensions(EOrientation in_orientation)
 		: m_orientation(in_orientation)

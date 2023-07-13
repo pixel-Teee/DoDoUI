@@ -199,6 +199,13 @@ namespace DoDo
 			return true;//todo:implement TWidgetSlotWithAttributeSupport
 		}
 
+		void empty(int32_t slack = 0)
+		{
+			//todo:fix me
+
+			m_children.clear();
+		}
+
 		int32_t add_slot(typename SlotType::FSlotArguments&& slot_argument)
 		{
 			//interms slot argument to construct a slot

@@ -69,6 +69,7 @@ namespace DoDo {
 	};
 
 	struct FScrollBarStyle;
+	class ITableRow;
 	/*
 	* Contains ListView functionality that does not depend on the type of data being observed by the ListView
 	*/
@@ -82,6 +83,77 @@ namespace DoDo {
 		/*@return how many items there are in the TArray being observed*/
 		virtual int32_t get_num_items_being_observed() const = 0;
 
+		/*is this list backing a tree or just a standalone list*/
+		const ETableViewMode::Type m_table_view_mode;
+
+		/*
+		* remove all the widgets from the view
+		*/
+		void clear_widgets();
+
+		/*information about the outcome of the widget regenerate pass*/
+		struct FReGenerateResults
+		{
+			FReGenerateResults(double in_new_scroll_offset, double in_length_generated, double in_items_on_screen, bool at_end_of_list)
+				: m_new_scroll_offset(in_new_scroll_offset)
+				, m_length_of_generated_items(in_length_generated)
+				, m_exact_num_lines_on_screen(in_items_on_screen)
+				, m_b_generated_past_last_item(at_end_of_list)
+			{}
+
+			/*the scroll offset that we actually use might not be what the user asked for*/
+			double m_new_scroll_offset = 0.0;
+
+			/*the total length along the scroll axis of the widgets that we have generated to represent the visible subset of the items*/
+			double m_length_of_generated_items = 0.0;
+
+			/*how many lines are fitting on the screen, including fractions*/
+			double m_exact_num_lines_on_screen = 0.0;
+
+			/*true when we have generated*/
+			bool m_b_generated_past_last_item = false;
+		};
+
+		/*
+		* update generate widgets for items as needed and clean up any widgets that are no longer needed
+		* re-arrange the visible widget order as necessary
+		*/
+		virtual FReGenerateResults re_generate_items(const FGeometry& my_geometry) = 0;
+
+		enum class EScrollIntoViewResult
+		{
+			/*the function scrolled an item (if set) into view (or the item was already in view)*/
+			Success,
+
+			/*the function did not have enough data to scroll the given item into view, so it should be deferred until the next tick*/
+			Deferred,
+
+			/*the function failed to scroll to the specified item*/
+			Failure
+		};
+
+		/*
+		* if there is a pending request to scroll an item into view, do so
+		* 
+		* @param ListViewGeometry the geometry of the list view, can be useful for centering the item
+		*/
+		virtual EScrollIntoViewResult scroll_into_view(const FGeometry& list_view_geometry) = 0;
+
+		/*add a widget to append to the bottom of the view*/
+		void append_widget(const std::shared_ptr<ITableRow>& widget_to_append);
+
+		/*insert widget to insert at the top of the view*/
+		void insert_widget(const std::shared_ptr<ITableRow>& widget_to_insert);
+
+		/*
+		* get the number of items that can fit in the view along the line axis (orthogonal to the scroll axis) before creating a new line
+		* default is 1, but may be more in subclasses (like STileView)
+		*/
+		virtual int32_t get_num_items_per_line() const;
+	public:
+		//SWidget interface
+
+		virtual void Tick(const FGeometry& allotted_geometry, const double in_current_time, const float in_delta_time) override;
 	public:
 		//IScrollableWidget interface
 		virtual glm::vec2 get_scroll_distance() override;
@@ -91,8 +163,16 @@ namespace DoDo {
 
 		STableViewBase(ETableViewMode::Type in_table_view_mode);
 
-		/*is this list backing a tree or just a standalone list*/
-		const ETableViewMode::Type m_table_view_mode;
+		/*returns the "true" scroll offset where the list will ultimately settle (and may already be)*/
+		double get_target_scroll_offset() const;
+
+		/*what the list's geometry was the last time a refresh occurred*/
+		FGeometry m_panel_geometry_try_last_tick;
+
+		double m_desired_scroll_offset = 0.;
+
+		/*the currently dispalyed scroll offset from the beginning of the list in items*/
+		double m_current_scroll_offset = 0.;
 
 		/*column headers that describe which columns this list shows*/
 		std::shared_ptr<SHeaderRow> m_header_row;

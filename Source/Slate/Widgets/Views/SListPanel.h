@@ -44,6 +44,11 @@ namespace DoDo {
 		/*make a new ListPanel::Slot*/
 		static FSlot::FSlotArguments Slot();
 
+		using FScopedWidgetSlotArguments = TPanelChildren<FSlot>::FScopedWidgetSlotArguments;
+
+		/*add a slot to the list panel*/
+		FScopedWidgetSlotArguments add_slot(int32_t insert_at_index = -1);
+
 		/*
 		* construct the widget
 		* 
@@ -64,6 +69,9 @@ namespace DoDo {
 		FTableViewDimensions get_item_size(const FGeometry& allotted_geometry, const EListItemAlignment list_item_alignment) const;
 
 		FTableViewDimensions get_item_size(const FGeometry& allotted_geometry) const;
+
+		/*remove all the children from this panel*/
+		void clear_items();
 	protected:
 		/*@return true if this panel should arrange items as tiles placed alongside one another in each line*/
 		bool should_arrange_as_tiles() const;
@@ -74,8 +82,6 @@ namespace DoDo {
 		virtual glm::vec2 Compute_Desired_Size(float) const override;
 		virtual FChildren* Get_Children() override;
 		//swidget interface
-
-		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
 
 	protected:
 		/*the children being arranged by this panel*/

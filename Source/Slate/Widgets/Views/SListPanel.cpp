@@ -16,6 +16,10 @@ namespace DoDo {
 	{
 		return FSlot::FSlotArguments(std::make_unique<FSlot>());
 	}
+	SListPanel::FScopedWidgetSlotArguments SListPanel::add_slot(int32_t insert_at_index)
+	{
+		return FScopedWidgetSlotArguments(std::make_unique<FSlot>(), m_children, insert_at_index);
+	}
 	void SListPanel::Construct(const FArguments& in_args)
 	{
 		m_item_width = in_args._ItemWidth;
@@ -96,6 +100,10 @@ namespace DoDo {
 	FTableViewDimensions SListPanel::get_item_size(const FGeometry& allotted_geometry) const
 	{
 		return get_item_size(allotted_geometry, m_item_alignment.Get());
+	}
+	void SListPanel::clear_items()
+	{
+		m_children.empty();
 	}
 	bool SListPanel::should_arrange_as_tiles() const
 	{
@@ -217,8 +225,5 @@ namespace DoDo {
 	FChildren* SListPanel::Get_Children()
 	{
 		return &m_children;
-	}
-	void SListPanel::On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const
-	{
 	}
 }
