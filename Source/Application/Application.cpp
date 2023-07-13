@@ -2036,6 +2036,7 @@ namespace DoDo
 
         strings.push_back(std::make_shared<DoDoUtf8String>(u8"hello"));
         strings.push_back(std::make_shared<DoDoUtf8String>(u8"next time, i will see you"));
+        strings.push_back(std::make_shared<DoDoUtf8String>(u8"失败的一天"));
 
         return SNew(SDockTab)
                //.ContentPadding(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
@@ -2151,6 +2152,7 @@ namespace DoDo
                               SNew(SListView<std::shared_ptr<DoDoUtf8String>>)
                               .ListItemSource(&strings)
                               .OnGenerateRow_Static(&make_list_view_widget)
+                              .ItemHeight(200)
                           ]
                       ]
                    ]			  

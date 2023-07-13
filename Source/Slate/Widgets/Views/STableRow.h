@@ -34,7 +34,7 @@ namespace DoDo {
 		void Construct(const typename STableRow<ItemType>::FArguments& in_args, const std::shared_ptr<STableViewBase>& in_owner_table_view)
 		{
 			Construct_Children(
-				in_owner_table_view->m_table_view_mode,
+				in_owner_table_view->m_table_view_mode, //interms of this view mode to construct different view
 				in_args._Padding,
 				in_args._Content.m_widget
 			);

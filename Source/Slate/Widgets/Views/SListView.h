@@ -26,6 +26,7 @@ namespace DoDo {
 		, _ItemHeight(16)
 		, _ExternalScrollbar()
 		, _ScrollBarStyle(&FAppStyle::get().get_widget_style<FScrollBarStyle>("Scrollbar"))
+		, _Orientation(Orient_Vertical)
 		{}
 			SLATE_EVENT(FOnGenerateRow, OnGenerateRow)
 
