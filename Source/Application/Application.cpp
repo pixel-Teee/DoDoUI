@@ -2020,10 +2020,22 @@ namespace DoDo
 
     static std::shared_ptr<ITableRow> make_list_view_widget(std::shared_ptr<DoDoUtf8String> item, const std::shared_ptr<STableViewBase>& owner_table)
     {
+        static int32_t i = 0;
+        ++i;
+        FLinearColor new_color;
+        if(i % 2 == 0)
+            new_color = FLinearColor(static_cast<float>(rand()) / static_cast<float>(RAND_MAX), static_cast<float>(rand()) / static_cast<float>(RAND_MAX), static_cast<float>(rand()) / static_cast<float>(RAND_MAX), 1.0f);
+        else
+            new_color = FLinearColor(static_cast<float>(rand()) / static_cast<float>(RAND_MAX), static_cast<float>(rand()) / static_cast<float>(RAND_MAX), static_cast<float>(rand()) / static_cast<float>(RAND_MAX), 1.0f);
         return SNew(STableRow<std::shared_ptr<DoDoUtf8String>>, owner_table)
         [
-            SNew(STextBlock)
-            .Text(*item)
+            SNew(SBorder)
+            .BorderBackgroundColor(new_color)
+            .ColorAndOpacity(new_color)
+            [
+				SNew(STextBlock)
+				.Text(*item)
+            ]        
         ];
     }
 
@@ -2037,6 +2049,13 @@ namespace DoDo
         strings.push_back(std::make_shared<DoDoUtf8String>(u8"hello"));
         strings.push_back(std::make_shared<DoDoUtf8String>(u8"next time, i will see you"));
         strings.push_back(std::make_shared<DoDoUtf8String>(u8"失败的一天"));
+        strings.push_back(std::make_shared<DoDoUtf8String>(u8"星期一"));
+        strings.push_back(std::make_shared<DoDoUtf8String>(u8"星期二"));
+        strings.push_back(std::make_shared<DoDoUtf8String>(u8"星期三"));
+        strings.push_back(std::make_shared<DoDoUtf8String>(u8"星期四"));
+        strings.push_back(std::make_shared<DoDoUtf8String>(u8"星期五"));
+        strings.push_back(std::make_shared<DoDoUtf8String>(u8"星期六"));
+        strings.push_back(std::make_shared<DoDoUtf8String>(u8"星期天"));
 
         return SNew(SDockTab)
                //.ContentPadding(FMargin(0.0f, 0.0f, 200.0f, 200.0f))
