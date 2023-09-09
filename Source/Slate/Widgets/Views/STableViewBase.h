@@ -6,6 +6,8 @@
 
 #include "Slate/Framework/Views/ITypedTableView.h"//ETableViewMode::Type depends on it
 
+#include "Slate/Framework/Layout/Overscroll.h"//EAllowOverscroll depends on it
+
 namespace DoDo {
 	class SHeaderRow;
 	class SScrollBar;
@@ -150,6 +152,12 @@ namespace DoDo {
 		* default is 1, but may be more in subclasses (like STileView)
 		*/
 		virtual int32_t get_num_items_per_line() const;
+
+		/*get the offset of the first list item*/
+		virtual float get_first_line_scroll_offset() const;
+
+		/*set the scroll offset of this view (in items)*/
+		void set_scroll_offset(const float in_scroll_offset);
 	public:
 		//SWidget interface
 
@@ -165,6 +173,9 @@ namespace DoDo {
 
 		/*returns the "true" scroll offset where the list will ultimately settle (and may already be)*/
 		double get_target_scroll_offset() const;
+
+		/*information about the widgets we generated during the last regenerate pass*/
+		FReGenerateResults m_last_generate_results;
 
 		/*what the list's geometry was the last time a refresh occurred*/
 		FGeometry m_panel_geometry_try_last_tick;
@@ -188,5 +199,15 @@ namespace DoDo {
 
 		/*the layout and scroll orientation of the list*/
 		EOrientation m_orientation = Orient_Vertical;
+
+	protected:
+		//todo:add FOverscroll
+
+		/*whether to permit overscroll on this list view*/
+		EAllowOverscroll m_allow_over_scroll;
+
+	private:
+		/*when true, a refresh shoud occur the next tick*/
+		bool m_b_items_need_refresh = false;
 	};
 }

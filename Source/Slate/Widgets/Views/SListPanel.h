@@ -81,8 +81,11 @@ namespace DoDo {
 		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
 		virtual glm::vec2 Compute_Desired_Size(float) const override;
 		virtual FChildren* Get_Children() override;
+		virtual void Tick(const FGeometry& allotted_geometry, const double in_current_time, const float in_delta_time) override;
 		//swidget interface
 
+		/*fraction of the first line that we should offset by to account for the current scroll amount*/
+		void set_first_line_scroll_offset(float in_first_line_scroll_offset);
 	protected:
 		/*the children being arranged by this panel*/
 		TPanelChildren<FSlot> m_children;

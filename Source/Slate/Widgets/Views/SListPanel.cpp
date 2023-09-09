@@ -226,4 +226,40 @@ namespace DoDo {
 	{
 		return &m_children;
 	}
+
+	void SListPanel::Tick(const FGeometry& allotted_geometry, const double in_current_time, const float in_delta_time)
+	{
+		if (should_arrange_as_tiles())
+		{
+			const FTableViewDimensions allotted_dimensions(m_orientation, allotted_geometry.get_local_size());
+
+			const EListItemAlignment list_item_alignment = m_item_alignment.Get();
+
+			const float item_padding = get_item_padding(allotted_geometry, list_item_alignment);
+
+			FTableViewDimensions item_dimensions = get_item_size(allotted_geometry, list_item_alignment);
+
+			item_dimensions.m_line_axis += item_padding;
+
+			const int32_t num_children = m_num_desired_items.Get();
+
+			if (item_dimensions.m_line_axis > 0.0f && num_children > 0)
+			{
+				const int32_t num_items_per_line = std::clamp((int32_t)(allotted_dimensions.m_line_axis / item_dimensions.m_line_axis) - 1, 1, num_children);//todo:add cell
+				m_preferred_num_lines = num_children / (float)num_items_per_line;
+			}
+			else
+			{
+				m_preferred_num_lines = 1;
+			}
+		}
+		else
+		{
+			m_preferred_num_lines = m_num_desired_items.Get();
+		}
+	}
+	void SListPanel::set_first_line_scroll_offset(float in_first_line_scroll_offset)
+	{
+		m_first_line_scroll_offset = in_first_line_scroll_offset;
+	}
 }

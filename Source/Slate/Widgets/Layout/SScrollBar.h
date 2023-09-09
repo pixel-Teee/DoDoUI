@@ -6,6 +6,8 @@
 
 namespace DoDo {
 	class SScrollBarTrack;
+	class SSpacer;
+	class SImage;
 	class SScrollBar : public SBorder
 	{
 	public:
@@ -35,6 +37,16 @@ namespace DoDo {
 		*/
 		void Construct(const FArguments& in_args);
 
+		/*
+		* set the offset and size of the track's thumb
+		* note that the maximum offset is 1.0 - thumb size fraction
+		* if the user can view 1/3 of the items in a single page, the maximum offset will be ~0.667f
+		* 
+		* @param InOffsetFraction offset of the thumbnail from the top as a fraction of the total available scroll space
+		* @param InThumbSizeFraction Size of thumbnail as a fraction of the total available scroll space
+		*/
+		void set_state(float in_offset_fraction, float in_thumb_size_fraction);
+
 		/*set argument style*/
 		void set_style(const FScrollBarStyle* in_style);
 
@@ -43,6 +55,14 @@ namespace DoDo {
 
 		float distance_from_bottom() const;
 	protected:
+
+		std::shared_ptr<SImage> m_top_image;
+
+		std::shared_ptr<SImage> m_bottom_image;
+
+		std::shared_ptr<SBorder> m_drag_thumb;
+
+		std::shared_ptr<SSpacer> m_thickness_spacer;
 
 		std::shared_ptr<SScrollBarTrack> m_track;
 		EOrientation m_orientation;

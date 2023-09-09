@@ -46,9 +46,19 @@ namespace DoDo {
 		*/
 		void Construct(const FArguments& in_args);
 
-		virtual void On_ArrageChildren(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const;
+		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
+
+		virtual glm::vec2 Compute_Desired_Size(float) const;
+
+		virtual FChildren* Get_Children();
 
 		float distance_from_top() const;
+
+		float distance_from_bottom() const;
+
+		float get_thumb_size_fraction() const;
+
+		void set_sizes(float in_thumb_offset_fraction, float in_thumb_size_fraction);
 
 	protected:
 		static const int32_t TOP_SLOT_INDEX = 0;
