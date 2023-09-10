@@ -152,6 +152,7 @@ namespace DoDo {
 		//common brushes
 		
 		{
+			style->set("WhiteBrush", new FSlateColorBrush(FLinearColor::White));
 			style->set("Checkboard", new FSlateImageBrush(style->root_to_content_dir("Checkboard", ".png"), Icon16x16, FLinearColor::White, ESlateBrushTileType::Both));
 		}
 
@@ -162,6 +163,9 @@ namespace DoDo {
 				.set_handle_highlight_brush(FSlateColorBrush(FStyleColors::Secondary))
 			);
 		}
+
+		//table view defaults...
+		set_up_table_view_styles(style);
 
 		//common icons
 		{
@@ -517,6 +521,14 @@ namespace DoDo {
 				.set_normal_thumb_image(FSlateImageBrush(style->root_to_content_dir("Common/ColorPicker_SliderHandle", ".png"), glm::vec2(8.0f, 32.0f)))
 				.set_hovered_thumb_image(FSlateImageBrush(style->root_to_content_dir("Common/ColorPicker_SliderHandle", ".png"), glm::vec2(8.0f, 32.0f))));
 		}
+	}
+
+	void FStarshipCoreStyle::set_up_table_view_styles(std::shared_ptr<FStyle>& style)
+	{
+		style->set("TreeArrow_Collapsed", new FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/caret-left", ".svg"), Icon16x16, FStyleColors::Foreground));
+		style->set("TreeArrow_Collapsed_Hovered", new FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/caret-right", ".svg"), Icon16x16, FStyleColors::ForegroundHover));
+		style->set("TreeArrow_Expanded", new FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/caret-down", ".svg"), Icon16x16, FStyleColors::Foreground));
+		style->set("TreeArrow_Expanded_Hovered", new FSlateVectorImageBrush(style->root_to_content_dir("Starship/Common/caret-down", ".svg"), Icon16x16, FStyleColors::ForegroundHover));
 	}
 
 }

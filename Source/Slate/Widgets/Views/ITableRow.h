@@ -26,7 +26,19 @@ namespace DoDo {
 		*/
 		virtual void set_index_in_list(int32_t in_index_in_list) = 0;
 
+		/*@return how nested the item associated with this row when it is in a tree view*/
+		virtual int32_t get_indent_level() const = 0;
+
+		/*toggle the expansion of the item associated with this row*/
+		virtual void toggle_expansion() = 0;
+
 		/*@return this table row as a widget*/
 		virtual std::shared_ptr<SWidget> as_widget() = 0;
+
+		/*@return does this item have children?*/
+		virtual int32_t does_item_have_children() const = 0;
+
+		/*@return true if the corresponding item is expanded, false otherwise*/
+		virtual bool is_item_expanded() const = 0;
 	};
 }

@@ -14,7 +14,7 @@
 
 namespace DoDo {
 	template<typename ItemType>
-	class SListView : public STableViewBase
+	class SListView : public STableViewBase, public ITypedTableView<ItemType>
 	{
 	public:
 		using FOnGenerateRow = typename TSlateDelegates<ItemType>::FOnGenerateRow;
@@ -279,6 +279,33 @@ namespace DoDo {
 			return FReGenerateResults(0.0f, 0.0f, 0.0f, false);
 		}
 
+		virtual int32_t private_get_nesting_depth(int32_t item_index_in_list) const override
+		{
+			return 0;
+		}
+
+		virtual bool private_does_item_have_children(int32_t item_index_in_list) const override
+		{
+			return false;
+		}
+
+		virtual const ItemType* private_item_from_widget(const ITableRow* the_widget) const override
+		{
+			auto lookup_result = m_widget_generator.m_widget_map_to_item.find(the_widget);
+
+			return lookup_result == m_widget_generator.m_widget_map_to_item.end() ? nullptr : &(lookup_result->second);
+		}
+
+		virtual bool private_is_item_expanded(const ItemType& the_item) const
+		{
+			return false;
+		}
+
+		virtual void private_set_item_expansion(ItemType the_item, bool b_should_be_expanded)
+		{
+
+		}
+
 	private:
 		friend class FWidgetGenerator;
 
@@ -361,9 +388,9 @@ namespace DoDo {
 
 				const bool b_widget_is_newly_generated = (it == m_item_to_widget_map.end());
 
-				if (it != m_item_to_widget_map.end())
+				if (it == m_item_to_widget_map.end())
 				{
-					std::shared_ptr<ITableRow> loop_up_result = it->second;
+					//std::shared_ptr<ITableRow> loop_up_result = it->second;
 
 					//it's a newly generated item!
 					m_item_to_widget_map.insert({ in_item, in_generated_widget });

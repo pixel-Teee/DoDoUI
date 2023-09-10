@@ -80,6 +80,8 @@
 
 #include "Slate/Widgets/Views/SListView.h"//SListView depends on it
 
+#include "Slate/Widgets/Views/STreeView.h"//SListView depends on it
+
 namespace DoDo
 {
 	std::shared_ptr<GenericApplication> Application::s_platform_application = nullptr;//global platform application
@@ -2039,6 +2041,18 @@ namespace DoDo
         ];
     }
 
+    static void get_children(std::shared_ptr<DoDoUtf8String> parent, std::vector<std::shared_ptr<DoDoUtf8String>>& children)
+    {
+        if (*parent == DoDoUtf8String(u8"星期一"))
+        {
+            children.push_back(std::make_shared<DoDoUtf8String>(u8"愉悦送走"));
+        }
+        else if (*parent == DoDoUtf8String(u8"愉悦送走"))
+        {
+            children.push_back(std::make_shared<DoDoUtf8String>(u8"嘟嘟嘟"));
+        }
+    }
+
     static std::shared_ptr<SDockTab> spawn_star_ship_widgets(const FSpawnTabArgs& spawn_tab_args)
     {
         std::vector<FLinearColor> colors2 = { {1.0f, 0.2f, 0.2f, 1.0f}, {0.55f, 0.77f, 0.98f, 1.0f}, {0.87f, 0.76f, 0.98f, 1.0f} };
@@ -2176,6 +2190,14 @@ namespace DoDo
 								  .ListItemSource(&strings)
 							      .OnGenerateRow_Static(&make_list_view_widget)
                               ]
+						      + SVerticalBox::Slot()
+							  .fill_height(0.1f)
+							  [
+								  SNew(STreeView<std::shared_ptr<DoDoUtf8String>>)
+								  .TreeItemSource(&strings)
+                                  .OnGetChildren_Static(&get_children)
+							      .OnGenerateRow_Static(&make_list_view_widget)
+							  ]
                               + SVerticalBox::Slot()
                               .fill_height(0.9f)
                               [

@@ -185,6 +185,10 @@ namespace DoDo {
 			m_b_items_need_refresh = true;
 		}
 	}
+	void STableViewBase::request_list_refresh()
+	{
+		request_layout_refresh();
+	}
 	void STableViewBase::Tick(const FGeometry& allotted_geometry, const double in_current_time, const float in_delta_time)
 	{
 		if (m_items_panel)

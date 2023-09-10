@@ -176,6 +176,8 @@ namespace DoDo {
 		virtual float scroll_to(float in_scroll_offset);
 
 		void request_layout_refresh();
+
+		virtual void request_list_refresh();
 	public:
 		//SWidget interface
 

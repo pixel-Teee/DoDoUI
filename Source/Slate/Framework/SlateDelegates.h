@@ -44,6 +44,13 @@ namespace DoDo
 		* you are given the reference to the owning list/tree and asked to return the appropriate container widget
 		*/
 
+		/*a delegate for the OnGetChildren handler, given a data item, populate an output array with its children if it has any*/
+		DECLARE_DELEGATE_TwoParams(
+			FOnGetChildren,
+			/*params: a data item and an array to populate with the item's children*/
+			ArgumentType, std::vector<ArgumentType>&
+		);
+
 		DECLARE_DELEGATE_RetVal_TwoParams(
 			/* return: the widget visualization of the item*/
 			std::shared_ptr<ITableRow>,

@@ -69,6 +69,12 @@ namespace DoDo {
 		
 		}
 
+		template<class SourceType>
+		TAttribute(SourceType* in_user_object, typename FGetter::template TConstMethodPtr<SourceType> in_method_ptr)
+			: m_value()
+			, m_b_is_set(true)
+			, m_getter(FGetter::CreateSP(in_user_object, in_method_ptr))
+		{}
 		/*
 		 * static : creates an attribute that's pre-bound to the specified 'getter' delegate
 		 *
