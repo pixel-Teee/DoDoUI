@@ -68,6 +68,19 @@ namespace DoDo
 		return false;
 	}
 
+	bool FSlateUser::is_widget_directly_under_any_pointer(std::shared_ptr<const SWidget> widget) const
+	{
+		for (const auto& index_path_pair : m_widgets_under_pointer_last_event_by_index)
+		{
+			if (index_path_pair.second.is_valid() && index_path_pair.second.get_last_widget().lock() == widget)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	glm::vec2 FSlateUser::get_cursor_position() const
 	{
 		return get_pointer_position(Application::m_cursor_pointer_index);

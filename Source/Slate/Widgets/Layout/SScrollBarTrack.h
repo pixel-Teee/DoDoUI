@@ -33,10 +33,10 @@ namespace DoDo {
 
 		}
 
-			SLATE_NAMED_SLOT(FArguments, TopSlot)
-				SLATE_NAMED_SLOT(FArguments, ThumbSlot)
-				SLATE_NAMED_SLOT(FArguments, BottomSlot)
-				SLATE_ARGUMENT(EOrientation, Orientation)
+		SLATE_NAMED_SLOT(FArguments, TopSlot)
+			SLATE_NAMED_SLOT(FArguments, ThumbSlot)
+			SLATE_NAMED_SLOT(FArguments, BottomSlot)
+			SLATE_ARGUMENT(EOrientation, Orientation)
 		SLATE_END_ARGS()
 
 		/*
@@ -45,6 +45,28 @@ namespace DoDo {
 		* @param InArgs declaration from which to construct the widget
 		*/
 		void Construct(const FArguments& in_args);
+
+		struct FTrackSizeInfo
+		{
+			FTrackSizeInfo(const FGeometry& track_geometry, EOrientation in_orientation, float in_min_thumb_size, float thumb_size_as_fraction_of_track,
+				float thumb_offset_as_fraction_track)
+			{
+				m_biased_track_size = ((in_orientation == Orient_Horizontal) ? track_geometry.get_local_size().x : track_geometry.get_local_size().y) - in_min_thumb_size;
+				const float accurate_thumb_size = thumb_size_as_fraction_of_track * (m_biased_track_size);
+				m_thumb_start = m_biased_track_size * thumb_offset_as_fraction_track;
+				m_thumb_size = in_min_thumb_size + accurate_thumb_size;
+			}
+			
+			float m_biased_track_size;
+			float m_thumb_start;
+			float m_thumb_size;
+			float get_thumb_end()
+			{
+				return m_thumb_start + m_thumb_size;
+			}
+		};
+
+		FTrackSizeInfo get_track_size_info(const FGeometry& in_track_geometry) const;
 
 		virtual void On_Arrange_Children(const FGeometry& allotted_geometry, FArrangedChildren& arranged_children) const override;
 
@@ -59,6 +81,8 @@ namespace DoDo {
 		float get_thumb_size_fraction() const;
 
 		void set_sizes(float in_thumb_offset_fraction, float in_thumb_size_fraction);
+
+		float get_min_thumb_size() const;
 
 	protected:
 		static const int32_t TOP_SLOT_INDEX = 0;

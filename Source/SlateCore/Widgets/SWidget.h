@@ -248,6 +248,9 @@ namespace DoDo
 			return m_hovered_attribute.Get();
 		}
 
+		/*@return true if this widget is directly hovered*/
+		bool is_directly_hovered() const;
+
 	protected:
 		/*
 		 * set the hover state

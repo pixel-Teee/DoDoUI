@@ -2024,9 +2024,9 @@ namespace DoDo
         ++i;
         FLinearColor new_color;
         if(i % 2 == 0)
-            new_color = FLinearColor(static_cast<float>(rand()) / static_cast<float>(RAND_MAX), static_cast<float>(rand()) / static_cast<float>(RAND_MAX), static_cast<float>(rand()) / static_cast<float>(RAND_MAX), 1.0f);
+            new_color = FLinearColor(0.6f, 0.2f, 1.0f, 1.0f);
         else
-            new_color = FLinearColor(static_cast<float>(rand()) / static_cast<float>(RAND_MAX), static_cast<float>(rand()) / static_cast<float>(RAND_MAX), static_cast<float>(rand()) / static_cast<float>(RAND_MAX), 1.0f);
+            new_color = FLinearColor(0.2f, 0.6f, 0.1f, 1.0f);
         return SNew(STableRow<std::shared_ptr<DoDoUtf8String>>, owner_table)
         [
             SNew(SBorder)
@@ -2168,10 +2168,28 @@ namespace DoDo
                           ]
                           + SSplitter::Slot()
                           [
-                              SNew(SListView<std::shared_ptr<DoDoUtf8String>>)
-                              .ListItemSource(&strings)
-                              .OnGenerateRow_Static(&make_list_view_widget)
-                              .ItemHeight(200)
+							  SNew(SVerticalBox)
+							  + SVerticalBox::Slot()
+                              .fill_height(0.1f)
+                              [
+								  SNew(SListView<std::shared_ptr<DoDoUtf8String>>)
+								  .ListItemSource(&strings)
+							      .OnGenerateRow_Static(&make_list_view_widget)
+                              ]
+                              + SVerticalBox::Slot()
+                              .fill_height(0.9f)
+                              [
+								  //SNew(SBox)
+								  //.MinDesiredHeight(670.0f)
+								  //[
+                                   SNew(SBorder)
+                                   .ColorAndOpacity(FLinearColor(0.7f, 0.3f, 0.2, 1.0f))
+                                   [
+                                       SNew(SImage)
+                                   ]
+                                  //]
+                              ]                   
+                              //.ItemHeight(200)
                           ]
                       ]
                    ]			  
@@ -2324,6 +2342,18 @@ namespace DoDo
 
         m_window_destroy_queue.clear();
     }
+
+	bool Application::is_widget_directly_hovered(const std::shared_ptr<const SWidget> widget) const
+	{
+        for (const std::shared_ptr<FSlateUser>& user : m_users)
+        {
+            if (user && user->is_widget_directly_under_any_pointer(widget))
+            {
+                return true;
+            }
+        }
+        return false;
+	}
 
     void Application::process_reply(const FWidgetPath& current_event_path, const FReply& the_reply, const FWidgetPath* widgets_under_mouse, const FPointerEvent* in_mouse_event, const int32_t m_user_index)
     {

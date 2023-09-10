@@ -44,7 +44,10 @@ namespace DoDo {
 		}
 		else
 		{
-			m_scroll_bar = SNew(SScrollBar);
+			m_scroll_bar = SNew(SScrollBar)
+				.OnUserScrolled(this, &STableViewBase::scroll_bar_on_user_scrolled)
+				.Orientation(m_orientation)
+				.Style(in_scroll_bar_style ? in_scroll_bar_style : &FAppStyle::get().get_widget_style<FScrollBarStyle>("ScrollBar"));
 
 			const FOptionalSize scroll_bar_size(16.0f);
 
@@ -156,13 +159,37 @@ namespace DoDo {
 			//todo:call on table view scrolled
 
 			//todo:add request layout refresh
+			request_layout_refresh();
+		}
+	}
+	void STableViewBase::scroll_bar_on_user_scrolled(float in_scroll_offset_fraction)
+	{
+		const double clamped_scroll_offsset_in_items = std::clamp(in_scroll_offset_fraction, 0.0f, 1.0f) * get_num_items_being_observed();
+		scroll_to(clamped_scroll_offsset_in_items);
+	}
+	float STableViewBase::scroll_to(float in_scroll_offset)
+	{
+		const float new_scroll_offset = std::clamp(in_scroll_offset, -10.0f, get_num_items_being_observed() + 10.0f);
+		float amount_scrolled = std::abs(m_desired_scroll_offset - new_scroll_offset);
+
+		set_scroll_offset(new_scroll_offset);
+
+		//todo:add more logic
+
+		return amount_scrolled;
+	}
+	void STableViewBase::request_layout_refresh()
+	{
+		if (!m_b_items_need_refresh)
+		{
+			m_b_items_need_refresh = true;
 		}
 	}
 	void STableViewBase::Tick(const FGeometry& allotted_geometry, const double in_current_time, const float in_delta_time)
 	{
 		if (m_items_panel)
 		{
-			FGeometry panel_geometry = find_child_geometry(allotted_geometry, m_items_panel);
+			FGeometry panel_geometry = find_child_geometry(allotted_geometry, m_items_panel);//bfs to find SListPanel FGeometry
 
 			if (m_b_items_need_refresh || m_panel_geometry_try_last_tick.get_local_size() != panel_geometry.get_local_size())
 			{
@@ -236,6 +263,8 @@ namespace DoDo {
 					const double offset_fraction = 0;
 					m_scroll_bar->set_state(offset_fraction, thumb_size_fraction);
 				}
+
+				m_b_items_need_refresh = false;
 			}
 		}
 	}

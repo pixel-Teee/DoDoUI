@@ -197,6 +197,11 @@ namespace DoDo {
 		return true;
 	}
 
+	bool SWidget::is_directly_hovered() const
+	{
+		return Application::get().is_widget_directly_hovered(shared_from_this());
+	}
+
 	const FGeometry& SWidget::get_paint_space_geometry() const
 	{
 		return m_persistent_state.m_allotted_geometry;

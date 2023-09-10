@@ -40,6 +40,8 @@ namespace DoDo
 
 		bool has_capture(uint32_t pointer_index) const;
 
+		bool is_widget_directly_under_any_pointer(std::shared_ptr<const SWidget> widget) const;
+
 		int32_t get_user_index() const { return m_user_index; }
 
 		glm::vec2 get_cursor_position() const;

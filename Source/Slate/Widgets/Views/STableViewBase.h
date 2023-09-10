@@ -158,6 +158,24 @@ namespace DoDo {
 
 		/*set the scroll offset of this view (in items)*/
 		void set_scroll_offset(const float in_scroll_offset);
+
+		/*
+		* invoked by the scroll bar when the user scrolls
+		* 
+		* @param InScrollOffsetFraction the location to which the user scrolled as a fraction (between 0 and 1) of total height of the content
+		*/
+		void scroll_bar_on_user_scrolled(float in_scroll_offset_fraction);
+
+		/*
+		* scroll the view to an offset and resets the inertial scroll velocity
+		* 
+		* @param InScrollOffset offset into the total list length to scroll down
+		* 
+		* @return the amout actually scrolled
+		*/
+		virtual float scroll_to(float in_scroll_offset);
+
+		void request_layout_refresh();
 	public:
 		//SWidget interface
 

@@ -512,6 +512,14 @@ namespace DoDo
 		* @return the new image widget
 		*/
 		virtual std::shared_ptr<SImage> make_image(const TAttribute<const FSlateBrush*>& image, const TAttribute<FSlateColor>& color, const TAttribute<EVisibility>& visibility) const;
+
+		/*
+		* gets whether or not a particular widget is directly hovered
+		* directly hovered means that the widget is directly under the pointer, is not true for ancestors they are hovered
+		* 
+		* @return true if the widget is directly hovered, otherwise false
+		*/
+		virtual bool is_widget_directly_hovered(const std::shared_ptr<const SWidget> widget) const;
 	protected: 
 		//holds the slate renderer used to render this application
 		std::shared_ptr<Renderer> m_renderer;

@@ -5,6 +5,11 @@
 #include "SlateCore/Styling/SlateTypes.h"//FScrollBarStyle depends on it
 
 namespace DoDo {
+	DECLARE_DELEGATE_OneParam(
+		FOnUserScrolled,
+		float
+	); //scroll offset as a fraction between 0 and 1
+
 	class SScrollBarTrack;
 	class SSpacer;
 	class SImage;
@@ -19,8 +24,9 @@ namespace DoDo {
 			, _Padding(2.0f)
 		{}
 			/*the style to use for this scrollbar*/
-			SLATE_STYLE_ARGUMENT(FScrollBarStyle, Style)
+		SLATE_STYLE_ARGUMENT(FScrollBarStyle, Style)
 			//todo:add FOnUserScrolled
+			SLATE_EVENT(FOnUserScrolled, OnUserScrolled)
 
 			SLATE_ARGUMENT(EOrientation, Orientation)
 			SLATE_ARGUMENT(EFocusCause, DragFocusCause)
@@ -47,6 +53,10 @@ namespace DoDo {
 		*/
 		void set_state(float in_offset_fraction, float in_thumb_size_fraction);
 
+		virtual FReply On_Mouse_Button_On_Up(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+		virtual FReply On_Mouse_Button_On_Down(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+		virtual FReply On_Mouse_Move(const FGeometry& my_geometry, const FPointerEvent& mouse_event) override;
+
 		/*set argument style*/
 		void set_style(const FScrollBarStyle* in_style);
 
@@ -54,7 +64,12 @@ namespace DoDo {
 		float distance_from_top() const;
 
 		float distance_from_bottom() const;
+
+		SScrollBar();
 	protected:
+
+		/*execute the on user scrolled delegate*/
+		void execute_on_user_scrolled(const FGeometry& my_geometry, const FPointerEvent& mouse_event);
 
 		std::shared_ptr<SImage> m_top_image;
 
@@ -62,10 +77,17 @@ namespace DoDo {
 
 		std::shared_ptr<SBorder> m_drag_thumb;
 
+		bool m_b_dragging_thumb;
+
+		EFocusCause m_drag_focus_cause;
+
 		std::shared_ptr<SSpacer> m_thickness_spacer;
 
 		std::shared_ptr<SScrollBarTrack> m_track;
+		FOnUserScrolled m_on_user_scrolled;
 		EOrientation m_orientation;
+
+		float m_drag_grab_offset;
 
 		/*image to use when the scrollbar thumb is in its normal state*/
 		const FSlateBrush* m_normal_thumb_image;
