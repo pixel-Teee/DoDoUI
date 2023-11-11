@@ -25,6 +25,7 @@
 #endif
 
 #include "Core/Window.h"
+#include "Core/GenericPlatform/GenericPlatformMisc.h"
 
 #include "Platform/VulkanRenderer/VulkanLogicDevice.h"
 #include "Platform/VulkanRenderer/VulkanSwapChain.h"
@@ -219,8 +220,12 @@ namespace DoDo {
         m_vertex_shader_module = Shader::Create("vert.spv", m_p_logic_device->get_native_handle());
         m_fragment_shader_module = Shader::Create("frag.spv", m_p_logic_device->get_native_handle());
 #else
-        m_vertex_shader_module = Shader::Create("Shader//vert.spv", m_p_logic_device->get_native_handle());
-        m_fragment_shader_module = Shader::Create("Shader//frag.spv", m_p_logic_device->get_native_handle());
+        DoDoUtf8String EnginePath = FGenericPlatformMisc::engine_dir();
+        DoDoUtf8String VertPath = EnginePath / "Shader/vert.spv";
+        DoDoUtf8String FragPath = EnginePath / "Shader/frag.spv";
+
+        m_vertex_shader_module = Shader::Create(VertPath.c_str(), m_p_logic_device->get_native_handle());
+        m_fragment_shader_module = Shader::Create(FragPath.c_str(), m_p_logic_device->get_native_handle());
 #endif
 
         m_pipeline_state_object = PipelineStateObject::Create(m_p_logic_device->get_native_handle());
